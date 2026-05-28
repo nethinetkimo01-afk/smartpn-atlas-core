@@ -1,0 +1,29 @@
+﻿{
+  "version": "1.0",
+  "scenario_tables": {
+    "purpose": "BEFORE/AFTER comparison HTML",
+    "background": "#000000",
+    "text": "#ffffff",
+    "highlight": "#deff9a",
+    "highlight_rule": "ONLY for Unified ID",
+    "border": "#222222",
+    "header_text": "#666666",
+    "fonts": {
+      "title": "Urbanist 700",
+      "body": "Inter 400"
+    },
+    "rowspan_rule": "Calculate N before rendering. Output Rowspan table for confirmation first."
+  },
+  "website_saas": {
+    "purpose": "Official website and SaaS Demo UI",
+    "background": "white / cream",
+    "main_tone": "Taupe #54463A",
+    "style": "clean, professional, icon-led, executive-readable, one page one message"
+  },
+  "demo_data_rule": {
+    "principle": "If 10 is enough, do not use 100",
+    "forbidden": "Do not invent supplier count, material count, company names, ID format",
+    "consistency": "Scenario PPT numbers must match demo software numbers exactly"
+  },
+  "ppt_demo_rule": "PPT = Demo = Source-of-Truth. Field names, mock data, colors must match exactly."
+}

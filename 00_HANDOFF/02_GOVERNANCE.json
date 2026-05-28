@@ -1,0 +1,33 @@
+﻿{
+  "version": "1.0",
+  "last_updated": "2026-05-28",
+  "identity_split": {
+    "trigger": "Multiple Local IDs from different sources pointing to the same SPU.",
+    "rule": "Preserve all Local IDs. Map to single Unified ID. Never force ERP change.",
+    "conflict_handling": "Flag for audit. Do not auto-merge."
+  },
+  "permission_rules": {
+    "authorization_atom": "SPU is mandatory atomic unit. No exceptions.",
+    "sku_policy": "SKU = child attribute. Inherits from SPU. Cannot be independent authorization unit.",
+    "access_control": "Filter at DB query level by User Role.",
+    "visibility": "Shared does not mean fully open. Supplier controls visibility.",
+    "request_rule": "Request does not mean automatic access. Supplier owns release decision."
+  },
+  "status_machine": ["Draft", "Pending Review", "Approved", "Published", "Authorized"],
+  "bom_layers": {
+    "shared": "Planning layer",
+    "actual": "Execution layer",
+    "dpp": "Output layer"
+  },
+  "secondary_processing": {
+    "definition": "Material + Material = New Material / New SmartPN",
+    "allow_a": "InputCount >= 2",
+    "allow_b": "InputCount = 1 AND StructureChanged = true",
+    "output_quantity": "Always 1",
+    "example": {
+      "input": "44 inch material",
+      "output": "22 inch material",
+      "ratio": 0.5
+    }
+  }
+}

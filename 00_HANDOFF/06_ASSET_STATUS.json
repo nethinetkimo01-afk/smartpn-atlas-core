@@ -1,0 +1,55 @@
+﻿{
+  "version": "1.0",
+  "last_updated": "2026-05-28",
+  "note": "DONE=ready / TODO=not built / VERIFY=exists unverified / IN_PROGRESS=in progress",
+  "constitution": {
+    "product_identity": "DONE",
+    "naming_rules": "DONE",
+    "governance_logic": "DONE",
+    "visual_scenario_tables": "DONE",
+    "visual_website_saas": "DONE"
+  },
+  "scenarios": {
+    "S01": { "title": "DONE", "after_html": "DONE", "before_html": "TODO", "ppt": "TODO", "demo_screen": "TODO" },
+    "S02": { "title": "DONE", "after_html": "TODO", "before_html": "TODO", "ppt": "TODO", "demo_screen": "TODO" },
+    "S03": { "title": "DONE", "after_html": "TODO", "before_html": "TODO", "ppt": "TODO", "demo_screen": "TODO" },
+    "S04": { "title": "DONE", "after_html": "TODO", "before_html": "TODO", "ppt": "TODO", "demo_screen": "TODO" },
+    "S05": { "title": "DONE", "after_html": "TODO", "before_html": "TODO", "ppt": "TODO", "demo_screen": "TODO" },
+    "S06": { "title": "DONE", "after_html": "TODO", "before_html": "TODO", "ppt": "TODO", "demo_screen": "TODO" },
+    "S07": { "title": "DONE", "after_html": "TODO", "before_html": "TODO", "ppt": "TODO", "demo_screen": "TODO" },
+    "S08": { "title": "DONE", "after_html": "TODO", "before_html": "TODO", "ppt": "TODO", "demo_screen": "TODO" },
+    "S09": { "title": "DONE", "after_html": "TODO", "before_html": "TODO", "ppt": "TODO", "demo_screen": "TODO" },
+    "S10": { "title": "DONE", "after_html": "TODO", "before_html": "TODO", "ppt": "TODO", "demo_screen": "TODO" },
+    "S11": { "title": "DONE", "after_html": "TODO", "before_html": "TODO", "ppt": "TODO", "demo_screen": "TODO" },
+    "S12": { "title": "DONE", "after_html": "TODO", "before_html": "TODO", "ppt": "TODO", "demo_screen": "TODO" },
+    "S13": { "title": "DONE", "after_html": "TODO", "before_html": "TODO", "ppt": "TODO", "demo_screen": "TODO" },
+    "S14": { "title": "DONE", "after_html": "TODO", "before_html": "TODO", "ppt": "TODO", "demo_screen": "TODO" },
+    "S15": { "title": "DONE", "after_html": "TODO", "before_html": "TODO", "ppt": "TODO", "demo_screen": "TODO" },
+    "S16": { "title": "DONE", "after_html": "TODO", "before_html": "TODO", "ppt": "TODO", "demo_screen": "TODO" },
+    "S17": { "title": "DONE", "after_html": "TODO", "before_html": "TODO", "ppt": "TODO", "demo_screen": "TODO" }
+  },
+  "automation": {
+    "A1_linkedin_radar": "VERIFY",
+    "A2_linkedin_checkin": "VERIFY",
+    "A3_website_monitor": "VERIFY",
+    "A4_linkedin_publish": "TODO",
+    "A5_linkedin_reply": "TODO",
+    "A6_website_sync": "TODO",
+    "A7_n8n_approval": "TODO",
+    "A8_demo_baseline": "VERIFY",
+    "A9_demo_patch": "TODO"
+  },
+  "website": {
+    "production_site": "DONE",
+    "github_repo_smartpn_site": "DONE",
+    "github_repo_smartpn_atlas_core": "DONE",
+    "netlify_deploy": "DONE",
+    "homepage_html": "DONE",
+    "insights_section": "DONE"
+  },
+  "content": {
+    "article_01": "DONE",
+    "article_02": "DONE",
+    "article_03_onwards": "TODO"
+  }
+}
