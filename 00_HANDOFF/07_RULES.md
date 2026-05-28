@@ -45,3 +45,9 @@ Rules checked: naming / existing assets / personal-post filter / production safe
 5. SaaS Prototype
 6. LinkedIn / Website Automation
 7. Outreach Writing
+  
+## Self-Governance Rule (Added 2026-05-28)  
+When a new definition, method, or handoff document is needed:  
+STOP. WRITE IT DOWN. PUSH TO GITHUB. THEN CONTINUE.  
+Do not wait until end of session. Do not rely on chat memory.  
+Every confirmed rule must be in GitHub before moving to next task.  
