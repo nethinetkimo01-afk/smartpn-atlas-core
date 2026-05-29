@@ -180,3 +180,11 @@ Jim presentation script logic:
 3. After SmartPN Atlas: Shared BOM. Same code, same name = confirmed same material.
 4. Factory B changed one material. Price difference visible. Supply chain transparent.
 5. Hidden profit revealed.
+  
+  
+## S02 Data Confirmed  
+Brand code = A  
+Factory A code = B  
+Factory B code = C  
+After SmartPN Atlas: all become A  
+Factory B row 3: change-code / change-name / $0.90 in red  
