@@ -1,1 +1,56 @@
-﻿# SmartPN Atlas — PPT + Demo Design Constitution`nVersion: v1.0 2026-05-28`n`n## Three Design Principles`n`nPrinciple 1: One Glance Understanding`nSimple numbers, simple cards, simple contrast.`nCustomer brain is for thinking whether this helps their company, not for reading data.`n`nPrinciple 2: PPT = Demo Interface`nPPT slides and Demo screens must look identical.`nCustomer sees PPT then opens Demo - must feel like the same product.`n`nPrinciple 3: Eliminate Unfamiliarity`nDesign language references Amazon / shopping websites.`nSearch bar, cards, filters, compare - things customers use every day.`n`n## Demo Visual Direction`nBackground: WHITE (not black)`nStyle: Shopping website (Amazon / eBay reference)`nDark background version: REJECTED for Demo and PPT`nBlack background + lime green: ONLY for internal scenario comparison tables`n`n## Correct Workflow`nDemo screen design FIRST`nPPT = screenshot from Demo`nBoth must be identical`n`n## S01 Status`nFormal title: Brand obtains a larger, more current, more accurate, more complete, and permission-controlled material library.`nShort presentation title: Complete, Timely, and Private Material Library`nGemini black version: logic correct, visual REJECTED (no demo alignment)`nNew version: TODO - white background, shopping website style`n`n## S01 Presentation Script (Jim style)`nShort English + visual = let audience think`nStructure:`n1. State result first`n2. Table shows numbers (2 items to 4 items, Past to Today)`n3. Explain why (Supplier self-maintains)`n4. Shared Language meaning`n5. Permission control demo (4 visible, only 1 open)`nThen wait for questions. No questions = next scenario.`n`n## New Session Startup Prompt`nPaste this at start of every new Claude conversation:`n`nPlease read these GitHub files first, confirm all specs, then begin work:`nhttps://github.com/nethinetkimo01-afk/smartpn-atlas-core/blob/main/00_HANDOFF/00_ENTRY_POINT.md`nhttps://github.com/nethinetkimo01-afk/smartpn-atlas-core/blob/main/00_HANDOFF/01_CONSTITUTION.md`nhttps://github.com/nethinetkimo01-afk/smartpn-atlas-core/blob/main/00_HANDOFF/02_GOVERNANCE.json`nhttps://github.com/nethinetkimo01-afk/smartpn-atlas-core/blob/main/00_HANDOFF/03_VISUAL.json`nhttps://github.com/nethinetkimo01-afk/smartpn-atlas-core/blob/main/00_HANDOFF/04_SCENARIOS.md`nhttps://github.com/nethinetkimo01-afk/smartpn-atlas-core/blob/main/00_HANDOFF/07_RULES.md`nhttps://github.com/nethinetkimo01-afk/smartpn-atlas-core/blob/main/00_HANDOFF/08_PPT_DEMO_DESIGN.md
+﻿# SmartPN Atlas ??PPT + Demo Design Constitution
+Version: v1.0 | 2026-05-28
+Status: Locked
+
+## Three Design Principles
+
+### Principle 1: One Glance Understanding
+Simple numbers, simple cards, simple contrast.
+Customer brain is for thinking whether this helps their company, not for reading data.
+If the customer needs to read a paragraph to understand, the slide has failed.
+
+### Principle 2: PPT = Demo Interface
+PPT slides and Demo screens must look identical.
+Customer sees PPT, then opens Demo ??must feel like the same product.
+PPT is a screenshot from Demo. Not a separate design.
+
+### Principle 3: Eliminate Unfamiliarity
+Design language references Amazon / eBay / hotel booking websites.
+Search bar, cards, filters, compare ??things customers use every day.
+Reduce resistance to new system adoption.
+If it looks like ERP, it has failed.
+
+## Demo Visual Direction
+- Background: WHITE (not black)
+- Style: Shopping website (Amazon / eBay reference)
+- Dark background + lime green: ONLY for internal scenario comparison tables
+- Black background version: REJECTED for Demo and PPT
+
+## Correct Workflow
+1. Demo screen design FIRST
+2. PPT = screenshot from Demo
+3. Both must be identical at all times
+4. If PPT and Demo differ, both are not client-ready
+
+## S01 Status
+- Formal title: Brand obtains a larger, more current, more accurate, more complete, and permission-controlled material library.
+- Short presentation title: Complete, Timely, and Private Material Library
+- Gemini black version: logic CORRECT, visual REJECTED (no demo alignment, wrong background)
+- New version: TODO ??white background, shopping website style, demo-aligned
+
+## S01 Presentation Script (Jim style)
+Short English + visual = let audience think.
+
+Structure:
+1. State result first
+2. Table shows numbers (2 items to 4 items, Past to Today)
+3. Explain why (Supplier self-maintains)
+4. Shared Language meaning
+5. Permission control demo (4 visible, only 1 open)
+Then wait for questions. No questions = next scenario.
+
+## Forbidden
+- Do not design Demo or PPT that looks like ERP
+- Do not use black background for Demo or PPT
+- Do not make PPT separately from Demo
+- Do not use dense data tables as main visual
