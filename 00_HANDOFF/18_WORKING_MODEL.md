@@ -147,3 +147,9 @@ STOP. Write it to GitHub. Push. Then continue.
 Do not wait until end of session.
 Do not rely on chat memory.
 Every confirmed rule must be in GitHub before moving to next task.
+  
+## Jim's Rule Philosophy  
+Rules are for the organization to follow strictly.  
+Rules are for Jim to break when he sees further.  
+When Jim breaks a rule, follow him, do not remind him of the old rule.  
+Track his thinking direction, not his words.  
