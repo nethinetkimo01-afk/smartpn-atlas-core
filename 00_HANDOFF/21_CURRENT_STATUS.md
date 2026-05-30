@@ -1,20 +1,21 @@
 ﻿# SmartPN Atlas ??Current Status
-Version: updated 2026-05-30 end of day
+Version: updated 2026-05-30 end of session 2
 Purpose: New session Claude reads this first to know exactly where to continue.
 
 ---
 
-## Where We Stopped
+## Completed Today
 
-Working on outreach to Shoe-In Show (Matt Priest / FDRA / Sandi Mines).
-
-Jim wrote a cold outreach email in Chinese. GPT translated it but lost Jim's casual, honest, confident tone. Claude in this session helped rewrite it but session ended before final confirmation.
-
-The email draft is partially confirmed but needs final review and adjustment.
+1. Entry point upgraded to v2 with mandatory verification test
+2. Working model locked (Claude = central brain, tool assignment logic)
+3. Jim external persona locked (governance layer, not government layer)
+4. GTM strategy locked (outreach intelligence system, key people map)
+5. Writing rules locked (hooks, ALL CAPS, logic chain, CEO perspective)
+6. Shoe-In email CONFIRMED and READY TO SEND
 
 ---
 
-## The Shoe-In Email ??Current Draft
+## Shoe-In Email (Final Confirmed Version)
 
 Subject: An innovative concept I'd love to share on Shoe-In
 
@@ -24,78 +25,97 @@ My name is Jim, from Taiwan.
 
 I'm not sure if writing this email is the right decision ??but I sincerely hope it is.
 
-I'd like to share an innovative concept and solution that I hope, after reading this, you'll also find interesting.
+I want to share a problem that everyone in the footwear and apparel industry knows exists, but hasn't truly solved. And I want to share an INNOVATIVE CONCEPT AND SOLUTION ??I hope after reading this, you'll feel the same way.
 
-Today, the footwear manufacturing supply chain is still in what I call a "Standard Zero Zone." The same material has different codes and different names across the brand, the factory, and the supplier. No shared language.
+Today, the footwear and apparel manufacturing supply chain is still in what I call the "STANDARD ZERO ZONE."
 
-You might think: just give every material a barcode. I agree ??that direction is correct. But it only solves half the problem.
+The same material has different codes and different names across the brand, the factory, and the supplier.
 
-Why? Because a barcode means 100% open data. Pick up a shoe, scan it, and everything behind it is visible. No brand will accept that. No supplier will accept that. No one wants competitors seeing their material specs, prices, or confidential formulas.
+In other words ??no SHARED LANGUAGE.
 
-So the real innovation isn't just creating a shared language. It's creating a shared language with a governance layer ??where you see only what you're authorized to see.
+You might think: just give every material a barcode, and the problem is solved.
 
-This is what I'm building: SmartPN Atlas.
+The direction is correct. But it only solves half the problem.
 
-A little about myself: I have around 20 years of experience on the manufacturing side of the footwear industry. My most important experience was standardizing the operating process of a footwear manufacturing group and converting it into PDM and ERP systems. That experience is why I know this problem is real ??and why I believe this solution can work.
+Why? Because a barcode means 100% open data. For example, we pick up a shoe and scan it ??all the information becomes visible. That works for consumers. But in the manufacturing side?
 
-I'd love the opportunity to share this on Shoe-In. One honest thing: my English is daily-conversation level, so a live interview might be challenging. But I'm happy to prepare carefully, use simple English, or record something in advance.
+Definitely not.
 
-Thank you for reading this.
+NO ONE WOULD LIKE TO SHARE THEIR BUSINESS SECRETS.
+
+This is exactly why the industry is still in the STANDARD ZERO ZONE.
+
+So the real innovation is not just SHARED LANGUAGE.
+
+It's SHARED LANGUAGE + GOVERNANCE LAYER ??where you see only what you're authorized to see.
+
+That is what I'm building: SmartPN Atlas.
+
+With a GOVERNANCE LAYER, suppliers are comfortable maintaining accurate data ??because their confidential formulas, product details, and pricing are protected from competitors. This creates a TRUSTED UPSTREAM SOURCE.
+
+For brands, this means a more complete and more timely material library. More importantly, brands take back control of the manufacturing side. Right now, you don't know if factories are using 100% correct materials. With SHARED LANGUAGE established, a factory cannot use the wrong material ??unless intentionally.
+
+And when production transfers to a new country or a new factory? No need to worry. The material identity is already there.
+
+If you are a CEO of a brand group ??with multiple brands and multiple product lines ??imagine how much this changes for you.
+
+A little about myself: I have around 20 years of experience on the manufacturing side of the footwear industry. My most meaningful achievement was standardizing the full operating process of a footwear manufacturing group and building it into PDM and ERP systems. That experience is why I know this problem is real ??and why I believe this solution can work.
+
+I'd love the opportunity to share this on Shoe-In.
+
+One honest note: my English is daily-conversation level, so a live interview might be challenging. But if I get this chance, I'll find a way ??simple English, or a pre-recorded segment.
+
+Because for me, building SmartPN Atlas isn't just about business.
+
+If one day the industry proves this solution works ??
+WOW.
+
+I look forward to your response.
 
 Jim
 Founder, SmartPN Atlas
-https://smartpn.com.tw
+https://www.linkedin.com/in/jim-k-969579339/
 
 ---
 
-## Jim's Feedback on This Draft (Not Yet Resolved)
+## Send To
 
-1. The ending about English level sounds like an apology ??needs to be more confident
-2. The original Chinese had a "WOW" feeling ??not preserved in current draft
-3. Jim wants to adjust further ??"one item at a time"
-4. Session ended before adjustments were made
+Shoe-In Show contact ??need to find direct email
+Matt Priest FDRA: fdracomms@cgagroup.com (FDRA PR, secondary option)
+Action: search for Shoe-In Show direct contact before sending
 
 ---
 
 ## Next Steps (Priority Order)
 
-1. IMMEDIATE: Finalize Shoe-In email with Jim, one adjustment at a time
-2. Find Shoe-In direct contact email (not FDRA PR email)
-3. Research Jasmin Malik Chua recent articles ??produce standard intelligence report
-4. Draft Sourcing Journal outreach based on resonance point
-5. S02 PPT final confirmation ??Jim to review SmartPN_S02_clean.pptx
-6. Continue S03-S17 PPT (after S02 confirmed)
-7. LinkedIn S02 image and post
+1. Find Shoe-In Show direct contact email and send confirmed email
+2. Research Jasmin Malik Chua recent articles ??produce standard intelligence report format
+3. Draft Sourcing Journal outreach based on resonance point
+4. S02 PPT final confirmation ??Jim to review SmartPN_S02_clean.pptx
+5. Continue S03-S17 PPT after S02 confirmed
+6. LinkedIn S02 post and image
+7. Official website /insights/ page
 
 ---
 
-## Confirmed Key Decisions From Last Session
+## Key Rules Locked Today
 
-- Governance layer (correct) / government layer (wrong) ??always use governance
-- Outreach logic: research target first, find resonance, then draft ??never draft blind
-- Test method before automating ??currently in manual testing phase
-- Matt Priest entry angle: brand transferring production due to tariffs needs fast sampling
-  ??Shared BOM enables correct sampling ??but barcode = 100% open = risk
-  ??Standard Zero Zone exists because of this ??SmartPN Atlas = governance layer
-- Shoe-In is casual/grassroots podcast ??Jim's tone must match: honest, direct, not selling
-- Jim wrote original in Chinese because GPT translation loses his voice
-  ??Claude must preserve Jim's original tone when rewriting
-
----
-
-## Pending Items Not Yet Actioned
-
-- S02 PPT clean version (SmartPN_S02_clean.pptx) ??Jim has not confirmed yet
-- Jasmin Malik Chua intelligence report ??not done yet
-- LinkedIn S02 post and image ??not done yet
-- Automation design for outreach intelligence ??not done yet (testing phase first)
-- Website /insights/ page ??pending
+- governance layer (correct) / government layer (WRONG)
+- Writing: ALL CAPS for key concepts that must stop reader's eye
+- Logic chain sequence must never be reordered or skipped
+- Reader simulation: write for scanner first, deep reader second
+- Hooks at end or beginning of paragraphs, never buried in middle
+- Benefits must be concrete, written from CEO perspective
+- Signature: LinkedIn only until website is ready, no email
+- Jim's sequence: problem ??obvious solution ??why not enough ??hidden risk ??real innovation ??SmartPN Atlas ??benefits ??about Jim ??ask ??honest note ??WOW
+- Never make Jim do the completeness check ??Claude's job
+- Test method before automating ??currently manual testing phase
 
 ---
 
 ## GitHub Status
 
-Total files: 21
-Last push: 20_GTM_STRATEGY.md
-Token: stored separately, do not write in any file
+Total files: 23
+Last confirmed push: writing rules
 Repo: https://github.com/nethinetkimo01-afk/smartpn-atlas-core
+Token: stored separately, do not write in any file
