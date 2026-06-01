@@ -1,45 +1,25 @@
 ﻿# SmartPN Atlas ??Current Status
-Version: updated 2026-05-30 end of session 3
+Version: updated 2026-06-01
 Purpose: New session Claude reads this first to know exactly where to continue.
 
 ---
 
-## Completed Today
-
-1. Entry point upgraded to v2 with mandatory verification test
-2. Working model locked
-3. Jim external persona locked
-4. GTM strategy locked
-5. Writing rules locked (22_WRITING_RULES.md)
-6. Outreach automation definition locked (23_OUTREACH_AUTOMATION.md)
-7. Shoe-In email confirmed and sent by Jim
-8. Kate Nishimura (Sourcing Journal) draft ready
-9. Make automation built and running daily at 20:00 Bangkok time
-10. Google Sheet connected and receiving results
-
----
-
-## Make Automation Status
+## Make Automation Status (CONFIRMED WORKING)
 
 Scenario name: smartpn-outreach-intelligence
-Schedule: Daily at 20:00 Asia/Bangkok
+Schedule: Daily at 08:00 Asia/Bangkok
 Status: ACTIVE
-
-Flow:
-HTTP (Claude API) ??Google Sheets (Add a Row)
-
-Claude API Key: stored in Make, do not write in any fileModel: claude-haiku-4-5-20251001
+Flow: HTTP (Claude API) ??JSON Parse ??Google Sheets (Add a Row)
+Result: Each target gets its own row with all fields correctly populated
 
 Google Sheet: https://docs.google.com/spreadsheets/d/1i9WgKNj5-ueNrP5ZCit9Cghug0BL2bJ_hbOSoSQchXU
-
-Known issue: All 3 targets outputting in same row. Need to fix JSON parsing to split into separate rows. Fix next session.
 
 ---
 
 ## Confirmed Drafts Ready to Send
 
 1. Shoe-In Show ??SENT by Jim
-2. Kate Nishimura (Sourcing Journal Deputy Editor) ??DRAFT READY
+2. Kate Nishimura (Sourcing Journal Deputy Editor) ??DRAFT READY, pending Jim review
 
 Kate Nishimura Draft:
 
@@ -87,19 +67,17 @@ https://www.linkedin.com/in/jim-k-969579339/
 
 ## Next Steps (Priority Order)
 
-1. Fix Make automation: split 3 targets into separate rows (JSON parsing fix)
-2. Jim reviews Google Sheet results and decides what to send
-3. Send Kate Nishimura draft
-4. S02 PPT final confirmation ??review SmartPN_S02_clean.pptx
-5. Continue S03-S17 PPT
-6. LinkedIn S02 post and image
-7. Website /insights/ page
+1. Jim reviews Google Sheet daily results and decides what to send
+2. Send Kate Nishimura draft
+3. S02 PPT final confirmation ??review SmartPN_S02_clean.pptx
+4. Continue S03-S17 PPT
+5. LinkedIn S02 post and image
+6. Website /insights/ page
 
 ---
 
 ## GitHub Status
 
 Total files: 23
-Last push: outreach automation definition
 Repo: https://github.com/nethinetkimo01-afk/smartpn-atlas-core
 Token: stored separately, do not write in any file
