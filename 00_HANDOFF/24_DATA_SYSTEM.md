@@ -1,96 +1,207 @@
-﻿# Data System ???折?豢??芸?????
-Version: v1.1 | 2026-06-02
-Status: ?嗆?撌脩Ⅱ摰??豢?皞?蝢拚脰?銝?Purpose: ?啣?閰?Claude 霈甇斗?隞塚?敺?甈∠????唳蝜潛???
----
+﻿# Data System - Internal Data Automation Project
 
-## ??
-
-? Jim ?砍??冽???蝟餌絞嚗? SmartPN Atlas ?⊿???Jim 鞎痊閬?靘??銵函?????鞎痊?亙虜蝬剛風鞈???
----
-
-## 蝟餌絞?嗆?嚗歇蝣箏?嚗???隢?
-
-?函蔡?孵?嚗蝬脖撩?嚗ocal Server嚗???嚗齒?砍恕?典??餉?∪??函雯頝荔?雿???函雯頝?隡箸??剁?颲血摰支??圈?????餉
-?銵ㄖ嚗ython + Flask + SQLite
-????嚗汗?券??抒雯蝬脣?嚗??摰?隞颱?頠?
-
-```
-靘?撅歹?蝟餌絞撠嚗xcel嚗? ?極頛詨嚗?鈭箏???璆哨?
-    ??撠撅歹??汗?函??ｇ?銝瑼? / 憛怨”??/ ?亦?撠???
-    ??隡箸??典惜嚗ython 頝???渲蕭頩扎??亥???    ???豢?摨怠惜嚗QLite嚗蜓銵?+ 霈閮?銵剁?
-    ???梯”撅歹?Jim ?捱蝑??ｇ??芣? Jim ??
-```
+Version: v1.3 | 2026-06-02
+Status: DS-01 DS-02 confirmed, DS-03 field analysis complete
+Purpose: New Claude session reads this file to continue from last point.
 
 ---
 
-## 閫?極嚗歇蝣箏?嚗?
-| 閫 | 鞎痊 |
-|------|------|
-| Jim | 摰儔?豢?皞?蝢抵??亥??身閮銵具?瘙箇? |
-| ?? | 銝蝟餌絞撠瑼???撌亙‵銵函雁霅瑁???|
+## Background
+
+Internal data automation system for Jim's company. NOT related to SmartPN Atlas.
+Jim: defines data sources and reports.
+Team: daily data maintenance (data entry, file uploads).
 
 ---
 
-## ?詨?璈嚗歇蝣箏?嚗?
-**?駁????渲蕭頩歹?**
-- 瘥???函?摰儔?臭??潸??交?雿???Jim ??摰儔嚗?- ?啣?鞈? ???湔撖怠銝餉”嚗?閮?
-- 撌脣??其??批捆霈 ???湔銝餉” + 撖怠霈閮?銵?- 摰?? ??頝喲?
+## System Architecture (CONFIRMED)
 
-**甈???嚗甈??迂嚗??其?蝵柴?* 甈????航?寡?嚗?蝔曹?霈?
-**?遢嚗?*
-- 瘥摰??芸??遢 SQLite ?游?澈
-- ?遢摮撩??函?鞈?憭橘?靽?憭拇敺?
-
-**?梯”璈嚗撅歹?嚗?*
-
-| 撅斤? | 隤芣? |
-|------|------|
-| ?箏??梯” | Jim 蝣箄?敺?甇???梯”嚗蜓? Tab嚗???|
-| ?Ｙ揣?? | Jim ?芰??甈???蝝???蝣箄?敺??潛?箏??梯” |
-
-?梯”??舀嚗? Tab??蝝???甈?嚗雁摨佗?敶蜇?孵?嚗??萄??澆摰銵?
----
-
-## ?豢?皞閮?
-
-### DS-01嚗P嚗eason Plan嚗?
-**撌乩?銵典?蝔梧?** `{Season} SP{N}-EVM`嚗?嚗W26 SP7-EVM嚗?**?豢?憿?嚗?* 蝟餌絞撠嚗xcel (.xlsx)嚗撘摰?**閬芋嚗?* ~6,383 銵?? 76 甈?FW26 SP7 ?箔?嚗?
-**甈?蝢斤?嚗?*
-
-| 蝢斤? | 銝餉?甈? |
-|------|----------|
-| ?Ｗ?霅 | RecordID, Article ID, Article DESC, Model |
-| 靘???| GT1 FSC/Code, RT1 FSC/Code, GT1 LO, GT1 Group, GT1 COO |
-| ?Ｗ?撅祆?| Division, Product Type DESC, Gender, Construction type, Technology Concept |
-| 撣 | Market Group, Market (level 1~3), Forecast Customer Description, Forecast Customer No |
-| ?? | Marketing Season, Production Season, Calendar Month, CRD Month |
-| ?賊? | Metric, Total, Offered Capacity |
-
-**霅閬?嚗歇蝣箏?嚗?**
-- 銝駁嚗Article ID` + `Product Type DESC` + `Calendar Month`
-- ?賊?甈?`Total`嚗?蝮踝?
-- 甈???嚗甈??迂嚗??其?蝵?
-**敺?Jim 摰儔嚗?*
-- ???瘙??箏??梯”?批捆
-- 撠?餌?
+Deployment: Internal LAN server
+Server: One always-on office PC
+Tech stack: Python + Flask + SQLite
+Team access: Browser via LAN URL, no software needed
+Flow: Source -> Import UI -> Python server -> SQLite -> Jim report dashboard
 
 ---
 
-### DS-02 隞亙?
+## Core Mechanisms (CONFIRMED)
 
-敺?Jim ??
+Dedup and change tracking:
+- Each data source has its own primary key (Jim defines separately)
+- New record: write to master table, no log
+- Existing record changed: update master + log all changed fields (old, new, field name, timestamp)
+- Exact duplicate: skip
+- Field matching: always by NAME not position
+
+Backup: Daily automatic full SQLite backup, retention days TBD
+
+Reports:
+- Fixed: Jim-approved tabs, auto-updated
+- Exploratory pivot: Jim freely pivots, promotes to fixed when satisfied
 
 ---
 
-## 銝活撠店韏琿?
+## Save Protocol
 
-1. 蝜潛??園? DS-02...N
-2. Jim 摰儔 DS-01 ???瘙??箏??梯”
-3. ????摰儔摰?嚗?憪身閮??亦??Ｗ?隡箸??冽瑽敦蝭
+24_DATA_SYSTEM.md update method (ONLY method):
+1. Claude outputs full file content
+2. Jim opens https://github.com/nethinetkimo01-afk/smartpn-atlas-core/blob/main/00_HANDOFF/24_DATA_SYSTEM.md
+3. Click pencil icon to edit
+4. Select all, delete, paste new content
+5. Commit
+
+Other files: cd /d D:\smartpn-atlas-core && git add . && git commit -m "desc" && git push https://[TOKEN]@github.com/nethinetkimo01-afk/smartpn-atlas-core.git main
 
 ---
 
-## 撠?Claude ??隞?
-- 瘥活撠店??敹?霈甇斗?隞?- ?嗆?撌脩Ⅱ摰?銝??閮?
-- Jim 隤芥匱蝥?DATA SYSTEM?停敺?甈∪?閰梯絲暺??
-- ?瘙箏?蝡?? ps1 ?單嚗im 銝??瑁?敺 cmd push
+## Data Source Registry
+
+### DS-01: SP (Season Plan)
+
+Sheet: {Season} SP{N}-EVM (e.g. FW26 SP7-EVM)
+Type: System export, Excel, fixed format, ~6383 rows x 76 cols
+Primary key (CONFIRMED): Article ID + Product Type DESC + Calendar Month
+Quantity: Total (sum)
+Field matching: by name, not position
+Pending: Analysis requirements, import frequency
+
+---
+
+### DS-02: FOB Price List
+
+Type: System export, Excel, fixed format, ~4193 rows x 30 cols
+Fields: Model #, Model Name, Silhouette Number, Article #, Factory, Season,
+  Category, O/S Tooling, EVA M/S Tooling, LC Total, LC CTB, Cutting,
+  Stitching, Stockfitting, Assembly, (S) variants, Stage, Valid From,
+  LC Treatments, Shoe Construction, Remark, Created By/Date, Modified By/Date
+Primary key (CONFIRMED): Article # (ART) - also cross-table join key
+Change tracking: ALL fields
+Field matching: by name, not position
+Pending: Analysis requirements, import frequency
+
+---
+
+### DS-03: IE/LC Operation Breakdown (OB)
+
+Type: Manual input via web interface (replaces Excel entry)
+File format: One Excel file per style per production run
+Sheets per file: SUM, Cutting, Stitching (main + sub flows), Assembly 1+2, SUM_Stock
+
+Header info (comes from separate import file - TBD):
+- Season, Model name, ART, Material, Category, EOLR
+
+#### Cutting Sheet Fields
+
+| Field | Source |
+|-------|--------|
+| STT (seq no) | Auto-generated |
+| Material category | Manual input |
+| Part name (部件名稱) | Manual input |
+| No. of layers | Manual input |
+| Qty of parts (prs) | Manual input |
+| Standard knives/H | Manual input |
+| Allowance (10%) | Preset = 10, manual override |
+| Cycle time (D) | Manual input |
+| Standard time (F) | Formula: D x 1.1 |
+| Target output (G) | Formula: 3600 / F |
+| Operators theory (H) | Formula: F / EOLR |
+| Operators actual (I) | Manual input |
+| Machine name (J) | Manual input |
+| Remarks | Manual input |
+
+Summary row (auto-calculated):
+- Total TCT = SUM of all standard time
+- Total operators = SUM machine operators + manual operators
+
+#### Stitching Sheet Fields (same as Cutting, no Material category column)
+
+| Field | Source |
+|-------|--------|
+| STT | Auto-generated |
+| Part name | Manual input |
+| Cycle time (D) | Manual input |
+| Allowance (E) | Preset = 10 |
+| Standard time (F) | Formula: D x 1.1 |
+| Target output (G) | Formula: 3600 / F |
+| Operators theory (H) | Formula: F / EOLR |
+| Operators actual (I) | Manual input |
+| Machine name (J) | Manual input |
+| Machine qty (K) | Manual input |
+| Remarks | Manual input |
+
+#### Assembly Sheet Fields (same as Stitching)
+
+| Field | Source |
+|-------|--------|
+| STT | Auto-generated |
+| Part name | Manual input |
+| Cycle time (D) | Manual input |
+| Allowance (E) | Preset = 10 |
+| Standard time (F) | Formula: D x 1.1 |
+| Target output (G) | Formula: 3600 / F |
+| Operators theory (H) | Formula: F / EOLR |
+| Operators actual (I) | Manual input |
+| Machine name (J) | Manual input |
+| Machine qty (K) | Manual input |
+| Remarks (L) | Formula: capacity calculation |
+
+#### SUM Sheet (auto-calculated from all sheets)
+
+| Field | Source |
+|-------|--------|
+| Season | From header import |
+| Model name | From header import |
+| ART | From header import (join key) |
+| Material | From header import |
+| Category | From header import |
+| EOLR | From header import |
+| Cutting operators | From Cutting sheet summary |
+| Stitching operators | From Stitching sheet summary |
+| Assembly operators | From Assembly sheet summary |
+| Stockfitting operators | From SUM_Stock sheet |
+| TCT per section | Manual input |
+| PPH | Formula: EOLR / operators |
+| Remarks | Manual input |
+
+#### UI Requirement
+Web interface must visually match existing Excel layout exactly.
+Same position, font style, structure. Team fills data in corresponding cells.
+System auto-calculates formula fields.
+
+#### Primary Key (CONFIRMED)
+ART + Season + Run number (Lan 1, Lan 2...)
+
+#### Header Import File
+Pending: Jim will provide format later.
+
+---
+
+### DS-04 onward
+
+Pending Jim input.
+
+---
+
+## Cross-table Relationships
+
+DS-02 Article # = DS-01 Article ID (join key)
+DS-03 ART = DS-02 Article # (join key)
+Other relationships TBD
+
+---
+
+## Next Session Starting Point
+
+1. Design DS-03 web input interface (visual match to Excel)
+2. Jim to provide header import file format
+3. Process historical Excel files -> import to standard format
+4. Continue DS-04...N definition
+
+---
+
+## Instructions for Claude
+
+- Read this file every session
+- Architecture confirmed, do not re-discuss
+- Continue DATA SYSTEM: start from Next session starting point
+- New decision confirmed: output full file content, Jim updates via GitHub web editor
