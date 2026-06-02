@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DS-03 · OB Interface</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background:#f0f2f5;color:#1a1a2e;min-height:100vh}
+
+/* ── Page Header ── */
+.page-header{background:#1a2744;color:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.page-header h1{font-size:15px;font-weight:600;letter-spacing:.3px}
+.header-right{display:flex;gap:8px;align-items:center}
+.version{font-size:11px;color:#7a9bcc;background:#243356;padding:3px 8px;border-radius:4px}
+
+/* ── Record Bar ── */
+.record-bar{background:#fff;border-bottom:2px solid #e4e9f2;padding:9px 20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.rf{display:flex;align-items:center;gap:5px}
+.rf label{font-size:10px;color:#888;font-weight:700;text-transform:uppercase;white-space:nowrap}
+.rf input,.rf select{border:1px solid #d0d5e0;border-radius:4px;padding:4px 7px;font-size:12px;background:#f8f9fc;outline:none}
+.rf input:focus,.rf select:focus{border-color:#4a6cf7;background:#fff;box-shadow:0 0 0 2px rgba(74,108,247,.15)}
+.w60{width:60px}.w90{width:90px}.w130{width:130px}
+.rec-id{font-size:11px;color:#4a6cf7;background:#eef2ff;padding:4px 10px;border-radius:4px;font-weight:600;margin-left:4px}
+
+/* ── E-PPH Bar ── */
+.epph-bar{background:#fff7e6;border-bottom:1px solid #ffd89a;padding:7px 20px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.epph-label{font-size:10px;font-weight:700;color:#b36a00;text-transform:uppercase}
+.epph-item{display:flex;align-items:center;gap:5px}
+.epph-item label{font-size:11px;color:#a06000}
+.epph-item input{border:1px solid #ffc87a;border-radius:3px;padding:3px 7px;width:72px;font-size:12px;background:#fffdf7;outline:none;text-align:center}
+.epph-item input:focus{border-color:#ff9800;background:#fff}
+
+/* ── L1 Tabs ── */
+.tabs-l1{background:#1e3060;display:flex;overflow-x:auto;padding:0 14px}
+.t1{padding:10px 16px;color:#8aaedd;cursor:pointer;font-size:12px;font-weight:600;border-bottom:3px solid transparent;white-space:nowrap;user-select:none;transition:color .15s,border-color .15s}
+.t1:hover{color:#fff}
+.t1.active{color:#fff;border-bottom-color:#4a9cf7}
+.t1.sum{color:#f9c846}.t1.sum.active{color:#f9c846;border-bottom-color:#f9c846}
+.t1-sep{width:1px;background:#3a5080;margin:8px 4px;align-self:stretch}
+.badge{display:inline-block;background:#4a6cf7;color:#fff;font-size:9px;padding:1px 5px;border-radius:8px;margin-left:4px;vertical-align:middle}
+.t1.sum .badge{background:#f9c846;color:#1a2744}
+
+/* ── L2 Tabs ── */
+.tabs-l2{background:#f4f6fb;border-bottom:2px solid #e0e5f0;display:flex;overflow-x:auto;padding:0 14px}
+.t2{padding:8px 13px;color:#666;cursor:pointer;font-size:12px;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;user-select:none;transition:color .15s,border-color .15s}
+.t2:hover{color:#4a6cf7}
+.t2.active{color:#4a6cf7;border-bottom-color:#4a6cf7;background:#fff}
+.tabs-l2.hidden{display:none}
+
+/* ── Content ── */
+.content{padding:14px 18px}
+.panel{display:none}.panel.active{display:block}
+.notice{background:#fff8e1;border:1px solid #ffc107;border-radius:5px;padding:7px 12px;margin-bottom:12px;font-size:11px;color:#7a5c00}
+
+/* ── Tables ── */
+.table-wrap{overflow-x:auto;border-radius:6px;box-shadow:0 1px 6px rgba(0,0,0,.09);margin-bottom:2px}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:12px}
+thead th{background:#1a2744;color:#fff;padding:7px 5px;text-align:center;font-weight:600;white-space:nowrap;font-size:11px;border:1px solid #243356}
+thead .th2{background:#243356;color:#adc4e0;font-size:10px}
+tbody tr:nth-child(even){background:#f7f9fc}
+tbody tr:hover:not(.sum-row){background:#eef2ff}
+td{padding:3px 4px;border-bottom:1px solid #edf0f7;text-align:center;vertical-align:middle}
+td.left{text-align:left;padding-left:8px}
+
+/* ── Cell Inputs ── */
+td input[type=text],td input[type=number]{width:100%;border:1px solid transparent;border-radius:3px;padding:3px 5px;background:transparent;font-size:12px;text-align:center;outline:none;color:inherit}
+td input:focus{border-color:#4a6cf7!important;background:#fff!important;box-shadow:0 0 0 2px rgba(74,108,247,.12)}
+td input[readonly],td input.calc{color:#3a5ce7;font-weight:600;cursor:default;background:#f0f4ff!important}
+td.auto{background:#f0f4ff;color:#3a5ce7;font-weight:600}
+td.lookup{background:#f0fff4;color:#1a7a40;font-weight:500}
+td.stt{color:#aaa;font-size:11px;width:28px;min-width:28px}
+td.del-cell{width:30px}
+
+/* ── Summary Row ── */
+tr.sum-row td{background:#dde6fa!important;font-weight:700;color:#1a2744;border-top:2px solid #4a6cf7}
+
+/* ── SUM Tables ── */
+.sum-table thead th{background:#244166}
+td.dept{font-weight:600;color:#1a2744;text-align:left;padding-left:10px}
+td.eff-good{color:#1a7a40;font-weight:700}
+td.eff-warn{color:#d07000;font-weight:700}
+td.eff-bad{color:#cc2222;font-weight:700}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:4px;padding:6px 13px;border:none;border-radius:5px;cursor:pointer;font-size:12px;font-weight:500;transition:background .15s;outline:none}
+.btn-add{background:#4a6cf7;color:#fff}.btn-add:hover{background:#3a5ce7}
+.btn-save{background:#1d9e6b;color:#fff}.btn-save:hover{background:#178059}
+.btn-new{background:#6c757d;color:#fff}.btn-new:hover{background:#5a6268}
+.btn-del{background:none;border:none;color:#cc3333;cursor:pointer;font-size:14px;padding:0 4px;line-height:1}.btn-del:hover{color:#ff0000}
+.tbl-actions{display:flex;gap:8px;margin-top:10px;align-items:center}
+.hint{font-size:11px;color:#999;margin-left:6px}
+
+/* ── Lookup Mgr ── */
+.lookup-mgr{margin-top:16px;background:#fff;border-radius:6px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.lookup-mgr h3{font-size:12px;color:#555;margin-bottom:8px;font-weight:600}
+.lookup-add{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.lookup-add input{border:1px solid #d0d5e0;border-radius:4px;padding:5px 8px;font-size:12px;width:160px;outline:none}
+.lookup-add input:focus{border-color:#4a6cf7}
+.lookup-list{font-size:11px;color:#666;max-height:120px;overflow-y:auto;border:1px solid #eee;border-radius:4px;padding:6px 8px;line-height:1.8}
+
+/* ── Responsive ── */
+@media(max-width:600px){.record-bar{gap:7px}.rf label{display:none}}
+</style>
+</head>
+<body>
+
+<!-- ═══ PAGE HEADER ═══ -->
+<div class="page-header">
+  <h1>DS-03 · IE/LC Operation Breakdown (OB)</h1>
+  <div class="header-right">
+    <button class="btn btn-new" onclick="newRecord()">＋ New</button>
+    <button class="btn btn-save" onclick="saveData()">💾 Save</button>
+    <span class="version">v1.0</span>
+  </div>
+</div>
+
+<!-- ═══ RECORD BAR ═══ -->
+<div class="record-bar">
+  <div class="rf"><label>ART</label><input id="h-art" type="text" class="w90" placeholder="AB1234-001" oninput="headerChanged()"></div>
+  <div class="rf"><label>Season</label><input id="h-season" type="text" class="w60" placeholder="FW26" oninput="headerChanged()"></div>
+  <div class="rf"><label>Model</label><input id="h-model" type="text" class="w130" placeholder="Model name" oninput="headerChanged()"></div>
+  <div class="rf"><label>Material</label><input id="h-material" type="text" class="w90" placeholder="Upper material" oninput="headerChanged()"></div>
+  <div class="rf"><label>Category</label><input id="h-category" type="text" class="w90" placeholder="Category" oninput="headerChanged()"></div>
+  <div class="rf"><label>EOLR</label>
+    <select id="h-eolr" class="w60" onchange="eolrChanged()">
+      <option value="60">60</option>
+      <option value="120">120</option>
+      <option value="150">150</option>
+    </select>
+  </div>
+  <div class="rf"><label>Run</label>
+    <select id="h-run" class="w60" onchange="headerChanged()">
+      <option value="1">Lan 1</option>
+      <option value="2">Lan 2</option>
+      <option value="3">Lan 3</option>
+      <option value="4">Lan 4</option>
+    </select>
+  </div>
+  <span class="rec-id" id="rec-id-display">—</span>
+</div>
+
+<!-- ═══ E-PPH BAR ═══ -->
+<div class="epph-bar">
+  <span class="epph-label">E-PPH (from DS-02 LC)</span>
+  <div class="epph-item"><label>Cutting</label><input id="epph-cutting" type="number" step="0.01" value="" placeholder="0.00" oninput="renderSums()"></div>
+  <div class="epph-item"><label>Stitching</label><input id="epph-stitching" type="number" step="0.01" value="" placeholder="0.00" oninput="renderSums()"></div>
+  <div class="epph-item"><label>Assembly</label><input id="epph-assembly" type="number" step="0.01" value="" placeholder="0.00" oninput="renderSums()"></div>
+  <div class="epph-item"><label>Stockfitting</label><input id="epph-stock" type="number" step="0.01" value="" placeholder="0.00" oninput="renderSums()"></div>
+</div>
+
+<!-- ═══ L1 TABS ═══ -->
+<div class="tabs-l1">
+  <div class="t1 sum active" id="t1-sum-c2b" onclick="switchL1('sum-c2b')">SUM_C2B <span class="badge">READ</span></div>
+  <div class="t1 sum" id="t1-sum-stock" onclick="switchL1('sum-stock')">SUM_Stock <span class="badge">READ</span></div>
+  <div class="t1-sep"></div>
+  <div class="t1" id="t1-c2b" onclick="switchL1('c2b')">C2B Sub-sheets</div>
+  <div class="t1" id="t1-stock" onclick="switchL1('stock')">Stock Sub-sheets</div>
+</div>
+
+<!-- ═══ L2 TABS C2B ═══ -->
+<div class="tabs-l2 hidden" id="tabs-l2-c2b">
+  <div class="t2 active" id="t2-cutting"    onclick="switchL2('cutting')">Cutting</div>
+  <div class="t2"        id="t2-atom"       onclick="switchL2('atom')">ATOM / 自动化</div>
+  <div class="t2"        id="t2-tongcai"    onclick="switchL2('tongcai')">同材共裁</div>
+  <div class="t2"        id="t2-diannao"    onclick="switchL2('diannao')">电脑针车</div>
+  <div class="t2"        id="t2-stitch-zhi" onclick="switchL2('stitch-zhi')">Stitching 支流</div>
+  <div class="t2"        id="t2-stitch-zhu" onclick="switchL2('stitch-zhu')">Stitching 主流</div>
+  <div class="t2"        id="t2-assembly1"  onclick="switchL2('assembly1')">Assembly 1</div>
+  <div class="t2"        id="t2-assembly2"  onclick="switchL2('assembly2')">Assembly 2</div>
+</div>
+
+<!-- ═══ L2 TABS STOCK ═══ -->
+<div class="tabs-l2 hidden" id="tabs-l2-stock">
+  <div class="t2 active" id="t2-dacui"    onclick="switchL2s('dacui')">打粗</div>
+  <div class="t2"        id="t2-xishi"    onclick="switchL2s('xishi')">水洗</div>
+  <div class="t2"        id="t2-tiedadi"  onclick="switchL2s('tiedadi')">贴大底</div>
+  <div class="t2"        id="t2-zhaoshe"  onclick="switchL2s('zhaoshe')">照射</div>
+  <div class="t2"        id="t2-chenxing" onclick="switchL2s('chenxing')">成型面照射</div>
+</div>
+
+<!-- ═══ CONTENT ═══ -->
+<div class="content">
+
+  <!-- SUM_C2B -->
+  <div class="panel active" id="panel-sum-c2b">
+    <div class="notice">⚠ Read-only. Edit values in C2B sub-sheets — this table updates automatically.</div>
+    <div class="table-wrap">
+      <table class="sum-table">
+        <thead><tr>
+          <th style="text-align:left;padding-left:10px;width:160px">部門</th>
+          <th>MP (Ops)</th><th>PPH</th><th>E-PPH</th><th>Diff PPH</th><th>Eff %</th>
+        </tr></thead>
+        <tbody id="tbody-sum-c2b"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SUM_Stock -->
+  <div class="panel" id="panel-sum-stock">
+    <div class="notice">⚠ Read-only. Edit values in Stock sub-sheets — this table updates automatically.</div>
+    <div class="table-wrap">
+      <table class="sum-table">
+        <thead><tr>
+          <th style="text-align:left;padding-left:10px;width:160px">部門</th>
+          <th>MP (Ops)</th><th>PPH</th><th>E-PPH</th><th>Diff PPH</th><th>Eff %</th>
+        </tr></thead>
+        <tbody id="tbody-sum-stock"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Cutting -->
+  <div class="panel" id="panel-cutting">
+    <div class="table-wrap">
+      <table id="tbl-cutting">
+        <thead>
+          <tr>
+            <th rowspan="2" class="stt">#</th>
+            <th colspan="3">Part Info</th>
+            <th colspan="7">Time &amp; Operations</th>
+            <th colspan="5">Additional Processes (Ops)</th>
+            <th rowspan="2"></th>
+          </tr>
+          <tr class="th2">
+            <th>材料類別</th><th>Tên phối kiện (Việt)</th><th>部件名稱 (中)</th>
+            <th>层数</th><th>片数/Pr</th><th>刀数/H</th>
+            <th>CT</th><th>寬放率%</th><th>ST (auto)</th><th>裁机人数</th>
+            <th>Marking</th><th>Skiving</th><th>Attaching</th><th>Edge Paint</th><th>Heat Press</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-cutting"></tbody>
+        <tfoot id="tfoot-cutting"></tfoot>
+      </table>
+    </div>
+    <div class="tbl-actions">
+      <button class="btn btn-add" onclick="addRow('cutting')">＋ Add Row</button>
+      <span class="hint">Vietnamese name → Chinese auto-fills from lookup table</span>
+    </div>
+  </div>
+
+  <!-- ATOM / 自动化 -->
+  <div class="panel" id="panel-atom">
+    <div class="table-wrap" id="wrap-atom"></div>
+    <div class="tbl-actions"><button class="btn btn-add" onclick="addRow('atom')">＋ Add Row</button></div>
+  </div>
+
+  <!-- 同材共裁 -->
+  <div class="panel" id="panel-tongcai">
+    <div class="table-wrap" id="wrap-tongcai"></div>
+    <div class="tbl-actions"><button class="btn btn-add" onclick="addRow('tongcai')">＋ Add Row</button></div>
+  </div>
+
+  <!-- 电脑针车 -->
+  <div class="panel" id="panel-diannao">
+    <div class="table-wrap" id="wrap-diannao"></div>
+    <div class="tbl-actions"><button class="btn btn-add" onclick="addRow('diannao')">＋ Add Row</button></div>
+  </div>
+
+  <!-- Stitching 支流 -->
+  <div class="panel" id="panel-stitch-zhi">
+    <div class="table-wrap" id="wrap-stitch-zhi"></div>
+    <div class="tbl-actions"><button class="btn btn-add" onclick="addRow('stitch-zhi')">＋ Add Row</button></div>
+  </div>
+
+  <!-- Stitching 主流 -->
+  <div class="panel" id="panel-stitch-zhu">
+    <div class="table-wrap" id="wrap-stitch-zhu"></div>
+    <div class="tbl-actions"><button class="btn btn-add" onclick="addRow('stitch-zhu')">＋ Add Row</button></div>
+  </div>
+
+  <!-- Assembly 1 -->
+  <div class="panel" id="panel-assembly1">
+    <div class="table-wrap" id="wrap-assembly1"></div>
+    <div class="tbl-actions"><button class="btn btn-add" onclick="addRow('assembly1')">＋ Add Row</button></div>
+  </div>
+
+  <!-- Assembly 2 -->
+  <div class="panel" id="panel-assembly2">
+    <div class="table-wrap" id="wrap-assembly2"></div>
+    <div class="tbl-actions"><button class="btn btn-add" onclick="addRow('assembly2')">＋ Add Row</button></div>
+  </div>
+
+  <!-- Stock sheets -->
+  <div class="panel" id="panel-dacui">
+    <div class="table-wrap" id="wrap-dacui"></div>
+    <div class="tbl-actions"><button class="btn btn-add" onclick="addRow('dacui')">＋ Add Row</button></div>
+  </div>
+  <div class="panel" id="panel-xishi">
+    <div class="table-wrap" id="wrap-xishi"></div>
+    <div class="tbl-actions"><button class="btn btn-add" onclick="addRow('xishi')">＋ Add Row</button></div>
+  </div>
+  <div class="panel" id="panel-tiedadi">
+    <div class="table-wrap" id="wrap-tiedadi"></div>
+    <div class="tbl-actions"><button class="btn btn-add" onclick="addRow('tiedadi')">＋ Add Row</button></div>
+  </div>
+  <div class="panel" id="panel-zhaoshe">
+    <div class="table-wrap" id="wrap-zhaoshe"></div>
+    <div class="tbl-actions"><button class="btn btn-add" onclick="addRow('zhaoshe')">＋ Add Row</button></div>
+  </div>
+  <div class="panel" id="panel-chenxing">
+    <div class="table-wrap" id="wrap-chenxing"></div>
+    <div class="tbl-actions"><button class="btn btn-add" onclick="addRow('chenxing')">＋ Add Row</button></div>
+  </div>
+
+  <!-- Viet-Chinese Lookup Manager -->
+  <div class="lookup-mgr" id="lookup-mgr" style="display:none">
+    <h3>Vietnamese → Chinese Part Name Lookup Table</h3>
+    <div class="lookup-add">
+      <input id="lk-viet" type="text" placeholder="Vietnamese name">
+      <input id="lk-zh" type="text" placeholder="中文名稱">
+      <button class="btn btn-add" onclick="addLookup()">Add</button>
+    </div>
+    <div class="lookup-list" id="lookup-list"></div>
+  </div>
+
+</div><!-- /content -->
+
+<script>
+// ════════════════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════════════════
+const SHEETS = {
+  cutting:     { type:'cutting',   dept:'Cutting',        epph:'cutting'  },
+  atom:        { type:'stitching', dept:'ATOM / 自动化',  epph:'cutting'  },
+  tongcai:     { type:'stitching', dept:'同材共裁',        epph:'cutting'  },
+  diannao:     { type:'stitching', dept:'电脑针车',        epph:'cutting'  },
+  'stitch-zhi':{ type:'stitching', dept:'Stitching 支流', epph:'stitching'},
+  'stitch-zhu':{ type:'stitching', dept:'Stitching 主流', epph:'stitching'},
+  assembly1:   { type:'stitching', dept:'Assembly 1',     epph:'assembly' },
+  assembly2:   { type:'stitching', dept:'Assembly 2',     epph:'assembly' },
+  dacui:       { type:'stock',     dept:'打粗',            epph:'stock'    },
+  xishi:       { type:'stock',     dept:'水洗',            epph:'stock'    },
+  tiedadi:     { type:'stock',     dept:'贴大底',          epph:'stock'    },
+  zhaoshe:     { type:'stock',     dept:'照射',            epph:'stock'    },
+  chenxing:    { type:'stock',     dept:'成型面照射',      epph:'stock'    }
+};
+const C2B_KEYS   = ['cutting','atom','tongcai','diannao','stitch-zhi','stitch-zhu','assembly1','assembly2'];
+const STOCK_KEYS = ['dacui','xishi','tiedadi','zhaoshe','chenxing'];
+
+// ════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════
+let state = {
+  header: { art:'', season:'', model:'', material:'', category:'', eolr:60, run:1 },
+  epph:   { cutting:'', stitching:'', assembly:'', stock:'' },
+  sheets: {}
+};
+Object.keys(SHEETS).forEach(k => { state.sheets[k] = []; });
+
+let lookup = {}; // viet.toLowerCase() → zh
+
+const DEFAULT_LOOKUP = {
+  'mui giày':'鞋头','đầu mũi':'鞋头','thân giày':'鞋面','lưỡi gà':'舌片',
+  'hậu giày':'后跟片','hậu trong':'内跟片','lót mũi':'头内衬','lót hậu':'跟内衬',
+  'lót lưỡi':'舌内衬','cổ giày':'鞋领','viền cổ':'领口绑带','đệm cổ':'领口衬垫',
+  'lót cổ':'领内衬','dây giày':'鞋带','vải lót':'内衬布','đế trong':'内底',
+  'lót trong':'内里','đế ngoài':'外底','đế giữa':'中底','tăng cường':'加强片',
+  'miếng đệm':'衬垫','phần gót':'后跟部分','phần mũi':'前端部分',
+  'da thật':'真皮','da tổng hợp':'合成皮','vải mesh':'网布','cao su':'橡胶',
+  'xốp':'泡棉'
+};
+
+// ════════════════════════════════════════════════════════
+// LOOKUP
+// ════════════════════════════════════════════════════════
+function lookupZh(viet) {
+  if (!viet) return '';
+  const v = viet.toLowerCase().trim();
+  if (lookup[v]) return lookup[v];
+  for (const [k, zh] of Object.entries(lookup)) {
+    if (v.includes(k) || k.includes(v)) return zh;
+  }
+  return '';
+}
+
+function addLookup() {
+  const v = document.getElementById('lk-viet').value.trim().toLowerCase();
+  const z = document.getElementById('lk-zh').value.trim();
+  if (!v || !z) return;
+  lookup[v] = z;
+  saveLookup();
+  renderLookupList();
+  document.getElementById('lk-viet').value = '';
+  document.getElementById('lk-zh').value = '';
+}
+
+function saveLookup() {
+  try { localStorage.setItem('ds03_lookup', JSON.stringify(lookup)); } catch(e){}
+}
+
+function loadLookup() {
+  try {
+    const s = localStorage.getItem('ds03_lookup');
+    lookup = s ? JSON.parse(s) : { ...DEFAULT_LOOKUP };
+  } catch(e) { lookup = { ...DEFAULT_LOOKUP }; }
+}
+
+function renderLookupList() {
+  const el = document.getElementById('lookup-list');
+  if (!el) return;
+  el.innerHTML = Object.entries(lookup)
+    .map(([v,z]) => `<span style="margin-right:14px">${v} → ${z}</span>`)
+    .join('');
+}
+
+// ════════════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════════════
+let curL1 = 'sum-c2b';
+let curC2B = 'cutting';
+let curStock = 'dacui';
+
+function switchL1(tab) {
+  curL1 = tab;
+  document.querySelectorAll('.t1').forEach(e => e.classList.remove('active'));
+  document.getElementById('t1-' + tab)?.classList.add('active');
+  document.getElementById('tabs-l2-c2b').classList.add('hidden');
+  document.getElementById('tabs-l2-stock').classList.add('hidden');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+
+  if (tab === 'sum-c2b') {
+    document.getElementById('panel-sum-c2b').classList.add('active');
+    renderSumC2B();
+  } else if (tab === 'sum-stock') {
+    document.getElementById('panel-sum-stock').classList.add('active');
+    renderSumStock();
+  } else if (tab === 'c2b') {
+    document.getElementById('tabs-l2-c2b').classList.remove('hidden');
+    switchL2(curC2B);
+  } else if (tab === 'stock') {
+    document.getElementById('tabs-l2-stock').classList.remove('hidden');
+    switchL2s(curStock);
+  }
+}
+
+function switchL2(tab) {
+  curC2B = tab;
+  document.querySelectorAll('#tabs-l2-c2b .t2').forEach(e => e.classList.remove('active'));
+  document.getElementById('t2-' + tab)?.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab)?.classList.add('active');
+  renderSheet(tab);
+}
+
+function switchL2s(tab) {
+  curStock = tab;
+  document.querySelectorAll('#tabs-l2-stock .t2').forEach(e => e.classList.remove('active'));
+  document.getElementById('t2-' + tab)?.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab)?.classList.add('active');
+  renderSheet(tab);
+}
+
+// ════════════════════════════════════════════════════════
+// HEADER
+// ════════════════════════════════════════════════════════
+function headerChanged() {
+  const h = state.header;
+  h.art      = document.getElementById('h-art').value.trim();
+  h.season   = document.getElementById('h-season').value.trim();
+  h.model    = document.getElementById('h-model').value.trim();
+  h.material = document.getElementById('h-material').value.trim();
+  h.category = document.getElementById('h-category').value.trim();
+  h.run      = parseInt(document.getElementById('h-run').value) || 1;
+  updateRecordId();
+  autoSave();
+}
+
+function eolrChanged() {
+  state.header.eolr = parseInt(document.getElementById('h-eolr').value) || 60;
+  updateRecordId();
+  renderSums();
+  autoSave();
+}
+
+function updateRecordId() {
+  const h = state.header;
+  const id = [h.art || '?', 'EOLR'+h.eolr, 'Lan'+h.run].filter(Boolean).join(' · ');
+  document.getElementById('rec-id-display').textContent = id;
+}
+
+// ════════════════════════════════════════════════════════
+// ROW MANAGEMENT
+// ════════════════════════════════════════════════════════
+function makeRow(type) {
+  const base = { _id: Date.now()+Math.random(), partViet:'', partZh:'', ct:0, allowance:10, st:0, ops:0 };
+  if (type === 'cutting')   return { ...base, matCat:'', layers:1, qtyPr:2, knives:0, marking:0, skiving:0, attaching:0, edgePaint:0, heatPress:0 };
+  if (type === 'stitching') return { ...base, layers:1, qtyPr:2 };
+  return base; // stock
+}
+
+function addRow(key) {
+  const type = SHEETS[key].type;
+  state.sheets[key].push(makeRow(type));
+  renderSheet(key);
+  autoSave();
+}
+
+function delRow(key, idx) {
+  state.sheets[key].splice(idx, 1);
+  renderSheet(key);
+  renderSums();
+  autoSave();
+}
+
+function setCell(key, idx, field, raw) {
+  const row = state.sheets[key][idx];
+  if (!row) return;
+  const numFields = ['layers','qtyPr','knives','ct','allowance','ops','marking','skiving','attaching','edgePaint','heatPress'];
+  row[field] = numFields.includes(field) ? (parseFloat(raw) || 0) : raw;
+
+  if (field === 'ct' || field === 'allowance') {
+    row.st = +(row.ct * (1 + row.allowance / 100)).toFixed(4);
+    const el = document.getElementById(`st_${key}_${idx}`);
+    if (el) el.textContent = row.st;
+  }
+  if (field === 'partViet') {
+    row.partZh = lookupZh(raw);
+    const el = document.getElementById(`zh_${key}_${idx}`);
+    if (el) el.textContent = row.partZh || '—';
+  }
+  if (['ops','marking','skiving','attaching','edgePaint','heatPress'].includes(field)) {
+    renderSums();
+  }
+  autoSave();
+}
+
+// ════════════════════════════════════════════════════════
+// RENDER SUB-SHEET
+// ════════════════════════════════════════════════════════
+function inp(type, val, key, idx, field, w) {
+  const v = val !== undefined && val !== null ? val : '';
+  return `<input type="${type}" value="${esc(v)}" style="width:${w||'100%'}" `+
+    `onchange="setCell('${key}',${idx},'${field}',this.value)" `+
+    `${type==='number'?'step="any"':''}>`;
+}
+
+function renderSheet(key) {
+  const cfg  = SHEETS[key];
+  const rows = state.sheets[key];
+  const type = cfg.type;
+
+  if (key === 'cutting') {
+    renderCuttingSheet(rows);
+    return;
+  }
+
+  // Build table for stitching/stock types
+  const wrapId = 'wrap-' + key;
+  const wrap = document.getElementById(wrapId);
+  if (!wrap) return;
+
+  const isStock = type === 'stock';
+  const hasParts = !isStock;
+
+  let thead = `<table><thead><tr>
+    <th class="stt">#</th>
+    <th style="min-width:140px">Tên phối kiện (Việt)</th>
+    <th style="min-width:100px">部件名稱 (中)</th>`;
+  if (!isStock) thead += `<th>层数</th><th>片数/Pr</th>`;
+  thead += `<th style="min-width:60px">CT</th><th style="min-width:50px">寬放率%</th>
+    <th style="min-width:60px">ST (auto)</th><th style="min-width:50px">Actual Ops</th>
+    <th></th></tr></thead>`;
+
+  let tbody = '<tbody>';
+  rows.forEach((r, i) => {
+    tbody += `<tr><td class="stt">${i+1}</td>
+      <td>${inp('text', r.partViet, key, i, 'partViet', '140px')}</td>
+      <td class="lookup" id="zh_${key}_${i}">${esc(r.partZh)||'—'}</td>`;
+    if (!isStock) {
+      tbody += `<td>${inp('number', r.layers, key, i, 'layers', '45px')}</td>
+                <td>${inp('number', r.qtyPr,  key, i, 'qtyPr',  '45px')}</td>`;
+    }
+    tbody += `<td>${inp('number', r.ct,        key, i, 'ct',        '60px')}</td>
+              <td>${inp('number', r.allowance,  key, i, 'allowance', '50px')}</td>
+              <td class="auto" id="st_${key}_${i}">${r.st||0}</td>
+              <td>${inp('number', r.ops, key, i, 'ops', '50px')}</td>
+              <td class="del-cell"><button class="btn-del" onclick="delRow('${key}',${i})">✕</button></td>
+              </tr>`;
+  });
+  tbody += '</tbody>';
+
+  // Summary row
+  const totCT  = rows.reduce((s,r) => s + (r.ct||0), 0);
+  const totST  = rows.reduce((s,r) => s + (r.st||0), 0);
+  const totOps = rows.reduce((s,r) => s + (r.ops||0), 0);
+  const cols   = isStock ? 3 : 5;
+  const tfoot  = `<tfoot><tr class="sum-row">
+    <td></td><td class="left">TOTAL</td><td></td>
+    ${ hasParts ? '<td></td><td></td>' : '' }
+    <td>${totCT.toFixed(4)}</td><td></td>
+    <td>${totST.toFixed(4)}</td><td>${totOps}</td><td></td>
+    </tr></tfoot>`;
+
+  wrap.innerHTML = thead + tbody + tfoot + '</table>';
+}
+
+function renderCuttingSheet(rows) {
+  const key = 'cutting';
+  let tbody = '';
+  rows.forEach((r, i) => {
+    tbody += `<tr>
+      <td class="stt">${i+1}</td>
+      <td>${inp('text',   r.matCat,    key,i,'matCat',   '80px')}</td>
+      <td>${inp('text',   r.partViet,  key,i,'partViet', '130px')}</td>
+      <td class="lookup" id="zh_${key}_${i}">${esc(r.partZh)||'—'}</td>
+      <td>${inp('number', r.layers,    key,i,'layers',   '42px')}</td>
+      <td>${inp('number', r.qtyPr,     key,i,'qtyPr',   '42px')}</td>
+      <td>${inp('number', r.knives,    key,i,'knives',   '50px')}</td>
+      <td>${inp('number', r.ct,        key,i,'ct',       '60px')}</td>
+      <td>${inp('number', r.allowance, key,i,'allowance','48px')}</td>
+      <td class="auto" id="st_${key}_${i}">${r.st||0}</td>
+      <td>${inp('number', r.ops,       key,i,'ops',      '48px')}</td>
+      <td>${inp('number', r.marking,   key,i,'marking',  '40px')}</td>
+      <td>${inp('number', r.skiving,   key,i,'skiving',  '40px')}</td>
+      <td>${inp('number', r.attaching, key,i,'attaching','40px')}</td>
+      <td>${inp('number', r.edgePaint, key,i,'edgePaint','40px')}</td>
+      <td>${inp('number', r.heatPress, key,i,'heatPress','40px')}</td>
+      <td class="del-cell"><button class="btn-del" onclick="delRow('cutting',${i})">✕</button></td>
+    </tr>`;
+  });
+
+  const totCT  = rows.reduce((s,r)=>s+(r.ct||0),0);
+  const totST  = rows.reduce((s,r)=>s+(r.st||0),0);
+  const totOps = rows.reduce((s,r)=>s+(r.ops||0)+(r.marking||0)+(r.skiving||0)+(r.attaching||0)+(r.edgePaint||0)+(r.heatPress||0),0);
+
+  document.getElementById('tbody-cutting').innerHTML = tbody;
+  document.getElementById('tfoot-cutting').innerHTML =
+    `<tr class="sum-row">
+      <td></td><td colspan="2" class="left">TOTAL</td><td></td>
+      <td></td><td></td><td></td>
+      <td>${totCT.toFixed(4)}</td><td></td>
+      <td>${totST.toFixed(4)}</td>
+      <td colspan="6">${totOps} total ops</td>
+      <td></td>
+    </tr>`;
+}
+
+// ════════════════════════════════════════════════════════
+// SUM AGGREGATION
+// ════════════════════════════════════════════════════════
+function getTotalOps(key) {
+  const type = SHEETS[key].type;
+  return state.sheets[key].reduce((s, r) => {
+    let n = r.ops || 0;
+    if (type === 'cutting') n += (r.marking||0)+(r.skiving||0)+(r.attaching||0)+(r.edgePaint||0)+(r.heatPress||0);
+    return s + n;
+  }, 0);
+}
+
+function getEPPH(epphKey) {
+  return parseFloat(document.getElementById('epph-' + epphKey)?.value) || 0;
+}
+
+function buildSumRow(key) {
+  const cfg  = SHEETS[key];
+  const eolr = state.header.eolr || 60;
+  const mp   = getTotalOps(key);
+  const pph  = mp > 0 ? eolr / mp : null;
+  const epph = getEPPH(cfg.epph);
+  const diff = (pph !== null && epph > 0) ? (epph - pph) : null;
+  const eff  = (pph !== null && epph > 0) ? (pph / epph * 100) : null;
+
+  const fmtEff = eff !== null
+    ? `<span class="${eff>=90?'eff-good':eff>=75?'eff-warn':'eff-bad'}">${eff.toFixed(1)}%</span>`
+    : '—';
+
+  return `<tr>
+    <td class="dept">${cfg.dept}</td>
+    <td>${mp}</td>
+    <td>${pph !== null ? pph.toFixed(2) : '—'}</td>
+    <td>${epph > 0 ? epph.toFixed(2) : '—'}</td>
+    <td>${diff !== null ? diff.toFixed(2) : '—'}</td>
+    <td>${fmtEff}</td>
+  </tr>`;
+}
+
+function renderSumC2B() {
+  const el = document.getElementById('tbody-sum-c2b');
+  if (el) el.innerHTML = C2B_KEYS.map(buildSumRow).join('');
+}
+
+function renderSumStock() {
+  const el = document.getElementById('tbody-sum-stock');
+  if (el) el.innerHTML = STOCK_KEYS.map(buildSumRow).join('');
+}
+
+function renderSums() {
+  if (curL1 === 'sum-c2b')   renderSumC2B();
+  if (curL1 === 'sum-stock')  renderSumStock();
+}
+
+// ════════════════════════════════════════════════════════
+// PERSIST
+// ════════════════════════════════════════════════════════
+function autoSave() {
+  try { localStorage.setItem('ds03_state', JSON.stringify(state)); } catch(e){}
+}
+
+function saveData() {
+  // Capture E-PPH values into state
+  state.epph.cutting   = document.getElementById('epph-cutting').value;
+  state.epph.stitching = document.getElementById('epph-stitching').value;
+  state.epph.assembly  = document.getElementById('epph-assembly').value;
+  state.epph.stock     = document.getElementById('epph-stock').value;
+  autoSave();
+  alert('Saved to localStorage.\nProduction: POST /api/ds03/save');
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem('ds03_state');
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    state.header = { ...state.header, ...(parsed.header||{}) };
+    state.epph   = { ...state.epph,   ...(parsed.epph||{}) };
+    Object.keys(SHEETS).forEach(k => {
+      state.sheets[k] = (parsed.sheets||{})[k] || [];
+    });
+  } catch(e) {}
+}
+
+function restoreUI() {
+  const h = state.header;
+  document.getElementById('h-art').value      = h.art      || '';
+  document.getElementById('h-season').value   = h.season   || '';
+  document.getElementById('h-model').value    = h.model    || '';
+  document.getElementById('h-material').value = h.material || '';
+  document.getElementById('h-category').value = h.category || '';
+  document.getElementById('h-eolr').value     = h.eolr     || 60;
+  document.getElementById('h-run').value      = h.run      || 1;
+
+  document.getElementById('epph-cutting').value   = state.epph.cutting   || '';
+  document.getElementById('epph-stitching').value = state.epph.stitching || '';
+  document.getElementById('epph-assembly').value  = state.epph.assembly  || '';
+  document.getElementById('epph-stock').value     = state.epph.stock     || '';
+
+  updateRecordId();
+}
+
+function newRecord() {
+  if (!confirm('Clear all data and start a new record?')) return;
+  state = {
+    header: { art:'', season:'', model:'', material:'', category:'', eolr:60, run:1 },
+    epph: { cutting:'', stitching:'', assembly:'', stock:'' },
+    sheets: {}
+  };
+  Object.keys(SHEETS).forEach(k => { state.sheets[k] = []; });
+  restoreUI();
+  switchL1('sum-c2b');
+  autoSave();
+}
+
+// ════════════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════════════
+function esc(s) {
+  return String(s==null?'':s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════
+loadLookup();
+loadData();
+restoreUI();
+renderSumC2B();
+</script>
+</body>
+</html>
