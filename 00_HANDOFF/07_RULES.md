@@ -1,4 +1,10 @@
-﻿# SmartPN Atlas ??Universal Rules for All Claude Sessions
+﻿## FIRST ACTION IN EVERY NEW SESSION
+Before doing ANYTHING else:
+1. Read this file completely
+2. Read 21_CURRENT_STATUS.md
+3. Answer the 5 verification questions from 00_ENTRY_POINT.md
+4. Only then begin work
+5. After every confirmed decision — save to GitHub immediately# SmartPN Atlas ??Universal Rules for All Claude Sessions
 Version: v2.0 | 2026-06-01
 Status: MANDATORY. Any Claude in any session must follow these rules independently.
 Purpose: Every Claude session can operate without going back to the original session.
