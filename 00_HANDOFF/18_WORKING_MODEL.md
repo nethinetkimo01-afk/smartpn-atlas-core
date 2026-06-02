@@ -141,8 +141,3 @@ New session start:
 
 If new Claude cannot answer verification questions correctly ??re-read files before proceeding.
 If new Claude starts working without passing verification ??it has failed the handoff.
-  
-## Execution Standard  
-Claude executes, tests, confirms success, THEN reports to Jim.  
-Never wait for Jim to verify. Never apologize after failure.  
-Fix the problem and report the result.  
