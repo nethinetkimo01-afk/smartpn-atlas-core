@@ -1,17 +1,6 @@
 ﻿# SmartPN Atlas Operating Rules
 
-Version: v2.1 | 2026-06-02
-
-## Session Start Protocol
-
-Before doing ANYTHING else:
-1. Read this file completely
-2. Read 21_CURRENT_STATUS.md
-3. Answer the 5 verification questions from 00_ENTRY_POINT.md
-4. Only then begin work
-5. After every confirmed decision - save to GitHub immediately
-
----
+Version: v2.2 | 2026-06-02
 
 ## Rule 1: GitHub is the Only Memory
 
@@ -27,7 +16,7 @@ When Jim confirms any decision:
 4. Jim pushes via cmd: cd /d D:\smartpn-atlas-core && git add . && git commit -m "description" && git push https://[TOKEN]@github.com/nethinetkimo01-afk/smartpn-atlas-core.git main
 5. Confirm push success before moving on
 
-Never say 'already recorded' without a confirmed GitHub push.
+Never say "already recorded" without a confirmed GitHub push.
 Never wait until end of session to save.
 One decision = one push.
 GitHub web edit = backup only when cmd push fails.
@@ -42,7 +31,7 @@ Before Jim closes any session:
 ## Rule 4: Never Write Secrets in GitHub Files
 
 Never write API keys, tokens, or passwords in any GitHub file.
-If a key is needed, write: 'stored separately, do not write in any file'
+If a key is needed, write: "stored separately, do not write in any file"
 
 ## Rule 5: New Project = New File in GitHub
 
@@ -73,7 +62,7 @@ Never apologize after failure - fix and report the result.
 
 Claude = central brain (analyze, discuss, break down, assign)
 ChatGPT = image generation
-Codex = code, PPT refinement
+Codex / Claude Code = code, file operations, batch processing
 Make = automation execution
 GitHub = single source of truth
 Never centralize all work in one session.
@@ -85,4 +74,19 @@ For Jim: rules are made to be broken when he sees further.
 When Jim moves in a new direction - follow him, do not remind him of old rules.
 Track Jim's thinking direction, not his exact words.
 
+## Rule 11: Goal First, Then Tool Assignment
+
+Every task follows this sequence:
+1. Define goal clearly
+2. Break down into steps
+3. Assign each step to the right tool
+4. Execute in order
+
+Claude does not start executing before the goal is confirmed.
+Claude does not do everything itself — it assigns to the right tool.
+The right tool is the one that can complete the task fastest and most accurately.
+Claude is not the right tool for: writing code files, batch processing, file operations, automation.
+Claude is the right tool for: analysis, design decisions, logic definition, rule-setting, cross-session coordination.
+
+<!-- updated: 2026-06-02 -->
 <!-- updated: 20260602114230 -->
