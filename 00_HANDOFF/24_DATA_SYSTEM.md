@@ -1,80 +1,96 @@
-﻿# Data System - Internal Data Automation Project
-Version: v1.2 | 2026-06-02
-Status: Architecture confirmed, defining data sources
-Purpose: New Claude session reads this file to continue from last point.
+﻿# Data System ???折?豢??芸?????
+Version: v1.1 | 2026-06-02
+Status: ?嗆?撌脩Ⅱ摰??豢?皞?蝢拚脰?銝?Purpose: ?啣?閰?Claude 霈甇斗?隞塚?敺?甈∠????唳蝜潛???
 ---
-## Background
-This is Jim's company internal data automation system. NOT related to SmartPN Atlas.
-Jim: defines data sources and report requirements.
-Team: daily data maintenance.
+
+## ??
+
+? Jim ?砍??冽???蝟餌絞嚗? SmartPN Atlas ?⊿???Jim 鞎痊閬?靘??銵函?????鞎痊?亙虜蝬剛風鞈???
 ---
-## System Architecture (CONFIRMED)
-Deployment: Internal LAN server
-Server: One always-on office PC
-Tech stack: Python + Flask + SQLite
-Team access: Browser via LAN URL, no software needed
+
+## 蝟餌絞?嗆?嚗歇蝣箏?嚗???隢?
+
+?函蔡?孵?嚗蝬脖撩?嚗ocal Server嚗???嚗齒?砍恕?典??餉?∪??函雯頝荔?雿???函雯頝?隡箸??剁?颲血摰支??圈?????餉
+?銵ㄖ嚗ython + Flask + SQLite
+????嚗汗?券??抒雯蝬脣?嚗??摰?隞颱?頠?
+
+```
+靘?撅歹?蝟餌絞撠嚗xcel嚗? ?極頛詨嚗?鈭箏???璆哨?
+    ??撠撅歹??汗?函??ｇ?銝瑼? / 憛怨”??/ ?亦?撠???
+    ??隡箸??典惜嚗ython 頝???渲蕭頩扎??亥???    ???豢?摨怠惜嚗QLite嚗蜓銵?+ 霈閮?銵剁?
+    ???梯”撅歹?Jim ?捱蝑??ｇ??芣? Jim ??
+```
+
 ---
-## Core Mechanisms (CONFIRMED)
-Dedup and change tracking:
-- Each data source has its own primary key (Jim defines separately)
-- New record: write to master table, no log
-- Existing record with changes: update master + log all changed fields (old value, new value, field name, timestamp)
-- Exact duplicate: skip
-Field matching: Always use field NAME not position.
-Backup: Daily automatic backup of full SQLite database, stored in separate folder, retention days TBD
-Report mechanism:
-- Fixed reports: Jim-approved, shown as tabs, auto-updated
-- Exploratory pivot: Jim freely pivots data, promotes to fixed report when satisfied
-- UI: multi-tab, pivot (field/dimension/aggregation), one-click promote
+
+## 閫?極嚗歇蝣箏?嚗?
+| 閫 | 鞎痊 |
+|------|------|
+| Jim | 摰儔?豢?皞?蝢抵??亥??身閮銵具?瘙箇? |
+| ?? | 銝蝟餌絞撠瑼???撌亙‵銵函雁霅瑁???|
+
 ---
-## Data Source Registry
-### DS-01: SP (Season Plan)
-Sheet: {Season} SP{N}-EVM (e.g. FW26 SP7-EVM)
-Type: System export, Excel (.xlsx), fixed format
-Size: ~6,383 rows x 76 columns
-Fields:
-- Product ID: RecordID, Article ID, Article DESC, Model
-- Supply chain: GT1 FSC/Code, RT1 FSC/Code, GT1 LO, GT1 Group, GT1 COO
-- Product attributes: Division, Product Type DESC, Gender, Construction type, Technology Concept
-- Market: Market Group, Market (level 1~3), Forecast Customer Description, Forecast Customer No
-- Time: Marketing Season, Production Season, Calendar Month, CRD Month
-- Quantity: Metric, Total, Offered Capacity
-Primary key (CONFIRMED): Article ID + Product Type DESC + Calendar Month
-Quantity field: Total (sum)
-Field matching: by name, not position
-Pending: Analysis requirements, import frequency
+
+## ?詨?璈嚗歇蝣箏?嚗?
+**?駁????渲蕭頩歹?**
+- 瘥???函?摰儔?臭??潸??交?雿???Jim ??摰儔嚗?- ?啣?鞈? ???湔撖怠銝餉”嚗?閮?
+- 撌脣??其??批捆霈 ???湔銝餉” + 撖怠霈閮?銵?- 摰?? ??頝喲?
+
+**甈???嚗甈??迂嚗??其?蝵柴?* 甈????航?寡?嚗?蝔曹?霈?
+**?遢嚗?*
+- 瘥摰??芸??遢 SQLite ?游?澈
+- ?遢摮撩??函?鞈?憭橘?靽?憭拇敺?
+
+**?梯”璈嚗撅歹?嚗?*
+
+| 撅斤? | 隤芣? |
+|------|------|
+| ?箏??梯” | Jim 蝣箄?敺?甇???梯”嚗蜓? Tab嚗???|
+| ?Ｙ揣?? | Jim ?芰??甈???蝝???蝣箄?敺??潛?箏??梯” |
+
+?梯”??舀嚗? Tab??蝝???甈?嚗雁摨佗?敶蜇?孵?嚗??萄??澆摰銵?
 ---
-### DS-02: FOB Price List
-Type: System export, Excel (.xlsx), fixed format
-Size: ~4,193 rows x 30 columns
-Fields:
-- Product ID: Model #, Model Name, Silhouette Number(Upper ID), Article #
-- Factory, Season, Category
-- Tooling: O/S Tooling, EVA M/S Tooling
-- Cost: LC Total, LC CTB, Cutting, Stitching, Stockfitting, Assembly
-- Cost(S): LC Total(S), LC CTB(S), Cutting(S), Stitching(S), Stockfitting(S), Assembly(S)
-- Other: Stage, Valid From, LC Treatments, Shoe Construction, Remark
-- Audit: Created By, Created Date, Modified By, Modified Date
-Primary key (CONFIRMED): Article # (ART) - also cross-table join key
-Change tracking: ALL fields
-Change detected: update master + log all changed fields (old, new, field name, timestamp)
-Field matching: by name, not position
-Pending: Analysis requirements, import frequency
+
+## ?豢?皞閮?
+
+### DS-01嚗P嚗eason Plan嚗?
+**撌乩?銵典?蝔梧?** `{Season} SP{N}-EVM`嚗?嚗W26 SP7-EVM嚗?**?豢?憿?嚗?* 蝟餌絞撠嚗xcel (.xlsx)嚗撘摰?**閬芋嚗?* ~6,383 銵?? 76 甈?FW26 SP7 ?箔?嚗?
+**甈?蝢斤?嚗?*
+
+| 蝢斤? | 銝餉?甈? |
+|------|----------|
+| ?Ｗ?霅 | RecordID, Article ID, Article DESC, Model |
+| 靘???| GT1 FSC/Code, RT1 FSC/Code, GT1 LO, GT1 Group, GT1 COO |
+| ?Ｗ?撅祆?| Division, Product Type DESC, Gender, Construction type, Technology Concept |
+| 撣 | Market Group, Market (level 1~3), Forecast Customer Description, Forecast Customer No |
+| ?? | Marketing Season, Production Season, Calendar Month, CRD Month |
+| ?賊? | Metric, Total, Offered Capacity |
+
+**霅閬?嚗歇蝣箏?嚗?**
+- 銝駁嚗Article ID` + `Product Type DESC` + `Calendar Month`
+- ?賊?甈?`Total`嚗?蝮踝?
+- 甈???嚗甈??迂嚗??其?蝵?
+**敺?Jim 摰儔嚗?*
+- ???瘙??箏??梯”?批捆
+- 撠?餌?
+
 ---
-### DS-03 onward
-Pending Jim input
+
+### DS-02 隞亙?
+
+敺?Jim ??
+
 ---
-## Cross-table relationships
-DS-02 Article # = DS-01 Article ID (join key)
-Other relationships TBD
+
+## 銝活撠店韏琿?
+
+1. 蝜潛??園? DS-02...N
+2. Jim 摰儔 DS-01 ???瘙??箏??梯”
+3. ????摰儔摰?嚗?憪身閮??亦??Ｗ?隡箸??冽瑽敦蝭
+
 ---
-## Next session starting point
-1. Continue collecting DS-03...N
-2. Jim defines analysis needs / fixed reports per data source
-3. After all sources defined: design import UI and server architecture
----
-## Instructions for Claude
-- Must read this file at start of every session
-- Architecture confirmed, do not re-discuss
-- Jim says "continue DATA SYSTEM": start from Next session starting point
-- New decision confirmed: write out full file content, Jim updates via GitHub web editor
+
+## 撠?Claude ??隞?
+- 瘥活撠店??敹?霈甇斗?隞?- ?嗆?撌脩Ⅱ摰?銝??閮?
+- Jim 隤芥匱蝥?DATA SYSTEM?停敺?甈∪?閰梯絲暺??
+- ?瘙箏?蝡?? ps1 ?單嚗im 銝??瑁?敺 cmd push
