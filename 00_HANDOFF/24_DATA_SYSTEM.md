@@ -1,7 +1,7 @@
 ﻿# Data System - Internal Data Automation Project
 
-Version: v1.3 | 2026-06-02
-Status: DS-01 DS-02 confirmed, DS-03 field analysis complete
+Version: v1.4 | 2026-06-02
+Status: DS-01 DS-02 confirmed, DS-03 design complete
 Purpose: New Claude session reads this file to continue from last point.
 
 ---
@@ -85,94 +85,78 @@ Pending: Analysis requirements, import frequency
 
 Type: Manual input via web interface (replaces Excel entry)
 File format: One Excel file per style per production run
-Sheets per file: SUM, Cutting, Stitching (main + sub flows), Assembly 1+2, SUM_Stock
+Primary key (CONFIRMED): ART + EOLR + Run number (Lan 1, Lan 2...)
 
-Header info (comes from separate import file - TBD):
-- Season, Model name, ART, Material, Category, EOLR
+Note: Same ART with different EOLR (60/120/150) = separate records.
+Parts, CT, layers do not change across EOLR.
+MP (operators) changes per EOLR. PPH = EOLR / MP (changes with MP).
+
+#### Navigation Structure (CONFIRMED)
+
+Layer 1 (main tabs - READ ONLY):
+- SUM_C2B: auto-aggregated from all C2B sub-sheets
+- SUM_Stock: auto-aggregated from all Stock sub-sheets
+
+Layer 2 - under SUM_C2B:
+- Cutting, ATOM/自动化, 同材共裁, 电脑针车, Stitching 支流, Stitching 主流, Assembly 1, Assembly 2
+
+Layer 2 - under SUM_Stock:
+- 打粗, 水洗, 贴大底, 照射, 成型面照射
+
+Rule: To change any number -> go to sub-sheet -> edit -> SUM auto-updates.
+
+#### SUM_C2B Fields (ALL READ ONLY)
+
+| Field | Source |
+|-------|--------|
+| 部門 | Fixed |
+| MP (operators) | Aggregated from sub-sheets |
+| PPH | Formula: EOLR / MP |
+| E-PPH | From DS-02 FOB: LC Cutting/Stitching/Assembly/Stockfitting -> converted to E-PPH |
+| Diff PPH | Formula: E-PPH - PPH |
+| Eff% | Formula: PPH / E-PPH x 100% |
+
+Cross-table: DS-03 ART -> DS-02 Article # -> get LC values -> calculate E-PPH
 
 #### Cutting Sheet Fields
 
-| Field | Source |
-|-------|--------|
-| STT (seq no) | Auto-generated |
-| Material category | Manual input |
-| Part name (部件名稱) | Manual input |
-| No. of layers | Manual input |
-| Qty of parts (prs) | Manual input |
-| Standard knives/H | Manual input |
-| Allowance (10%) | Preset = 10, manual override |
-| Cycle time (D) | Manual input |
-| Standard time (F) | Formula: D x 1.1 |
-| Target output (G) | Formula: 3600 / F |
-| Operators theory (H) | Formula: F / EOLR |
-| Operators actual (I) | Manual input |
-| Machine name (J) | Manual input |
-| Remarks | Manual input |
-
-Summary row (auto-calculated):
-- Total TCT = SUM of all standard time
-- Total operators = SUM machine operators + manual operators
-
-#### Stitching Sheet Fields (same as Cutting, no Material category column)
+Row 1 (full width): Material category | Part name Việt (team input) | 部件名稱 中文 (auto lookup)
+Row 2 (data): Layers | Qty/Pr | Std Knives/H | CT (manual) | Allowance% | Std Time (formula) | Actual Ops (manual)
+Additional process columns: Marking | Skiving | Attaching | Edge Paint | Heat Press
 
 | Field | Source |
 |-------|--------|
 | STT | Auto-generated |
-| Part name | Manual input |
-| Cycle time (D) | Manual input |
-| Allowance (E) | Preset = 10 |
-| Standard time (F) | Formula: D x 1.1 |
-| Target output (G) | Formula: 3600 / F |
-| Operators theory (H) | Formula: F / EOLR |
-| Operators actual (I) | Manual input |
-| Machine name (J) | Manual input |
-| Machine qty (K) | Manual input |
-| Remarks | Manual input |
+| Material category (材料類別) | Manual input |
+| Part name Việt (Tên phối kiện) | Manual input by team |
+| Part name 中文 | Auto from Viet-Chinese lookup table |
+| Layers (层数) | Manual input |
+| Qty/Pr (片数) | Manual input |
+| Std Knives/H (刀数) | Manual input |
+| Cycle Time CT (正常時間) | Manual input |
+| Allowance% (寬放率) | Preset 10%, manual override |
+| Standard Time ST (標准時間) | Formula: CT x 1.1 |
+| Actual Operators (裁机人数) | Manual input |
 
+Summary row (auto):
+- Total CT, Total ST = SUM of all rows
+- Total Ops = SUM of actual operators
+
+#### Stitching Sheet Fields (same as Cutting, NO Material category column)
 #### Assembly Sheet Fields (same as Stitching)
 
-| Field | Source |
-|-------|--------|
-| STT | Auto-generated |
-| Part name | Manual input |
-| Cycle time (D) | Manual input |
-| Allowance (E) | Preset = 10 |
-| Standard time (F) | Formula: D x 1.1 |
-| Target output (G) | Formula: 3600 / F |
-| Operators theory (H) | Formula: F / EOLR |
-| Operators actual (I) | Manual input |
-| Machine name (J) | Manual input |
-| Machine qty (K) | Manual input |
-| Remarks (L) | Formula: capacity calculation |
+#### Vietnamese-Chinese Part Name Lookup Table (INDEPENDENT BASE TABLE)
 
-#### SUM Sheet (auto-calculated from all sheets)
-
-| Field | Source |
-|-------|--------|
-| Season | From header import |
-| Model name | From header import |
-| ART | From header import (join key) |
-| Material | From header import |
-| Category | From header import |
-| EOLR | From header import |
-| Cutting operators | From Cutting sheet summary |
-| Stitching operators | From Stitching sheet summary |
-| Assembly operators | From Assembly sheet summary |
-| Stockfitting operators | From SUM_Stock sheet |
-| TCT per section | Manual input |
-| PPH | Formula: EOLR / operators |
-| Remarks | Manual input |
-
-#### UI Requirement
-Web interface must visually match existing Excel layout exactly.
-Same position, font style, structure. Team fills data in corresponding cells.
-System auto-calculates formula fields.
-
-#### Primary Key (CONFIRMED)
-ART + Season + Run number (Lan 1, Lan 2...)
+- NOT part of DS series
+- Team inputs Vietnamese -> system auto-fills Chinese
+- Used across all sub-sheets (Cutting, Stitching, Assembly, etc.)
+- Initial data: extracted from historical Excel files uploaded by Jim
+- Will grow as more files are processed
 
 #### Header Import File
-Pending: Jim will provide format later.
+
+Fields: Season, Model name, ART, Material, Category, EOLR
+Source: Separate import file (Jim will provide format later)
 
 ---
 
@@ -186,16 +170,18 @@ Pending Jim input.
 
 DS-02 Article # = DS-01 Article ID (join key)
 DS-03 ART = DS-02 Article # (join key)
+DS-03 E-PPH sourced from DS-02 LC Cutting/Stitching/Assembly/Stockfitting fields
 Other relationships TBD
 
 ---
 
 ## Next Session Starting Point
 
-1. Design DS-03 web input interface (visual match to Excel)
-2. Jim to provide header import file format
-3. Process historical Excel files -> import to standard format
-4. Continue DS-04...N definition
+1. Complete DS-03 web interface: Stitching, Assembly tabs
+2. Build SUM_C2B auto-aggregation logic
+3. Extract Viet-Chinese part name lookup from historical Excel files
+4. Process all uploaded historical Excel files -> import to standard format
+5. Continue DS-04...N definition
 
 ---
 
@@ -204,4 +190,4 @@ Other relationships TBD
 - Read this file every session
 - Architecture confirmed, do not re-discuss
 - Continue DATA SYSTEM: start from Next session starting point
-- New decision confirmed: output full file content, Jim updates via GitHub web editor
+- New decision confirmed: output full file content, Jim updates via GitHub web editorontent, Jim updates via GitHub web editor
