@@ -99,6 +99,9 @@ td.grand-dept{color:#0d1a44;font-weight:800}
 .btn-save{background:#1d9e6b;color:#fff}.btn-save:hover{background:#178059}
 .btn-new{background:#6c757d;color:#fff}.btn-new:hover{background:#5a6268}
 .btn-del{background:none;border:none;color:#cc3333;cursor:pointer;font-size:14px;padding:0 4px;line-height:1}.btn-del:hover{color:#ff0000}
+.btn-lookup{background:#7c3aed;color:#fff}.btn-lookup:hover{background:#6d28d9}
+.save-status{font-size:11px;padding:3px 8px;border-radius:4px;font-weight:500}
+.save-ok{background:#1a7a40;color:#fff}.save-err{background:#cc2222;color:#fff}.save-local{background:#6c757d;color:#fff}
 .tbl-actions{display:flex;gap:8px;margin-top:10px;align-items:center}
 .hint{font-size:11px;color:#999;margin-left:6px}
 
@@ -121,8 +124,10 @@ td.grand-dept{color:#0d1a44;font-weight:800}
   <h1>DS-03 · IE/LC Operation Breakdown (OB)</h1>
   <div class="header-right">
     <button class="btn btn-new" onclick="newRecord()">＋ New</button>
+    <button class="btn btn-lookup" onclick="toggleLookup()">📚 Lookup</button>
     <button class="btn btn-save" onclick="saveData()">💾 Save</button>
-    <span class="version">v1.2</span>
+    <span id="save-status" class="save-status" style="display:none"></span>
+    <span class="version">v1.3</span>
   </div>
 </div>
 
@@ -390,7 +395,7 @@ function lookupZh(viet) {
   return '';
 }
 
-function addLookup() {
+async function addLookup() {
   const v = document.getElementById('lk-viet').value.trim().toLowerCase();
   const z = document.getElementById('lk-zh').value.trim();
   if (!v || !z) return;
@@ -399,6 +404,25 @@ function addLookup() {
   renderLookupList();
   document.getElementById('lk-viet').value = '';
   document.getElementById('lk-zh').value = '';
+  try {
+    await fetch('/api/lookup/add', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({viet: v, zh: z})
+    });
+  } catch(e) {}
+}
+
+function toggleLookup() {
+  const el = document.getElementById('lookup-mgr');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+async function syncLookupFromServer() {
+  try {
+    const res = await fetch('/api/lookup/all');
+    const r = await res.json();
+    if (r.ok) { Object.assign(lookup, r.lookup); saveLookup(); renderLookupList(); }
+  } catch(e) {}
 }
 
 function saveLookup() {
@@ -803,14 +827,29 @@ function autoSave() {
   try { localStorage.setItem('ds03_state', JSON.stringify(state)); } catch(e){}
 }
 
-function saveData() {
-  // Capture E-PPH values into state
+function showStatus(msg, cls, ms=2500) {
+  const el = document.getElementById('save-status');
+  el.textContent = msg; el.className = 'save-status ' + cls; el.style.display = 'inline-block';
+  setTimeout(() => { el.style.display = 'none'; }, ms);
+}
+
+async function saveData() {
   state.epph.cutting   = document.getElementById('epph-cutting').value;
   state.epph.stitching = document.getElementById('epph-stitching').value;
   state.epph.assembly  = document.getElementById('epph-assembly').value;
   state.epph.stock     = document.getElementById('epph-stock').value;
   autoSave();
-  alert('Saved to localStorage.\nProduction: POST /api/ds03/save');
+  try {
+    const res = await fetch('/api/ds03/save', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(state)
+    });
+    const r = await res.json();
+    if (r.ok) showStatus('✓ Saved to server', 'save-ok');
+    else showStatus('Server error: ' + r.error, 'save-err', 4000);
+  } catch(e) {
+    showStatus('Offline – localStorage only', 'save-local');
+  }
 }
 
 function loadData() {
@@ -872,6 +911,7 @@ loadLookup();
 loadData();
 restoreUI();
 renderSumC2B();
+syncLookupFromServer();
 </script>
 </body>
 </html>

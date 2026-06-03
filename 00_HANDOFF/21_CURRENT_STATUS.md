@@ -1,6 +1,6 @@
 ﻿# Current Status
 
-Last updated: 2026-06-02
+Last updated: 2026-06-03
 
 ---
 
@@ -8,27 +8,23 @@ Last updated: 2026-06-02
 
 File: 00_HANDOFF/24_DATA_SYSTEM.md (v1.4)
 
-### Completed Today
-- System architecture confirmed: LAN Server + Python Flask + SQLite
-- DS-01 SP: primary key confirmed
-- DS-02 FOB Price List: primary key confirmed
-- DS-03 OB interface: design complete, Claude Code building
-- ds03_ob_interface.html v1.2: SUM_C2B + SUM_Stock auto-aggregation done
-- Rule 11 added to 07_RULES.md v2.2
-- Claude Code installed and active
-
-### Claude Code In Progress
-- Task: push ds03_ob_interface.html to GitHub
-- Task: extract Viet-Chinese part name lookup from historical Excel files
-- Task: batch import script for 300-400 historical OB Excel files
-- Location: D:\smartpn-atlas-core
+### Completed 2026-06-03
+- ds03_ob_interface.html v1.3: Lookup Manager bug fixed (📚 Lookup button added)
+- ds03_ob_interface.html v1.3: Save now POSTs to Flask backend (/api/ds03/save)
+- Flask backend built: flask_backend/app.py + database.py + schema.sql
+- SQLite schema complete: ob_header, ob_rows, ob_epph, lookup_viet_zh, change_log, ds01_sp (placeholder), ds02_fob (placeholder)
+- API endpoints: POST /api/ds03/save, GET /api/ds03/load, GET /api/ds03/list, DELETE /api/ds03/delete
+- API endpoints: GET /api/lookup/all, POST /api/lookup/add, GET /api/ds02/epph
+- Default 30+ Viet-Chinese pairs seeded into DB on first run
+- flask_backend/start.bat: double-click to start server (pip install + python app.py)
+- All pushed to GitHub
 
 ### Next Session Starting Point
-1. Confirm Claude Code completed tasks above
-2. Define DS-04...N data sources
-3. Define report requirements
-4. Define Flask backend + SQLite structure
-5. Historical OB files folder path: TBD (Jim to provide)
+1. Jim provides historical OB Excel files folder path
+2. Build batch Excel import script (extract Viet-Chinese pairs + import to standard format)
+3. Define DS-04...N data sources
+4. Define report requirements / dashboard tabs
+5. Test Flask server: cd flask_backend && python app.py → open http://localhost:5000
 
 ---
 
