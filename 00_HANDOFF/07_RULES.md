@@ -1,6 +1,6 @@
 ﻿# SmartPN Atlas Operating Rules
 
-Version: v2.3 | 2026-06-03
+Version: v2.4 | 2026-06-03
 
 ## Session Start Protocol
 
@@ -92,23 +92,23 @@ Every task follows this sequence:
 3. Assign each step to the right tool
 4. Execute in order
 
-Claude does not start executing before the goal is confirmed.
-Claude assigns to the right tool - not everything to itself.
-Claude chat is NOT the right tool for: writing code files, batch processing, file operations.
-Claude chat IS the right tool for: analysis, design decisions, logic definition, rule-setting.
+Claude chat does not start executing before goal is confirmed.
+Claude chat assigns to the right tool - not everything to itself.
 
-## Rule 12: GitHub File Reading
+## Rule 12: GitHub File Reading - Reliable Method
 
-Claude chat web_fetch reads cached GitHub pages - NOT live content. Unreliable.
-Claude chat CANNOT confirm file versions by fetching GitHub URLs.
+Claude chat web_fetch reads cached pages - NOT live content. Do not use to verify.
+raw.githubusercontent.com also has CDN cache - not reliable for immediate verification.
 
-Reliable read method (Claude Code only):
-gh api repos/nethinetkimo01-afk/smartpn-atlas-core/contents/00_HANDOFF/{filename} --jq '.content' | base64 -d
+ONLY reliable method:
+Claude Code reads local file: type "D:\smartpn-atlas-core\00_HANDOFF\{filename}"
 
-Verification method for Claude chat:
-- Jim states version number directly
-- Claude accepts Jim's confirmation as the only reliable verification
-- Never say "confirmed" without Jim's direct confirmation
+Session start procedure:
+1. Claude Code runs: type "D:\smartpn-atlas-core\00_HANDOFF\24_DATA_SYSTEM.md"
+2. Claude Code confirms version number
+3. Claude chat receives confirmation and begins work
+
+Jim verification: Jim states version number directly. Claude accepts this as final confirmation.
 
 ## Rule 13: Claude Code Operating Rules
 
