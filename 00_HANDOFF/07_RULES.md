@@ -1,6 +1,17 @@
 ﻿# SmartPN Atlas Operating Rules
 
-Version: v2.2 | 2026-06-02
+Version: v2.3 | 2026-06-03
+
+## Session Start Protocol
+
+Before doing ANYTHING else:
+1. Read this file completely
+2. Read 21_CURRENT_STATUS.md
+3. Answer the 5 verification questions from 00_ENTRY_POINT.md
+4. Only then begin work
+5. After every confirmed decision - save to GitHub immediately
+
+---
 
 ## Rule 1: GitHub is the Only Memory
 
@@ -11,22 +22,21 @@ If it is not in GitHub, it does not exist.
 
 When Jim confirms any decision:
 1. Write content to appropriate file in 00_HANDOFF/
-2. Generate .ps1 script for Jim to download and execute locally
-3. Jim runs: powershell -ExecutionPolicy Bypass -File [script]
-4. Jim pushes via cmd: cd /d D:\smartpn-atlas-core && git add . && git commit -m "description" && git push https://[TOKEN]@github.com/nethinetkimo01-afk/smartpn-atlas-core.git main
-5. Confirm push success before moving on
+2. Output full file content for Jim to paste into GitHub web editor
+3. Jim opens GitHub, clicks pencil icon, selects all, pastes, commits
+4. Jim confirms version number directly to Claude
+5. Claude accepts Jim's confirmation - never says "confirmed" without it
 
-Never say "already recorded" without a confirmed GitHub push.
+Never say "already recorded" without Jim's direct confirmation.
 Never wait until end of session to save.
 One decision = one push.
-GitHub web edit = backup only when cmd push fails.
 
 ## Rule 3: Update 21_CURRENT_STATUS.md at Session End
 
 Before Jim closes any session:
 1. Update 21_CURRENT_STATUS.md with what was completed, confirmed decisions, next steps
 2. Push to GitHub
-3. Confirm success
+3. Jim confirms
 
 ## Rule 4: Never Write Secrets in GitHub Files
 
@@ -60,9 +70,9 @@ Never apologize after failure - fix and report the result.
 
 ## Rule 9: Tool Assignment
 
-Claude = central brain (analyze, discuss, break down, assign)
+Claude chat = central brain (analyze, discuss, break down, assign)
 ChatGPT = image generation
-Codex / Claude Code = code, file operations, batch processing
+Claude Code = code, file operations, batch processing, backend
 Make = automation execution
 GitHub = single source of truth
 Never centralize all work in one session.
@@ -83,10 +93,29 @@ Every task follows this sequence:
 4. Execute in order
 
 Claude does not start executing before the goal is confirmed.
-Claude does not do everything itself — it assigns to the right tool.
-The right tool is the one that can complete the task fastest and most accurately.
-Claude is not the right tool for: writing code files, batch processing, file operations, automation.
-Claude is the right tool for: analysis, design decisions, logic definition, rule-setting, cross-session coordination.
+Claude assigns to the right tool - not everything to itself.
+Claude chat is NOT the right tool for: writing code files, batch processing, file operations.
+Claude chat IS the right tool for: analysis, design decisions, logic definition, rule-setting.
 
-<!-- updated: 2026-06-02 -->
-<!-- updated: 20260602114230 -->
+## Rule 12: GitHub File Reading
+
+Claude chat web_fetch reads cached GitHub pages - NOT live content. Unreliable.
+Claude chat CANNOT confirm file versions by fetching GitHub URLs.
+
+Reliable read method (Claude Code only):
+gh api repos/nethinetkimo01-afk/smartpn-atlas-core/contents/00_HANDOFF/{filename} --jq '.content' | base64 -d
+
+Verification method for Claude chat:
+- Jim states version number directly
+- Claude accepts Jim's confirmation as the only reliable verification
+- Never say "confirmed" without Jim's direct confirmation
+
+## Rule 13: Claude Code Operating Rules
+
+Always start with: claude --dangerously-skip-permissions
+Standard start: cd /d D:\smartpn-atlas-core && claude --dangerously-skip-permissions
+Auto mode in /config is NOT enough - still stops for bash/git commands
+First prompt: select "2. Yes, I accept"
+If still stopping: exit and restart with --dangerously-skip-permissions
+
+<!-- updated: 2026-06-03 -->
