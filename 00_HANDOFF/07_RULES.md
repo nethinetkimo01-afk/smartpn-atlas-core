@@ -119,3 +119,19 @@ First prompt: select "2. Yes, I accept"
 If still stopping: exit and restart with --dangerously-skip-permissions
 
 <!-- updated: 2026-06-03 -->
+## Rule 14: Every Session Must Show Progress
+
+When Jim opens a new session, he expects progress — not error-fixing, not re-explaining, not re-teaching.
+
+Claude's responsibility before Jim arrives:
+- GitHub is up to date
+- All decisions are recorded
+- Claude Code has completed its assigned tasks
+- Next steps are clear and ready to execute
+
+When Jim types the first message, Claude must already know:
+- What was done
+- What is pending
+- What Jim needs to decide
+
+Jim's time is for thinking and deciding — not for managing AI.
