@@ -6,6 +6,12 @@ import tempfile
 import json as _json
 
 try:
+    from analyze_ds04 import analyze as _ds04_analyze
+    HAS_DS04 = True
+except ImportError:
+    HAS_DS04 = False
+
+try:
     import openpyxl
     HAS_XLSX = True
 except ImportError:
@@ -207,11 +213,29 @@ def list_ds01():
     offset = int(request.args.get('offset', 0))
     return jsonify(db.list_ds01_records(limit, offset))
 
+# ── DS-04 Schedule Analyzer ───────────────────────────────────────────────────
+
+@app.route('/api/ds04/analyze', methods=['GET'])
+def ds04_analyze():
+    if not HAS_DS04:
+        return jsonify({'ok': False, 'error': 'analyze_ds04 module not available'}), 500
+    file_path = request.args.get('file', '').strip()
+    dept      = request.args.get('dept', '').strip()
+    group     = request.args.get('group', '').strip()
+    try:
+        eolr = int(request.args.get('eolr', 120))
+    except ValueError:
+        eolr = 120
+    if not file_path:
+        return jsonify({'ok': False, 'error': 'file parameter required'}), 400
+    result = _ds04_analyze(file_path, dept, group, eolr)
+    return jsonify(result)
+
 # ── Health check ─────────────────────────────────────────────────────────────
 
 @app.route('/api/health', methods=['GET'])
 def health():
-    return jsonify({'ok': True, 'version': '1.1'})
+    return jsonify({'ok': True, 'version': '1.2'})
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
