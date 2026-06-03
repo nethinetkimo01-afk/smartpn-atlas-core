@@ -53,3 +53,11 @@ Next Steps:
 | Claude Code | Code, file operations, batch processing, backend |
 | GitHub | Single source of truth |
 | Make | Automation execution |not write in any filey, do not write in any file
+
+## Claude Code Operating Rules
+
+- All git and bash commands: auto-execute, never stop to ask confirmation
+- Use: Yes, and don't ask again for this session (shift+tab) on first prompt
+- Run all tasks to completion without stopping
+- If Claude Code stops waiting for input, Jim types: 從現在開始所有指令自動執行，不要停下來問我確認，跑到所有任務完成
+- Never ask Jim to verify intermediate steps
