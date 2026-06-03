@@ -38,15 +38,21 @@ File: 00_HANDOFF/24_DATA_SYSTEM.md (v1.5)
 - Flask server 啟動測試成功：http://localhost:5000/api/health → {"ok":true,"version":"1.1"}
 - http://localhost:5000 (OB Interface) 可訪問
 - http://localhost:5000/admin (Import Admin) 可訪問
-- DS-02 import 待執行：FOB_Price_List.xlsx 尚未在本機，需 Jim 提供路徑
-- DS-01 import 待執行：SS27_SP1___FW26_SP7.xlsx 尚未在本機，需 Jim 提供路徑
+
+### Completed 2026-06-03 (Session E — DS-02 & DS-01 首次導入)
+- import_ds01.py 修正：改為掃描所有工作表找 header（原 wb.active 指向 pivot 表）
+- DS-02 FOB Price List 導入：New 1903 | Updated 2288 | Unchanged 1 | Errors 0
+  來源：C:\Users\user\OneDrive\Desktop\FOB Price List.xlsx
+- DS-01 Season Plan 導入：New 2044 | Updated 4929 | Unchanged 126 | Errors 0
+  來源：C:\Users\user\OneDrive\Desktop\SS27 SP1 & FW26 SP7.xlsx（讀取 SS27 SP1-EVM 工作表）
+- 發現歷史 IE Excel 文件夾：Desktop\Biên chế\Jun\IE\ 和 Desktop\IE\ (100+ 個 OB 檔案)
 
 ### Next Session Starting Point
-1. 提供 DS-02 FOB Price List Excel 實際路徑 → python flask_backend/import_ds02.py "<path>"
-2. 提供 DS-01 Season Plan Excel 實際路徑 → python flask_backend/import_ds01.py "<path>"
-3. 提供歷史 OB Excel 文件夾路徑 → python flask_backend/import_ds03_batch.py "<folder>"
-4. 定義 DS-04...N 數據源
-5. 定義報表 dashboard 需求
+1. DS-03 批量導入歷史 OB 文件（可選）：
+   → python flask_backend/import_ds03_batch.py "C:\Users\user\OneDrive\Desktop\IE" --dry-run
+   → python flask_backend/import_ds03_batch.py "C:\Users\user\OneDrive\Desktop\IE"
+2. 定義 DS-04...N 數據源
+3. 定義報表 dashboard 需求
 
 ---
 

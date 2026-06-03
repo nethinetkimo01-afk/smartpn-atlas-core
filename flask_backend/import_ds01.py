@@ -38,14 +38,19 @@ def read_sp_excel(path):
         return None, 'openpyxl not installed. Run: pip install openpyxl'
 
     wb = openpyxl.load_workbook(path, data_only=True)
-    ws = wb.active
 
-    header_row_idx, headers = None, []
-    for i, row in enumerate(ws.iter_rows(max_row=20, values_only=True)):
-        cells = [str(c or '').strip().lower() for c in row]
-        if sum(1 for c in cells if c in COL_MAP) >= 2:
-            header_row_idx = i + 1
-            headers = [str(c or '').strip() for c in row]
+    header_row_idx, headers, ws = None, [], None
+    for sheet_name in wb.sheetnames:
+        candidate = wb[sheet_name]
+        for i, row in enumerate(candidate.iter_rows(max_row=20, values_only=True)):
+            cells = [str(c or '').strip().lower() for c in row]
+            matched = sum(1 for c in cells if c in COL_MAP)
+            if matched >= 2:
+                header_row_idx = i + 1
+                headers = [str(c or '').strip() for c in row]
+                ws = candidate
+                break
+        if ws is not None:
             break
 
     if header_row_idx is None:
