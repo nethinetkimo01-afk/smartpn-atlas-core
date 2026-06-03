@@ -45,14 +45,20 @@ File: 00_HANDOFF/24_DATA_SYSTEM.md (v1.5)
   來源：C:\Users\user\OneDrive\Desktop\FOB Price List.xlsx
 - DS-01 Season Plan 導入：New 2044 | Updated 4929 | Unchanged 126 | Errors 0
   來源：C:\Users\user\OneDrive\Desktop\SS27 SP1 & FW26 SP7.xlsx（讀取 SS27 SP1-EVM 工作表）
-- 發現歷史 IE Excel 文件夾：Desktop\Biên chế\Jun\IE\ 和 Desktop\IE\ (100+ 個 OB 檔案)
+
+### Completed 2026-06-03 (Session F — DS-03 批量導入 + DS-04 定義)
+- import_ds03_batch.py 修正：加入 stdout UTF-8 encoding（解決 cp950 編碼錯誤）
+- DS-03 批量導入：128 個 xlsx 處理 OK / 27 個舊 .xls 格式跳過 / 538 個 Viet-Chinese pairs 寫入 lookup_viet_zh
+  來源：C:\Users\user\OneDrive\Desktop\IE（155 個文件）
+- DS-04 定義：生產進度表（部門/組別/ART/月份），分析邏輯確認，待 Jim 提供 EOLR 對應表 + Excel 路徑
+- 24_DATA_SYSTEM.md 更新至 v1.7
 
 ### Next Session Starting Point
-1. DS-03 批量導入歷史 OB 文件（可選）：
-   → python flask_backend/import_ds03_batch.py "C:\Users\user\OneDrive\Desktop\IE" --dry-run
-   → python flask_backend/import_ds03_batch.py "C:\Users\user\OneDrive\Desktop\IE"
-2. 定義 DS-04...N 數據源
-3. 定義報表 dashboard 需求
+1. DS-04 生產進度表：
+   → 提供部門/組別 vs EOLR 對應表
+   → 提供進度表 Excel 實際路徑
+2. 定義 DS-05...N 數據源
+3. 定義報表 dashboard 需求（Jim 定義固定 report tabs）
 
 ---
 

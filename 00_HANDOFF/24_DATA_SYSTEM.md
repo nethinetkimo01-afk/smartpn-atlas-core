@@ -1,7 +1,7 @@
 # Data System - Internal Data Automation Project
 
-Version: v1.6 | 2026-06-03
-Status: DS-01 DS-02 confirmed, DS-03 complete, Flask backend built + tested
+Version: v1.7 | 2026-06-03
+Status: DS-01✅ DS-02✅ DS-03✅ DS-04 defined (pending EOLR map + file path), Flask backend built + tested
 Purpose: New Claude session reads this file to continue from last point.
 
 ---
@@ -131,7 +131,36 @@ Vietnamese-Chinese Part Name Lookup:
 
 ---
 
-### DS-04 onward
+### DS-04: Production Schedule (Monthly Progress)
+
+Type: System export, Excel, fixed format, one file per month, multiple sheets (by department)
+Primary key (CONFIRMED): Department + Group + ART + Month
+Import CLI: TBD (pending Excel path and frequency)
+Pending: Group vs EOLR mapping table, actual Excel file path, import frequency
+
+File format:
+- Order number format: MF2604KJ8322-03--900(5/29)
+- ART: extracted from order number after "--"
+- Order quantity: extracted between "--" and "("
+- Deadline: date inside parentheses
+- Grey cell = holiday, excluded from work-hour calculation
+- Yellow cell = model-change loss quantity
+- Cumulative scheduled hours: formula-based, used to determine order completion date
+
+Analysis logic (CONFIRMED):
+1. From schedule: extract ART + order quantity per department/group
+2. ART → DS-02 FOB col J → get col G (Model Name) + Cutting/Stitching/Assembly LC
+3. Same group, same Model Name + same LC → merge display, sum orders
+4. ART → DS-03 OB → get MP for EOLR (Cutting / Stitching / Forming)
+5. Output: Model Name + ART | Orders | Cutting MP | Stitching MP | Forming MP
+
+EOLR mapping:
+- Defined per department/group (Jim to provide)
+- Example: Group 加一A → EOLR TBD
+
+---
+
+### DS-05 onward
 
 Pending Jim input.
 
@@ -184,16 +213,14 @@ API endpoints:
 
 ## Next Session Starting Point
 
-1. Provide DS-02 FOB Price List Excel actual path:
-   → python flask_backend/import_ds02.py "<actual_path.xlsx>"
-   → OR drag file to http://localhost:5000/admin DS-02 section
-2. Provide DS-01 Season Plan Excel actual path:
-   → python flask_backend/import_ds01.py "<actual_path.xlsx>"
-3. Provide historical OB Excel folder path:
-   → python flask_backend/import_ds03_batch.py "<folder>" --dry-run  (preview first)
-   → python flask_backend/import_ds03_batch.py "<folder>"            (then import)
-4. Define DS-04...N data sources
-5. Define report requirements / dashboard tabs
+1. DS-02 ✅ imported (1903 new, 2288 updated) from: C:\Users\user\OneDrive\Desktop\FOB Price List.xlsx
+2. DS-01 ✅ imported (2044 new, 4929 updated) from: C:\Users\user\OneDrive\Desktop\SS27 SP1 & FW26 SP7.xlsx
+3. DS-03 batch ✅ imported from: C:\Users\user\OneDrive\Desktop\IE (128 xlsx files, 538 Viet-Chinese pairs)
+4. DS-04: Production Schedule
+   → Pending: EOLR mapping table (Group → EOLR), actual Excel file path
+   → Pending: import frequency
+5. DS-05...N: Pending Jim input
+6. Define report requirements / dashboard tabs
 
 ---
 
