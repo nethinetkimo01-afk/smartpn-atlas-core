@@ -11,7 +11,7 @@ Usage:
     python import_ds03_batch.py <folder> --lookup-only
     python import_ds03_batch.py <folder> --dry-run --lookup-only
 """
-import sys, os, glob, re
+import sys, os, glob, re as _re
 
 # Force UTF-8 output on Windows consoles
 if hasattr(sys.stdout, 'reconfigure'):
@@ -59,16 +59,6 @@ DEPT_PATTERNS = {
     'chenxing':    ['成型', 'chen xing', 'mold'],
 }
 
-HEADER_KEYS = {
-    'art':      ['art', 'article', 'article #', 'article no', 'article number'],
-    'season':   ['season'],
-    'model':    ['model', 'model name', 'model no', 'model #'],
-    'material': ['material', 'upper material', 'vật liệu'],
-    'category': ['category', 'loại', 'cat'],
-    'eolr':     ['eolr', 'production rate', 'output rate', 'output/h'],
-}
-
-
 def match_dept(sheet_name):
     name = sheet_name.lower().strip()
     # Check for Stitching generically (both zhi and zhu)
@@ -82,24 +72,86 @@ def match_dept(sheet_name):
     return None
 
 
-def extract_header(ws):
-    """Scan first 15 rows for key-value header info."""
+def extract_header(wb):
+    """Extract ART, EOLR, season, model from workbook using file-format-aware logic."""
     header = {}
-    rows = list(ws.iter_rows(max_row=15, values_only=True))
-    for row in rows:
-        for i, cell in enumerate(row):
-            if cell is None:
-                continue
-            cell_s = str(cell).strip().lower()
-            for field, patterns in HEADER_KEYS.items():
-                if field in header:
-                    continue
-                if any(p in cell_s for p in patterns):
-                    # Value is next non-empty cell in same row
-                    for j in range(i + 1, len(row)):
-                        if row[j] is not None and str(row[j]).strip():
-                            header[field] = str(row[j]).strip()
+
+    # ── Strategy 1: SUM.C2B sheet ──────────────────────────────────────────
+    # Layout: rows 1-15 are label+value in the SAME cell (col B),
+    #         row ~16 has target output with "120双/H" embedding EOLR.
+    for sh_name in wb.sheetnames:
+        if 'sum' in sh_name.lower() and 'c2b' in sh_name.lower().replace(' ', ''):
+            ws = wb[sh_name]
+            for row in ws.iter_rows(max_row=25, values_only=True):
+                for cell in row:
+                    if cell is None:
+                        continue
+                    s = str(cell).strip()
+                    sl = s.lower()
+                    # ART: "Mã số Article: KH9662" or "Article: JI1282"
+                    if 'art' not in header and ('article' in sl or 'mã số' in sl):
+                        m = _re.search(r':\s*([A-Z]{2}\d{4,6})', s)
+                        if m:
+                            header['art'] = m.group(1)
+                    # Season: "Mùa sản xuất Season : FW25"
+                    if 'season' not in header and ('season' in sl or 'mùa' in sl or 'mua' in sl):
+                        m = _re.search(r'((?:FW|SS|SP)\d{2})', s, _re.IGNORECASE)
+                        if m:
+                            header['season'] = m.group(1).upper()
+                    # EOLR: "120双/H" embedded in target-output cell
+                    if 'eolr' not in header:
+                        m = _re.search(r'(\d{2,3})双/H', s)
+                        if m:
+                            header['eolr'] = int(m.group(1))
+            break
+
+    # ── Strategy 2: SUM sheet (older format with column headers) ───────────
+    if 'art' not in header:
+        for sh_name in wb.sheetnames:
+            if sh_name.strip().upper() == 'SUM':
+                ws = wb[sh_name]
+                art_col = eolr_col = None
+                for i, row in enumerate(ws.iter_rows(max_row=6, values_only=True)):
+                    cells = [str(c).strip() if c is not None else '' for c in row]
+                    cl = [c.lower() for c in cells]
+                    if 'art' in cl and art_col is None:
+                        art_col = cl.index('art')
+                    if 'eolr' in cl and eolr_col is None:
+                        eolr_col = cl.index('eolr')
+                    if art_col is not None and i > 1:
+                        # value row below headers
+                        if art_col < len(cells) and cells[art_col]:
+                            v = cells[art_col]
+                            if _re.match(r'[A-Z]{2}\d{4,6}', v):
+                                header['art'] = v
+                        if eolr_col is not None and eolr_col < len(cells) and cells[eolr_col]:
+                            try:
+                                header['eolr'] = int(float(cells[eolr_col]))
+                            except ValueError:
+                                pass
+                        if header.get('art'):
                             break
+                break
+
+    # ── Strategy 3: Model name from first Cutting sheet ────────────────────
+    for sh_name in wb.sheetnames:
+        if 'cutting' in sh_name.lower() or 'pha cắt' in sh_name.lower():
+            ws = wb[sh_name]
+            for row in ws.iter_rows(max_row=10, values_only=True):
+                for cell in row:
+                    if cell is None:
+                        continue
+                    s = str(cell).strip()
+                    if 'model name' in s.lower() and ':' in s:
+                        m = _re.search(r'Model Name\s*:\s*(.+)', s, _re.IGNORECASE)
+                        if m and 'model' not in header:
+                            header['model'] = m.group(1).strip()[:50]
+                    if '鞋型名称' in s and ':' in s:
+                        m = _re.search(r'鞋型名称[：:]\s*(.+)', s)
+                        if m and 'model' not in header:
+                            header['model'] = m.group(1).strip()[:50]
+            break
+
     return header
 
 
@@ -139,9 +191,8 @@ def process_file(path, dry_run=False, lookup_only=False):
     for ws in wb.worksheets:
         result['lookup_pairs'].update(extract_viet_zh(ws))
 
-    # Header from first sheet
-    if wb.worksheets:
-        result['header'] = extract_header(wb.worksheets[0])
+    # Header from workbook (multi-sheet aware)
+    result['header'] = extract_header(wb)
 
     # Identify department sheets
     for ws in wb.worksheets:
