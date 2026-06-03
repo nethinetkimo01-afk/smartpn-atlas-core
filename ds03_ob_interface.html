@@ -942,6 +942,119 @@ function esc(s) {
 }
 
 // ════════════════════════════════════════════════════════
+// RECORD BROWSER
+// ════════════════════════════════════════════════════════
+let allRecords = [];
+
+async function showRecordBrowser() {
+  document.getElementById('modal-records').style.display = 'flex';
+  document.getElementById('rec-search').value = '';
+  document.getElementById('rec-browser-list').innerHTML = '<div class="modal-empty">Loading...</div>';
+  try {
+    const res = await fetch('/api/ds03/list');
+    const data = await res.json();
+    allRecords = data.ok ? (data.records || []) : [];
+    renderRecordList(allRecords);
+  } catch(e) {
+    document.getElementById('rec-browser-list').innerHTML =
+      '<div class="modal-empty">Server offline — cannot load saved records.</div>';
+  }
+}
+
+function closeRecordBrowser() {
+  document.getElementById('modal-records').style.display = 'none';
+}
+
+function filterRecords() {
+  const q = document.getElementById('rec-search').value.toLowerCase();
+  renderRecordList(q
+    ? allRecords.filter(r =>
+        (r.art   || '').toLowerCase().includes(q) ||
+        (r.model || '').toLowerCase().includes(q))
+    : allRecords);
+}
+
+function renderRecordList(records) {
+  const el = document.getElementById('rec-browser-list');
+  if (!records.length) {
+    el.innerHTML = '<div class="modal-empty">No records found.</div>';
+    return;
+  }
+  el.innerHTML = records.map(r => `
+    <div class="rec-row">
+      <span class="rec-art">${esc(r.art)}</span>
+      <span class="rec-season">${esc(r.season || '')}</span>
+      <span class="rec-model">${esc(r.model || '')}</span>
+      <span class="rec-eolr">EOLR ${r.eolr} · Lan ${r.run}</span>
+      <span class="rec-date">${(r.updated_at || '').slice(0, 10)}</span>
+      <button class="btn-rec-load"
+        onclick="loadRecordFromServer('${esc(r.art)}',${r.eolr},${r.run})">Load</button>
+    </div>`).join('');
+}
+
+async function loadRecordFromServer(art, eolr, run) {
+  try {
+    const res = await fetch(
+      `/api/ds03/load?art=${encodeURIComponent(art)}&eolr=${eolr}&run=${run}`);
+    const data = await res.json();
+    if (!data.ok) { alert('Load failed: ' + data.error); return; }
+
+    const h = data.header || {};
+    state.header = {
+      art:      h.art      || '',
+      season:   h.season   || '',
+      model:    h.model    || '',
+      material: h.material || '',
+      category: h.category || '',
+      eolr:     h.eolr     || 60,
+      run:      h.run      || 1
+    };
+    const ep = data.epph || {};
+    state.epph = {
+      cutting:   ep.cutting   || '',
+      stitching: ep.stitching || '',
+      assembly:  ep.assembly  || '',
+      stock:     ep.stock     || ''
+    };
+    Object.keys(SHEETS).forEach(k => {
+      state.sheets[k] = (data.sheets || {})[k] || [];
+    });
+
+    restoreUI();
+    autoSave();
+    closeRecordBrowser();
+    switchL1('sum-c2b');
+    showStatus('✓ Loaded: ' + art, 'save-ok', 2500);
+  } catch(e) {
+    alert('Load failed: server offline');
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// E-PPH AUTO-FILL FROM DS-02
+// ════════════════════════════════════════════════════════
+async function autoFillEPPH() {
+  const art = document.getElementById('h-art').value.trim();
+  if (!art) { showStatus('Enter ART first', 'save-err', 2000); return; }
+  try {
+    const res = await fetch('/api/ds02/epph?art=' + encodeURIComponent(art));
+    const data = await res.json();
+    if (!data.ok) {
+      showStatus('ART not found in DS-02 — import FOB first', 'save-err', 3500);
+      return;
+    }
+    document.getElementById('epph-cutting').value   = data.cutting     != null ? data.cutting     : '';
+    document.getElementById('epph-stitching').value = data.stitching   != null ? data.stitching   : '';
+    document.getElementById('epph-assembly').value  = data.assembly    != null ? data.assembly    : '';
+    document.getElementById('epph-stock').value     = data.stockfitting != null ? data.stockfitting : '';
+    renderSums();
+    showStatus('✓ E-PPH filled from DS-02', 'save-ok', 2500);
+  } catch(e) {
+    showStatus('Server offline', 'save-err', 2500);
+  }
+}
+
+// ════════════════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════════════════
 loadLookup();
