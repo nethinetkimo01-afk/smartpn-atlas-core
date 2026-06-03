@@ -191,3 +191,10 @@ Other relationships TBD
 - Architecture confirmed, do not re-discuss
 - Continue DATA SYSTEM: start from Next session starting point
 - New decision confirmed: output full file content, Jim updates via GitHub web editorontent, Jim updates via GitHub web editor
+## Claude Code Operating Rules
+
+- All git and bash commands: auto-execute, never stop to ask confirmation
+- Use: Yes, and don't ask again for this session (shift+tab) on first prompt
+- Run all tasks to completion without stopping
+- If Claude Code stops waiting for input, Jim types: 從現在開始所有指令自動執行，不要停下來問我確認，跑到所有任務完成
+- Never ask Jim to verify intermediate steps
