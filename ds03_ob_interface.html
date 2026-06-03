@@ -145,17 +145,18 @@ td.grand-dept{color:#0d1a44;font-weight:800}
 <div class="page-header">
   <h1>DS-03 · IE/LC Operation Breakdown (OB)</h1>
   <div class="header-right">
+    <button class="btn btn-open" onclick="showRecordBrowser()">📂 Open</button>
     <button class="btn btn-new" onclick="newRecord()">＋ New</button>
     <button class="btn btn-lookup" onclick="toggleLookup()">📚 Lookup</button>
     <button class="btn btn-save" onclick="saveData()">💾 Save</button>
     <span id="save-status" class="save-status" style="display:none"></span>
-    <span class="version">v1.3</span>
+    <span class="version">v1.4</span>
   </div>
 </div>
 
 <!-- ═══ RECORD BAR ═══ -->
 <div class="record-bar">
-  <div class="rf"><label>ART</label><input id="h-art" type="text" class="w90" placeholder="AB1234-001" oninput="headerChanged()"></div>
+  <div class="rf"><label>ART</label><input id="h-art" type="text" class="w90" placeholder="AB1234-001" oninput="headerChanged()"><button class="btn-ds02" onclick="autoFillEPPH()" title="Auto-fill E-PPH values from DS-02 FOB by ART">DS-02 →</button></div>
   <div class="rf"><label>Season</label><input id="h-season" type="text" class="w60" placeholder="FW26" oninput="headerChanged()"></div>
   <div class="rf"><label>Model</label><input id="h-model" type="text" class="w130" placeholder="Model name" oninput="headerChanged()"></div>
   <div class="rf"><label>Material</label><input id="h-material" type="text" class="w90" placeholder="Upper material" oninput="headerChanged()"></div>
@@ -353,6 +354,20 @@ td.grand-dept{color:#0d1a44;font-weight:800}
   </div>
 
 </div><!-- /content -->
+
+<!-- ═══ RECORD BROWSER MODAL ═══ -->
+<div class="modal" id="modal-records" style="display:none" onclick="if(event.target===this)closeRecordBrowser()">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      📂 Load OB Record
+      <button class="btn-close-x" onclick="closeRecordBrowser()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input class="modal-search" id="rec-search" type="text" placeholder="Filter by ART or Model name..." oninput="filterRecords()">
+      <div id="rec-browser-list"><div class="modal-empty">Loading...</div></div>
+    </div>
+  </div>
+</div>
 
 <script>
 // ════════════════════════════════════════════════════════
