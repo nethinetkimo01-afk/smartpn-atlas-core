@@ -1,7 +1,7 @@
-﻿# Data System - Internal Data Automation Project
+# Data System - Internal Data Automation Project
 
-Version: v1.5 | 2026-06-03
-Status: DS-01 DS-02 confirmed, DS-03 complete, Flask backend built
+Version: v1.6 | 2026-06-03
+Status: DS-01 DS-02 confirmed, DS-03 complete, Flask backend built + tested
 Purpose: New Claude session reads this file to continue from last point.
 
 ---
@@ -33,7 +33,7 @@ Dedup and change tracking:
 - Exact duplicate: skip
 - Field matching: always by NAME not position
 
-Backup: Daily automatic full SQLite backup, retention days TBD
+Backup: python flask_backend/backup.py (keeps 30 days)
 
 Reports:
 - Fixed: Jim-approved tabs, auto-updated
@@ -63,7 +63,9 @@ Type: System export, Excel, fixed format, ~6383 rows x 76 cols
 Primary key (CONFIRMED): Article ID + Product Type DESC + Calendar Month
 Quantity: Total (sum)
 Field matching: by name, not position
-Pending: Analysis requirements, import frequency
+Import CLI: python flask_backend/import_ds01.py "<path.xlsx>"
+Import UI:  http://localhost:5000/admin → DS-01 section
+Pending: actual Excel file path, analysis requirements, import frequency
 
 ---
 
@@ -78,6 +80,9 @@ Primary key (CONFIRMED): Article # (ART) - also cross-table join key
 Change tracking: ALL fields
 Field matching: by name, not position
 E-PPH source: LC Cutting / LC Stitching / LC Assembly / LC Stockfitting -> used in DS-03 SUM_C2B
+Import CLI: python flask_backend/import_ds02.py "<path.xlsx>"
+Import UI:  http://localhost:5000/admin → DS-02 section
+Pending: actual Excel file path, analysis requirements, import frequency
 
 ---
 
@@ -91,36 +96,38 @@ Parts, CT, layers do not change across EOLR
 MP (operators) changes per EOLR
 PPH = EOLR / MP (changes with MP, NOT a fixed value)
 
-Interface file: ds03_ob_interface.html (v1.3 in repo)
-Backend: flask_backend/ (app.py, database.py, schema.sql)
-Start server: double-click flask_backend/start.bat
+Interface: ds03_ob_interface.html v1.4
+Backend: flask_backend/ (app.py v1.1, database.py, schema.sql)
+Start server: double-click flask_backend/start.bat → http://localhost:5000
+TESTED: Flask server confirmed working 2026-06-03
 
-Navigation structure:
+Interface features (v1.4):
+- 📂 Open: Record browser modal (search/filter, load any saved OB record)
+- 💾 Save: POSTs to /api/ds03/save
+- DS-02 →: Auto-fills E-PPH bar from DS-02 FOB LC values by ART (requires DS-02 imported)
+- 📚 Lookup: Viet-Chinese part name lookup manager
+- ＋ New: Clear form and start new record
+
+Navigation:
 - L1: SUM_C2B (read-only) | SUM_Stock (read-only)
-- L2 under SUM_C2B: Cutting, ATOM, 同材共裁, 电脑针车, Stitching 支流, Stitching 主流, Assembly 1, Assembly 2
+- L2 under SUM_C2B: Cutting, ATOM/自动化, 同材共裁, 电脑针车, Stitching 支流, Stitching 主流, Assembly 1, Assembly 2
 - L2 under SUM_Stock: 打粗, 水洗, 贴大底, 照射, 成型面照射
 
 SUM_C2B fields (all read-only):
 - MP: aggregated from sub-sheets
 - PPH: EOLR / MP
-- E-PPH: from DS-02 FOB LC values
-- Diff PPH: E-PPH - PPH (red=gap, green=ok)
+- E-PPH: from DS-02 FOB LC values (auto-fill via DS-02 → button)
+- Diff PPH: E-PPH - PPH
 - Eff%: PPH / E-PPH x 100%
 
-Cutting sheet row structure:
-- Row 1: Material category | Part name Viet (team input) | 部件名稱 中文 (auto lookup)
-- Row 2: Layers, Qty/Pr, Knives/H, CT (manual), Allowance%, ST (formula), Actual Ops (manual)
-- Additional process cols: Marking, Skiving, Attaching, Edge Paint, Heat Press
+Cutting sheet: Material category | Part Viet | 部件名稱中文 | Layers | Qty/Pr | Knives/H | CT | Allowance% | ST | Actual Ops | Marking | Skiving | Attaching | Edge Paint | Heat Press
+Stitching / Assembly: same, no Material category column
+Stock sheets: Part Viet | 部件名稱中文 | CT | Allowance% | ST | Actual Ops
 
-Stitching / Assembly: same as Cutting, no Material category column
-
-Vietnamese-Chinese Part Name Lookup Table:
-- Independent base table (not DS series)
-- Team inputs Vietnamese -> system auto-fills Chinese
-- 30+ pairs seeded in DB on first run
-- Will grow from historical Excel files
-
-Header import file: pending (Jim to provide format)
+Vietnamese-Chinese Part Name Lookup:
+- Independent base table
+- 30+ pairs seeded on first run
+- Batch extract from historical files: python flask_backend/import_ds03_batch.py "<folder>"
 
 ---
 
@@ -134,18 +141,34 @@ Pending Jim input.
 
 DS-02 Article # = DS-01 Article ID (join key)
 DS-03 ART = DS-02 Article # (join key)
-DS-03 E-PPH sourced from DS-02 LC fields
+DS-03 E-PPH sourced from DS-02 LC Cutting/Stitching/Assembly/Stockfitting
 
 ---
 
-## Flask Backend (BUILT - in flask_backend/)
+## Flask Backend (flask_backend/)
+
+Start: double-click start.bat  OR  cd flask_backend && python app.py
+URLs:
+  http://localhost:5000        ← OB Interface (ds03_ob_interface.html)
+  http://localhost:5000/admin  ← Import Admin (DS-01/DS-02 upload, DB stats)
 
 Files:
-- app.py: all API endpoints (DS-03 save/load, lookup CRUD, DS-02 E-PPH)
-- database.py: SQLite helpers
-- schema.sql: full schema (ob_header, ob_rows, ob_epph, lookup_viet_zh, change_log, ds01_sp, ds02_fob)
-- requirements.txt: flask, flask-cors
-- start.bat: one-click server start for LAN deployment
+- app.py v1.1: all API endpoints
+- database.py: SQLite helpers + import functions (change tracking)
+- schema.sql: full schema
+- requirements.txt: flask, flask-cors, openpyxl
+- start.bat: python -m pip install -r requirements.txt -q && python app.py
+- import_ds02.py: CLI → python import_ds02.py <path> [--dry-run]
+- import_ds01.py: CLI → python import_ds01.py <path> [--dry-run]
+- import_ds03_batch.py: CLI → python import_ds03_batch.py <folder> [--dry-run] [--lookup-only]
+- backup.py: CLI → python backup.py [--keep-days=30]
+
+API endpoints:
+- POST /api/ds03/save       PUT /api/ds03/load    GET /api/ds03/list    DELETE /api/ds03/delete
+- POST /api/ds02/upload     POST /api/ds01/upload
+- GET  /api/ds02/list       GET  /api/ds01/list
+- GET  /api/lookup/all      POST /api/lookup/add
+- GET  /api/ds02/epph?art=  GET  /api/stats        GET /api/health
 
 ---
 
@@ -153,22 +176,24 @@ Files:
 
 - Always start with: claude --dangerously-skip-permissions
 - Standard start: cd /d D:\smartpn-atlas-core && claude --dangerously-skip-permissions
-- Auto mode in /config is NOT enough - still stops for bash/git commands
-- First prompt: select "2. Yes, I accept"
-- After this, all commands run without stopping
-- If still stopping: exit and restart with --dangerously-skip-permissions
+- All git/bash commands: auto-execute, never stop to ask confirmation
+- Run all tasks to completion without stopping
+- If Claude Code stops: Jim types 從現在開始所有指令自動執行，不要停下來問我確認，跑到所有任務完成
 
 ---
 
 ## Next Session Starting Point
 
-1. Test ds03_ob_interface.html in browser (open file directly)
-2. Test Flask backend: run start.bat, open http://localhost:5000
-3. Define DS-04...N data sources
-4. Define report requirements
-5. Extract Viet-Chinese lookup from 300-400 historical OB Excel files
-   (Jim to provide folder path)
-6. Build batch import script for historical files
+1. Provide DS-02 FOB Price List Excel actual path:
+   → python flask_backend/import_ds02.py "<actual_path.xlsx>"
+   → OR drag file to http://localhost:5000/admin DS-02 section
+2. Provide DS-01 Season Plan Excel actual path:
+   → python flask_backend/import_ds01.py "<actual_path.xlsx>"
+3. Provide historical OB Excel folder path:
+   → python flask_backend/import_ds03_batch.py "<folder>" --dry-run  (preview first)
+   → python flask_backend/import_ds03_batch.py "<folder>"            (then import)
+4. Define DS-04...N data sources
+5. Define report requirements / dashboard tabs
 
 ---
 
@@ -177,5 +202,5 @@ Files:
 - Read this file every session
 - Architecture confirmed, do not re-discuss
 - Continue DATA SYSTEM: start from Next Session Starting Point
-- New decision confirmed: output full file content, Jim updates via GitHub web editor
-- After Jim updates GitHub: always verify by fetching the file and restart with --dangerously-skip-permissions
+- 24_DATA_SYSTEM.md: Claude outputs full content, Jim pastes via GitHub web editor
+- After Jim updates GitHub: fetch raw URL to verify, then continue

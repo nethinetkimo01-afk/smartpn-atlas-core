@@ -31,14 +31,22 @@ File: 00_HANDOFF/24_DATA_SYSTEM.md (v1.5)
 ### Completed 2026-06-03 (Session C — DS-03 UI v1.4)
 - ds03_ob_interface.html v1.4: 📂 Open button → Record Browser Modal (search/filter, click to load any saved OB record from server)
 - ds03_ob_interface.html v1.4: DS-02 → button next to ART field (auto-fills E-PPH bar from DS-02 FOB LC values)
-- All committed and pushed to GitHub
+
+### Completed 2026-06-03 (Session D — Server test + start.bat fix)
+- Python 安裝確認：系統有 Python（透過 Windows PATH）
+- flask_backend/start.bat 修正：pip install → python -m pip install（相容所有 Python 安裝方式）
+- Flask server 啟動測試成功：http://localhost:5000/api/health → {"ok":true,"version":"1.1"}
+- http://localhost:5000 (OB Interface) 可訪問
+- http://localhost:5000/admin (Import Admin) 可訪問
+- DS-02 import 待執行：FOB_Price_List.xlsx 尚未在本機，需 Jim 提供路徑
+- DS-01 import 待執行：SS27_SP1___FW26_SP7.xlsx 尚未在本機，需 Jim 提供路徑
 
 ### Next Session Starting Point
-1. Jim provides historical OB Excel files folder path → run: python flask_backend/import_ds03_batch.py <folder>
-2. Test Flask server: cd flask_backend && python app.py → open http://localhost:5000 (OB interface) and http://localhost:5000/admin (import admin)
-3. Import first DS-02 FOB Price List file via /admin → enables E-PPH auto-fill in OB interface
-4. Define DS-04...N data sources
-5. Define report requirements / dashboard tabs
+1. 提供 DS-02 FOB Price List Excel 實際路徑 → python flask_backend/import_ds02.py "<path>"
+2. 提供 DS-01 Season Plan Excel 實際路徑 → python flask_backend/import_ds01.py "<path>"
+3. 提供歷史 OB Excel 文件夾路徑 → python flask_backend/import_ds03_batch.py "<folder>"
+4. 定義 DS-04...N 數據源
+5. 定義報表 dashboard 需求
 
 ---
 
