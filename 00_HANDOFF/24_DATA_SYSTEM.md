@@ -198,3 +198,12 @@ Other relationships TBD
 - Run all tasks to completion without stopping
 - If Claude Code stops waiting for input, Jim types: 從現在開始所有指令自動執行，不要停下來問我確認，跑到所有任務完成
 - Never ask Jim to verify intermediate steps
+## Claude Code Operating Rules
+
+- Always start with: claude --dangerously-skip-permissions
+  (without this, Claude Code stops at every bash/git/PowerShell command and cannot run unattended)
+- Standard start command: cd /d D:\smartpn-atlas-core && claude --dangerously-skip-permissions
+- Auto mode in /config is NOT enough — it still stops for bash/git commands
+- First time prompt: select "2. Yes, I accept" to proceed
+- After this, all commands run without stopping
+- If Claude Code is running and still stopping: exit and restart with --dangerously-skip-permissions
