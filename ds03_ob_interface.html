@@ -111,7 +111,7 @@ td.eff-bad{color:#cc2222;font-weight:700}
   <div class="header-right">
     <button class="btn btn-new" onclick="newRecord()">＋ New</button>
     <button class="btn btn-save" onclick="saveData()">💾 Save</button>
-    <span class="version">v1.0</span>
+    <span class="version">v1.1</span>
   </div>
 </div>
 
@@ -486,7 +486,7 @@ function updateRecordId() {
 function makeRow(type) {
   const base = { _id: Date.now()+Math.random(), partViet:'', partZh:'', ct:0, allowance:10, st:0, ops:0 };
   if (type === 'cutting')   return { ...base, matCat:'', layers:1, qtyPr:2, knives:0, marking:0, skiving:0, attaching:0, edgePaint:0, heatPress:0 };
-  if (type === 'stitching') return { ...base, layers:1, qtyPr:2 };
+  if (type === 'stitching') return { ...base, layers:1, qtyPr:2, marking:0, skiving:0, attaching:0, edgePaint:0, heatPress:0 };
   return base; // stock
 }
 
@@ -541,59 +541,101 @@ function renderSheet(key) {
   const rows = state.sheets[key];
   const type = cfg.type;
 
-  if (key === 'cutting') {
-    renderCuttingSheet(rows);
-    return;
-  }
+  if (key === 'cutting')     { renderCuttingSheet(rows); return; }
+  if (type === 'stitching')  { renderStitchingSheet(key, rows); return; }
 
-  // Build table for stitching/stock types
-  const wrapId = 'wrap-' + key;
-  const wrap = document.getElementById(wrapId);
+  // Stock type
+  const wrap = document.getElementById('wrap-' + key);
   if (!wrap) return;
 
-  const isStock = type === 'stock';
-  const hasParts = !isStock;
-
-  let thead = `<table><thead><tr>
+  let html = `<table><thead><tr>
     <th class="stt">#</th>
     <th style="min-width:140px">Tên phối kiện (Việt)</th>
-    <th style="min-width:100px">部件名稱 (中)</th>`;
-  if (!isStock) thead += `<th>层数</th><th>片数/Pr</th>`;
-  thead += `<th style="min-width:60px">CT</th><th style="min-width:50px">寬放率%</th>
+    <th style="min-width:100px">部件名稱 (中)</th>
+    <th style="min-width:60px">CT</th><th style="min-width:50px">寬放率%</th>
     <th style="min-width:60px">ST (auto)</th><th style="min-width:50px">Actual Ops</th>
-    <th></th></tr></thead>`;
+    <th></th></tr></thead><tbody>`;
 
-  let tbody = '<tbody>';
   rows.forEach((r, i) => {
-    tbody += `<tr><td class="stt">${i+1}</td>
+    html += `<tr><td class="stt">${i+1}</td>
       <td>${inp('text', r.partViet, key, i, 'partViet', '140px')}</td>
-      <td class="lookup" id="zh_${key}_${i}">${esc(r.partZh)||'—'}</td>`;
-    if (!isStock) {
-      tbody += `<td>${inp('number', r.layers, key, i, 'layers', '45px')}</td>
-                <td>${inp('number', r.qtyPr,  key, i, 'qtyPr',  '45px')}</td>`;
-    }
-    tbody += `<td>${inp('number', r.ct,        key, i, 'ct',        '60px')}</td>
-              <td>${inp('number', r.allowance,  key, i, 'allowance', '50px')}</td>
-              <td class="auto" id="st_${key}_${i}">${r.st||0}</td>
-              <td>${inp('number', r.ops, key, i, 'ops', '50px')}</td>
-              <td class="del-cell"><button class="btn-del" onclick="delRow('${key}',${i})">✕</button></td>
-              </tr>`;
+      <td class="lookup" id="zh_${key}_${i}">${esc(r.partZh)||'—'}</td>
+      <td>${inp('number', r.ct,       key, i, 'ct',       '60px')}</td>
+      <td>${inp('number', r.allowance,key, i, 'allowance','50px')}</td>
+      <td class="auto" id="st_${key}_${i}">${r.st||0}</td>
+      <td>${inp('number', r.ops, key, i, 'ops', '50px')}</td>
+      <td class="del-cell"><button class="btn-del" onclick="delRow('${key}',${i})">✕</button></td>
+    </tr>`;
   });
-  tbody += '</tbody>';
 
-  // Summary row
-  const totCT  = rows.reduce((s,r) => s + (r.ct||0), 0);
-  const totST  = rows.reduce((s,r) => s + (r.st||0), 0);
-  const totOps = rows.reduce((s,r) => s + (r.ops||0), 0);
-  const cols   = isStock ? 3 : 5;
-  const tfoot  = `<tfoot><tr class="sum-row">
+  const totCT  = rows.reduce((s,r) => s+(r.ct||0), 0);
+  const totST  = rows.reduce((s,r) => s+(r.st||0), 0);
+  const totOps = rows.reduce((s,r) => s+(r.ops||0), 0);
+  html += `</tbody><tfoot><tr class="sum-row">
     <td></td><td class="left">TOTAL</td><td></td>
-    ${ hasParts ? '<td></td><td></td>' : '' }
     <td>${totCT.toFixed(4)}</td><td></td>
     <td>${totST.toFixed(4)}</td><td>${totOps}</td><td></td>
-    </tr></tfoot>`;
+    </tr></tfoot></table>`;
+  wrap.innerHTML = html;
+}
 
-  wrap.innerHTML = thead + tbody + tfoot + '</table>';
+function renderStitchingSheet(key, rows) {
+  const wrap = document.getElementById('wrap-' + key);
+  if (!wrap) return;
+
+  let html = `<table><thead>
+    <tr>
+      <th rowspan="2" class="stt">#</th>
+      <th colspan="2">Part Info</th>
+      <th colspan="6">Time &amp; Operations</th>
+      <th colspan="5">Additional Processes (Ops)</th>
+      <th rowspan="2"></th>
+    </tr>
+    <tr class="th2">
+      <th style="min-width:130px">Tên phối kiện (Việt)</th>
+      <th style="min-width:100px">部件名稱 (中)</th>
+      <th>层数</th><th>片数/Pr</th>
+      <th style="min-width:60px">CT</th>
+      <th style="min-width:48px">寬放率%</th>
+      <th style="min-width:60px">ST (auto)</th>
+      <th style="min-width:48px">Actual Ops</th>
+      <th>Marking</th><th>Skiving</th><th>Attaching</th><th>Edge Paint</th><th>Heat Press</th>
+    </tr>
+  </thead><tbody>`;
+
+  rows.forEach((r, i) => {
+    html += `<tr>
+      <td class="stt">${i+1}</td>
+      <td>${inp('text',   r.partViet,  key,i,'partViet', '130px')}</td>
+      <td class="lookup" id="zh_${key}_${i}">${esc(r.partZh)||'—'}</td>
+      <td>${inp('number', r.layers,    key,i,'layers',   '42px')}</td>
+      <td>${inp('number', r.qtyPr,     key,i,'qtyPr',   '42px')}</td>
+      <td>${inp('number', r.ct,        key,i,'ct',       '60px')}</td>
+      <td>${inp('number', r.allowance, key,i,'allowance','48px')}</td>
+      <td class="auto" id="st_${key}_${i}">${r.st||0}</td>
+      <td>${inp('number', r.ops,       key,i,'ops',      '48px')}</td>
+      <td>${inp('number', r.marking,   key,i,'marking',  '40px')}</td>
+      <td>${inp('number', r.skiving,   key,i,'skiving',  '40px')}</td>
+      <td>${inp('number', r.attaching, key,i,'attaching','40px')}</td>
+      <td>${inp('number', r.edgePaint, key,i,'edgePaint','40px')}</td>
+      <td>${inp('number', r.heatPress, key,i,'heatPress','40px')}</td>
+      <td class="del-cell"><button class="btn-del" onclick="delRow('${key}',${i})">✕</button></td>
+    </tr>`;
+  });
+
+  const totCT  = rows.reduce((s,r)=>s+(r.ct||0),0);
+  const totST  = rows.reduce((s,r)=>s+(r.st||0),0);
+  const totOps = rows.reduce((s,r)=>s+(r.ops||0)+(r.marking||0)+(r.skiving||0)+(r.attaching||0)+(r.edgePaint||0)+(r.heatPress||0),0);
+
+  html += `</tbody><tfoot><tr class="sum-row">
+    <td></td><td colspan="2" class="left">TOTAL</td>
+    <td></td><td></td>
+    <td>${totCT.toFixed(4)}</td><td></td>
+    <td>${totST.toFixed(4)}</td>
+    <td colspan="6">${totOps} total ops</td>
+    <td></td>
+  </tr></tfoot></table>`;
+  wrap.innerHTML = html;
 }
 
 function renderCuttingSheet(rows) {
@@ -644,7 +686,8 @@ function getTotalOps(key) {
   const type = SHEETS[key].type;
   return state.sheets[key].reduce((s, r) => {
     let n = r.ops || 0;
-    if (type === 'cutting') n += (r.marking||0)+(r.skiving||0)+(r.attaching||0)+(r.edgePaint||0)+(r.heatPress||0);
+    if (type === 'cutting' || type === 'stitching')
+      n += (r.marking||0)+(r.skiving||0)+(r.attaching||0)+(r.edgePaint||0)+(r.heatPress||0);
     return s + n;
   }, 0);
 }
