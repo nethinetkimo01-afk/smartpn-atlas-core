@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data System · Import Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background:#f0f2f5;color:#1a1a2e;min-height:100vh}
+.page-header{background:#1a2744;color:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.page-header h1{font-size:15px;font-weight:600}
+.header-links{display:flex;gap:10px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:4px;padding:6px 13px;border:none;border-radius:5px;cursor:pointer;font-size:12px;font-weight:500;text-decoration:none;transition:background .15s}
+.btn-back{background:#4a6cf7;color:#fff}.btn-back:hover{background:#3a5ce7}
+.btn-upload{background:#1d9e6b;color:#fff}.btn-upload:hover{background:#178059}
+.btn-refresh{background:#6c757d;color:#fff}.btn-refresh:hover{background:#5a6268}
+.btn-load{background:#4a6cf7;color:#fff;font-size:11px;padding:4px 12px}.btn-load:hover{background:#3a5ce7}
+.content{padding:20px;max-width:960px;margin:0 auto}
+.section{background:#fff;border-radius:8px;padding:18px 20px;margin-bottom:16px;box-shadow:0 1px 6px rgba(0,0,0,.08)}
+.section-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.section h2{font-size:14px;font-weight:700;color:#1a2744}
+.section p{font-size:12px;color:#666;margin-bottom:12px;line-height:1.6}
+.section p strong{color:#1a2744}
+.upload-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.file-input{border:1px solid #d0d5e0;border-radius:4px;padding:5px 8px;font-size:12px;background:#f8f9fc;outline:none}
+.file-input:focus{border-color:#4a6cf7}
+.result{margin-top:10px;padding:9px 13px;border-radius:5px;font-size:12px;line-height:1.6}
+.result.success{background:#e6f9f1;color:#1a6644;border:1px solid #b3e5cf}
+.result.error{background:#fce8e8;color:#cc2222;border:1px solid #f5b8b8}
+.result.info{background:#e8f0fe;color:#1a3a8f;border:1px solid #b3c6f5}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;margin-top:4px}
+.stat-card{background:#f7f9fc;border-radius:6px;padding:12px 14px;border:1px solid #e0e5f0}
+.stat-label{font-size:11px;color:#888;margin-bottom:4px}
+.stat-value{font-size:24px;font-weight:700;color:#1a2744}
+.badge-count{background:#4a6cf7;color:#fff;font-size:11px;padding:2px 9px;border-radius:10px;margin-left:8px}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+thead th{background:#1a2744;color:#fff;padding:6px 8px;text-align:left;font-weight:600;font-size:11px;white-space:nowrap}
+tbody tr:nth-child(even){background:#f7f9fc}
+tbody tr:hover{background:#eef2ff}
+td{padding:5px 8px;border-bottom:1px solid #edf0f7;white-space:nowrap}
+.loading{color:#aaa;font-style:italic;font-size:12px}
+.spec-tag{display:inline-block;background:#eef2ff;color:#4a6cf7;font-size:10px;border-radius:3px;padding:1px 6px;margin:1px 2px}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>📊 Data System · Import Admin</h1>
+  <div class="header-links">
+    <a href="/" class="btn btn-back">← OB Interface</a>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- DB Stats -->
+  <div class="section">
+    <div class="section-hdr">
+      <h2>Database Overview</h2>
+      <button class="btn btn-refresh" onclick="loadStats()">↻ Refresh</button>
+    </div>
+    <div class="stat-grid" id="stat-grid">
+      <div class="loading">Loading...</div>
+    </div>
+  </div>
+
+  <!-- DS-02 Import -->
+  <div class="section">
+    <h2>DS-02 · Import FOB Price List</h2>
+    <p>
+      Upload the FOB Price List Excel file (system export).<br>
+      Required: <span class="spec-tag">Article #</span> and at least two of:
+      <span class="spec-tag">Cutting</span><span class="spec-tag">Stitching</span>
+      <span class="spec-tag">Stockfitting</span><span class="spec-tag">Assembly</span>
+      <span class="spec-tag">LC Total</span><br>
+      Also mapped: Model #, Model Name, Factory, Season, Category, Stage, Valid From, LC CTB.<br>
+      Dedup key: <strong>Article #</strong>. Changed fields are logged to change_log.
+    </p>
+    <form onsubmit="uploadFile(event,'ds02')">
+      <div class="upload-row">
+        <input type="file" id="file-ds02" accept=".xlsx,.xls" required class="file-input">
+        <button type="submit" class="btn btn-upload">⬆ Upload &amp; Import</button>
+      </div>
+    </form>
+    <div id="result-ds02"></div>
+  </div>
+
+  <!-- DS-01 Import -->
+  <div class="section">
+    <h2>DS-01 · Import Season Plan (SP)</h2>
+    <p>
+      Upload the Season Plan Excel export (~6 383 rows × 76 cols).<br>
+      Required columns: <span class="spec-tag">Article ID</span>
+      <span class="spec-tag">Product Type DESC</span>
+      <span class="spec-tag">Calendar Month</span><br>
+      Quantity column: <span class="spec-tag">Total</span> (or Quantity / Qty).<br>
+      All 76 columns are stored as raw JSON. Dedup key: ART + Type + Month.
+    </p>
+    <form onsubmit="uploadFile(event,'ds01')">
+      <div class="upload-row">
+        <input type="file" id="file-ds01" accept=".xlsx,.xls" required class="file-input">
+        <button type="submit" class="btn btn-upload">⬆ Upload &amp; Import</button>
+      </div>
+    </form>
+    <div id="result-ds01"></div>
+  </div>
+
+  <!-- Recent DS-02 Records -->
+  <div class="section">
+    <div class="section-hdr">
+      <h2>DS-02 Records <span class="badge-count" id="ds02-count">—</span></h2>
+      <button class="btn btn-load" onclick="loadDs02List()">Load List</button>
+    </div>
+    <div id="ds02-list"><span class="loading">Click "Load List" to view records.</span></div>
+  </div>
+
+</div><!-- /content -->
+
+<script>
+async function loadStats() {
+  try {
+    const res = await fetch('/api/stats');
+    const data = await res.json();
+    if (!data.ok) { document.getElementById('stat-grid').innerHTML = '<div class="loading">Error.</div>'; return; }
+    document.getElementById('stat-grid').innerHTML = `
+      <div class="stat-card"><div class="stat-label">DS-01 (SP) Records</div><div class="stat-value">${data.ds01_count.toLocaleString()}</div></div>
+      <div class="stat-card"><div class="stat-label">DS-02 (FOB) Records</div><div class="stat-value">${data.ds02_count.toLocaleString()}</div></div>
+      <div class="stat-card"><div class="stat-label">DS-03 (OB) Records</div><div class="stat-value">${data.ds03_count.toLocaleString()}</div></div>
+      <div class="stat-card"><div class="stat-label">Viet→Chinese Pairs</div><div class="stat-value">${data.lookup_count.toLocaleString()}</div></div>
+      <div class="stat-card"><div class="stat-label">Change Log Entries</div><div class="stat-value">${data.change_log_count.toLocaleString()}</div></div>
+    `;
+  } catch(e) {
+    document.getElementById('stat-grid').innerHTML = '<div class="loading">Server offline.</div>';
+  }
+}
+
+async function uploadFile(event, ds) {
+  event.preventDefault();
+  const fileInput = document.getElementById('file-' + ds);
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  const resultEl = document.getElementById('result-' + ds);
+  resultEl.innerHTML = '<div class="result info">⏳ Uploading and processing — please wait...</div>';
+
+  const fd = new FormData();
+  fd.append('file', file);
+
+  try {
+    const res = await fetch('/api/' + ds + '/upload', { method: 'POST', body: fd });
+    const data = await res.json();
+
+    if (data.ok) {
+      const s  = data.stats || {};
+      const fi = data.file_info || {};
+      let html = `<div class="result success">
+        ✓ Import complete from <strong>${esc(file.name)}</strong><br>
+        New: <strong>${s.new||0}</strong> &nbsp; Updated: <strong>${s.updated||0}</strong> &nbsp; Unchanged: <strong>${s.unchanged||0}</strong> &nbsp; Errors: <strong>${s.errors||0}</strong>`;
+      if (fi.total) html += `<br>Rows in file: ${fi.total}`;
+      if (fi.unmapped_cols?.length) html += `<br>Unmapped columns: ${fi.unmapped_cols.map(esc).join(', ')}`;
+      if (s.error_details?.length) html += `<br>Errors: ${s.error_details.slice(0,3).map(esc).join(' | ')}`;
+      html += '</div>';
+      resultEl.innerHTML = html;
+      loadStats();
+      if (ds === 'ds02') loadDs02List();
+    } else {
+      resultEl.innerHTML = `<div class="result error">✗ Import failed: ${esc(data.error)}</div>`;
+    }
+  } catch(e) {
+    resultEl.innerHTML = `<div class="result error">✗ Network error: ${esc(e.message)}</div>`;
+  }
+}
+
+async function loadDs02List() {
+  const el = document.getElementById('ds02-list');
+  el.innerHTML = '<div class="loading">Loading...</div>';
+  try {
+    const res = await fetch('/api/ds02/list?limit=200');
+    const data = await res.json();
+    if (!data.ok || !data.records?.length) {
+      el.innerHTML = '<div class="loading">No DS-02 records yet. Import a FOB Price List file above.</div>';
+      document.getElementById('ds02-count').textContent = '0';
+      return;
+    }
+    document.getElementById('ds02-count').textContent = data.total || data.records.length;
+    el.innerHTML = `<table>
+      <thead><tr>
+        <th>Article #</th><th>Model Name</th><th>Factory</th><th>Season</th>
+        <th>LC Cutting</th><th>LC Stitching</th><th>LC Stock</th><th>LC Assembly</th><th>LC Total</th>
+        <th>Updated</th>
+      </tr></thead>
+      <tbody>${data.records.map(r => `<tr>
+        <td><strong>${esc(r.art)}</strong></td>
+        <td>${esc(r.model_name||'')}</td>
+        <td>${esc(r.factory||'')}</td>
+        <td>${esc(r.season||'')}</td>
+        <td>${r.lc_cutting  != null ? Number(r.lc_cutting).toFixed(3)  : '—'}</td>
+        <td>${r.lc_stitching != null ? Number(r.lc_stitching).toFixed(3) : '—'}</td>
+        <td>${r.lc_stockfitting != null ? Number(r.lc_stockfitting).toFixed(3) : '—'}</td>
+        <td>${r.lc_assembly != null ? Number(r.lc_assembly).toFixed(3) : '—'}</td>
+        <td>${r.lc_total    != null ? Number(r.lc_total).toFixed(3)    : '—'}</td>
+        <td>${(r.updated_at||'').slice(0,10)}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+  } catch(e) {
+    el.innerHTML = '<div class="loading">Server offline.</div>';
+  }
+}
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+loadStats();
+</script>
+</body>
+</html>
