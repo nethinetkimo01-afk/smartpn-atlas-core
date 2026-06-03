@@ -1,7 +1,7 @@
 ﻿# Data System - Internal Data Automation Project
 
-Version: v1.4 | 2026-06-02
-Status: DS-01 DS-02 confirmed, DS-03 design complete
+Version: v1.5 | 2026-06-03
+Status: DS-01 DS-02 confirmed, DS-03 complete, Flask backend built
 Purpose: New Claude session reads this file to continue from last point.
 
 ---
@@ -77,86 +77,50 @@ Fields: Model #, Model Name, Silhouette Number, Article #, Factory, Season,
 Primary key (CONFIRMED): Article # (ART) - also cross-table join key
 Change tracking: ALL fields
 Field matching: by name, not position
-Pending: Analysis requirements, import frequency
+E-PPH source: LC Cutting / LC Stitching / LC Assembly / LC Stockfitting -> used in DS-03 SUM_C2B
 
 ---
 
 ### DS-03: IE/LC Operation Breakdown (OB)
 
-Type: Manual input via web interface (replaces Excel entry)
-File format: One Excel file per style per production run
+Type: Manual input via web interface
 Primary key (CONFIRMED): ART + EOLR + Run number (Lan 1, Lan 2...)
+EOLR options: 60 / 120 / 150 pairs/H
+Same ART + different EOLR = separate records
+Parts, CT, layers do not change across EOLR
+MP (operators) changes per EOLR
+PPH = EOLR / MP (changes with MP, NOT a fixed value)
 
-Note: Same ART with different EOLR (60/120/150) = separate records.
-Parts, CT, layers do not change across EOLR.
-MP (operators) changes per EOLR. PPH = EOLR / MP (changes with MP).
+Interface file: ds03_ob_interface.html (v1.3 in repo)
+Backend: flask_backend/ (app.py, database.py, schema.sql)
+Start server: double-click flask_backend/start.bat
 
-#### Navigation Structure (CONFIRMED)
+Navigation structure:
+- L1: SUM_C2B (read-only) | SUM_Stock (read-only)
+- L2 under SUM_C2B: Cutting, ATOM, 同材共裁, 电脑针车, Stitching 支流, Stitching 主流, Assembly 1, Assembly 2
+- L2 under SUM_Stock: 打粗, 水洗, 贴大底, 照射, 成型面照射
 
-Layer 1 (main tabs - READ ONLY):
-- SUM_C2B: auto-aggregated from all C2B sub-sheets
-- SUM_Stock: auto-aggregated from all Stock sub-sheets
+SUM_C2B fields (all read-only):
+- MP: aggregated from sub-sheets
+- PPH: EOLR / MP
+- E-PPH: from DS-02 FOB LC values
+- Diff PPH: E-PPH - PPH (red=gap, green=ok)
+- Eff%: PPH / E-PPH x 100%
 
-Layer 2 - under SUM_C2B:
-- Cutting, ATOM/自动化, 同材共裁, 电脑针车, Stitching 支流, Stitching 主流, Assembly 1, Assembly 2
+Cutting sheet row structure:
+- Row 1: Material category | Part name Viet (team input) | 部件名稱 中文 (auto lookup)
+- Row 2: Layers, Qty/Pr, Knives/H, CT (manual), Allowance%, ST (formula), Actual Ops (manual)
+- Additional process cols: Marking, Skiving, Attaching, Edge Paint, Heat Press
 
-Layer 2 - under SUM_Stock:
-- 打粗, 水洗, 贴大底, 照射, 成型面照射
+Stitching / Assembly: same as Cutting, no Material category column
 
-Rule: To change any number -> go to sub-sheet -> edit -> SUM auto-updates.
-
-#### SUM_C2B Fields (ALL READ ONLY)
-
-| Field | Source |
-|-------|--------|
-| 部門 | Fixed |
-| MP (operators) | Aggregated from sub-sheets |
-| PPH | Formula: EOLR / MP |
-| E-PPH | From DS-02 FOB: LC Cutting/Stitching/Assembly/Stockfitting -> converted to E-PPH |
-| Diff PPH | Formula: E-PPH - PPH |
-| Eff% | Formula: PPH / E-PPH x 100% |
-
-Cross-table: DS-03 ART -> DS-02 Article # -> get LC values -> calculate E-PPH
-
-#### Cutting Sheet Fields
-
-Row 1 (full width): Material category | Part name Việt (team input) | 部件名稱 中文 (auto lookup)
-Row 2 (data): Layers | Qty/Pr | Std Knives/H | CT (manual) | Allowance% | Std Time (formula) | Actual Ops (manual)
-Additional process columns: Marking | Skiving | Attaching | Edge Paint | Heat Press
-
-| Field | Source |
-|-------|--------|
-| STT | Auto-generated |
-| Material category (材料類別) | Manual input |
-| Part name Việt (Tên phối kiện) | Manual input by team |
-| Part name 中文 | Auto from Viet-Chinese lookup table |
-| Layers (层数) | Manual input |
-| Qty/Pr (片数) | Manual input |
-| Std Knives/H (刀数) | Manual input |
-| Cycle Time CT (正常時間) | Manual input |
-| Allowance% (寬放率) | Preset 10%, manual override |
-| Standard Time ST (標准時間) | Formula: CT x 1.1 |
-| Actual Operators (裁机人数) | Manual input |
-
-Summary row (auto):
-- Total CT, Total ST = SUM of all rows
-- Total Ops = SUM of actual operators
-
-#### Stitching Sheet Fields (same as Cutting, NO Material category column)
-#### Assembly Sheet Fields (same as Stitching)
-
-#### Vietnamese-Chinese Part Name Lookup Table (INDEPENDENT BASE TABLE)
-
-- NOT part of DS series
+Vietnamese-Chinese Part Name Lookup Table:
+- Independent base table (not DS series)
 - Team inputs Vietnamese -> system auto-fills Chinese
-- Used across all sub-sheets (Cutting, Stitching, Assembly, etc.)
-- Initial data: extracted from historical Excel files uploaded by Jim
-- Will grow as more files are processed
+- 30+ pairs seeded in DB on first run
+- Will grow from historical Excel files
 
-#### Header Import File
-
-Fields: Season, Model name, ART, Material, Category, EOLR
-Source: Separate import file (Jim will provide format later)
+Header import file: pending (Jim to provide format)
 
 ---
 
@@ -170,18 +134,41 @@ Pending Jim input.
 
 DS-02 Article # = DS-01 Article ID (join key)
 DS-03 ART = DS-02 Article # (join key)
-DS-03 E-PPH sourced from DS-02 LC Cutting/Stitching/Assembly/Stockfitting fields
-Other relationships TBD
+DS-03 E-PPH sourced from DS-02 LC fields
+
+---
+
+## Flask Backend (BUILT - in flask_backend/)
+
+Files:
+- app.py: all API endpoints (DS-03 save/load, lookup CRUD, DS-02 E-PPH)
+- database.py: SQLite helpers
+- schema.sql: full schema (ob_header, ob_rows, ob_epph, lookup_viet_zh, change_log, ds01_sp, ds02_fob)
+- requirements.txt: flask, flask-cors
+- start.bat: one-click server start for LAN deployment
+
+---
+
+## Claude Code Operating Rules
+
+- Always start with: claude --dangerously-skip-permissions
+- Standard start: cd /d D:\smartpn-atlas-core && claude --dangerously-skip-permissions
+- Auto mode in /config is NOT enough - still stops for bash/git commands
+- First prompt: select "2. Yes, I accept"
+- After this, all commands run without stopping
+- If still stopping: exit and restart with --dangerously-skip-permissions
 
 ---
 
 ## Next Session Starting Point
 
-1. Complete DS-03 web interface: Stitching, Assembly tabs
-2. Build SUM_C2B auto-aggregation logic
-3. Extract Viet-Chinese part name lookup from historical Excel files
-4. Process all uploaded historical Excel files -> import to standard format
-5. Continue DS-04...N definition
+1. Test ds03_ob_interface.html in browser (open file directly)
+2. Test Flask backend: run start.bat, open http://localhost:5000
+3. Define DS-04...N data sources
+4. Define report requirements
+5. Extract Viet-Chinese lookup from 300-400 historical OB Excel files
+   (Jim to provide folder path)
+6. Build batch import script for historical files
 
 ---
 
@@ -189,21 +176,6 @@ Other relationships TBD
 
 - Read this file every session
 - Architecture confirmed, do not re-discuss
-- Continue DATA SYSTEM: start from Next session starting point
-- New decision confirmed: output full file content, Jim updates via GitHub web editorontent, Jim updates via GitHub web editor
-## Claude Code Operating Rules
-
-- All git and bash commands: auto-execute, never stop to ask confirmation
-- Use: Yes, and don't ask again for this session (shift+tab) on first prompt
-- Run all tasks to completion without stopping
-- If Claude Code stops waiting for input, Jim types: 從現在開始所有指令自動執行，不要停下來問我確認，跑到所有任務完成
-- Never ask Jim to verify intermediate steps
-## Claude Code Operating Rules
-
-- Always start with: claude --dangerously-skip-permissions
-  (without this, Claude Code stops at every bash/git/PowerShell command and cannot run unattended)
-- Standard start command: cd /d D:\smartpn-atlas-core && claude --dangerously-skip-permissions
-- Auto mode in /config is NOT enough — it still stops for bash/git commands
-- First time prompt: select "2. Yes, I accept" to proceed
-- After this, all commands run without stopping
-- If Claude Code is running and still stopping: exit and restart with --dangerously-skip-permissions
+- Continue DATA SYSTEM: start from Next Session Starting Point
+- New decision confirmed: output full file content, Jim updates via GitHub web editor
+- After Jim updates GitHub: always verify by fetching the file and restart with --dangerously-skip-permissions
