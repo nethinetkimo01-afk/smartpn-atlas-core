@@ -1,6 +1,6 @@
 # Data System - Internal Data Automation Project
 
-Version: v1.7 | 2026-06-03
+Version: v1.8 | 2026-06-03
 Status: DS-01✅ DS-02✅ DS-03✅ DS-04 defined (pending EOLR map + file path), Flask backend built + tested
 Purpose: New Claude session reads this file to continue from last point.
 
@@ -135,28 +135,32 @@ Vietnamese-Chinese Part Name Lookup:
 
 Type: System export, Excel, fixed format, one file per month, multiple sheets (by department)
 Primary key (CONFIRMED): Department + Group + ART + Month
+Table range: max 35–37 rows per sheet
 Import CLI: TBD (pending Excel path and frequency)
-Pending: Group vs EOLR mapping table, actual Excel file path, import frequency
+Pending: Group vs EOLR mapping table, import frequency
 
 File format:
 - Order number format: MF2604KJ8322-03--900(5/29)
-- ART: extracted from order number after "--"
-- Order quantity: extracted between "--" and "("
-- Deadline: date inside parentheses
-- Grey cell = holiday, excluded from work-hour calculation
+- ART: alphanumeric code extracted from order number after the "-" prefix (e.g. KJ8322)
+- Order quantity: number between "--" and "("; dual-ART format → sum both quantities
+- Grey cell = holiday (excluded from work-hour calculation)
 - Yellow cell = model-change loss quantity
-- Cumulative scheduled hours: formula-based, used to determine order completion date
 
 Analysis logic (CONFIRMED):
-1. From schedule: extract ART + order quantity per department/group
-2. ART → DS-02 FOB col J → get col G (Model Name) + Cutting/Stitching/Assembly LC
-3. Same group, same Model Name + same LC → merge display, sum orders
-4. ART → DS-03 OB → get MP for EOLR (Cutting / Stitching / Forming)
-5. Output: Model Name + ART | Orders | Cutting MP | Stitching MP | Forming MP
+1. From schedule: extract ART + order quantity for all columns per department/group
+2. ART → DS-02 FOB (Article #) → get Model Name + Cutting / Stitching / Assembly LC
+3. Same group, same Model Name AND all LC values identical → merge rows, sum orders
+4. LC values differ (even same Model Name) → display separately
+5. ART → DS-03 OB → get MP for corresponding EOLR (Cutting / Stitching / Forming)
+6. No DS-03 match → flag in red, allow manual input as final value
+7. Output per group: Model Name + ART | Orders | Cutting MP | Stitching MP | Forming MP
 
 EOLR mapping:
 - Defined per department/group (Jim to provide)
-- Example: Group 加一A → EOLR TBD
+- Pending: full group → EOLR table
+
+Validation:
+- 加一A group total: 15,096 PRS (confirmed correct)
 
 ---
 
