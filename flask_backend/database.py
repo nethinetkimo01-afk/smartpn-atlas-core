@@ -234,3 +234,165 @@ def get_epph_by_art(art):
         }
     finally:
         conn.close()
+
+
+# ── DS-02 / DS-01 Import ─────────────────────────────────────────────────────
+
+def _flt(rec, field):
+    v = rec.get(field)
+    try:
+        return float(v) if v is not None and str(v).strip() != '' else None
+    except (TypeError, ValueError):
+        return None
+
+
+def import_ds02_records(records):
+    conn = get_conn()
+    ts = now_iso()
+    stats = {'new': 0, 'updated': 0, 'unchanged': 0, 'errors': 0, 'error_details': []}
+    track_fields = ['model_no', 'model_name', 'silhouette_no', 'factory', 'season', 'category',
+                    'lc_total', 'lc_ctb', 'lc_cutting', 'lc_stitching', 'lc_stockfitting',
+                    'lc_assembly', 'stage', 'valid_from']
+    try:
+        for rec in records:
+            art = str(rec.get('art', '') or '').strip()
+            if not art:
+                stats['errors'] += 1
+                continue
+            try:
+                existing = conn.execute('SELECT * FROM ds02_fob WHERE art=?', (art,)).fetchone()
+                if existing:
+                    changes = [(f, existing[f], rec.get(f)) for f in track_fields
+                               if str(existing[f] if existing[f] is not None else '')
+                               != str(rec.get(f) if rec.get(f) is not None else '')]
+                    if changes:
+                        for f, ov, nv in changes:
+                            conn.execute(
+                                'INSERT INTO change_log (table_name,record_key,field_name,old_value,new_value,changed_at) VALUES (?,?,?,?,?,?)',
+                                ('ds02_fob', art, f, str(ov), str(nv), ts))
+                        conn.execute(
+                            '''UPDATE ds02_fob SET model_no=?,model_name=?,silhouette_no=?,
+                               factory=?,season=?,category=?,lc_total=?,lc_ctb=?,lc_cutting=?,
+                               lc_stitching=?,lc_stockfitting=?,lc_assembly=?,stage=?,
+                               valid_from=?,raw_data=?,updated_at=? WHERE art=?''',
+                            (rec.get('model_no'), rec.get('model_name'), rec.get('silhouette_no'),
+                             rec.get('factory'), rec.get('season'), rec.get('category'),
+                             _flt(rec, 'lc_total'), _flt(rec, 'lc_ctb'), _flt(rec, 'lc_cutting'),
+                             _flt(rec, 'lc_stitching'), _flt(rec, 'lc_stockfitting'),
+                             _flt(rec, 'lc_assembly'), rec.get('stage'), rec.get('valid_from'),
+                             rec.get('raw_data'), ts, art))
+                        stats['updated'] += 1
+                    else:
+                        stats['unchanged'] += 1
+                else:
+                    conn.execute(
+                        '''INSERT INTO ds02_fob (art,model_no,model_name,silhouette_no,factory,
+                           season,category,lc_total,lc_ctb,lc_cutting,lc_stitching,
+                           lc_stockfitting,lc_assembly,stage,valid_from,raw_data,imported_at,updated_at)
+                           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
+                        (art, rec.get('model_no'), rec.get('model_name'), rec.get('silhouette_no'),
+                         rec.get('factory'), rec.get('season'), rec.get('category'),
+                         _flt(rec, 'lc_total'), _flt(rec, 'lc_ctb'), _flt(rec, 'lc_cutting'),
+                         _flt(rec, 'lc_stitching'), _flt(rec, 'lc_stockfitting'),
+                         _flt(rec, 'lc_assembly'), rec.get('stage'), rec.get('valid_from'),
+                         rec.get('raw_data'), ts, ts))
+                    stats['new'] += 1
+            except Exception as e:
+                stats['errors'] += 1
+                stats['error_details'].append(f'{art}: {e}')
+        conn.commit()
+        return {'ok': True, 'stats': stats}
+    except Exception as e:
+        conn.rollback()
+        return {'ok': False, 'error': str(e), 'stats': stats}
+    finally:
+        conn.close()
+
+
+def import_ds01_records(records):
+    conn = get_conn()
+    ts = now_iso()
+    stats = {'new': 0, 'updated': 0, 'unchanged': 0, 'errors': 0, 'error_details': []}
+    try:
+        for rec in records:
+            art    = str(rec.get('article_id', '') or '').strip()
+            ptdesc = str(rec.get('product_type_desc', '') or '').strip()
+            month  = str(rec.get('calendar_month', '') or '').strip()
+            if not (art and ptdesc and month):
+                stats['errors'] += 1
+                continue
+            try:
+                existing = conn.execute(
+                    'SELECT * FROM ds01_sp WHERE article_id=? AND product_type_desc=? AND calendar_month=?',
+                    (art, ptdesc, month)).fetchone()
+                qty = _flt(rec, 'quantity')
+                raw = rec.get('raw_data')
+                if existing:
+                    old_qty = existing['quantity']
+                    if str(old_qty or '') != str(qty or ''):
+                        conn.execute(
+                            'INSERT INTO change_log (table_name,record_key,field_name,old_value,new_value,changed_at) VALUES (?,?,?,?,?,?)',
+                            ('ds01_sp', f'{art}|{ptdesc}|{month}', 'quantity', str(old_qty), str(qty), ts))
+                        conn.execute(
+                            'UPDATE ds01_sp SET quantity=?,raw_data=?,updated_at=? WHERE article_id=? AND product_type_desc=? AND calendar_month=?',
+                            (qty, raw, ts, art, ptdesc, month))
+                        stats['updated'] += 1
+                    else:
+                        stats['unchanged'] += 1
+                else:
+                    conn.execute(
+                        'INSERT INTO ds01_sp (article_id,product_type_desc,calendar_month,quantity,raw_data,imported_at,updated_at) VALUES (?,?,?,?,?,?,?)',
+                        (art, ptdesc, month, qty, raw, ts, ts))
+                    stats['new'] += 1
+            except Exception as e:
+                stats['errors'] += 1
+                stats['error_details'].append(f'{art}|{ptdesc}|{month}: {e}')
+        conn.commit()
+        return {'ok': True, 'stats': stats}
+    except Exception as e:
+        conn.rollback()
+        return {'ok': False, 'error': str(e), 'stats': stats}
+    finally:
+        conn.close()
+
+
+def list_ds02_records(limit=200, offset=0):
+    conn = get_conn()
+    try:
+        rows = conn.execute(
+            '''SELECT art,model_name,factory,season,category,lc_total,
+               lc_cutting,lc_stitching,lc_stockfitting,lc_assembly,updated_at
+               FROM ds02_fob ORDER BY updated_at DESC LIMIT ? OFFSET ?''',
+            (limit, offset)).fetchall()
+        total = conn.execute('SELECT COUNT(*) FROM ds02_fob').fetchone()[0]
+        return {'ok': True, 'records': [dict(r) for r in rows], 'total': total}
+    finally:
+        conn.close()
+
+
+def list_ds01_records(limit=200, offset=0):
+    conn = get_conn()
+    try:
+        rows = conn.execute(
+            '''SELECT article_id,product_type_desc,calendar_month,quantity,updated_at
+               FROM ds01_sp ORDER BY updated_at DESC LIMIT ? OFFSET ?''',
+            (limit, offset)).fetchall()
+        total = conn.execute('SELECT COUNT(*) FROM ds01_sp').fetchone()[0]
+        return {'ok': True, 'records': [dict(r) for r in rows], 'total': total}
+    finally:
+        conn.close()
+
+
+def get_db_stats():
+    conn = get_conn()
+    try:
+        return {
+            'ok': True,
+            'ds01_count':       conn.execute('SELECT COUNT(*) FROM ds01_sp').fetchone()[0],
+            'ds02_count':       conn.execute('SELECT COUNT(*) FROM ds02_fob').fetchone()[0],
+            'ds03_count':       conn.execute('SELECT COUNT(*) FROM ob_header').fetchone()[0],
+            'lookup_count':     conn.execute('SELECT COUNT(*) FROM lookup_viet_zh').fetchone()[0],
+            'change_log_count': conn.execute('SELECT COUNT(*) FROM change_log').fetchone()[0],
+        }
+    finally:
+        conn.close()
