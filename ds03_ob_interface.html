@@ -81,6 +81,17 @@ td.dept{font-weight:600;color:#1a2744;text-align:left;padding-left:10px}
 td.eff-good{color:#1a7a40;font-weight:700}
 td.eff-warn{color:#d07000;font-weight:700}
 td.eff-bad{color:#cc2222;font-weight:700}
+/* Group header row */
+tr.grp-header td{background:#2a3a60!important;color:#8eb8e8;font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.6px;padding:5px 10px;border-top:2px solid #1a2744}
+/* Subtotal row (per category) */
+tr.subtotal-row td{background:#d8e5fb!important;font-weight:700;border-top:1px solid #afc6f2}
+td.subtotal-dept{color:#1a2744;padding-left:18px!important;font-style:italic}
+/* Grand total row */
+tr.grand-row td{background:#b8cef5!important;font-weight:800;border-top:2px solid #2a4aaa;color:#0d1a44}
+td.grand-dept{color:#0d1a44;font-weight:800}
+/* Diff positive (above E-PPH = bad) */
+.diff-pos{color:#cc2222}.diff-neg{color:#1a7a40}
 
 /* ── Buttons ── */
 .btn{display:inline-flex;align-items:center;gap:4px;padding:6px 13px;border:none;border-radius:5px;cursor:pointer;font-size:12px;font-weight:500;transition:background .15s;outline:none}
@@ -111,7 +122,7 @@ td.eff-bad{color:#cc2222;font-weight:700}
   <div class="header-right">
     <button class="btn btn-new" onclick="newRecord()">＋ New</button>
     <button class="btn btn-save" onclick="saveData()">💾 Save</button>
-    <span class="version">v1.1</span>
+    <span class="version">v1.2</span>
   </div>
 </div>
 
@@ -337,6 +348,11 @@ const SHEETS = {
 };
 const C2B_KEYS   = ['cutting','atom','tongcai','diannao','stitch-zhi','stitch-zhu','assembly1','assembly2'];
 const STOCK_KEYS = ['dacui','xishi','tiedadi','zhaoshe','chenxing'];
+const C2B_GROUPS = [
+  { label:'Cutting',   epphKey:'cutting',   keys:['cutting','atom','tongcai','diannao'] },
+  { label:'Stitching', epphKey:'stitching', keys:['stitch-zhi','stitch-zhu'] },
+  { label:'Assembly',  epphKey:'assembly',  keys:['assembly1','assembly2'] }
+];
 
 // ════════════════════════════════════════════════════════
 // STATE
@@ -696,42 +712,88 @@ function getEPPH(epphKey) {
   return parseFloat(document.getElementById('epph-' + epphKey)?.value) || 0;
 }
 
-function buildSumRow(key) {
-  const cfg  = SHEETS[key];
+// ── helpers ──────────────────────────────────────────────
+function calcAgg(keys, epphKey) {
   const eolr = state.header.eolr || 60;
-  const mp   = getTotalOps(key);
+  const epph = getEPPH(epphKey);
+  const mp   = keys.reduce((s, k) => s + getTotalOps(k), 0);
   const pph  = mp > 0 ? eolr / mp : null;
-  const epph = getEPPH(cfg.epph);
   const diff = (pph !== null && epph > 0) ? (epph - pph) : null;
   const eff  = (pph !== null && epph > 0) ? (pph / epph * 100) : null;
-
-  const fmtEff = eff !== null
-    ? `<span class="${eff>=90?'eff-good':eff>=75?'eff-warn':'eff-bad'}">${eff.toFixed(1)}%</span>`
-    : '—';
-
-  return `<tr>
-    <td class="dept">${cfg.dept}</td>
-    <td>${mp}</td>
-    <td>${pph !== null ? pph.toFixed(2) : '—'}</td>
-    <td>${epph > 0 ? epph.toFixed(2) : '—'}</td>
-    <td>${diff !== null ? diff.toFixed(2) : '—'}</td>
-    <td>${fmtEff}</td>
-  </tr>`;
+  return { mp, pph, epph, diff, eff };
 }
 
+function fmtRow(deptLabel, deptClass, ag) {
+  const fmtEff = ag.eff !== null
+    ? `<span class="${ag.eff>=90?'eff-good':ag.eff>=75?'eff-warn':'eff-bad'}">${ag.eff.toFixed(1)}%</span>`
+    : '—';
+  const fmtDiff = ag.diff !== null
+    ? `<span class="${ag.diff>0?'diff-pos':'diff-neg'}">${ag.diff>0?'+':''}${ag.diff.toFixed(2)}</span>`
+    : '—';
+  return `<td class="${deptClass}">${deptLabel}</td>
+    <td>${ag.mp || '—'}</td>
+    <td>${ag.pph !== null ? ag.pph.toFixed(2) : '—'}</td>
+    <td>${ag.epph > 0 ? ag.epph.toFixed(2) : '—'}</td>
+    <td>${fmtDiff}</td>
+    <td>${fmtEff}</td>`;
+}
+
+// ── SUM_C2B ──────────────────────────────────────────────
 function renderSumC2B() {
   const el = document.getElementById('tbody-sum-c2b');
-  if (el) el.innerHTML = C2B_KEYS.map(buildSumRow).join('');
+  if (!el) return;
+  const eolr = state.header.eolr || 60;
+  let html = '';
+  let grandMP = 0;
+
+  C2B_GROUPS.forEach(grp => {
+    html += `<tr class="grp-header"><td colspan="6">${grp.label}</td></tr>`;
+
+    grp.keys.forEach(key => {
+      const ag = calcAgg([key], grp.epphKey);
+      html += `<tr>${fmtRow(SHEETS[key].dept, 'dept', ag)}</tr>`;
+    });
+
+    const sub = calcAgg(grp.keys, grp.epphKey);
+    grandMP += sub.mp;
+    html += `<tr class="subtotal-row">${fmtRow('∑ ' + grp.label, 'dept subtotal-dept', sub)}</tr>`;
+  });
+
+  const grandPPH = grandMP > 0 ? eolr / grandMP : null;
+  const grandAg  = { mp: grandMP, pph: grandPPH, epph: 0, diff: null, eff: null };
+  html += `<tr class="grand-row">${fmtRow('GRAND TOTAL', 'dept grand-dept', grandAg)}</tr>`;
+
+  el.innerHTML = html;
 }
 
+// ── SUM_Stock ─────────────────────────────────────────────
 function renderSumStock() {
   const el = document.getElementById('tbody-sum-stock');
-  if (el) el.innerHTML = STOCK_KEYS.map(buildSumRow).join('');
+  if (!el) return;
+  const eolr = state.header.eolr || 60;
+  const epph = getEPPH('stock');
+  let html = '';
+  let totalMP = 0;
+
+  STOCK_KEYS.forEach(key => {
+    const ag = calcAgg([key], 'stock');
+    totalMP += ag.mp;
+    html += `<tr>${fmtRow(SHEETS[key].dept, 'dept', ag)}</tr>`;
+  });
+
+  const totPPH  = totalMP > 0 ? eolr / totalMP : null;
+  const totDiff = (totPPH !== null && epph > 0) ? (epph - totPPH) : null;
+  const totEff  = (totPPH !== null && epph > 0) ? (totPPH / epph * 100) : null;
+  const totAg   = { mp: totalMP, pph: totPPH, epph, diff: totDiff, eff: totEff };
+  html += `<tr class="grand-row">${fmtRow('TOTAL', 'dept grand-dept', totAg)}</tr>`;
+
+  el.innerHTML = html;
 }
 
+// ── always refresh both panels ────────────────────────────
 function renderSums() {
-  if (curL1 === 'sum-c2b')   renderSumC2B();
-  if (curL1 === 'sum-stock')  renderSumStock();
+  renderSumC2B();
+  renderSumStock();
 }
 
 // ════════════════════════════════════════════════════════
