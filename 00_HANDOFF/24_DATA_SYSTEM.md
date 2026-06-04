@@ -1,7 +1,7 @@
 # Data System - Internal Data Automation Project
 
-Version: v2.0 | 2026-06-04
-Status: DS-01✅ DS-02✅ DS-03✅ DS-04 defined (pending EOLR map + file path) DS-05 defined + script built, Flask backend v1.3
+Version: v2.1 | 2026-06-04
+Status: DS-01✅ DS-02✅ DS-03✅ DS-04 defined DS-05 script built, Flask backend v1.4, analyze_gongcai built
 Purpose: New Claude session reads this file to continue from last point.
 
 ---
@@ -138,6 +138,12 @@ Batch import (CONFIRMED WORKING 2026-06-04):
   - fn_eolr(): 120双→120, 60双→60
 - CLI options: --xlsx-only --fresh (for full re-import)
 
+ob_epph MP (CONFIRMED 2026-06-04, 152/152 records filled):
+- Extracted from SUM_C2B sheet "No.of Operators" header row
+- cutting / stitching / assembly / stock all > 0 for all 152 records
+- Sheet selection: prefer shortest matching SUM_C2B sheet name
+  (avoids "SUM.C2B 67-68" variant sheets being selected over canonical "SUM.C2B")
+
 ---
 
 ### DS-04: Production Schedule (Monthly Progress)
@@ -220,16 +226,38 @@ Pending Jim input.
 - AD 代碼相同 → 合併顯示，訂單加總
 - DS-03 無對應資料 → 紅字標示，手工填入為最終值（不計算）
 
-### 欄位分類
+### 四大類別架構（CONFIRMED 2026-06-04）
 
-**變動欄位**（每月從來源表計算，自動更新）：
+#### 1. CSA — 加1~加12（C2B 生產部門）
 
-| 來源 | 欄位說明 |
-|------|---------|
-| DS-04 進度表 + DS-02 FOB + DS-03 OB | C2B 部門（1A、1B、1C...各組） |
-| DS-05 大底課進度表 | 大底課（T1、T2、T3... 各 T 群組） |
+- 每個加幾（加一、加二…加十二）= 一個區塊
+- 每個組別（1A / 1B / 1C…）各自顯示明細
+- 每個加幾底部有總匯總（1A + 1B + 1C 合計）
+- 欄位：
 
-**固定欄位**（每月從當月廠務組織編制表直接讀取，不計算）：
+| 欄位 | 說明 |
+|------|------|
+| LEAN | 組別代號（1A / 1B…） |
+| 鞋型 | Model Name + ART |
+| 訂單 | 本月訂單量（來自 DS-04） |
+| 裁斷 MP | DS-03 Cutting No.of Operators（依 EOLR） |
+| 針車 MP | DS-03 Stitching No.of Operators（依 EOLR） |
+| 成型 MP | DS-03 Assembly No.of Operators（依 EOLR） |
+| 協理給 | 手工填入（預設空白） |
+| 合計 | 裁斷 + 針車 + 成型 + 協理給 |
+| 編制 | 取整後實際編制人數 |
+
+#### 2. OCS — 大底課 + 固定單位
+
+- 多個 Tab，Tab 名稱 = 單位名稱
+- Tab 清單：大底課 / 組底配套 / 自動化 / 電腦針車 / 印刷 / 設備工程
+- 各 Tab 內為該單位明細
+
+**大底課 Tab：**
+- 來自 DS-05（T 群組 + AD 代碼 + 訂單 + 人頭）
+- 欄位：LEAN | 鞋型 | ART | 訂單 | T群組 | 人數
+
+**固定單位欄位（直接讀廠務組織編制表）：**
 
 | 組別 | 包含單位 |
 |------|---------|
@@ -237,16 +265,56 @@ Pending Jim input.
 | 自動化 | 同材共裁 1,2 組、自動裁斷 1,2 組、鞋墊手工組、自動化保全技術組、自動化倉庫 |
 | 電腦針車 | 折邊/TGB、電腦針車/MVT、電腦針車倉庫、電腦針車保全技術組 |
 | 印刷 | 高周波、印刷組、配套組、網板組、印刷房、印刷開發、加工組 |
-| RB | 預備組、RB生管、RB倉庫、出半成品、模具、密練組A/B、混A/B/C組、熱A/B/C組、整理A/B/C組、技術組、硫化組 |
-| QC | OCPT、實驗室、樣品室、檢驗真皮組、檢驗副料組、收料組、底料檢驗、EVC檢驗、T2中底、T3外包、印刷高周波QC、外包QC部件、QCRB、外包RB QC、自動化中心QC、電腦針車QC、QC貼底課、外包QC貼底、QC 1–12、QC YH、品包1–3組、掃描組、貼外箱標組、QC入庫 |
 | 設備工程 | 保全/Bảo trì、西工/bảo trì RB |
+
+#### 3. RB
+
+| 欄位 | 說明 |
+|------|------|
+| 單位 | 預備組、RB生管、RB倉庫、出半成品、模具、密練組A/B、混A/B/C組、熱A/B/C組、整理A/B/C組、技術組、硫化組 |
+| 上月人數 | 唯讀，自動從上月結果帶入 |
+| 本月人數 | 可修改，預設 = 上月人數 |
+
+- 本月鎖定後自動變成下月的「上月人數」
+- 上月人數不可手動修改
+
+#### 4. QC
+
+| 欄位 | 說明 |
+|------|------|
+| 單位 | OCPT、實驗室、樣品室、檢驗真皮組、檢驗副料組、收料組、底料檢驗、EVC檢驗、T2中底、T3外包、印刷高周波QC、外包QC部件、QCRB、外包RB QC、自動化中心QC、電腦針車QC、QC貼底課、外包QC貼底、QC 1-12、QC YH、品包1-3組、掃描組、貼外箱標組、QC入庫 |
+| 上月人數 | 唯讀（同 RB 設計） |
+| 本月人數 | 可修改，預設 = 上月 |
+
+---
+
+### 自檢流程（強制，每欄位都要執行）
+
+1. 定義欄位邏輯
+2. 立刻試算（用真實數據）
+3. 與結果表比對
+4. Jim 確認 ✅
+5. 才繼續下一欄
+
+→ 結果不一致立刻說明原因，不能跳過
+
+---
+
+### 工作節奏（CONFIRMED）
+
+| 時段 | 負責 |
+|------|------|
+| 08:00–16:00 Vietnam time | Jim 在線：討論、決策、確認 |
+| 16:00 以後 | Claude Code 後台：技術執行、批次處理 |
+
+---
 
 ### 資料流向
 
 ```
 來源表（DS-04 / DS-05 / 廠務編制表）
         ↓  讀取、計算（不回寫）
-結果表（每月報告）
+結果表（每月報告）— 四大類別：CSA / OCS / RB / QC
         ↓  唯讀，不可直接修改
 ```
 
@@ -268,7 +336,7 @@ URLs:
   http://localhost:5000/admin  ← Import Admin (DS-01/DS-02 upload, DB stats)
 
 Files:
-- app.py v1.3: all API endpoints
+- app.py v1.4: all API endpoints
 - database.py: SQLite helpers + import functions (change tracking)
 - schema.sql: full schema
 - requirements.txt: flask, flask-cors, openpyxl
@@ -278,6 +346,7 @@ Files:
 - import_ds03_batch.py: CLI → python import_ds03_batch.py <folder> [--dry-run] [--lookup-only] [--xlsx-only] [--fresh]
 - analyze_ds04.py: CLI → python analyze_ds04.py <file> --dept <d> --group <g> [--eolr 120]
 - analyze_ds05.py: CLI → python analyze_ds05.py <file> [--group T1] [--dry-run]
+- analyze_gongcai.py: CLI → python analyze_gongcai.py <ds04.xlsx> --group 加一A組 [--eolr 120] [--dry-run]
 - backup.py: CLI → python backup.py [--keep-days=30]
 
 API endpoints:
@@ -288,6 +357,7 @@ API endpoints:
 - GET  /api/ds02/epph?art=  GET  /api/stats        GET /api/health
 - GET  /api/ds04/analyze?file=&dept=&group=&eolr=
 - GET  /api/ds05/analyze?file=&group=
+- GET  /api/gongcai/analyze?file=&group=&eolr=&ie_folder=
 
 ---
 
@@ -303,18 +373,27 @@ API endpoints:
 
 ## Next Session Starting Point
 
-1. DS-01 ✅ imported (2044 new, 4929 updated) — C:\Users\user\OneDrive\Desktop\SS27 SP1 & FW26 SP7.xlsx
-2. DS-02 ✅ imported (1903 new, 2288 updated) — C:\Users\user\OneDrive\Desktop\FOB Price List.xlsx
-3. DS-03 ✅ 152 records — C:\Users\user\OneDrive\Desktop\IE (152 xlsx, fn_art+fn_eolr fix, 2026-06-04)
+1. DS-01 ✅ imported — C:\Users\user\OneDrive\Desktop\SS27 SP1 & FW26 SP7.xlsx
+2. DS-02 ✅ imported — C:\Users\user\OneDrive\Desktop\FOB Price List.xlsx
+3. DS-03 ✅ 152 records, ob_epph 152/152 MP filled (C/S/A/Stock)
+   → Source: C:\Users\user\OneDrive\Desktop\IE
 4. DS-04: Production Schedule
-   → Pending: EOLR mapping table (Group → EOLR), actual Excel file path
+   → 進度表路徑: C:\Users\user\OneDrive\Desktop\Biên chế\Jun\2026年6月份正式进度表 5 30.xlsx
+   → analyze_gongcai.py ✅ built — GET /api/gongcai/analyze
+   → Pending: EOLR mapping table (Group → EOLR)
 5. DS-05: 大底課進度表
    → Script built ✅ (analyze_ds05.py + /api/ds05/analyze)
-   → Pending: real file test + result table H-L columns definition (Jim)
-6. DS-06...N: Pending Jim input
-7. 結果表設計原則確認：結果表不變更，所有變更在來源表作業
-8. 工作時間：08:00-16:00 Vietnam = Jim 在線；16:00+ = Claude Code 後台
-9. Define report dashboard tabs (Jim)
+   → 大底課進度表路徑: C:\Users\user\OneDrive\Desktop\Biên chế\Jun\2026年6月份正式贴底进度表进度表 5.16. (ĐẾ).xlsx
+6. 廠務組織編制表路徑: C:\Users\user\OneDrive\Desktop\Biên chế\2026年6月份廠務组织編制_20260524.xlsx
+7. 結果表設計（CONFIRMED）：
+   → 四大類別：CSA（加1~加12）/ OCS（大底課+固定單位）/ RB / QC
+   → 自檢流程：定義→試算→比對→Jim確認→才繼續
+   → 工作時間：08:00-16:00 VN = Jim在線；16:00+ = Claude Code後台
+8. 下一步：
+   → 建立 analyze_result_table.py（CSA全組 + OCS大底課）
+   → CSA 欄位：LEAN | 鞋型 | 訂單 | 裁斷MP | 針車MP | 成型MP | 協理給 | 合計
+   → 與廠務組織編制表 6.2026 sheet 逐行比對
+9. DS-06...N: Pending Jim input
 
 ---
 
