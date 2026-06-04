@@ -37,8 +37,11 @@ IE_FOLDER_DEFAULT = r'C:\Users\user\OneDrive\Desktop\IE'
 _ART_RE   = re.compile(r'[A-Z]{2}\d{4,6}')
 _QTY_RE   = re.compile(r'--(\d+)\s*\(')
 
-# Values that appear in the knife column meaning "machine cut" (not a plain number)
-_MACHINE_KEYWORDS = {'ATOM', 'GCN', 'LASER', 'DK', 'YINGHIU', 'YINGHUI', 'AUTO'}
+# Known machine-type prefixes in the G column
+_MACHINE_RE = re.compile(
+    r'^(ATOM|GCN|LASER|DK|YINGHUI|YINGHIU|EMMA|AUTO|PAD|ELITRON|AUTO-?CLICK)',
+    re.IGNORECASE
+)
 
 
 # ── IE file index ─────────────────────────────────────────────────────────────
@@ -140,26 +143,45 @@ def _try_float(val):
     return float(str(val).strip())
 
 
+def _load_cells_with_merges(ws):
+    """
+    Build {(row_1based, col_0based): value} for the whole sheet,
+    expanding merged cell ranges so every cell in a merge carries the
+    top-left cell's value.  This fixes vertically merged G-column cells
+    like G24:G27 where only R24 returns a value from iter_rows.
+    """
+    data = {}
+    for rn, row in enumerate(ws.iter_rows(values_only=True), 1):
+        for ci, val in enumerate(row):
+            data[(rn, ci)] = val
+
+    for merge in ws.merged_cells.ranges:
+        # merged_cells use 1-based column numbers
+        top_val = data.get((merge.min_row, merge.min_col - 1))
+        for row in range(merge.min_row, merge.max_row + 1):
+            for col in range(merge.min_col, merge.max_col + 1):
+                data[(row, col - 1)] = top_val
+
+    return data
+
+
 def parse_cutting_gongcai(wb):
     """
     Parse the Cutting sheet in wb.
-    Returns list of dicts for rows where the "刀" column value is NOT numeric
-    (i.e. machine-cut rows for 同材共裁).
+    Returns list of dicts for rows where G column (刀數欄) is NOT numeric,
+    i.e. machine-cut rows (ATOM / GCN / YINGHUI / LASER / …).
 
-    Standard column layout (0-based index relative to knife_col at index 6):
-      col 1 = material category (材料类别)
-      col 2 = seq no (序号)
-      col 3 = part name (部件名称)   ← D column
-      col 4 = layers (层数)          ← E column
-      col 5 = pieces/pair (片数)     ← F column
-      col 6 = knife standard (刀)    ← detected column
+    Confirmed column layout (0-based, consistent across all IE files):
+      B(1) = 材料类别
+      C(2) = 序号
+      D(3) = 部件名称    ← part name
+      E(4) = 层数        ← layers
+      F(5) = 片数/雙     ← pieces per pair
+      G(6) = 標准刀数    ← numeric = normal cut; text = machine type
+      H(7) = 正常時間    ← CT normal time (秒/雙)
 
-    Relative to knife_col k:
-      mat_cat  = k - 5
-      stt_col  = k - 4
-      part_col = k - 3
-      lay_col  = k - 2
-      pcs_col  = k - 1
+    Merged cells (e.g. G24:G27 = ATOM spanning 4 rows) are expanded
+    so every row in the group carries the correct machine-type value.
     """
     ws = None
     for sh in wb.sheetnames:
@@ -174,53 +196,58 @@ def parse_cutting_gongcai(wb):
     if k is None:
         return []
 
-    mat_col  = k - 5
-    stt_col  = k - 4
-    part_col = k - 3
-    lay_col  = k - 2
-    pcs_col  = k - 1
+    mat_col  = k - 5   # B
+    part_col = k - 3   # D  部件名称
+    lay_col  = k - 2   # E  层数
+    pcs_col  = k - 1   # F  片数
+    ct_col   = k + 1   # H  正常時間
 
-    def _get(row, ci):
-        if ci < 0 or ci >= len(row):
-            return None
-        return row[ci]
+    # Expand merged cells so we don't miss rows under a vertical merge
+    cells = _load_cells_with_merges(ws)
+    max_row = ws.max_row
+
+    def get(rn, ci):
+        return cells.get((rn, ci))
 
     result = []
     last_mat = ''
 
-    for rn, row in enumerate(ws.iter_rows(values_only=True), 1):
+    for rn in range(1, max_row + 1):
         if rn < 12:
             continue
-        if k >= len(row):
-            continue
-        knife_val = _get(row, k)
+
+        knife_val = get(rn, k)
         if knife_val is None or str(knife_val).strip() in ('', '.'):
             continue
 
         s = str(knife_val).strip()
 
-        # Update running material category
-        mat_cell = _get(row, mat_col)
+        # Track material category (carried down when empty)
+        mat_cell = get(rn, mat_col)
         if mat_cell and str(mat_cell).strip() not in ('', '.'):
             last_mat = str(mat_cell).strip()
 
         try:
             _try_float(s)
-            continue  # numeric → normal cutting row, skip
+            continue  # numeric → normal cut row
         except ValueError:
-            pass  # non-numeric → possible machine-cut row
+            pass
 
-        # Skip header cells (contain '刀' in their text = column header)
         if '刀' in s:
+            continue  # header cell
+
+        # Skip footer/note rows: valid machine types must match known prefix pattern
+        if not _MACHINE_RE.match(s):
             continue
 
-        part_raw = _get(row, part_col)
-        lay_raw  = _get(row, lay_col)
-        pcs_raw  = _get(row, pcs_col)
-        stt_raw  = _get(row, stt_col)
+        part_raw = get(rn, part_col)
+        lay_raw  = get(rn, lay_col)
+        pcs_raw  = get(rn, pcs_col)
+        ct_raw   = get(rn, ct_col)
 
         part_name = str(part_raw).strip() if part_raw is not None else ''
         machine   = s.upper()
+
         try:
             layers = float(lay_raw) if lay_raw is not None else None
         except (ValueError, TypeError):
@@ -229,14 +256,22 @@ def parse_cutting_gongcai(wb):
             pieces = float(pcs_raw) if pcs_raw is not None else None
         except (ValueError, TypeError):
             pieces = None
+        try:
+            ct = float(ct_raw) if ct_raw is not None else None
+        except (ValueError, TypeError):
+            ct = None
+
+        # Skip rows that have no meaningful data after merge expansion
+        if not part_name and machine in ('', '.'):
+            continue
 
         result.append({
-            'stt_src': stt_raw,
-            'part_name': part_name,
+            'part_name':    part_name,
             'machine_type': machine,
-            'layers': layers,
-            'pieces': pieces,
-            'mat_cat': last_mat,
+            'layers':       layers,
+            'pieces':       pieces,
+            'ct':           ct,
+            'mat_cat':      last_mat,
         })
 
     return result
@@ -335,6 +370,7 @@ def analyze(ds04_path, group, eolr=120, ie_folder=None):
                 'machine_type': part['machine_type'],
                 'layers':       part['layers'],
                 'pieces':       part['pieces'],
+                'ct':           part['ct'],
                 'checked':      '',
             })
             stt += 1
@@ -381,15 +417,18 @@ if __name__ == '__main__':
         print(f"Sheet:      {result['sheet_used']}")
         print(f"ARTs:       {result['total_arts']}  |  Rows: {result['total_rows']}")
         if result['missing_ie']:
-            print(f"Missing IE: {', '.join(result['missing_ie'])}")
+            print(f"Missing IE ({len(result['missing_ie'])}): {', '.join(result['missing_ie'])}")
         print()
-        hdr = f"{'STT':>4}  {'ART':12}  {'QTY':>7}  {'Machine':10}  {'Lay':>4}  {'Pcs':>4}  Part Name"
+        hdr = (f"{'STT':>4}  {'ART':12}  {'QTY':>7}  "
+               f"{'部件名稱(D)':30}  {'機器(G)':12}  {'Lay':>4}  {'Pcs':>4}  {'CT(H)':>8}")
         print(hdr)
         print('-' * len(hdr))
         for r in result['rows']:
             lay = str(int(r['layers'])) if r['layers'] is not None else '-'
             pcs = str(int(r['pieces'])) if r['pieces'] is not None else '-'
+            ct  = f"{r['ct']:.2f}" if r['ct'] is not None else '-'
             print(f"{r['stt']:>4}  {r['art']:12}  {r['qty']:>7}  "
-                  f"{r['machine_type']:10}  {lay:>4}  {pcs:>4}  {r['part_name'][:35]}")
+                  f"{r['part_name'][:30]:30}  {r['machine_type']:12}  "
+                  f"{lay:>4}  {pcs:>4}  {ct:>8}")
     else:
         print(json.dumps(result, ensure_ascii=False, indent=2, default=str))
