@@ -109,10 +109,17 @@ def extract_header(wb):
     header = {}
 
     # ── Strategy 1: SUM.C2B sheet ──────────────────────────────────────────
-    # Layout: rows 1-15 are label+value in the SAME cell (col B),
-    #         row ~16 has target output with "120双/H" embedding EOLR.
-    for sh_name in wb.sheetnames:
-        if 'sum' in sh_name.lower() and 'c2b' in sh_name.lower().replace(' ', ''):
+    # Prefer shortest matching sheet name to avoid variant sheets like
+    # "SUM.C2B 67-68" being chosen over the canonical "SUM.C2B".
+    _sumcb_name = None
+    _best = float('inf')
+    for _s in wb.sheetnames:
+        _k = _s.lower().replace(' ', '')
+        if 'sum' in _k and 'c2b' in _k and len(_s) < _best:
+            _sumcb_name = _s
+            _best = len(_s)
+    for sh_name in ([_sumcb_name] if _sumcb_name else []):
+        if True:
             ws = wb[sh_name]
             for row in ws.iter_rows(max_row=25, values_only=True):
                 for cell in row:
@@ -187,6 +194,101 @@ def extract_header(wb):
     return header
 
 
+def extract_mp_from_sumcb(wb):
+    """
+    Extract Cutting / Stitching / Assembly / Stockfitting MP (No. of Operators)
+    from the SUM_C2B sheet.
+
+    Strategy:
+      Pass 1 – scan rows 1-15 for section header cells:
+               "Cutting Section" / "Stitching Section" / "Assembly Section" /
+               "Stockfitting Section" → record the column index of each.
+               The "No.of Operators" value is one column to the right.
+      Pass 2 – find the data row (row ~16) where col 1 contains "双/H";
+               read the numeric value at each section's operator column.
+      Fallback – if Stockfitting was not in the top header, scan the bottom
+               summary table (right-side subtable) for "Stockfitting" row.
+
+    Returns {'cutting': float|None, 'stitching': float|None,
+             'assembly': float|None, 'stock': float|None}
+    """
+    # Prefer the shortest SUM_C2B sheet (exact "SUM.C2B" / "SUM C2B" wins over
+    # variant sheets like "SUM.C2B 67-68" or "SUM.C2B (2 màu chỉ)").
+    ws = None
+    best_len = float('inf')
+    for sh_name in wb.sheetnames:
+        sh_key = sh_name.lower().replace(' ', '')
+        if 'sum' in sh_key and 'c2b' in sh_key:
+            if len(sh_name) < best_len:
+                ws = wb[sh_name]
+                best_len = len(sh_name)
+    if ws is None:
+        return {}
+
+    mp = {'cutting': None, 'stitching': None, 'assembly': None, 'stock': None}
+
+    # Pass 1: locate section header columns
+    section_ops_col = {}   # dept_key → col_idx of "No.of Operators"
+    for row in ws.iter_rows(max_row=15, values_only=True):
+        for col_idx, val in enumerate(row):
+            if val is None:
+                continue
+            s = str(val).strip()
+            sl = s.lower()
+            if 'cutting' in sl and ('section' in sl or '裁断' in s):
+                section_ops_col.setdefault('cutting', col_idx + 1)
+            if 'stitching' in sl and ('section' in sl or '针车' in s):
+                section_ops_col.setdefault('stitching', col_idx + 1)
+            if 'assembly' in sl and ('section' in sl or '成型' in s):
+                section_ops_col.setdefault('assembly', col_idx + 1)
+            if 'stockfitting' in sl and ('section' in sl or '大底' in s):
+                section_ops_col.setdefault('stock', col_idx + 1)
+
+    if not section_ops_col:
+        return mp
+
+    # Pass 2: find data row (col 1 contains "双/H")
+    for row in ws.iter_rows(min_row=14, max_row=22, values_only=True):
+        col1 = str(row[1] if len(row) > 1 and row[1] is not None else '').strip()
+        if '双/H' in col1 or '双/h' in col1.lower():
+            for dept, col_idx in section_ops_col.items():
+                if col_idx < len(row) and row[col_idx] is not None:
+                    try:
+                        mp[dept] = float(row[col_idx])
+                    except (ValueError, TypeError):
+                        pass
+            break
+
+    # Fallback: if Stockfitting not in top header, search bottom summary table.
+    # The RIGHT subtable (starting around col 9) has actual MP values:
+    #   "Stockfitting | <MP value> | PPH"
+    if mp.get('stock') is None:
+        found_dept_header = False
+        for row in ws.iter_rows(min_row=20, max_row=40, values_only=True):
+            cells = [str(c).strip() if c is not None else '' for c in row]
+            for ci, cell in enumerate(cells):
+                # Detect "部门" header to know we're in a subtable
+                if '部门' in cell or 'department' in cell.lower():
+                    found_dept_header = True
+                if found_dept_header and 'stockfitting' in cell.lower():
+                    # Look for numeric value in next 1-2 cols
+                    for offset in (1, 2):
+                        if ci + offset < len(cells) and cells[ci + offset]:
+                            try:
+                                v = float(cells[ci + offset])
+                                if v > 0:
+                                    mp['stock'] = v
+                                    break
+                            except (ValueError, TypeError):
+                                pass
+                    if mp.get('stock') is not None:
+                        break
+            if mp.get('stock') is not None:
+                break
+
+    return mp
+
+
 def extract_viet_zh(ws):
     """Return dict of viet_lower → zh from adjacent Viet+Chinese cell pairs."""
     pairs = {}
@@ -251,6 +353,10 @@ def process_file(path, dry_run=False, lookup_only=False):
         if dept:
             result['depts'].append({'sheet': ws.title, 'dept': dept})
 
+    # Extract MP values from SUM_C2B
+    mp_vals = extract_mp_from_sumcb(wb)
+    result['mp'] = mp_vals
+
     if not dry_run:
         # Save lookup pairs
         if result['lookup_pairs']:
@@ -274,7 +380,12 @@ def process_file(path, dry_run=False, lookup_only=False):
                     'model': hdr.get('model', ''), 'material': hdr.get('material', ''),
                     'category': hdr.get('category', ''), 'eolr': eolr, 'run': 1
                 },
-                'epph':   {'cutting': 0, 'stitching': 0, 'assembly': 0, 'stock': 0},
+                'epph': {
+                    'cutting':    mp_vals.get('cutting')    or 0,
+                    'stitching':  mp_vals.get('stitching')  or 0,
+                    'assembly':   mp_vals.get('assembly')   or 0,
+                    'stock':      mp_vals.get('stock')      or 0,
+                },
                 'sheets': {}
             }
             result['ob_save'] = db.save_ob_record(ob_data)
@@ -343,9 +454,12 @@ def batch_process(folder, dry_run=False, lookup_only=False, xlsx_only=False, fre
                 print(f'    ... +{len(pairs) - 3} more')
 
         h = r.get('header', {})
+        mp = r.get('mp', {})
         if h:
             art_disp = h.get('art', '?')
-            print(f'  Header: ART={art_disp} | Season={h.get("season","?")} | EOLR={h.get("eolr","?")}')
+            mp_str = (f'  C={mp.get("cutting","?")} S={mp.get("stitching","?")}'
+                      f' A={mp.get("assembly","?")} St={mp.get("stock","?")}')
+            print(f'  Header: ART={art_disp} | Season={h.get("season","?")} | EOLR={h.get("eolr","?")} | MP:{mp_str}')
 
         depts = r.get('depts', [])
         if depts:
