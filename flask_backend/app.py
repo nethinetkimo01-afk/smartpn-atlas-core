@@ -276,11 +276,142 @@ def gongcai_analyze():
     result = _gongcai_analyze(file_path, group, eolr, ie_folder)
     return jsonify(result)
 
+# ── Result correction import ─────────────────────────────────────────────────
+
+@app.route('/api/result/import_corrections', methods=['POST'])
+def import_corrections():
+    """
+    Accept a corrected comparison_table.xlsx and write Jim's manual MP values
+    to ob_epph (source='manual_correction').
+
+    Expects multipart/form-data with file='comparison_table.xlsx'.
+    Reads rows where 狀態 == 'MISMATCH' or 'MISSING_IE' and 結果表Cut/Stitch/Asm
+    columns have values — those are Jim's corrected values.
+    """
+    if not HAS_XLSX:
+        return jsonify({'ok': False, 'error': 'openpyxl not available'}), 500
+
+    if 'file' not in request.files:
+        return jsonify({'ok': False, 'error': 'file field required'}), 400
+
+    f = request.files['file']
+    with tempfile.NamedTemporaryFile(suffix='.xlsx', delete=False) as tmp:
+        f.save(tmp.name)
+        tmp_path = tmp.name
+
+    try:
+        wb = openpyxl.load_workbook(tmp_path, data_only=True)
+        ws = wb.active
+        headers = [str(c.value or '').strip() for c in next(ws.iter_rows(max_row=1))]
+
+        # Column indices (0-based after converting to list)
+        def col(name):
+            try: return headers.index(name)
+            except ValueError: return None
+
+        c_art    = col('ART')
+        c_lean   = col('LEAN')
+        c_qty    = col('訂單')
+        c_status = col('狀態')
+        c_rc     = col('結果表Cut')
+        c_rs     = col('結果表Stitch')
+        c_ra     = col('結果表Asm')
+
+        if c_art is None:
+            return jsonify({'ok': False, 'error': 'ART column not found'}), 400
+
+        updated = []
+        skipped = []
+
+        conn = db.get_conn()
+        ts = db.now_iso()
+
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            art    = str(row[c_art] or '').strip() if c_art is not None else ''
+            status = str(row[c_status] or '').strip() if c_status is not None else ''
+            if not art or status == 'OK':
+                continue
+
+            def _fv(idx):
+                if idx is None: return None
+                v = row[idx]
+                if v is None or str(v).strip() in ('', '-', 'None'): return None
+                try: return float(v)
+                except: return None
+
+            ref_cut = _fv(c_rc)
+            ref_s   = _fv(c_rs)
+            ref_asm = _fv(c_ra)
+
+            if ref_cut is None and ref_s is None and ref_asm is None:
+                skipped.append(art)
+                continue
+
+            # Find or create ob_header for this ART (EOLR=120 default)
+            h_row = conn.execute(
+                'SELECT id FROM ob_header WHERE art=? ORDER BY id DESC LIMIT 1', (art,)
+            ).fetchone()
+
+            if h_row:
+                header_id = h_row[0]
+                e_row = conn.execute(
+                    'SELECT id FROM ob_epph WHERE header_id=?', (header_id,)
+                ).fetchone()
+                if e_row:
+                    fields = []
+                    vals = []
+                    if ref_cut is not None: fields.append('cutting=?');   vals.append(ref_cut)
+                    if ref_s   is not None: fields.append('stitching=?'); vals.append(ref_s)
+                    if ref_asm is not None: fields.append('assembly=?');  vals.append(ref_asm)
+                    fields.append("source='manual_correction'")
+                    conn.execute(
+                        f'UPDATE ob_epph SET {",".join(fields)} WHERE header_id=?',
+                        vals + [header_id]
+                    )
+                else:
+                    conn.execute(
+                        '''INSERT INTO ob_epph (header_id, cutting, stitching, assembly, stock, source)
+                           VALUES (?,?,?,?,0,'manual_correction')''',
+                        (header_id, ref_cut or 0, ref_s or 0, ref_asm or 0)
+                    )
+            else:
+                conn.execute(
+                    '''INSERT INTO ob_header (art, season, model, eolr, run, created_at)
+                       VALUES (?, '', '', 120, 1, ?)''', (art, ts)
+                )
+                header_id = conn.execute(
+                    'SELECT id FROM ob_header WHERE art=? ORDER BY id DESC LIMIT 1', (art,)
+                ).fetchone()[0]
+                conn.execute(
+                    '''INSERT INTO ob_epph (header_id, cutting, stitching, assembly, stock, source)
+                       VALUES (?,?,?,?,0,'manual_correction')''',
+                    (header_id, ref_cut or 0, ref_s or 0, ref_asm or 0)
+                )
+
+            updated.append({'art': art, 'cut': ref_cut, 'stitch': ref_s, 'asm': ref_asm})
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            'ok': True,
+            'updated': len(updated),
+            'skipped': len(skipped),
+            'rows': updated[:20],
+        })
+
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
+    finally:
+        try: os.unlink(tmp_path)
+        except: pass
+
+
 # ── Health check ─────────────────────────────────────────────────────────────
 
 @app.route('/api/health', methods=['GET'])
 def health():
-    return jsonify({'ok': True, 'version': '1.4'})
+    return jsonify({'ok': True, 'version': '1.5'})
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 

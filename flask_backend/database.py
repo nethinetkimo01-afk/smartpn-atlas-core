@@ -32,6 +32,11 @@ def init_db():
     conn = get_conn()
     with open(SCHEMA_PATH, encoding='utf-8') as f:
         conn.executescript(f.read())
+    # Migration: add source column to ob_epph if missing
+    cols = [r[1] for r in conn.execute("PRAGMA table_info(ob_epph)").fetchall()]
+    if 'source' not in cols:
+        conn.execute("ALTER TABLE ob_epph ADD COLUMN source TEXT DEFAULT 'ie_file'")
+        conn.commit()
     # Seed default lookup if empty
     count = conn.execute('SELECT COUNT(*) FROM lookup_viet_zh').fetchone()[0]
     if count == 0:

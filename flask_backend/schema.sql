@@ -43,7 +43,8 @@ CREATE TABLE IF NOT EXISTS ob_epph (
     cutting     REAL DEFAULT 0,
     stitching   REAL DEFAULT 0,
     assembly    REAL DEFAULT 0,
-    stock       REAL DEFAULT 0
+    stock       REAL DEFAULT 0,
+    source      TEXT DEFAULT 'ie_file'
 );
 
 -- Viet-Chinese part name lookup (independent base table)
