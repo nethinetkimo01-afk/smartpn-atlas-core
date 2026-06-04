@@ -1,0 +1,625 @@
+=== 結果表生成報告 ===
+進度表: C:/Users/user/OneDrive/Desktop/Biên chế/Jun/2026年6月份正式进度表 5 30.xlsx
+編制表: C:/Users/user/OneDrive/Desktop/Biên chế/Jun/2026年6月份廠務组织編制 20260524.xlsx  Sheet: 6.2026
+DS-05:  C:/Users/user/OneDrive/Desktop/Biên chế/Jun/2026年6月份正式贴底进度表进度表 5.16. (ĐẾ).xlsx
+EOLR:   120
+DS-04 sheets: 12  ARTs: 457
+CSA rows:   457
+OCS rows:   43
+Ref rows:   209  (廠務組織編制表 CSA data)
+差異數:     389
+
+=== CSA 結果表（DS-04 + DS-03 ob_epph） ===
+Sheet     ART               QTY     Cut  Stitch     Asm   Total  MP    Model
+------------------------------------------------------------------------------------------
+1部        GV6889            429    11.5    34.0    38.5    84.0  Y     TECH RESPONSE 3.0
+1部        GV6900            411       -       -       -       -  N     W TECH RESPONSE SL3
+1部        HQ1198            325       -       -       -       -  N     W TECH RESPONSE 3.0
+1部        HQ7583             60       -       -       -       -  N     adidas TAEKWONDO LACE W
+1部        IH1969            168       -       -       -       -  N     adidas TAEKWONDO LACE W
+1部        JQ1022            300       -       -       -       -  N     R2C BOA
+1部        JQ1023            300       -       -       -       -  N     R2C BOA
+1部        JQ7755              1       -       -       -       -  N     W GAZELLE GOLF
+1部        KH7849             55       -       -       -       -  N     adidas TAEKWONDO LACE W
+1部        KH7850             55       -       -       -       -  N     adidas TAEKWONDO LACE W
+1部        KH8402            109    16.5    35.5    38.0    90.0  Y     W GAZELLE GOLF
+1部        KI1387           2454    19.0    44.0    43.0   106.0  Y     CODECHAOS BOA 27
+1部        KI1388           2582       -       -       -       -  N     CODECHAOS 27
+1部        KI1389            800       -       -       -       -  N     W CODECHAOS 27
+1部        KI1390            479       -       -       -       -  N     W CODECHAOS BOA 27
+1部        KI5734            197    13.0    34.5    39.0    86.5  Y     CODECHAOS 27
+1部        KI5735           3265       -       -       -       -  N     CODECHAOS 27
+1部        KI5736            241       -       -       -       -  N     CODECHAOS 27
+1部        KI5737           2089       -       -       -       -  N     CODECHAOS 27
+1部        KI5738           8405       -       -       -       -  N     CODECHAOS BOA 27
+1部        KI5739           2646       -       -       -       -  N     CODECHAOS BOA 27
+1部        KI5740           3044       -       -       -       -  N     CODECHAOS BOA 27
+1部        KI5741           2188       -       -       -       -  N     CODECHAOS BOA 27
+1部        KI5746            605    14.5    30.0    38.0    82.5  Y     JR CODECHAOS BOA 27
+1部        KI5747            489       -       -       -       -  N     JR CODECHAOS BOA 27
+1部        KI5750            110       -       -       -       -  N     W CODECHAOS 27
+1部        KI5752            236       -       -       -       -  N     W CODECHAOS BOA 27
+1部        KI5753           2423       -       -       -       -  N     W CODECHAOS BOA 27
+1部        KI5754           1440       -       -       -       -  N     W CODECHAOS BOA 27
+1部        KJ5427            263       -       -       -       -  N     GAZELLE GOLF
+1部        KJ5428              1       -       -       -       -  N     GAZELLE GOLF
+1部        KJ5429             25       -       -       -       -  N     GAZELLE GOLF
+1部        KJ8220            149       -       -       -       -  N     GAZELLE GOLF
+1部        KJ8229            178       -       -       -       -  N     W GAZELLE GOLF
+1部        KK0657           1543       -       -       -       -  N     CODECHAOS 27
+1部        KK0658            753       -       -       -       -  N     CODECHAOS 27
+1部        KK0660            363       -       -       -       -  N     CODECHAOS BOA 27
+1部        KK2705            511       -       -       -       -  N     adidas TAEKWONDO W
+1部        KK2852             62       -       -       -       -  N     W GAZELLE GOLF
+1部        KK4938           1024       -       -       -       -  N     adidas TAEKWONDO W
+1部        MF2605          19296       -       -       -       -  N     
+1部        MF2606          21531       -       -       -       -  N     
+1部        MF2607              1       -       -       -       -  N     
+2部        GV6891            480       -       -       -       -  N     TECH RESPONSE 3.0 WD
+2部        GV6893             56       -       -       -       -  N     TECH RESPONSE 3.0 WD
+2部        GV6894           3987       -       -       -       -  N     TECH RESPONSE SL 3
+2部        GV6897           1872    11.5    33.0    36.0    80.5  Y     TECH RESPONSE SL 3 WD
+2部        GV6898            261       -       -       -       -  N     TECH RESPONSE SL 3 WD
+2部        HQ9343            551       -       -       -       -  N     MEGARIDE F50
+2部        IH2247              1       -       -       -       -  N     TRAXION RESPONSE SL
+2部        IH2248            301    20.0    39.0    37.0    96.0  Y     TRAXION RESPONSE SL
+2部        IH2249            450       -       -       -       -  N     TRAXION RESPONSE SL
+2部        IH3396            287       -       -       -       -  N     RETROCROSS 25
+2部        IH9978              0       -       -       -       -  N     RETROCROSS 25
+2部        JP8521              0       -       -       -       -  N     RETROCROSS 25
+2部        JQ0598           2301       -       -       -       -  N     TOKYO W
+2部        JR1896            146       -       -       -       -  N     MC70 SPK
+2部        JR1899             38       -       -       -       -  N     RETROCROSS GRIPMORE
+2部        KH8020            350       -       -       -       -  N     MEGARIDE F50 Peaches
+2部        KH8086           1466       -       -       -       -  N     HELLSTAR MEGARIDE S2
+2部        KH8147            250       -       -       -       -  N     MEGARIDE F50 Peaches
+2部        KI0352            159    21.5    56.0    63.5   141.0  Y     R2C MID
+2部        KI0820             54       -       -       -       -  N     MC70 FB SL 26
+2部        KI1401            554       -       -       -       -  N     R2C MID WD
+2部        KI3647            198       -       -       -       -  N     MEGARIDE F50
+2部        KI4562            866       -       -       -       -  N     GHOST MOTO MID W
+2部        KI4714             92       -       -       -       -  N     MEGARIDE F50
+2部        KI4715            971       -       -       -       -  N     MEGARIDE F50
+2部        KI4718            490       -       -       -       -  N     MEGARIDE F50
+2部        KI4719            287       -       -       -       -  N     MEGARIDE F50
+2部        KI4740            635       -       -       -       -  N     MEGARIDE F50
+2部        KI4741            250       -       -       -       -  N     MEGARIDE F50
+2部        KI4742            804       -       -       -       -  N     MEGARIDE F50
+2部        KI4745            471       -       -       -       -  N     MEGARIDE F50
+2部        KI5325            385    14.5    47.5    67.5   129.5  Y     MEGARIDE F50
+2部        KI8143            434       -       -       -       -  N     GHOST SPRINT BOOT W
+2部        KI8144            418       -       -       -       -  N     GHOST SPRINT BOOT W
+2部        KJ5770            671    31.5    46.5    38.0   116.0  Y     RETROCROSS 25
+2部        KJ5771            202       -       -       -       -  N     W RETROCROSS 25
+2部        KK2857            600       -       -       -       -  N     RETROCROSS GRIPMORE
+2部        KZ9161           2500       -       -       -       -  N     ADISTAR XLG 2.0 W
+2部        KZ9162           1818       -       -       -       -  N     ADISTAR XLG 2.0 W
+2部        LA3432           3355       -       -       -       -  N     TOKYO W
+2部        LA3433           2867       -       -       -       -  N     TOKYO W
+2部        LB5626            168       -       -       -       -  N     HELLSTAR MEGARIDE S2
+2部        LB8409           1061       -       -       -       -  N     MEGARIDE F50
+2部        LB8410              0       -       -       -       -  N     MEGARIDE F50
+2部        MF2605           7304       -       -       -       -  N     
+2部        MF2606          23655       -       -       -       -  N     
+2部        MF2607           2178       -       -       -       -  N     
+3部        HQ2806           1349       -       -       -       -  N     LA TRAINER OG
+3部        HQ7468           4145       -       -       -       -  N     ADISTAR XLG 2.0
+3部        IF1944           1044    16.0    32.0    38.0    86.0  Y     SAMBA J
+3部        IF1945            271       -       -       -       -  N     SAMBA J
+3部        IG9016            140       -       -       -       -  N     OZWEEGO J
+3部        IH6000           4148    16.0    28.0    39.0    83.0  Y     SAMBA
+3部        IH6001            975       -       -       -       -  N     SAMBA
+3部        KH9677            237       -       -       -       -  N     LA TRAINER OG
+3部        KH9679           3577    19.0    33.0    41.5    93.5  Y     LA TRAINER OG
+3部        KH9680           1345       -       -       -       -  N     LA TRAINER OG
+3部        KH9681           1042       -       -       -       -  N     LA TRAINER OG
+3部        KH9683           1616       -       -       -       -  N     LA TRAINER OG
+3部        KJ1675            888       -       -       -       -  N     LA TRAINER OG
+3部        KJ1676            654       -       -       -       -  N     LA TRAINER OG
+3部        KJ4380            215       -       -       -       -  N     LA TRAINER OG
+3部        KJ4381            200       -       -       -       -  N     LA TRAINER OG
+3部        KJ4382           2903       -       -       -       -  N     LA TRAINER OG
+3部        KJ7892           2075       -       -       -       -  N     ADISTAR XLG 2.0 J
+3部        KJ7893            175       -       -       -       -  N     ADISTAR XLG 2.0 J
+3部        KJ7895            801       -       -       -       -  N     ADISTAR XLG 2.0
+3部        KK2438            426       -       -       -       -  N     LA TRAINER OG W
+3部        KK2444            734       -       -       -       -  N     LA TRAINER OG W
+3部        KK2445           1867       -       -       -       -  N     LA TRAINER OG W
+3部        KZ6450            900       -       -       -       -  N     ADISTAR XLG 2.0 J
+3部        KZ9155            462    14.5    36.5    44.0    95.0  Y     ADISTAR XLG 2.0
+3部        KZ9161           1372       -       -       -       -  N     ADISTAR XLG 2.0 W
+3部        LA7413           1464       -       -       -       -  N     LA TRAINER OG
+3部        LA7414           1464       -       -       -       -  N     LA TRAINER OG
+3部        MF2603           2076       -       -       -       -  N     
+3部        MF2604           2164       -       -       -       -  N     
+3部        MF2605           8377       -       -       -       -  N     
+3部        MF2606          18855       -       -       -       -  N     
+3部        MF2607           5064       -       -       -       -  N     
+5部        HP5123           1765       -       -       -       -  N     
+5部        HP5124           2515       -       -       -       -  N     
+5部        HQ7468           7186       -       -       -       -  N     ADISTAR XLG 2.0
+5部        IH5569            415       -       -       -       -  N     SL 72 RTN
+5部        JI1281              8       -       -       -       -  N     SL 72 RS
+5部        JI1282           1730    19.0    31.5    38.5    89.0  Y     SL 72 RS
+5部        JQ9555            475       -       -       -       -  N     SL 72 RS
+5部        KH9644             90       -       -       -       -  N     SL 72 RS
+5部        KH9646            673       -       -       -       -  N     SL 72 RS
+5部        KH9647            155       -       -       -       -  N     SL 72 RS
+5部        KH9648           1104       -       -       -       -  N     SL 72 RS
+5部        KH9650            374       -       -       -       -  N     SL 72 RS
+5部        KH9651            506    18.5    32.5    38.5    89.5  Y     SL 72 RS
+5部        KH9652           1319       -       -       -       -  N     SL 72 RS
+5部        KH9653           3333       -       -       -       -  N     SL 72 RS
+5部        KH9656            733       -       -       -       -  N     SL 72 RS
+5部        KH9658            291    22.5    34.5    38.5    95.5  Y     SL 72 RS
+5部        KH9680            686       -       -       -       -  N     LA TRAINER OG
+5部        KH9681            418       -       -       -       -  N     LA TRAINER OG
+5部        KI1403             99       -       -       -       -  N     ADICHILL
+5部        KI7557           1500       -       -       -       -  N     ORGN ULTRA TECH
+5部        KI7558           4250       -       -       -       -  N     ORGN ULTRA TECH
+5部        KI9862           2500    18.5    50.0    37.5   106.0  Y     ORGN ULTRA TECH
+5部        KJ1674           1355    18.0    35.5    37.5    91.0  Y     SL 72 RS
+5部        KJ5260           1211       -       -       -       -  N     ORGN ULTRA TECH
+5部        KJ5261            504       -       -       -       -  N     ORGN ULTRA TECH
+5部        KJ7404            300       -       -       -       -  N     SL 72 RS J
+5部        KJ8322            450       -       -       -       -  N     ORGN ULTRA TECH
+5部        KK2438            277       -       -       -       -  N     LA TRAINER OG W
+5部        KK2445            556       -       -       -       -  N     LA TRAINER OG W
+5部        KZ6381            600    28.5    56.0    39.5   124.0  Y     ORGN ULTRA TECH
+5部        KZ6382            600       -       -       -       -  N     ORGN ULTRA TECH
+5部        KZ9155           2059    14.5    36.5    44.0    95.0  Y     ADISTAR XLG 2.0
+5部        KZ9162           1021       -       -       -       -  N     ADISTAR XLG 2.0 W
+5部        KZ9344           6403       -       -       -       -  N     ADISTAR XLG 2.0 W
+5部        LA1750            152       -       -       -       -  N     SL 72 RS
+5部        LA7413            450       -       -       -       -  N     LA TRAINER OG
+5部        LA7414            450       -       -       -       -  N     LA TRAINER OG
+5部        MF2603           1896       -       -       -       -  N     
+5部        MF2604           2510       -       -       -       -  N     
+5部        MF2605           9852       -       -       -       -  N     
+5部        MF2606          27394       -       -       -       -  N     
+5部        MF2607           6893       -       -       -       -  N     
+6部        HQ7636           1128    17.5    38.0    51.5   107.0  Y     GHOST SPRINT BALLET W
+6部        HQ7638            120    24.5    45.0    58.0   127.5  Y     GHOST SPRINT W
+6部        IG6045          16952       -       -       -       -  N     OZGAIA W
+6部        IH6000           3058    16.0    28.0    39.0    83.0  Y     SAMBA
+6部        IH6001           3725       -       -       -       -  N     SAMBA
+6部        JH5523            310       -       -       -       -  N     MEGARIDE
+6部        JH6149            186    24.0    43.0    36.0   103.0  Y     SAMBA GOLF
+6部        JH6151            287       -       -       -       -  N     SAMBA GOLF
+6部        JP9626              0       -       -       -       -  N     MEGARIDE
+6部        JQ0553              0       -       -       -       -  N     MEGA GHOSTRIDE W
+6部        JQ6439            151    22.5    45.0    61.0   128.5  Y     GHOST SPRINT W
+6部        KH9590            757       -       -       -       -  N     MEGARIDE
+6部        KI0435            379       -       -       -       -  N     GHOST SPRINT BALLET W
+6部        KI0436            602       -       -       -       -  N     GHOST SPRINT BALLET W
+6部        KI4563            400       -       -       -       -  N     GHOST SPRINT W
+6部        KI4564            201       -       -       -       -  N     GHOST SPRINT W
+6部        KI4566            856       -       -       -       -  N     GHOST MOTO LOW W
+6部        KI4568            694       -       -       -       -  N     GHOST SPRINT W
+6部        KI4569           1528    29.5    46.0    58.0   133.5  Y     GHOST SPRINT W
+6部        KI4570             50       -       -       -       -  N     GHOST SPRINT W
+6部        KI4571            140    23.5    46.0    61.0   130.5  Y     GHOST SPRINT W
+6部        KI4572             70       -       -       -       -  N     GHOST SPRINT W
+6部        KI4673            726       -       -       -       -  N     MEGA GHOSTRIDE W
+6部        KJ0645            740       -       -       -       -  N     GHOST SPRINT W
+6部        KJ5430             47       -       -       -       -  N     SAMBA GOLF
+6部        KJ5431              8       -       -       -       -  N     SAMBA GOLF
+6部        KJ7892            900       -       -       -       -  N     ADISTAR XLG 2.0 J
+6部        KJ8225            920       -       -       -       -  N     SAMBA GOLF
+6部        KZ9155           4856    14.5    36.5    44.0    95.0  Y     ADISTAR XLG 2.0
+6部        LA3614            454       -       -       -       -  N     F50 TUNIT MEGA JAH JAH
+6部        LA4019             95       -       -       -       -  N     GHOST SPRINT W
+6部        LA7682           3890    25.0    45.0    53.0   123.0  Y     GHOST SPRINT W
+6部        LA7683           2969       -       -       -       -  N     GHOST SPRINT W
+6部        MF2603           5095       -       -       -       -  N     
+6部        MF2604            239       -       -       -       -  N     
+6部        MF2605           5675       -       -       -       -  N     
+6部        MF2606          14596       -       -       -       -  N     
+6部        MF2607          20961       -       -       -       -  N     
+6部        MF2608            674       -       -       -       -  N     
+7部        HP5175           2858       -       -       -       -  N     TOKYO W NATI
+7部        HQ2887           3024       -       -       -       -  N     TOKYO W
+7部        HQ3330           4224    23.5    45.0    58.0   126.5  Y     GHOST SPRINT W
+7部        HQ7638            264    24.5    45.0    58.0   127.5  Y     GHOST SPRINT W
+7部        HQ9512            598       -       -       -       -  N     TOKYO W
+7部        IH3999            524    19.0    38.0    35.0    92.0  Y     TOKYO MJ W
+7部        JQ0597           5268    21.0    31.0    40.5    92.5  Y     TOKYO W
+7部        JS1067           1614       -       -       -       -  N     GHOST SPRINT W
+7部        KI3584           1065       -       -       -       -  N     TOKYO W
+7部        KI4563            440       -       -       -       -  N     GHOST SPRINT W
+7部        KI4569            205    29.5    46.0    58.0   133.5  Y     GHOST SPRINT W
+7部        KI7740            959       -       -       -       -  N     GHOST SPRINT BALLET W
+7部        KJ0644            189    25.0    46.0    58.0   129.0  Y     GHOST SPRINT W
+7部        KJ0646            789       -       -       -       -  N     GHOST SPRINT W
+7部        KJ5221           1256       -       -       -       -  N     TOKYO MJ W
+7部        KJ7499            330    19.5    32.0    36.5    88.0  Y     TOKYO W
+7部        KJ7539           2728    16.5    32.0    36.5    85.0  Y     TOKYO W
+7部        KJ7541           1406    20.0    31.5    43.5    95.0  Y     TOKYO W
+7部        KJ7542            330       -       -       -       -  N     TOKYO W
+7部        KJ7543           4400       -       -       -       -  N     TOKYO W
+7部        KJ7544           1310       -       -       -       -  N     TOKYO W
+7部        KJ7551           2084    20.0    31.0    40.5    91.5  Y     TOKYO W
+7部        KJ7552            625       -       -       -       -  N     TOKYO W
+7部        KJ8377            555    18.5    38.0    35.0    91.5  Y     TOKYO MJ W
+7部        KJ8378            308       -       -       -       -  N     TOKYO MJ W
+7部        KK0030            760    11.5    29.0    38.5    79.0  Y     TOKYO W
+7部        KK0031           1752       -       -       -       -  N     TOKYO W
+7部        KK2621           3776    12.5    38.0    35.5    86.0  Y     TOKYO W
+7部        LA7682           3338    25.0    45.0    53.0   123.0  Y     GHOST SPRINT W
+7部        LA7683           5932       -       -       -       -  N     GHOST SPRINT W
+7部        MF2605           5131       -       -       -       -  N     
+7部        MF2606          34726       -       -       -       -  N     
+7部        MF2607          13115       -       -       -       -  N     
+8部        HP4218           3623       -       -       -       -  N     BB F50 GHOST SPRINT
+8部        HQ7636            318    17.5    38.0    51.5   107.0  Y     GHOST SPRINT BALLET W
+8部        HQ7637            182       -       -       -       -  N     GHOST SPRINT BALLET W
+8部        IH3991            221       -       -       -       -  N     TOKYO W
+8部        IH3994            914       -       -       -       -  N     TOKYO W
+8部        IH3999           2029    19.0    38.0    35.0    92.0  Y     TOKYO MJ W
+8部        IH6001           2500       -       -       -       -  N     SAMBA
+8部        JR4790           2396       -       -       -       -  N     TOKYO MJ W
+8部        KH6569            201       -       -       -       -  N     adidas F50 ADIFRAME
+8部        KH6570            201       -       -       -       -  N     adidas F50 ADIFRAME
+8部        KH7374           1610       -       -       -       -  N     ADISTAR XLG 2.0 J
+8部        KI0435           1441       -       -       -       -  N     GHOST SPRINT BALLET W
+8部        KI0436           2490       -       -       -       -  N     GHOST SPRINT BALLET W
+8部        KI3584           1050       -       -       -       -  N     TOKYO W
+8部        KI7713            132       -       -       -       -  N     BUSENITZ
+8部        KI7714             45       -       -       -       -  N     BUSENITZ VINTAGE
+8部        KI7725             25       -       -       -       -  N     BUSENITZ VINTAGE
+8部        KI7738            599    20.0    38.0    44.5   102.5  Y     GHOST SPRINT BALLET W
+8部        KI7739            426       -       -       -       -  N     GHOST SPRINT BALLET W
+8部        KI7740           1471       -       -       -       -  N     GHOST SPRINT BALLET W
+8部        KJ0259            101       -       -       -       -  N     BUSENITZ
+8部        KJ0260            431       -       -       -       -  N     BUSENITZ
+8部        KJ0261            346       -       -       -       -  N     BUSENITZ
+8部        KJ7510           2100       -       -       -       -  N     TOKYO W
+8部        KJ7542            240       -       -       -       -  N     TOKYO W
+8部        KJ7552            387       -       -       -       -  N     TOKYO W
+8部        KJ7892           4998       -       -       -       -  N     ADISTAR XLG 2.0 J
+8部        KJ7893              0       -       -       -       -  N     ADISTAR XLG 2.0 J
+8部        KJ7895            100       -       -       -       -  N     ADISTAR XLG 2.0
+8部        KJ8377            841    18.5    38.0    35.0    91.5  Y     TOKYO MJ W
+8部        KJ8378            300       -       -       -       -  N     TOKYO MJ W
+8部        KK0908            172       -       -       -       -  N     adidas F50 ADIFRAME W
+8部        KK0909            155       -       -       -       -  N     adidas F50 ADIFRAME W
+8部        KZ7290            465    20.0    38.0    44.5   102.5  Y     GHOST SPRINT BALLET W
+8部        KZ7291            615       -       -       -       -  N     GHOST SPRINT BALLET W
+8部        KZ9155           1218    14.5    36.5    44.0    95.0  Y     ADISTAR XLG 2.0
+8部        LA3255            799       -       -       -       -  N     HANDBALL SPEZIAL
+8部        MF2603           2446       -       -       -       -  N     
+8部        MF2604           3425       -       -       -       -  N     
+8部        MF2605           1608       -       -       -       -  N     
+8部        MF2606          19299       -       -       -       -  N     
+8部        MF2607           9558       -       -       -       -  N     
+9部        HP5123           2000       -       -       -       -  N     
+9部        HQ4909           4561    21.0    44.5    37.5   103.0  Y     SL 72 RS
+9部        IG6045          14451       -       -       -       -  N     OZGAIA W
+9部        IG6047            458       -       -       -       -  N     OZGAIA W
+9部        IG6049           2974       -       -       -       -  N     OZGAIA W
+9部        IH2978            726    12.5    36.0    39.5    88.0  Y     SL 72 RS EL I
+9部        IH2982            260    12.5    35.0    38.5    86.0  Y     SL 72 RS EL C
+9部        IH3994            588       -       -       -       -  N     TOKYO W
+9部        JH9953            262       -       -       -       -  N     SL 72 RS EL C
+9部        JI0182           1072    20.5    32.0    36.5    89.0  Y     TOKYO W
+9部        JI0183           1039       -       -       -       -  N     TOKYO W
+9部        JI3089            454       -       -       -       -  N     SL 72 RS EL I
+9部        JQ9824           3216       -       -       -       -  N     SL 72 RS
+9部        KH9652            770       -       -       -       -  N     SL 72 RS
+9部        KH9653           1442       -       -       -       -  N     SL 72 RS
+9部        KH9656            152       -       -       -       -  N     SL 72 RS
+9部        KH9657            300       -       -       -       -  N     SL 72 RS
+9部        KH9658            152    22.5    34.5    38.5    95.5  Y     SL 72 RS
+9部        KH9671             68       -       -       -       -  N     SL 72 RS
+9部        KH9672            771       -       -       -       -  N     SL 72 RS
+9部        KH9673           2488       -       -       -       -  N     SL 72 RS
+9部        KJ0690           1352    18.0    33.0    38.5    89.5  Y     SL 72 RS J
+9部        KJ1666           3576    22.5    38.0    37.5    98.0  Y     SL 72 RS
+9部        KJ1667           1700       -       -       -       -  N     SL 72 RS
+9部        KJ1669           1032    19.0    42.5    37.5    99.0  Y     SL 72 RS
+9部        KJ1670           1256       -       -       -       -  N     SL 72 RS
+9部        KJ1672           2908       -       -       -       -  N     SL 72 RS
+9部        KJ1673           1140       -       -       -       -  N     SL 72 RS
+9部        KJ1674           1051    18.0    35.5    37.5    91.0  Y     SL 72 RS
+9部        KJ2282           1320       -       -       -       -  N     SL 72 OG W
+9部        KJ7510           1964       -       -       -       -  N     TOKYO W
+9部        KJ7895           5621       -       -       -       -  N     ADISTAR XLG 2.0
+9部        KK4234           2073       -       -       -       -  N     ADISTAR XLG 2.0 J
+9部        KZ6449           3808       -       -       -       -  N     ADISTAR XLG 2.0 J
+9部        KZ7071           3484    12.5    44.0    37.0    93.5  Y     OZGAIA W
+9部        KZ7072           2734       -       -       -       -  N     OZGAIA W
+9部        KZ8301           3012       -       -       -       -  N     ADISTAR XLG 2.0
+9部        KZ9155            576    14.5    36.5    44.0    95.0  Y     ADISTAR XLG 2.0
+9部        MF2603           7136       -       -       -       -  N     
+9部        MF2604            450       -       -       -       -  N     
+9部        MF2605           7914       -       -       -       -  N     
+9部        MF2606          40323       -       -       -       -  N     
+9部        MF2607          21054       -       -       -       -  N     
+10部       IG6045           9377       -       -       -       -  N     OZGAIA W
+10部       IG6047            154       -       -       -       -  N     OZGAIA W
+10部       IG6049           1007       -       -       -       -  N     OZGAIA W
+10部       IH0874            300       -       -       -       -  N     OZMILLEN
+10部       JH5642            290    16.0    39.0    38.0    93.0  Y     OZMILLEN W
+10部       JI2632            250    21.0    40.0    38.0    99.0  Y     OZMILLEN
+10部       JI2633            600       -       -       -       -  N     OZMILLEN
+10部       JP7827           1332    16.5    39.0    38.0    93.5  Y     OZMILLEN
+10部       KH6397            155       -       -       -       -  N     HANDBALL SPEZIAL
+10部       KH7374            801       -       -       -       -  N     ADISTAR XLG 2.0 J
+10部       KI5241           1937    16.5    35.0    33.5    85.0  Y     HANDBALL SPEZIAL
+10部       KI5303            373       -       -       -       -  N     HANDBALL SPEZIAL
+10部       KJ0849           2261    16.0    39.5    37.0    92.5  Y     SPEZIAL GOLF
+10部       KJ0850           2664       -       -       -       -  N     SPEZIAL GOLF
+10部       KJ0851           1273       -       -       -       -  N     SPEZIAL GOLF
+10部       KJ0852           1258       -       -       -       -  N     SPEZIAL GOLF
+10部       KJ7844            525       -       -       -       -  N     ADISTAR XLG 2.0 J
+10部       KJ7845            600       -       -       -       -  N     ADISTAR XLG 2.0 J
+10部       KJ7852           2465       -       -       -       -  N     ADISTAR XLG 2.0 W
+10部       KJ7853           1963       -       -       -       -  N     ADISTAR XLG 2.0 W
+10部       KJ7892           1710       -       -       -       -  N     ADISTAR XLG 2.0 J
+10部       KK2904            929       -       -       -       -  N     ADISTAR XLG 2.0 W
+10部       KK3015            806       -       -       -       -  N     HANDBALL SPEZIAL
+10部       KK3017             50       -       -       -       -  N     HANDBALL SPEZIAL
+10部       KK3018            155       -       -       -       -  N     HANDBALL SPEZIAL
+10部       KK3019           1386       -       -       -       -  N     HANDBALL SPEZIAL
+10部       KK3021            594       -       -       -       -  N     HANDBALL SPEZIAL
+10部       KK3025            497       -       -       -       -  N     HANDBALL SPEZIAL
+10部       KK3026            216       -       -       -       -  N     HANDBALL SPEZIAL
+10部       KK3027            216       -       -       -       -  N     HANDBALL SPEZIAL
+10部       KK3033            192       -       -       -       -  N     HANDBALL SPEZIAL
+10部       KK4234           5282       -       -       -       -  N     ADISTAR XLG 2.0 J
+10部       KZ9155            331    14.5    36.5    44.0    95.0  Y     ADISTAR XLG 2.0
+10部       KZ9344           1398       -       -       -       -  N     ADISTAR XLG 2.0 W
+10部       LA0522              0       -       -       -       -  N     ADISTAR XLG 2.0 W
+10部       LA3255            550       -       -       -       -  N     HANDBALL SPEZIAL
+10部       LA6421            150       -       -       -       -  N     
+10部       MF2603           1266       -       -       -       -  N     
+10部       MF2605           7323       -       -       -       -  N     
+10部       MF2606          27490       -       -       -       -  N     
+10部       MF2607           8005       -       -       -       -  N     
+11部       HP7087            443       -       -       -       -  N     S2G 26 LEATHER
+11部       HP7088             38       -       -       -       -  N     S2G 26 TEX
+11部       HQ5054           1869       -       -       -       -  N     S2G 26 LEATHER
+11部       JP8385            174       -       -       -       -  N     W ADIPOWER 26 SL BOA
+11部       JP8394            124       -       -       -       -  N     ADIPOWER 26 SL
+11部       JP8395             39    22.5    49.0    44.5   116.0  Y     ADIPOWER 26 SL
+11部       JQ3560            600       -       -       -       -  N     W S2G 26 LEATHER
+11部       JQ3563             30       -       -       -       -  N     W S2G 26 TEX
+11部       JQ9311           1085       -       -       -       -  N     S2G 26 LEATHER
+11部       JR1879             94       -       -       -       -  N     S2G 26 TEX
+11部       JS4138            188       -       -       -       -  N     ADIPOWER 26 SL BOA
+11部       JS4140            110    16.5    49.5    42.5   108.5  Y     ADIPOWER 26 SL BOA
+11部       KI1392            553       -       -       -       -  N     S2G VENT
+11部       KI3584            637       -       -       -       -  N     TOKYO W
+11部       KI8398            601       -       -       -       -  N     S2G VENT
+11部       KI8401            600       -       -       -       -  N     W S2G VENT
+11部       KI8402           1292       -       -       -       -  N     W S2G VENT
+11部       KJ3010            601       -       -       -       -  N     ADIPOWER 26
+11部       KJ7511            634       -       -       -       -  N     TOKYO W
+11部       KJ7543            281       -       -       -       -  N     TOKYO W
+11部       KJ7551            504    20.0    31.0    40.5    91.5  Y     TOKYO W
+11部       KJ7552            487       -       -       -       -  N     TOKYO W
+11部       KK0030            246    11.5    29.0    38.5    79.0  Y     TOKYO W
+11部       KK0031            346       -       -       -       -  N     TOKYO W
+11部       KK0036           1653    14.0    23.0    36.5    73.5  Y     TOKYO W
+11部       KK0037           1638       -       -       -       -  N     TOKYO W
+11部       KK0666             63       -       -       -       -  N     S2G 26 TEX
+11部       KK2523            155       -       -       -       -  N     TAEKWONDO MEI ELITE W
+11部       KK2524             50       -       -       -       -  N     TAEKWONDO MEI ELITE W
+11部       KK2572            798       -       -       -       -  N     TAEKWONDO MEI ELITE W
+11部       KK2573            633       -       -       -       -  N     TAEKWONDO MEI ELITE W
+11部       KK2575           1677       -       -       -       -  N     TAEKWONDO MEI ELITE W
+11部       KK2576            813       -       -       -       -  N     TAEKWONDO MEI ELITE W
+11部       KK2705           1125       -       -       -       -  N     adidas TAEKWONDO W
+11部       KK2836            137       -       -       -       -  N     ADIPOWER 26
+11部       KK2838            189       -       -       -       -  N     ADIPOWER 26 SL
+11部       KK2839            241       -       -       -       -  N     ADIPOWER 26 SL BOA
+11部       KK2843            172       -       -       -       -  N     W ADIPOWER 26 SL BOA
+11部       KK2862             31       -       -       -       -  N     W S2G 26 TEX
+11部       KK2864            273       -       -       -       -  N     W S2G 26 LEATHER
+11部       KK2865            196       -       -       -       -  N     W S2G 26 LEATHER
+11部       KK2871            221       -       -       -       -  N     S2G 26 LEATHER
+11部       KK2872            124       -       -       -       -  N     S2G 26 TEX
+11部       LA3432            332       -       -       -       -  N     TOKYO W
+11部       LA3433           2555       -       -       -       -  N     TOKYO W
+11部       MF2606          22287       -       -       -       -  N     
+11部       MF2607           2425       -       -       -       -  N     
+11部 (2)   IF1944           1702    16.0    32.0    38.0    86.0  Y     SAMBA J
+11部 (2)   IF1945           1336       -       -       -       -  N     SAMBA J
+11部 (2)   JQ3463           1635       -       -       -       -  N     S2G 26 BOA
+11部 (2)   JR4790           2329       -       -       -       -  N     TOKYO MJ W
+11部 (2)   KK2866            542       -       -       -       -  N     W S2G 26 BOA
+11部 (2)   KK2867             31       -       -       -       -  N     W S2G 26 BOA
+11部 (2)   KK2868            993       -       -       -       -  N     S2G 26 BOA
+11部 (2)   KK2869             16       -       -       -       -  N     S2G 26 BOA
+11部 (2)   KZ6449           2197       -       -       -       -  N     ADISTAR XLG 2.0 J
+11部 (2)   KZ9155           5963    14.5    36.5    44.0    95.0  Y     ADISTAR XLG 2.0
+11部 (2)   KZ9163           2633       -       -       -       -  N     ADISTAR XLG 2.0 W
+11部 (2)   LA1814           2152       -       -       -       -  N     ADISTAR XLG 2.0 J
+11部 (2)   MF2603           7083       -       -       -       -  N     
+11部 (2)   MF2604           2379       -       -       -       -  N     
+11部 (2)   MF2605           1160       -       -       -       -  N     
+11部 (2)   MF2606           8590       -       -       -       -  N     
+11部 (2)   MF2607           2331       -       -       -       -  N     
+12部       HQ5207           2960       -       -       -       -  N     1609ER RS
+12部       HQ5208           1629       -       -       -       -  N     1609ER RS
+12部       HQ5209           2229       -       -       -       -  N     1609ER RS
+12部       HQ7468          11056       -       -       -       -  N     ADISTAR XLG 2.0
+12部       JI0182            155    20.5    32.0    36.5    89.0  Y     TOKYO W
+12部       KH9907           2589       -       -       -       -  N     1609ER RS
+12部       KH9908            554       -       -       -       -  N     1609ER RS
+12部       KH9909            107       -       -       -       -  N     1609ER RS
+12部       KI9853            185    12.5    33.5    38.5    84.5  Y     1609ER RS
+12部       KI9855            442       -       -       -       -  N     1609ER RS
+12部       KI9857            395       -       -       -       -  N     1609ER RS
+12部       KI9860            400       -       -       -       -  N     1609ER RS
+12部       KI9861            172       -       -       -       -  N     1609ER RS
+12部       KJ7510           3000       -       -       -       -  N     TOKYO W
+12部       KJ7893           2273       -       -       -       -  N     ADISTAR XLG 2.0 J
+12部       KJ7895           2113       -       -       -       -  N     ADISTAR XLG 2.0
+12部       KZ6449           6101       -       -       -       -  N     ADISTAR XLG 2.0 J
+12部       KZ6450           1293       -       -       -       -  N     ADISTAR XLG 2.0 J
+12部       KZ9155           2938    14.5    36.5    44.0    95.0  Y     ADISTAR XLG 2.0
+12部       KZ9161            716       -       -       -       -  N     ADISTAR XLG 2.0 W
+12部       KZ9162           2398       -       -       -       -  N     ADISTAR XLG 2.0 W
+12部       KZ9163           1166       -       -       -       -  N     ADISTAR XLG 2.0 W
+12部       KZ9344           2500       -       -       -       -  N     ADISTAR XLG 2.0 W
+12部       LA1814           5000       -       -       -       -  N     ADISTAR XLG 2.0 J
+12部       MF2603          17284       -       -       -       -  N     
+12部       MF2604           3793       -       -       -       -  N     
+12部       MF2605           8208       -       -       -       -  N     
+12部       MF2606          18147       -       -       -       -  N     
+12部       MF2607           4968       -       -       -       -  N     
+
+=== OCS 大底課（DS-05） ===
+T群組             AD代碼               訂單  鞋型
+----------------------------------------------------------------------
+T1              AD-69575         9807  ADIPOWER 26 SL BOA(71040/
+T1              AD-65049        22659  OZGAIA W(61BAS/
+T1              AD-71968        45357  CODECHAOS 27(71039/
+T1              AD-69605         1480  ADIPOWER 26(71039/
+T2              AD-65049      1222020  OZGAIA W(61BAS/
+T2              AD-66418         5115  SL 72 RS EL C(23005/
+T3              AD-71985            0  ADICHILL(41090/
+T3              AD-72792      930484499  ADISTAR XLG 2.0 W(21010/
+T5              AD-71985            0  ADICHILL(41090/
+T5              AD-72792      930484499  ADISTAR XLG 2.0 W(21010/
+T6              AD-69148      881525207745  GHOST SPRINT BALLET W(21010/
+T6              AD-70970         9213  adidas F50 ADIFRAME W(41TUR/
+T6              AD-74080       229440  1609ER RS(41113/
+T6              AD-60822         1633  SAMBA GOLF(41002/
+T6              AD-69920         1617  CAMPUS 00s GOLF(41103/
+T7+T8+T11       AD-71195      1812671  MEGARIDE F50(21032/
+T7+T8+T11       AD-72792       135470  ADISTAR XLG 2.0 W(21010/
+T7+T8+T11       AD-66959         1976  HELLSTAR MEGARIDE S2(21010/
+T7+T8+T11       AD-65736        53361  MEGA GHOSTRIDE W(21010/
+T7+T8+T11       AD-70970         4513  F50 TUNIT MEGA JAH JAH(41TUR/
+T7+T8+T11       AD-71196         4330  MEGARIDE F50 PEACHES(21032/
+T9              AD-27560      1052730  TRAXION RESPONSE SL(71039/
+T9              AD-07370        29624  TECH RESPONSE 3.0(WD) (71040/
+T9              AD-65019        16167  OZMILLEN W(21404/
+T9              AD-68783       142635  LA TRAINER OG(61BAS/
+T9              AD-18581        18582  JR CODECHAOS BOA 27(72010/
+T10             AD-06982       297228  RETROCROSS 25(41TUR/
+T10             AD-66068       558837  GAZELLE GOLF(41TUR/
+T10             AD-68783      1118743  LA TRAINER OG(61BAS/
+T10             AD-72024        78825  SPEZIAL GOLF(41TUR/
+T20             AD-63336      152404211976  W S2G 26 LEATHER(72010/
+T20             AD-00825          690  BUSENITZ(41TUR/
+T20             AD-63355        10671  S2G 24 (71039/
+T20             AD-69615        13391  R2C BOA(71039/
+T20             AD-71968         2390  CODECHAOS 27(71039/
+T20             AD-69682          716  RETROCROSS GRIPMORE(41TUR/
+T21             AD-71968        20286  CODECHAOS 27(71039/
+T21             AD-71971       198705  CODECHAOS BOA 27(71039/
+T22+T23         AD-03083        64379  ORGN ULTRA TECH(21001/
+T22+T23         AD-71968         5205  W CODECHAOS 27(72010/
+T22+T23         AD-69650        13334  MC70 FB SL 26(71039/
+T22+T23         AD-69648         2308  MC70 SPK(71039/
+T22+T23         AD-71971       604345  W CODECHAOS BOA 27(72010/
+
+=== 差異清單（vs 廠務組織編制表 6.2026） ===
+差異行數: 389（本系統計算 vs 參考表，差距>0.5 才列出）
+
+LEAN  ART             計算Cut    參考Cut      Δ     計算S     參考S     ΔS     計算A     參考A     ΔA  Model
+----------------------------------------------------------------------------------------------------
+2C    GV6889           11.5     10.0   +1.5    34.0    34.0   +0.0    38.5    39.0   -0.5  TECH RESPONSE 3.0
+2C    GV6900              -      9.0   -9.0       -    33.0  -33.0       -    36.0  -36.0  W TECH RESPONSE SL3
+2C    HQ1198              -      9.0   -9.0       -    33.0  -33.0       -    36.0  -36.0  W TECH RESPONSE 3.0
+1A    HQ7583              -     10.0  -10.0       -    15.0  -15.0       -    22.0  -22.0  adidas TAEKWONDO LAC
+1A    IH1969              -     10.0  -10.0       -    15.0  -15.0       -    22.0  -22.0  adidas TAEKWONDO LAC
+1C    JQ1022              -     15.0  -15.0       -    54.0  -54.0       -    35.0  -35.0  R2C BOA
+1C    JQ1023              -     15.0  -15.0       -    54.0  -54.0       -    35.0  -35.0  R2C BOA
+1A    JQ7755              -     10.0  -10.0       -    18.0  -18.0       -    21.0  -21.0  W GAZELLE GOLF
+1A    KH7849              -     10.0  -10.0       -    15.0  -15.0       -    22.0  -22.0  adidas TAEKWONDO LAC
+1A    KH7850              -     10.0  -10.0       -    15.0  -15.0       -    22.0  -22.0  adidas TAEKWONDO LAC
+1A    KH8402           16.5     10.0   +6.5    35.5    18.0  +17.5    38.0    21.0  +17.0  W GAZELLE GOLF
+1A    KI1387           19.0      6.0  +13.0    44.0    16.0  +28.0    43.0    21.0  +22.0  CODECHAOS BOA 27
+1A    KI1388              -      5.0   -5.0       -    18.0  -18.0       -    21.0  -21.0  CODECHAOS 27
+1A    KI1389              -      5.0   -5.0       -    18.0  -18.0       -    21.0  -21.0  W CODECHAOS 27
+1B    KI1390              -     15.0  -15.0       -    44.0  -44.0       -    43.0  -43.0  W CODECHAOS BOA 27
+1A    KI5734           13.0      5.0   +8.0    34.5    18.0  +16.5    39.0    21.0  +18.0  CODECHAOS 27
+1A    KI5735              -      5.0   -5.0       -    18.0  -18.0       -    21.0  -21.0  CODECHAOS 27
+1A    KI5736              -      5.0   -5.0       -    18.0  -18.0       -    21.0  -21.0  CODECHAOS 27
+1A    KI5737              -      5.0   -5.0       -    18.0  -18.0       -    21.0  -21.0  CODECHAOS 27
+1A    KI5738              -      6.0   -6.0       -    16.0  -16.0       -    21.0  -21.0  CODECHAOS BOA 27
+1A    KI5739              -      6.0   -6.0       -    16.0  -16.0       -    21.0  -21.0  CODECHAOS BOA 27
+1A    KI5740              -      6.0   -6.0       -    16.0  -16.0       -    21.0  -21.0  CODECHAOS BOA 27
+1A    KI5741              -      6.0   -6.0       -    16.0  -16.0       -    21.0  -21.0  CODECHAOS BOA 27
+1A    KI5746           14.5      6.0   +8.5    30.0    16.0  +14.0    38.0    21.0  +17.0  JR CODECHAOS BOA 27
+1A    KI5747              -      6.0   -6.0       -    16.0  -16.0       -    21.0  -21.0  JR CODECHAOS BOA 27
+1A    KI5750              -      5.0   -5.0       -    18.0  -18.0       -    21.0  -21.0  W CODECHAOS 27
+1B    KI5752              -     15.0  -15.0       -    44.0  -44.0       -    43.0  -43.0  W CODECHAOS BOA 27
+1B    KI5753              -     15.0  -15.0       -    44.0  -44.0       -    43.0  -43.0  W CODECHAOS BOA 27
+1B    KI5754              -     15.0  -15.0       -    44.0  -44.0       -    43.0  -43.0  W CODECHAOS BOA 27
+1A    KJ5427              -      9.0   -9.0       -    19.0  -19.0       -    19.5  -19.5  GAZELLE GOLF
+1A    KJ5428              -      9.0   -9.0       -    19.0  -19.0       -    19.5  -19.5  GAZELLE GOLF
+1A    KJ5429              -      9.0   -9.0       -    19.0  -19.0       -    19.5  -19.5  GAZELLE GOLF
+1A    KJ8220              -      9.0   -9.0       -    19.0  -19.0       -    19.5  -19.5  GAZELLE GOLF
+1A    KJ8229              -     10.0  -10.0       -    18.0  -18.0       -    21.0  -21.0  W GAZELLE GOLF
+1A    KK0657              -      5.0   -5.0       -    18.0  -18.0       -    21.0  -21.0  CODECHAOS 27
+1A    KK0658              -      5.0   -5.0       -    18.0  -18.0       -    21.0  -21.0  CODECHAOS 27
+1A    KK0660              -      6.0   -6.0       -    16.0  -16.0       -    21.0  -21.0  CODECHAOS BOA 27
+1A    KK2705              -     10.0  -10.0       -    15.0  -15.0       -    22.0  -22.0  adidas TAEKWONDO W
+1A    KK2852              -     10.0  -10.0       -    18.0  -18.0       -    21.0  -21.0  W GAZELLE GOLF
+1A    KK4938              -     10.0  -10.0       -    15.0  -15.0       -    22.0  -22.0  adidas TAEKWONDO W
+2C    GV6891              -     10.0  -10.0       -    34.0  -34.0       -    39.0  -39.0  TECH RESPONSE 3.0 WD
+2C    GV6893              -     10.0  -10.0       -    34.0  -34.0       -    39.0  -39.0  TECH RESPONSE 3.0 WD
+2C    GV6894              -      9.0   -9.0       -    33.0  -33.0       -    36.0  -36.0  TECH RESPONSE SL 3
+2C    GV6897           11.5      9.0   +2.5    33.0    33.0   +0.0    36.0    36.0   +0.0  TECH RESPONSE SL 3 W
+2C    GV6898              -      9.0   -9.0       -    33.0  -33.0       -    36.0  -36.0  TECH RESPONSE SL 3 W
+2A    HQ9343              -     13.0  -13.0       -    49.0  -49.0       -    74.0  -74.0  MEGARIDE F50
+2C    IH2247              -     14.0  -14.0       -    39.0  -39.0       -    37.0  -37.0  TRAXION RESPONSE SL
+2C    IH2248           20.0     14.0   +6.0    39.0    39.0   +0.0    37.0    37.0   +0.0  TRAXION RESPONSE SL
+2C    IH2249              -     14.0  -14.0       -    39.0  -39.0       -    37.0  -37.0  TRAXION RESPONSE SL
+2C    IH3396              -     20.0  -20.0       -    47.0  -47.0       -    38.0  -38.0  RETROCROSS 25
+2C    IH9978              -     20.0  -20.0       -    47.0  -47.0       -    38.0  -38.0  RETROCROSS 25
+2C    JP8521              -     20.0  -20.0       -    47.0  -47.0       -    38.0  -38.0  RETROCROSS 25
+2B    JQ0598              -     20.0  -20.0       -    31.0  -31.0       -    41.0  -41.0  TOKYO W
+2B    JR1896              -     10.0  -10.0       -    24.0  -24.0       -    24.0  -24.0  MC70 SPK
+2C    JR1899              -     17.0  -17.0       -    51.0  -51.0       -    42.0  -42.0  RETROCROSS GRIPMORE
+2A    KH8020              -     12.0  -12.0       -    45.0  -45.0       -    74.0  -74.0  MEGARIDE F50 Peaches
+2A    KH8086              -     11.0  -11.0       -    51.0  -51.0       -    56.0  -56.0  HELLSTAR MEGARIDE S2
+2A    KH8147              -     12.0  -12.0       -    45.0  -45.0       -    74.0  -74.0  MEGARIDE F50 Peaches
+2A    KI0352           21.5     18.0   +3.5    56.0    56.0   +0.0    63.5    64.0   -0.5  R2C MID
+2B    KI0820              -     12.0  -12.0       -    28.0  -28.0       -    25.0  -25.0  MC70 FB SL 26
+2A    KI1401              -     18.0  -18.0       -    56.0  -56.0       -    64.0  -64.0  R2C MID WD
+2A    KI3647              -     13.0  -13.0       -    49.0  -49.0       -    74.0  -74.0  MEGARIDE F50
+2B    KI4562              -     11.0  -11.0       -    40.0  -40.0       -    33.0  -33.0  GHOST MOTO MID W
+2A    KI4714              -     13.0  -13.0       -    49.0  -49.0       -    74.0  -74.0  MEGARIDE F50
+2A    KI4715              -     13.0  -13.0       -    49.0  -49.0       -    74.0  -74.0  MEGARIDE F50
+2A    KI4718              -     13.0  -13.0       -    49.0  -49.0       -    74.0  -74.0  MEGARIDE F50
+2A    KI4719              -     13.0  -13.0       -    49.0  -49.0       -    74.0  -74.0  MEGARIDE F50
+2A    KI4740              -     13.0  -13.0       -    49.0  -49.0       -    74.0  -74.0  MEGARIDE F50
+2A    KI4741              -     13.0  -13.0       -    49.0  -49.0       -    74.0  -74.0  MEGARIDE F50
+2A    KI4742              -     13.0  -13.0       -    49.0  -49.0       -    74.0  -74.0  MEGARIDE F50
+2A    KI4745              -     13.0  -13.0       -    49.0  -49.0       -    74.0  -74.0  MEGARIDE F50
+2A    KI5325           14.5     13.0   +1.5    47.5    49.0   -1.5    67.5    74.0   -6.5  MEGARIDE F50
+2C    KJ5770           31.5     20.0  +11.5    46.5    47.0   -0.5    38.0    38.0   +0.0  RETROCROSS 25
+2C    KJ5771              -     19.0  -19.0       -    49.0  -49.0       -    33.0  -33.0  W RETROCROSS 25
+2C    KK2857              -     17.0  -17.0       -    51.0  -51.0       -    42.0  -42.0  RETROCROSS GRIPMORE
+3B    KZ9161              -      8.0   -8.0       -    37.0  -37.0       -    44.0  -44.0  ADISTAR XLG 2.0 W
+3B    KZ9162              -      8.0   -8.0       -    37.0  -37.0       -    44.0  -44.0  ADISTAR XLG 2.0 W
+2B    LA3432              -     20.0  -20.0       -    31.0  -31.0       -    41.0  -41.0  TOKYO W
+2B    LA3433              -     20.0  -20.0       -    31.0  -31.0       -    41.0  -41.0  TOKYO W
+2A    LB5626              -     11.0  -11.0       -    51.0  -51.0       -    56.0  -56.0  HELLSTAR MEGARIDE S2
+2A    LB8409              -     13.0  -13.0       -    49.0  -49.0       -    74.0  -74.0  MEGARIDE F50
+2A    LB8410              -     13.0  -13.0       -    49.0  -49.0       -    74.0  -74.0  MEGARIDE F50
+3A    HQ2806              -     10.0  -10.0       -    33.0  -33.0       -    41.0  -41.0  LA TRAINER OG
+3B    HQ7468              -      8.0   -8.0       -    37.0  -37.0       -    44.0  -44.0  ADISTAR XLG 2.0
+3B    IF1944           16.0     12.0   +4.0    32.0    31.0   +1.0    38.0    39.0   -1.0  SAMBA J
+3B    IF1945              -     12.0  -12.0       -    31.0  -31.0       -    39.0  -39.0  SAMBA J
+3B    IH6000           16.0     12.0   +4.0    28.0    31.0   -3.0    39.0    39.0   +0.0  SAMBA
+3B    IH6001              -     12.0  -12.0       -    31.0  -31.0       -    39.0  -39.0  SAMBA
+3A    KH9677              -     10.0  -10.0       -    33.0  -33.0       -    41.0  -41.0  LA TRAINER OG
+3A    KH9679           19.0     10.0   +9.0    33.0    33.0   +0.0    41.5    41.0   +0.5  LA TRAINER OG
+3A    KH9680              -     10.0  -10.0       -    33.0  -33.0       -    41.0  -41.0  LA TRAINER OG
+3A    KH9681              -     10.0  -10.0       -    33.0  -33.0       -    41.0  -41.0  LA TRAINER OG
+3A    KH9683              -     10.0  -10.0       -    33.0  -33.0       -    41.0  -41.0  LA TRAINER OG
+3A    KJ1675              -     10.0  -10.0       -    33.0  -33.0       -    41.0  -41.0  LA TRAINER OG
+3A    KJ1676              -     10.0  -10.0       -    33.0  -33.0       -    41.0  -41.0  LA TRAINER OG
+3A    KJ4380              -     10.0  -10.0       -    33.0  -33.0       -    41.0  -41.0  LA TRAINER OG
+3A    KJ4381              -     10.0  -10.0       -    33.0  -33.0       -    41.0  -41.0  LA TRAINER OG
+3A    KJ4382              -     10.0  -10.0       -    33.0  -33.0       -    41.0  -41.0  LA TRAINER OG
+3B    KJ7892              -      8.0   -8.0       -    37.0  -37.0       -    44.0  -44.0  ADISTAR XLG 2.0 J
+3B    KJ7893              -      8.0   -8.0       -    37.0  -37.0       -    44.0  -44.0  ADISTAR XLG 2.0 J
+  ... 更多 289 行差異（見完整輸出）
