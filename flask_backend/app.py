@@ -18,6 +18,12 @@ except ImportError:
     HAS_DS05 = False
 
 try:
+    from analyze_gongcai import analyze as _gongcai_analyze
+    HAS_GONGCAI = True
+except ImportError:
+    HAS_GONGCAI = False
+
+try:
     import openpyxl
     HAS_XLSX = True
 except ImportError:
@@ -250,11 +256,31 @@ def ds05_analyze():
     result = _ds05_analyze(file_path, group_filter)
     return jsonify(result)
 
+# ── 同材共裁 Analyzer ─────────────────────────────────────────────────────────
+
+@app.route('/api/gongcai/analyze', methods=['GET'])
+def gongcai_analyze():
+    if not HAS_GONGCAI:
+        return jsonify({'ok': False, 'error': 'analyze_gongcai module not available'}), 500
+    file_path  = request.args.get('file', '').strip()
+    group      = request.args.get('group', '').strip()
+    ie_folder  = request.args.get('ie_folder', '').strip() or None
+    try:
+        eolr = int(request.args.get('eolr', 120))
+    except ValueError:
+        eolr = 120
+    if not file_path:
+        return jsonify({'ok': False, 'error': 'file parameter required'}), 400
+    if not group:
+        return jsonify({'ok': False, 'error': 'group parameter required'}), 400
+    result = _gongcai_analyze(file_path, group, eolr, ie_folder)
+    return jsonify(result)
+
 # ── Health check ─────────────────────────────────────────────────────────────
 
 @app.route('/api/health', methods=['GET'])
 def health():
-    return jsonify({'ok': True, 'version': '1.3'})
+    return jsonify({'ok': True, 'version': '1.4'})
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
