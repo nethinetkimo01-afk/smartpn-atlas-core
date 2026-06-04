@@ -61,6 +61,7 @@ def save_ob_record(data):
             (art, eolr, run)
         ).fetchone()
 
+        is_new = existing is None
         if existing:
             header_id = existing['id']
             conn.execute(
@@ -112,7 +113,7 @@ def save_ob_record(data):
         )
 
         conn.commit()
-        return {'ok': True, 'header_id': header_id}
+        return {'ok': True, 'header_id': header_id, 'new': is_new}
     except Exception as e:
         conn.rollback()
         return {'ok': False, 'error': str(e)}

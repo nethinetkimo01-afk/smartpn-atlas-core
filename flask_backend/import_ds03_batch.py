@@ -9,7 +9,13 @@ Usage:
     python import_ds03_batch.py <folder>
     python import_ds03_batch.py <folder> --dry-run
     python import_ds03_batch.py <folder> --lookup-only
+    python import_ds03_batch.py <folder> --xlsx-only      # skip .xls (use when .xlsx counterpart exists)
+    python import_ds03_batch.py <folder> --fresh          # clear ob_header before importing
     python import_ds03_batch.py <folder> --dry-run --lookup-only
+
+ART/EOLR source priority:
+  1. Filename: first [A-Z]{2}\\d{4,6} token → ART; '120双'→eolr=120, '60双'→eolr=60
+  2. Content (SUM.C2B / SUM sheet): fallback when filename has no ART token
 """
 import sys, os, glob, re as _re
 
@@ -21,6 +27,32 @@ if hasattr(sys.stderr, 'reconfigure'):
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import database as db
+
+# ── Filename ART/EOLR extraction ─────────────────────────────────────────────
+
+_FN_ART_RE = _re.compile(r'[A-Z]{2}\d{4,6}')
+
+def fn_art(filename):
+    """Return first ART code found in filename, or ''."""
+    m = _FN_ART_RE.search(os.path.basename(filename))
+    return m.group(0) if m else ''
+
+def fn_eolr(filename):
+    """Return EOLR inferred from '120双'/'60双' prefix in filename, or None."""
+    base = os.path.basename(filename)
+    if '120' in base and '双' in base:
+        return 120
+    if '60' in base and '双' in base:
+        return 60
+    return None
+
+# Files to skip: known exact-duplicate xlsx pairs (Recovered versions / stray copies).
+# Keep the cleaner filename, skip these.
+_SKIP_FILENAMES = {
+    '120双_FW26_GHOST SPRINT W_HQ3330..xlsx',        # duplicate of HQ3330.xlsx (stray dot)
+    '120双 LA TRAINER OG-KH9682-83-84- vải lưới+da lộn+da giả (Recovered).xlsx',  # Recovered dup
+    '60双_SS25 TOKYO MJ_KI5323_da thật (da cá)_thêm 1 ng mài thô mg - Copy.xlsx',  # Copy dup
+}
 
 try:
     import openpyxl
@@ -192,7 +224,26 @@ def process_file(path, dry_run=False, lookup_only=False):
         result['lookup_pairs'].update(extract_viet_zh(ws))
 
     # Header from workbook (multi-sheet aware)
-    result['header'] = extract_header(wb)
+    content_hdr = extract_header(wb)
+
+    # ART priority: filename first, then content fallback
+    art_from_file = fn_art(path)
+    art = art_from_file or str(content_hdr.get('art', '')).strip()
+
+    # EOLR priority: filename prefix (120双/60双), then content, then default 60
+    eolr_from_file = fn_eolr(path)
+    if eolr_from_file is not None:
+        eolr = eolr_from_file
+    else:
+        try:
+            eolr = int(float(str(content_hdr.get('eolr', 60)).strip()))
+        except (ValueError, TypeError):
+            eolr = 60
+
+    hdr = dict(content_hdr)
+    hdr['art']  = art
+    hdr['eolr'] = eolr
+    result['header'] = hdr
 
     # Identify department sheets
     for ws in wb.worksheets:
@@ -215,45 +266,60 @@ def process_file(path, dry_run=False, lookup_only=False):
             finally:
                 conn.close()
 
-        # Import OB skeleton if header has ART and not lookup-only
-        if not lookup_only:
-            h = result['header']
-            art = str(h.get('art', '')).strip()
-            if art:
-                try:
-                    eolr = int(float(str(h.get('eolr', 60)).strip()))
-                except (ValueError, TypeError):
-                    eolr = 60
-                ob_data = {
-                    'header': {
-                        'art': art, 'season': h.get('season', ''),
-                        'model': h.get('model', ''), 'material': h.get('material', ''),
-                        'category': h.get('category', ''), 'eolr': eolr, 'run': 1
-                    },
-                    'epph':   {'cutting': 0, 'stitching': 0, 'assembly': 0, 'stock': 0},
-                    'sheets': {}
-                }
-                result['ob_save'] = db.save_ob_record(ob_data)
+        # Import OB skeleton if ART resolved and not lookup-only
+        if not lookup_only and art:
+            ob_data = {
+                'header': {
+                    'art': art, 'season': hdr.get('season', ''),
+                    'model': hdr.get('model', ''), 'material': hdr.get('material', ''),
+                    'category': hdr.get('category', ''), 'eolr': eolr, 'run': 1
+                },
+                'epph':   {'cutting': 0, 'stitching': 0, 'assembly': 0, 'stock': 0},
+                'sheets': {}
+            }
+            result['ob_save'] = db.save_ob_record(ob_data)
 
     return result
 
 
-def batch_process(folder, dry_run=False, lookup_only=False):
+def batch_process(folder, dry_run=False, lookup_only=False, xlsx_only=False, fresh=False):
     files = glob.glob(os.path.join(folder, '**', '*.xlsx'), recursive=True)
-    files += glob.glob(os.path.join(folder, '**', '*.xls'), recursive=True)
-    files = [f for f in files if not os.path.basename(f).startswith('~$')]  # skip temp files
+    if not xlsx_only:
+        files += glob.glob(os.path.join(folder, '**', '*.xls'), recursive=True)
+
+    # Strip temp/lock files and known duplicates
+    files = [
+        f for f in files
+        if not os.path.basename(f).startswith('~$')
+        and os.path.basename(f) not in _SKIP_FILENAMES
+    ]
+    files.sort()
 
     if not files:
         print(f'No Excel files found in: {folder}')
         return
 
-    print(f'Found {len(files)} Excel file(s)')
+    print(f'Found {len(files)} Excel file(s)  (xlsx_only={xlsx_only})')
     if dry_run:
         print('DRY RUN — no data written to DB\n')
+
+    # Fresh mode: wipe existing OB data before re-importing
+    if fresh and not dry_run:
+        conn = db.get_conn()
+        try:
+            conn.execute('DELETE FROM ob_rows')
+            conn.execute('DELETE FROM ob_epph')
+            conn.execute('DELETE FROM ob_header')
+            conn.commit()
+            print('FRESH: cleared ob_header, ob_epph, ob_rows\n')
+        finally:
+            conn.close()
 
     all_pairs = {}
     ok_count = 0
     err_count = 0
+    new_count = 0
+    upd_count = 0
 
     for path in files:
         rel = os.path.relpath(path, folder)
@@ -286,11 +352,19 @@ def batch_process(folder, dry_run=False, lookup_only=False):
             print(f'  Dept sheets: {", ".join(d["dept"] for d in depts)}')
 
         ob = r.get('ob_save', {})
-        if ob and not ob.get('ok'):
-            print(f'  OB save warning: {ob.get("error")}')
+        if ob:
+            if ob.get('ok'):
+                if ob.get('new'):
+                    new_count += 1
+                else:
+                    upd_count += 1
+            else:
+                print(f'  OB save warning: {ob.get("error")}')
 
     print(f'\n{"=" * 50}')
     print(f'Done: {ok_count} files OK, {err_count} errors')
+    if not lookup_only and not dry_run:
+        print(f'OB records: {new_count} new, {upd_count} updated')
     print(f'Total unique lookup pairs: {len(all_pairs)}')
     if dry_run:
         print('(DRY RUN — nothing saved)')
@@ -306,10 +380,13 @@ if __name__ == '__main__':
         print(f'Not a directory: {folder}')
         sys.exit(1)
 
-    dry_run     = '--dry-run' in sys.argv
+    dry_run     = '--dry-run'     in sys.argv
     lookup_only = '--lookup-only' in sys.argv
+    xlsx_only   = '--xlsx-only'   in sys.argv
+    fresh       = '--fresh'       in sys.argv
 
     if not dry_run:
         db.init_db()
 
-    batch_process(folder, dry_run=dry_run, lookup_only=lookup_only)
+    batch_process(folder, dry_run=dry_run, lookup_only=lookup_only,
+                  xlsx_only=xlsx_only, fresh=fresh)
