@@ -1,6 +1,6 @@
 # Current Status
 
-Last updated: 2026-06-03
+Last updated: 2026-06-04
 
 ---
 
@@ -53,12 +53,47 @@ File: 00_HANDOFF/24_DATA_SYSTEM.md (v1.5)
 - DS-04 定義：生產進度表（部門/組別/ART/月份），分析邏輯確認，待 Jim 提供 EOLR 對應表 + Excel 路徑
 - 24_DATA_SYSTEM.md 更新至 v1.7
 
+### Completed 2026-06-04 (Session G — DS-03 修正 + DS-05 建立)
+
+**DS-03 批量導入修正（ob_header 74→152 筆）**
+- 根本原因：content ART 提取抓到模板複製殘留 ART（如 5 個不同 LA TRAINER 檔案全部提取到 IH1651），導致大量檔案互相覆蓋
+- 修正：fn_art() 從檔名提取第一個 ART 作為主要來源（override content）
+- 修正：fn_eolr() 從 120双/60双 前綴推斷 EOLR
+- 新增：_SKIP_FILENAMES（跳過 3 個已知重複 xlsx：HQ3330..、KH9682 Recovered、KI5323 Copy）
+- 新增 CLI 選項：--xlsx-only（跳過 .xls，所有 .xls 都有對應 .xlsx）
+- 新增 CLI 選項：--fresh（清空 ob_header 後重新導入）
+- 最終結果：ob_header 152 筆（eolr=120: 127筆，eolr=60: 25筆；FW25~FW26、SS24~SS26）
+
+**DS-05 定義確認**
+- 名稱：大底課進度表（Sole Department Progress Sheet）
+- 結構：A 欄 T 群組（T1 / T1+T2 / T1+T2+T3 等，完全照來源表）
+- T 群組標頭格式："T1\n5月:20人\n6月:22人"
+- 鞋型標題：含 AD-xxxxx 代碼（5位數）
+- 合併邏輯：同一 T 群組內相同 AD 代碼 → 合併顯示，訂單加總
+- MF 訂單：格式同 DS-04（MFyymmART-seq--qty(date)）
+- 結果表設計原則：結果表不變更，所有變更在來源表作業
+
+**DS-05 分析腳本建立**
+- flask_backend/analyze_ds05.py：parse_sheet() + analyze() 完整實作
+  - A 欄 T 群組邊界掃描
+  - AD-xxxxx 代碼偵測（含 ADICHILL 修正）
+  - ADICHILL bug 修正：當 ADICHILL 出現在儲存格但 AD 代碼在下方 1-2 列時，自動向下查找
+  - MF 訂單與最近 AD 代碼關聯（row-order 最近上方原則）
+  - AD 代碼合併 + 訂單加總
+  - CLI：python analyze_ds05.py <file> [--group T1] [--dry-run]
+- flask_backend/app.py v1.3：GET /api/ds05/analyze?file=<path>&group=<T1>
+
+**工作時間確認**
+- 08:00-16:00 Vietnam time = Jim 在線討論決策
+- 16:00+ = Claude Code 後台執行
+
 ### Next Session Starting Point
-1. DS-04 生產進度表：
-   → 提供部門/組別 vs EOLR 對應表
-   → 提供進度表 Excel 實際路徑
-2. 定義 DS-05...N 數據源
-3. 定義報表 dashboard 需求（Jim 定義固定 report tabs）
+1. DS-05 analyze_ds05.py 測試（Jim 提供實際大底課進度表 Excel 路徑）
+2. 定義結果表 H-L 欄位邏輯（Jim 說明）
+3. 定義 DS-06...N 數據源
+4. 報表 dashboard 需求（固定 report tabs）
+5. DS-04 生產進度表：
+   → 仍待 Jim 提供 EOLR 對應表 + Excel 路徑
 
 ---
 

@@ -12,6 +12,12 @@ except ImportError:
     HAS_DS04 = False
 
 try:
+    from analyze_ds05 import analyze as _ds05_analyze
+    HAS_DS05 = True
+except ImportError:
+    HAS_DS05 = False
+
+try:
     import openpyxl
     HAS_XLSX = True
 except ImportError:
@@ -231,11 +237,24 @@ def ds04_analyze():
     result = _ds04_analyze(file_path, dept, group, eolr)
     return jsonify(result)
 
+# ── DS-05 大底課進度表 Analyzer ───────────────────────────────────────────────
+
+@app.route('/api/ds05/analyze', methods=['GET'])
+def ds05_analyze():
+    if not HAS_DS05:
+        return jsonify({'ok': False, 'error': 'analyze_ds05 module not available'}), 500
+    file_path    = request.args.get('file', '').strip()
+    group_filter = request.args.get('group', '').strip()
+    if not file_path:
+        return jsonify({'ok': False, 'error': 'file parameter required'}), 400
+    result = _ds05_analyze(file_path, group_filter)
+    return jsonify(result)
+
 # ── Health check ─────────────────────────────────────────────────────────────
 
 @app.route('/api/health', methods=['GET'])
 def health():
-    return jsonify({'ok': True, 'version': '1.2'})
+    return jsonify({'ok': True, 'version': '1.3'})
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
