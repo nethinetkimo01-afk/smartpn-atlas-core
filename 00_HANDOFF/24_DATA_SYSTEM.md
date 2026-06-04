@@ -1,6 +1,6 @@
 # Data System - Internal Data Automation Project
 
-Version: v1.9 | 2026-06-04
+Version: v2.0 | 2026-06-04
 Status: DS-01✅ DS-02✅ DS-03✅ DS-04 defined (pending EOLR map + file path) DS-05 defined + script built, Flask backend v1.3
 Purpose: New Claude session reads this file to continue from last point.
 
@@ -208,6 +208,47 @@ Status: Script built ✅ | Pending: real file test + result table definition (H-
 ### DS-06 onward
 
 Pending Jim input.
+
+---
+
+## 結果表設計規則（廠務組織編制表）
+
+### 核心原則（CONFIRMED）
+
+- **結果表不變更任何東西** — 所有變更全部在來源表作業
+- T 群組名稱完全照來源表（T1+T2+T3 就顯示 T1+T2+T3，不拆開、不重命名）
+- AD 代碼相同 → 合併顯示，訂單加總
+- DS-03 無對應資料 → 紅字標示，手工填入為最終值（不計算）
+
+### 欄位分類
+
+**變動欄位**（每月從來源表計算，自動更新）：
+
+| 來源 | 欄位說明 |
+|------|---------|
+| DS-04 進度表 + DS-02 FOB + DS-03 OB | C2B 部門（1A、1B、1C...各組） |
+| DS-05 大底課進度表 | 大底課（T1、T2、T3... 各 T 群組） |
+
+**固定欄位**（每月從當月廠務組織編制表直接讀取，不計算）：
+
+| 組別 | 包含單位 |
+|------|---------|
+| 組底配套 | 組底倉庫、整理組、外包組、打粗組、UV/水洗組、Tổ phối liệu PXD |
+| 自動化 | 同材共裁 1,2 組、自動裁斷 1,2 組、鞋墊手工組、自動化保全技術組、自動化倉庫 |
+| 電腦針車 | 折邊/TGB、電腦針車/MVT、電腦針車倉庫、電腦針車保全技術組 |
+| 印刷 | 高周波、印刷組、配套組、網板組、印刷房、印刷開發、加工組 |
+| RB | 預備組、RB生管、RB倉庫、出半成品、模具、密練組A/B、混A/B/C組、熱A/B/C組、整理A/B/C組、技術組、硫化組 |
+| QC | OCPT、實驗室、樣品室、檢驗真皮組、檢驗副料組、收料組、底料檢驗、EVC檢驗、T2中底、T3外包、印刷高周波QC、外包QC部件、QCRB、外包RB QC、自動化中心QC、電腦針車QC、QC貼底課、外包QC貼底、QC 1–12、QC YH、品包1–3組、掃描組、貼外箱標組、QC入庫 |
+| 設備工程 | 保全/Bảo trì、西工/bảo trì RB |
+
+### 資料流向
+
+```
+來源表（DS-04 / DS-05 / 廠務編制表）
+        ↓  讀取、計算（不回寫）
+結果表（每月報告）
+        ↓  唯讀，不可直接修改
+```
 
 ---
 
