@@ -1,0 +1,16 @@
+[08:26:56] === Nightly Run 20260605_082656 force=True no_push=False ===
+[08:26:56] START [data_system]
+[08:26:56] [data_system] Task 1: Import new Jun/IE files
+[08:26:57] [data_system] IE import: 0 new records
+[08:26:57] [data_system] Task 2: Build comparison_table.xlsx
+[08:26:58] [data_system] comparison_table.xlsx written
+[08:26:58] [data_system] Task 3: MP allocation analysis
+[08:26:58] [data_system] mp_allocation_analysis.txt written
+[08:26:58] DONE  [data_system]
+[08:26:58] 
+[08:26:58] === Summary ===
+[08:26:58]   OK   data_system
+[08:26:58] Total: 1 OK, 0 failed
+[08:26:58] 
+[08:27:01] git: committed + pushed — nightly 20260605: 1/1 tasks OK
+[08:27:01] === Done. Log: D:\smartpn-atlas-core\nightly\logs\20260605_082656.txt ===
