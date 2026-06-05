@@ -1,6 +1,6 @@
 ﻿# SmartPN Atlas Operating Rules
 
-Version: v2.4 | 2026-06-03
+Version: v2.5 | 2026-06-05
 
 ## Session Start Protocol
 
