@@ -1,7 +1,7 @@
 # Data System - Internal Data Automation Project
 
-Version: v2.1 | 2026-06-04
-Status: DS-01✅ DS-02✅ DS-03✅ DS-04 defined DS-05 script built, Flask backend v1.4, analyze_gongcai built
+Version: v3.0 | 2026-06-05
+Status: DS-01✅ DS-02✅ DS-03✅ DS-04✅ DS-05✅ 結果表v1✅ 比對完成✅
 Purpose: New Claude session reads this file to continue from last point.
 
 ---
@@ -65,7 +65,6 @@ Quantity: Total (sum)
 Field matching: by name, not position
 Import CLI: python flask_backend/import_ds01.py "<path.xlsx>"
 Import UI:  http://localhost:5000/admin → DS-01 section
-Pending: actual Excel file path, analysis requirements, import frequency
 
 ---
 
@@ -82,7 +81,6 @@ Field matching: by name, not position
 E-PPH source: LC Cutting / LC Stitching / LC Assembly / LC Stockfitting -> used in DS-03 SUM_C2B
 Import CLI: python flask_backend/import_ds02.py "<path.xlsx>"
 Import UI:  http://localhost:5000/admin → DS-02 section
-Pending: actual Excel file path, analysis requirements, import frequency
 
 ---
 
@@ -99,50 +97,17 @@ PPH = EOLR / MP (changes with MP, NOT a fixed value)
 Interface: ds03_ob_interface.html v1.4
 Backend: flask_backend/ (app.py v1.1, database.py, schema.sql)
 Start server: double-click flask_backend/start.bat → http://localhost:5000
-TESTED: Flask server confirmed working 2026-06-03
 
-Interface features (v1.4):
-- 📂 Open: Record browser modal (search/filter, load any saved OB record)
-- 💾 Save: POSTs to /api/ds03/save
-- DS-02 →: Auto-fills E-PPH bar from DS-02 FOB LC values by ART (requires DS-02 imported)
-- 📚 Lookup: Viet-Chinese part name lookup manager
-- ＋ New: Clear form and start new record
-
-Navigation:
-- L1: SUM_C2B (read-only) | SUM_Stock (read-only)
-- L2 under SUM_C2B: Cutting, ATOM/自动化, 同材共裁, 电脑针车, Stitching 支流, Stitching 主流, Assembly 1, Assembly 2
-- L2 under SUM_Stock: 打粗, 水洗, 贴大底, 照射, 成型面照射
-
-SUM_C2B fields (all read-only):
-- MP: aggregated from sub-sheets
-- PPH: EOLR / MP
-- E-PPH: from DS-02 FOB LC values (auto-fill via DS-02 → button)
-- Diff PPH: E-PPH - PPH
-- Eff%: PPH / E-PPH x 100%
-
-Cutting sheet: Material category | Part Viet | 部件名稱中文 | Layers | Qty/Pr | Knives/H | CT | Allowance% | ST | Actual Ops | Marking | Skiving | Attaching | Edge Paint | Heat Press
-Stitching / Assembly: same, no Material category column
-Stock sheets: Part Viet | 部件名稱中文 | CT | Allowance% | ST | Actual Ops
-
-Vietnamese-Chinese Part Name Lookup:
-- Independent base table
-- 30+ pairs seeded on first run
-- Batch extract from historical files: python flask_backend/import_ds03_batch.py "<folder>"
-
-Batch import (CONFIRMED WORKING 2026-06-04):
-- ob_header: 152 records (eolr=120: 127, eolr=60: 25)
-- Seasons: FW25(20), SS25(28), FW26(50), SS26(46), SS24(4), SS23(2), FW24(2)
-- Source: C:\Users\user\OneDrive\Desktop\IE (155 xlsx files, 3 skipped duplicates)
-- ART/EOLR source: filename-first (fixes template copy-paste artifact in content)
-  - fn_art(): first [A-Z]{2}\d{4,6} from filename
-  - fn_eolr(): 120双→120, 60双→60
-- CLI options: --xlsx-only --fresh (for full re-import)
-
-ob_epph MP (CONFIRMED 2026-06-04, 152/152 records filled):
+ob_epph MP (CONFIRMED 2026-06-04, 326/326 records filled after Jun\IE import):
 - Extracted from SUM_C2B sheet "No.of Operators" header row
-- cutting / stitching / assembly / stock all > 0 for all 152 records
+- cutting / stitching / assembly / stock all > 0
 - Sheet selection: prefer shortest matching SUM_C2B sheet name
-  (avoids "SUM.C2B 67-68" variant sheets being selected over canonical "SUM.C2B")
+
+Batch import (CONFIRMED WORKING 2026-06-05):
+- ob_header: 326 records (original 152 + Jun\IE 174)
+- Source 1: C:\Users\user\OneDrive\Desktop\IE (155 xlsx, 3 skipped duplicates)
+- Source 2: C:\Users\user\OneDrive\Desktop\Biên chế\Jun\IE (Jun batch, multi-ART)
+- Jun\IE import: python flask_backend/import_jun_ie.py
 
 ---
 
@@ -151,31 +116,21 @@ ob_epph MP (CONFIRMED 2026-06-04, 152/152 records filled):
 Type: System export, Excel, fixed format, one file per month, multiple sheets (by department)
 Primary key (CONFIRMED): Department + Group + ART + Month
 Table range: max 35–37 rows per sheet
-Import CLI: TBD (pending Excel path and frequency)
-Pending: Group vs EOLR mapping table, import frequency
+File path (Jun 2026): C:\Users\user\OneDrive\Desktop\Biên chế\Jun\2026年6月份正式进度表 5 30.xlsx
 
-File format:
-- Order number format: MF2604KJ8322-03--900(5/29)
-- ART: alphanumeric code extracted from order number after the "-" prefix (e.g. KJ8322)
-- Order quantity: number between "--" and "("; dual-ART format → sum both quantities
-- Grey cell = holiday (excluded from work-hour calculation)
-- Yellow cell = model-change loss quantity
+Order parsing logic (CONFIRMED, implemented in analyze_result_table.py):
+- Order cell format: MF2604KJ8322-03--900(5/29)
+- ART: first [A-Z]{2}\d{4,6} match in cell
+- Quantity: number between '--' and '('
+- Dual-ART cell: split qty evenly, remainder goes to first ART
+- Scan all cells in all rows of the sheet
+- Sum across all occurrences of same ART within sheet
 
-Analysis logic (CONFIRMED):
-1. From schedule: extract ART + order quantity for all columns per department/group
-2. ART → DS-02 FOB (Article #) → get Model Name + Cutting / Stitching / Assembly LC
-3. Same group, same Model Name AND all LC values identical → merge rows, sum orders
-4. LC values differ (even same Model Name) → display separately
-5. ART → DS-03 OB → get MP for corresponding EOLR (Cutting / Stitching / Forming)
-6. No DS-03 match → flag in red, allow manual input as final value
-7. Output per group: Model Name + ART | Orders | Cutting MP | Stitching MP | Forming MP
+DS-04 sheets in Jun 2026: 12 sheets (加1~加12), 331 unique ARTs (after dedup across sheets)
 
-EOLR mapping:
-- Defined per department/group (Jim to provide)
-- Pending: full group → EOLR table
-
-Validation:
-- 加一A group total: 15,096 PRS (confirmed correct)
+LEAN mapping status: **PENDING** — DS-04 sheets named "1部 " etc.; ref uses 1A/1B/1C etc.
+Current approach: match ART to 廠務組織編制表 ref row to determine LEAN (partial coverage)
+EOLR mapping: **PENDING** — Jim to provide Group → EOLR table
 
 ---
 
@@ -183,31 +138,25 @@ Validation:
 
 Type: Manual Excel file, maintained by 大底課 team
 Primary key: T-group + AD-code + Month
-File format:
-- Column A: T-group headers (format: "T1\n5月:20人\n6月:22人")
-  - Group name taken EXACTLY as written in source: T1 / T1+T2 / T1+T2+T3 etc.
-- Within each T-group: rows with shoe model titles containing AD-xxxxx codes (5 digits)
-- MF order cells: same format as DS-04 (MFyymmART-seq--qty(date))
+File path (Jun 2026): C:\Users\user\OneDrive\Desktop\Biên chế\Jun\2026年6月份正式贴底进度表进度表 5.16. (ĐẾ).xlsx
 
-Analysis logic (CONFIRMED):
-1. Scan column A for T-group markers (starts with T + digit or "+")
-2. Extract headcount from T-group header cell (5月:xx人, 6月:xx人)
-3. Within each T-group, find all cells containing AD-xxxxx codes → model headers
-4. Assign MF orders to the nearest AD-code above them (row-order)
-5. Same AD-code within a T-group → merge display, sum quantities
-6. ADICHILL fix: when "ADICHILL" appears without AD-code on same line,
-   search 1–2 rows below for the AD-code (handles multiline/split-row format)
+Parsing logic (CONFIRMED, implemented in analyze_ds05.py):
+1. Scan column A for T-group markers — format: "T1\n5月:20人\n6月:22人"
+   - Group name taken EXACTLY as written (T1 / T1+T2 / T1+T2+T3 — no splitting)
+   - Headcount extracted per month from same cell
+2. Within each T-group: find cells containing AD-xxxxx codes (5 digits) → model headers
+   - Model name = text before AD- token in same cell
+3. MF orders assigned to nearest AD-code above them (row-order within T-group)
+4. Same AD-code within one T-group → merge, sum quantities
+5. ADICHILL fix: when "ADICHILL" appears without AD-code, look 1–2 rows below in same column
 
-Result table design principle: Result tables are NEVER modified directly.
-All changes must be made in the source table (來源表).
+Script: flask_backend/analyze_ds05.py
+- CLI: python analyze_ds05.py <file.xlsx> [--group T1] [--dry-run]
+- API: GET /api/ds05/analyze?file=<path>&group=<T1>
 
-Analysis script:
-- flask_backend/analyze_ds05.py
-  - CLI: python analyze_ds05.py <file.xlsx> [--group T1] [--dry-run]
-  - API: GET /api/ds05/analyze?file=<path>&group=<T1>
-- Returns: {groups: [{group_name, headcount, models: [{ad_code, model_name, orders, total_qty}]}]}
-
-Status: Script built ✅ | Pending: real file test + result table definition (H-L columns)
+Result table design principle (CONFIRMED):
+- Result tables are NEVER modified directly
+- All changes must be made in the source table (來源表)
 
 ---
 
@@ -288,15 +237,17 @@ Pending Jim input.
 
 ---
 
-### 自檢流程（強制，每欄位都要執行）
+### 自檢流程（強制，每欄位都要執行）— Rule 15
 
 1. 定義欄位邏輯
 2. 立刻試算（用真實數據）
 3. 與結果表比對
 4. Jim 確認 ✅
-5. 才繼續下一欄
+5. 記錄到 GitHub
+6. 才繼續下一欄
 
 → 結果不一致立刻說明原因，不能跳過
+→ 未驗證的定義不算完成。未記錄到 GitHub 的定義不存在。
 
 ---
 
@@ -320,6 +271,35 @@ Pending Jim input.
 
 ---
 
+## 比對結果（2026-06-05）
+
+### 比對來源 vs 廠務組織編制表 6.2026 sheet
+
+DS-04 Jun 2026: 331 unique ARTs (12 sheets)
+廠務組織編制表 ref: 209 rows
+
+差異分類（共 384 筆）：
+- Type 1 ART/鞋型/訂單不一致: 68 筆
+  - A. DB有MP但編制表完全找不到此ART: 2個 (IG9016 OZWEEGO J, JH6149 SAMBA GOLF)
+  - B. ART在編制表有LEAN但裁/針欄位空白(DB有值): 30筆
+    - 10C: 13個ART (HANDBALL SPEZIAL, SPEZIAL GOLF)
+    - 5C: 12個ART (SL 72 RS 系列)
+    - 12A: 1個ART (1609ER RS)
+  - C. 編制表與DB均無裁/針值，差異來自成型欄位: 36筆
+    - 12A: 10個ART, 5C: 19個ART, 10C: 4個ART
+- Type 2 有MP但數值不一致: 132 筆 (MP邏輯未定義，暫不處理)
+- Type 3 DB無MP: 184 筆 (MP邏輯未定義，暫不處理)
+
+重要發現 (Type 1 重複比對): 7個ART+LEAN組合被比對演算法重複匹配
+→ 比對腳本 compare_csa() 需優化匹配邏輯
+
+### 非MP欄位差異 (ART層級)
+
+進度表有/編制表無: TBD (見 result_table_v1.xlsx 非MP差異 sheet)
+編制表有/進度表無: TBD (同上)
+
+---
+
 ## Cross-table Relationships
 
 DS-02 Article # = DS-01 Article ID (join key)
@@ -335,19 +315,30 @@ URLs:
   http://localhost:5000        ← OB Interface (ds03_ob_interface.html)
   http://localhost:5000/admin  ← Import Admin (DS-01/DS-02 upload, DB stats)
 
-Files:
-- app.py v1.4: all API endpoints
-- database.py: SQLite helpers + import functions (change tracking)
-- schema.sql: full schema
+Scripts (all confirmed working 2026-06-05):
+- app.py v1.4
+- database.py
+- schema.sql
 - requirements.txt: flask, flask-cors, openpyxl
-- start.bat: python -m pip install -r requirements.txt -q && python app.py
-- import_ds02.py: CLI → python import_ds02.py <path> [--dry-run]
-- import_ds01.py: CLI → python import_ds01.py <path> [--dry-run]
-- import_ds03_batch.py: CLI → python import_ds03_batch.py <folder> [--dry-run] [--lookup-only] [--xlsx-only] [--fresh]
-- analyze_ds04.py: CLI → python analyze_ds04.py <file> --dept <d> --group <g> [--eolr 120]
-- analyze_ds05.py: CLI → python analyze_ds05.py <file> [--group T1] [--dry-run]
-- analyze_gongcai.py: CLI → python analyze_gongcai.py <ds04.xlsx> --group 加一A組 [--eolr 120] [--dry-run]
-- backup.py: CLI → python backup.py [--keep-days=30]
+- start.bat
+- import_ds01.py
+- import_ds02.py
+- import_ds03_batch.py
+- import_jun_ie.py: import Jun\IE folder (multi-ART IE files)
+- analyze_ds04.py: per-group analysis → /api/ds04/analyze
+- analyze_ds05.py: T-group parsing → /api/ds05/analyze
+- analyze_gongcai.py: 同材共裁 report → /api/gongcai/analyze
+- analyze_result_table.py: CSA+OCS full result table + compare vs 廠務編制表
+- build_result_table.py: build result_table_v1.xlsx (CSA+OCS+Ref+Diff sheets)
+- classify_diffs.py: categorize diff_report_jim.txt into Type 1/2/3
+- backup.py
+- generate_comparison_table.py: ob_epph vs 廠務編制表 comparison_table.xlsx
+
+Output files (flask_backend/test_output/):
+- result_full.txt: full CSA + diff report (384 diffs)
+- diff_report_jim.txt: diff section only
+- result_table_v1.xlsx: Jim review Excel
+- comparison_table.xlsx: 309-row MISMATCH/MISSING_IE table
 
 API endpoints:
 - POST /api/ds03/save       GET /api/ds03/load    GET /api/ds03/list    DELETE /api/ds03/delete
@@ -375,25 +366,27 @@ API endpoints:
 
 1. DS-01 ✅ imported — C:\Users\user\OneDrive\Desktop\SS27 SP1 & FW26 SP7.xlsx
 2. DS-02 ✅ imported — C:\Users\user\OneDrive\Desktop\FOB Price List.xlsx
-3. DS-03 ✅ 152 records, ob_epph 152/152 MP filled (C/S/A/Stock)
-   → Source: C:\Users\user\OneDrive\Desktop\IE
-4. DS-04: Production Schedule
+3. DS-03 ✅ 326 records (ob_header), all MP filled
+   → Source 1: C:\Users\user\OneDrive\Desktop\IE
+   → Source 2: C:\Users\user\OneDrive\Desktop\Biên chế\Jun\IE
+4. DS-04: Production Schedule ✅
    → 進度表路徑: C:\Users\user\OneDrive\Desktop\Biên chế\Jun\2026年6月份正式进度表 5 30.xlsx
-   → analyze_gongcai.py ✅ built — GET /api/gongcai/analyze
-   → Pending: EOLR mapping table (Group → EOLR)
-5. DS-05: 大底課進度表
-   → Script built ✅ (analyze_ds05.py + /api/ds05/analyze)
+   → 12 sheets, 331 unique ARTs
+   → PENDING: EOLR mapping (Group → EOLR)
+5. DS-05: 大底課進度表 ✅
+   → Script built + API endpoint confirmed
    → 大底課進度表路徑: C:\Users\user\OneDrive\Desktop\Biên chế\Jun\2026年6月份正式贴底进度表进度表 5.16. (ĐẾ).xlsx
-6. 廠務組織編制表路徑: C:\Users\user\OneDrive\Desktop\Biên chế\2026年6月份廠務组织編制_20260524.xlsx
-7. 結果表設計（CONFIRMED）：
-   → 四大類別：CSA（加1~加12）/ OCS（大底課+固定單位）/ RB / QC
-   → 自檢流程：定義→試算→比對→Jim確認→才繼續
-   → 工作時間：08:00-16:00 VN = Jim在線；16:00+ = Claude Code後台
-8. 下一步：
-   → 建立 analyze_result_table.py（CSA全組 + OCS大底課）
-   → CSA 欄位：LEAN | 鞋型 | 訂單 | 裁斷MP | 針車MP | 成型MP | 協理給 | 合計
-   → 與廠務組織編制表 6.2026 sheet 逐行比對
-9. DS-06...N: Pending Jim input
+6. 廠務組織編制表路徑: C:\Users\user\OneDrive\Desktop\Biên chế\Jun\2026年6月份廠務组织編制 20260524.xlsx
+7. 結果表 v1 ✅ — flask_backend/test_output/result_table_v1.xlsx
+   → 4 sheets: CSA / OCS大底課 / 廠務編制表_Ref / 非MP差異
+8. 已完成比對：
+   → Type 1 (結構不一致): 68筆，2個ART完全找不到 (IG9016, JH6149)
+   → Type 2/3 (MP差異/無MP): 316筆，等Jim確認MP分配規則後處理
+9. PENDING (等Jim確認):
+   → MP分配規則：DB ob_epph 是整條產線MP，廠務編制表是分配後MP，差距約2~3倍
+   → LEAN對應規則：DS-04 "1部" 對應 廠務編制表哪些LEAN？
+   → EOLR mapping：每個組別對應哪個EOLR？
+10. Rule 15 ✅ 已加入 07_RULES.md：定義→試算→Jim確認→記錄GitHub→才繼續
 
 ---
 

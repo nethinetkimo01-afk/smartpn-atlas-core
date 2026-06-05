@@ -135,3 +135,17 @@ When Jim types the first message, Claude must already know:
 - What Jim needs to decide
 
 Jim's time is for thinking and deciding — not for managing AI.
+
+## Rule 15: Verify Before Record
+
+Every logic definition follows this sequence:
+1. Define the logic
+2. Run a trial calculation immediately to produce output
+3. Jim confirms the output is correct
+4. Record to GitHub
+5. Only then proceed to the next definition
+
+An unverified definition is not complete.
+A definition not recorded to GitHub does not exist.
+
+<!-- updated: 2026-06-05 -->
