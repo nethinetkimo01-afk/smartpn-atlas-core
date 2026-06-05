@@ -1,6 +1,6 @@
 ﻿# SmartPN Atlas Operating Rules
 
-Version: v2.5 | 2026-06-05
+Version: v2.6 | 2026-06-05
 
 ## Session Start Protocol
 
@@ -63,10 +63,31 @@ Never apologize after failure - fix and report the result.
 
 ## Rule 8: Session Start Protocol
 
+**General start:**
 1. Read ALL files in 00_ENTRY_POINT.md
 2. Answer all 5 verification questions
 3. Report current status from 21_CURRENT_STATUS.md
 4. Begin work
+
+**Fixed handoff — trigger: Jim says "繼續 DATA SYSTEM"**
+
+When Jim types "繼續 DATA SYSTEM", Claude immediately executes these 4 steps without asking anything:
+
+1. Read memory index (Claude Code: `C:\Users\user\.claude\projects\D--smartpn-atlas-core\memory\MEMORY.md`)
+2. Claude Code reads local files and brings full content into the claude.ai window:
+   - `D:\smartpn-atlas-core\00_HANDOFF\24_DATA_SYSTEM.md`
+   - `D:\smartpn-atlas-core\00_HANDOFF\07_RULES.md`
+3. Report in this exact format:
+   ```
+   版本：24_DATA_SYSTEM.md vX.X | 07_RULES.md vX.X
+   當前狀態：[一句話]
+   已完成：[清單]
+   待 Jim 確認：[清單]
+   下一步：[Claude 立刻開始執行的事]
+   ```
+4. Begin work immediately. Do NOT ask Jim any questions.
+
+<!-- updated: 2026-06-05 -->
 
 ## Rule 9: Tool Assignment
 
@@ -118,7 +139,6 @@ Auto mode in /config is NOT enough - still stops for bash/git commands
 First prompt: select "2. Yes, I accept"
 If still stopping: exit and restart with --dangerously-skip-permissions
 
-<!-- updated: 2026-06-03 -->
 ## Rule 14: Every Session Must Show Progress
 
 When Jim opens a new session, he expects progress — not error-fixing, not re-explaining, not re-teaching.
@@ -148,4 +168,4 @@ Every logic definition follows this sequence:
 An unverified definition is not complete.
 A definition not recorded to GitHub does not exist.
 
-<!-- updated: 2026-06-05 -->
+<!-- Rule 15 updated: 2026-06-05 -->
