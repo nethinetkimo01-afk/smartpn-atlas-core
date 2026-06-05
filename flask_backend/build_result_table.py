@@ -26,6 +26,25 @@ OUTPUT    = r'D:\smartpn-atlas-core\flask_backend\test_output\result_table_v1.xl
 _ART_RE = re.compile(r'[A-Z]{2}\d{4,6}')
 _QTY_RE = re.compile(r'--(\d+)\s*\(')
 
+# LEAN group title parsing: 加一A组 → 1A, 加十一A1组 → 11A1
+_CN_NUM = {'一': 1, '二': 2, '三': 3, '四': 4, '五': 5,
+           '六': 6, '七': 7, '八': 8, '九': 9}
+_LEAN_TITLE_RE = re.compile(r'^加(十[一二]?|[一二三四五六七八九])([A-Z])(\d*)组$')
+
+def _parse_lean_title(s):
+    """'加十一A1组' → '11A1', '加一A组' → '1A', else None."""
+    m = _LEAN_TITLE_RE.match(str(s or '').strip())
+    if not m:
+        return None
+    cn, letter, digit = m.group(1), m.group(2), m.group(3)
+    if cn == '十':
+        n = 10
+    elif cn.startswith('十'):
+        n = 10 + _CN_NUM.get(cn[1:], 0)
+    else:
+        n = _CN_NUM.get(cn, 0)
+    return f'{n}{letter}{digit}'
+
 # ── Styles ────────────────────────────────────────────────────────────────────
 RED_FILL   = PatternFill("solid", fgColor="FFCCCC")
 GRAY_FILL  = PatternFill("solid", fgColor="D9D9D9")
@@ -72,20 +91,30 @@ def get_model(art):
 
 # ── DS-04: extract all sheets with their orders ───────────────────────────────
 def load_schedule():
-    """Returns [{sheet_title, orders:{art:qty}}]"""
+    """Returns [{sheet_title, orders:{art:qty}, art_lean:{art:lean}}]
+    art_lean is derived from DS-04 group title rows (加一A组 → 1A).
+    """
     wb = openpyxl.load_workbook(SCHEDULE, data_only=True, read_only=True)
     results = []
     for ws in wb.worksheets:
         title = ws.title.strip()
         orders = {}
+        art_lean = {}
+        current_lean = ''
         for row in ws.iter_rows(values_only=True):
+            col1 = str(row[0] or '').strip() if row else ''
+            lean = _parse_lean_title(col1)
+            if lean:
+                current_lean = lean
             for cell in row:
                 if not _is_order_cell(cell):
                     continue
                 for art, qty in _parse_order_cell(cell):
                     orders[art] = orders.get(art, 0) + qty
+                    if current_lean and art not in art_lean:
+                        art_lean[art] = current_lean
         if orders:
-            results.append({'sheet': title, 'orders': orders})
+            results.append({'sheet': title, 'orders': orders, 'art_lean': art_lean})
     wb.close()
     return results
 
@@ -283,12 +312,7 @@ def build_csa(wb, schedule_groups, bianche_rows):
     for i, w in enumerate(col_widths, 1):
         ws.column_dimensions[get_column_letter(i)].width = w
 
-    # Build LEAN lookup from bianche
-    # {art: lean} and {lean: (cut, stitch, asm)} from ref
-    art_to_lean = {}
-    for r in bianche_rows:
-        for art in r['arts']:
-            art_to_lean[art] = r['lean']
+    # LEAN comes from DS-04 group titles, not from bianche (see load_schedule)
 
     # Title row
     ws.row_dimensions[1].height = 20
@@ -310,6 +334,7 @@ def build_csa(wb, schedule_groups, bianche_rows):
     for group_info in schedule_groups:
         sheet = group_info['sheet']
         orders = group_info['orders']
+        sheet_art_lean = group_info.get('art_lean', {})
 
         # Section header
         ws.row_dimensions[row].height = 16
@@ -322,7 +347,7 @@ def build_csa(wb, schedule_groups, bianche_rows):
         for art in sorted(orders):
             qty   = orders[art]
             model = get_model(art)
-            lean  = art_to_lean.get(art, '')
+            lean  = sheet_art_lean.get(art, '')
 
             ws.row_dimensions[row].height = 14
             wc(ws, row, 1,  lean,              font=BOLD, fill=LEAN_FILL if lean else None, align=CENTER, border=THIN_BORDER)

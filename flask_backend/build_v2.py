@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Rebuild result_table_v2.xlsx."""
-import sys, os
+import sys, os, shutil, tempfile
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -8,13 +8,31 @@ import openpyxl
 import database as db
 import build_result_table as brt
 
+
+def _use_temp_copy(orig_path):
+    """Copy file to temp dir if original path raises PermissionError."""
+    tmp = os.path.join(tempfile.gettempdir(), os.path.basename(orig_path))
+    try:
+        shutil.copy2(orig_path, tmp)
+        return tmp
+    except Exception as e:
+        print(f'  WARNING: could not copy {os.path.basename(orig_path)} to temp: {e}')
+        return orig_path
+
+
 db.init_db()
 OUTPUT_NEW = r'D:\smartpn-atlas-core\flask_backend\test_output\result_table_v2.xlsx'
 os.makedirs(os.path.dirname(OUTPUT_NEW), exist_ok=True)
 
+# Copy potentially-locked source files to temp paths
+brt.SCHEDULE = _use_temp_copy(brt.SCHEDULE)
+brt.BIANCHE  = _use_temp_copy(brt.BIANCHE)
+
 print('Loading DS-04...')
 schedule_groups = brt.load_schedule()
+lean_found = sum(len(g['art_lean']) for g in schedule_groups)
 print(f'  {len(schedule_groups)} sheets, {sum(len(g["orders"]) for g in schedule_groups)} ARTs')
+print(f'  {lean_found} ARTs with LEAN from DS-04 group titles')
 
 print('Loading DS-05 OCS...')
 ocs_rows, ocs_err = brt.load_ocs()
