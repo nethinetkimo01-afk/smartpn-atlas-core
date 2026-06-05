@@ -137,7 +137,7 @@ def load_bianche_structure():
     for row in ws.iter_rows(values_only=True):
         col_a = str(row[0] or '').strip() if row else ''
         col_b = str(row[1] or '').strip() if len(row) > 1 else ''
-        if re.match(r'^\d+[A-Z]$', col_a):
+        if re.match(r'^\d+[A-Z]\d*$', col_a):
             current_lean = col_a
         if (not col_a or col_a == '.') and col_b and len(col_b) > 3:
             def _v(idx):

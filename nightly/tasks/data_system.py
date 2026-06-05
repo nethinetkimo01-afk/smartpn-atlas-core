@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """
 DATA SYSTEM nightly tasks:
+  0. Check if 24_DATA_SYSTEM.md / 07_RULES.md have been updated → remind Jim
   1. Scan Biên chế/Jun/IE for new multi-ART IE files → import ob_epph
   2. Regenerate comparison_table.xlsx (if 廠務組織編制表 accessible)
   3. Produce mp_allocation_analysis.txt
+  4. Auto-compare result_table vs 廠務組織編制表 → compare_result.txt
 """
-import sys, os
+import sys, os, hashlib, json
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 FLASK = os.path.join(ROOT, 'flask_backend')
@@ -15,12 +17,53 @@ IE_FOLDER  = r"C:\Users\user\OneDrive\Desktop\Biên chế\Jun\IE"
 BIANCHE    = r"C:\Users\user\OneDrive\Desktop\Biên chế\Jun\2026年6月份廠務组织編制 20260524.xlsx"
 SCHEDULE   = r"C:\Users\user\OneDrive\Desktop\Biên chế\Jun\2026年6月份正式进度表 5 30.xlsx"
 OUTPUT_DIR = os.path.join(FLASK, 'test_output')
+HASH_STATE = os.path.join(ROOT, 'nightly', 'tasks', '_file_hashes.json')
+
+HANDOFF_FILES = {
+    '24_DATA_SYSTEM.md': os.path.join(ROOT, '00_HANDOFF', '24_DATA_SYSTEM.md'),
+    '07_RULES.md':       os.path.join(ROOT, '00_HANDOFF', '07_RULES.md'),
+}
+
+
+def _sha256(path):
+    try:
+        h = hashlib.sha256()
+        with open(path, 'rb') as f:
+            for chunk in iter(lambda: f.read(65536), b''):
+                h.update(chunk)
+        return h.hexdigest()
+    except Exception:
+        return None
 
 
 def run(logger):
     """Entry point called by run_nightly.py. Returns True on success."""
     import database as db
     db.init_db()
+
+    # ── Task 0: Check for updated handoff files ────────────────────────────
+    logger.log('[data_system] Task 0: Check handoff file versions')
+    try:
+        stored = {}
+        if os.path.exists(HASH_STATE):
+            with open(HASH_STATE, 'r', encoding='utf-8') as f:
+                stored = json.load(f)
+
+        current = {name: _sha256(path) for name, path in HANDOFF_FILES.items()}
+        updated = [name for name, h in current.items() if h and h != stored.get(name)]
+
+        if updated:
+            logger.log('[ACTION REQUIRED] Project files updated - Jim must re-upload to DATA SYSTEM Project:')
+            for name in updated:
+                logger.log(f'  - D:\\smartpn-atlas-core\\00_HANDOFF\\{name}')
+            # Save new hashes
+            stored.update({n: current[n] for n in updated if current[n]})
+            with open(HASH_STATE, 'w', encoding='utf-8') as f:
+                json.dump(stored, f, indent=2)
+        else:
+            logger.log('[data_system] Handoff files unchanged')
+    except Exception as e:
+        logger.log(f'[data_system] File check error: {e}')
 
     # ── Task 1: Import new IE files ────────────────────────────────────────
     logger.log('[data_system] Task 1: Import new Jun/IE files')
@@ -52,6 +95,27 @@ def run(logger):
         logger.log('[data_system] mp_allocation_analysis.txt written')
     except Exception as e:
         logger.log(f'[data_system] allocation analysis error: {e}')
+
+    # ── Task 4: Auto-compare result_table vs 廠務組織編制表 ────────────────
+    logger.log('[data_system] Task 4: Auto-compare result_table non-MP fields')
+    try:
+        result_path = os.path.join(OUTPUT_DIR, 'result_table_v2.xlsx')
+        out_path    = os.path.join(OUTPUT_DIR, 'compare_result.txt')
+        if os.path.exists(result_path) and os.path.exists(BIANCHE):
+            from auto_compare import compare as auto_compare
+            overall, lean_wrong, lean_missing, ref_only, ocs_diffs = auto_compare(
+                result_path=result_path,
+                bianche_path=BIANCHE,
+                out_path=out_path,
+            )
+            if overall:
+                logger.log('[data_system] compare_result: ✓ 100% 一致')
+            else:
+                logger.log(f'[data_system] compare_result: ✗ 差異 LEAN不符={lean_wrong} ART缺={lean_missing} 編制多={ref_only} OCS={ocs_diffs}')
+        else:
+            logger.log('[data_system] result_table or 廠務組織編制表 not found, skip compare')
+    except Exception as e:
+        logger.log(f'[data_system] auto-compare error: {e}')
 
     return True
 
