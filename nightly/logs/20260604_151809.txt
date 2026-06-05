@@ -1,0 +1,14 @@
+[15:18:09] === Nightly Run 20260604_151809 force=False no_push=True ===
+[15:18:09] START [data_system]
+[15:18:09] [data_system] Task 1: Import new Jun/IE files
+[15:18:10] [data_system] IE import: 0 new records
+[15:18:10] [data_system] Task 2: Build comparison_table.xlsx
+[15:18:12] [data_system] comparison_table.xlsx written
+[15:18:12] [data_system] Task 3: MP allocation analysis
+[15:18:12] [data_system] allocation analysis error: cannot import name 'main' from 'analyze_ki1387' (D:\smartpn-atlas-core\flask_backend\analyze_ki1387.py)
+[15:18:12] DONE  [data_system]
+[15:18:12] 
+[15:18:12] === Summary ===
+[15:18:12]   OK   data_system
+[15:18:12] Total: 1 OK, 0 failed
+[15:18:12] === Done. Log: D:\smartpn-atlas-core\nightly\logs\20260604_151809.txt ===

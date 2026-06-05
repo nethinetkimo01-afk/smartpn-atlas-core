@@ -1,0 +1,14 @@
+[15:19:28] === Nightly Run 20260604_151928 force=True no_push=True ===
+[15:19:28] START [data_system]
+[15:19:28] [data_system] Task 1: Import new Jun/IE files
+[15:19:30] [data_system] IE import: 0 new records
+[15:19:30] [data_system] Task 2: Build comparison_table.xlsx
+[15:19:31] [data_system] comparison_table.xlsx written
+[15:19:31] [data_system] Task 3: MP allocation analysis
+[15:19:31] [data_system] mp_allocation_analysis.txt written
+[15:19:31] DONE  [data_system]
+[15:19:31] 
+[15:19:31] === Summary ===
+[15:19:31]   OK   data_system
+[15:19:31] Total: 1 OK, 0 failed
+[15:19:31] === Done. Log: D:\smartpn-atlas-core\nightly\logs\20260604_151928.txt ===

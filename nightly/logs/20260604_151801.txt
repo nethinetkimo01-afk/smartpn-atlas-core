@@ -1,0 +1,13 @@
+[15:18:01] === Nightly Run 20260604_151801 force=False no_push=True ===
+[15:18:01] LOAD ERROR [data_system]:
+Traceback (most recent call last):
+  File "D:\smartpn-atlas-core\nightly\run_nightly.py", line 154, in main
+    spec = importlib.util.spec_from_file_location(name, tf)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+[15:18:01] 
+[15:18:01] === Summary ===
+[15:18:01]   FAIL data_system
+[15:18:01] Total: 0 OK, 1 failed
+[15:18:01] === Done. Log: D:\smartpn-atlas-core\nightly\logs\20260604_151801.txt ===
