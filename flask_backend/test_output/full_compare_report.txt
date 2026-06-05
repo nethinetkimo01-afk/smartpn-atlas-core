@@ -1,0 +1,624 @@
+==============================================================================================================
+  完整比對報告：result_table_v2.xlsx  vs  廠務組織編制表 6.2026
+==============================================================================================================
+結果表: result_table_v2.xlsx
+廠務表: bianche_tmp.xlsx
+廠務 ART 索引: 313 筆    CSA 行數: 493 筆
+
+── CSA — LEAN / 鞋型 / ART / 訂單 逐行比對 ───────────────────────────────────────────────────────────────────────────
+
+STATUS  ART           結果LEAN    廠務LEAN    LEAN?     結果訂單     廠務訂單  訂單?    鞋型/備註
+--------------------------------------------------------------------------------------------------------------
+
+  >>> ── 1部 ──
+
+DIFF    GV6889        1A        2C        DIFF       429      858  DIFF   鞋型: 結='TECH RESPONSE 3.0'  廠='TECH RESPONSE 3.0 ( GV688'
+DIFF    GV6900        1A        2C        DIFF       411      823  DIFF   鞋型: 結='W TECH RESPONSE SL3'  廠='W TECH RESPONSE SL3 (GV69'
+DIFF    HQ1198        1A        2C        DIFF       325      651  DIFF   鞋型: 結='W TECH RESPONSE 3.0'  廠='W TECH RESPONSE 3.0 (HQ11'
+DIFF    HQ7583        1A        1A        OK          60      343  DIFF   鞋型: 結='adidas TAEKWONDO LACE W'  廠='ADIDAS TAEKWONDO LACE W ('
+DIFF    IH1969        1A        1A        OK         168      336  DIFF   鞋型: 結='adidas TAEKWONDO LACE W'  廠='ADIDAS TAEKWONDO LACE W ('
+DIFF    JQ1022        1C        1C        OK         300     1200  DIFF   鞋型: 結='R2C BOA'  廠='R2C BOA ( JQ1022 , JQ1023'
+DIFF    JQ1023        1C        1C        OK         300     1200  DIFF   鞋型: 結='R2C BOA'  廠='R2C BOA ( JQ1022 , JQ1023'
+DIFF    JQ7755        1A        1A        OK           1      890  DIFF   鞋型: 結='W GAZELLE GOLF'  廠='W GAZELLE GOLF ( JQ7755  '
+DIFF    KH7849        1A        1A        OK          55      343  DIFF   鞋型: 結='adidas TAEKWONDO LACE W'  廠='ADIDAS TAEKWONDO LACE W ('
+DIFF    KH7850        1A        1A        OK          55      343  DIFF   鞋型: 結='adidas TAEKWONDO LACE W'  廠='ADIDAS TAEKWONDO LACE W ('
+DIFF    KH8402        1A        1A        OK         109      756  DIFF   鞋型: 結='W GAZELLE GOLF'  廠='W GAZELLE GOLF ( KH8402)'
+DIFF    KI1387        1C        1C        OK        2454    16699  DIFF   鞋型: 結='CODECHAOS BOA 27'  廠='CODECHAOS BOA 27 ( KI5741'
+DIFF    KI1388        1A        1A        OK        2582     2830  DIFF   鞋型: 結='CODECHAOS 27'  廠='CODECHAOS 27 ( KI1388 )'
+DIFF    KI1389        1B        1A        DIFF       800     1812  DIFF   鞋型: 結='W CODECHAOS 27'  廠='W CODECHAOS 27 ( KI5750 ,'
+DIFF    KI1390        1B        1B        OK         479     6070  DIFF   鞋型: 結='W CODECHAOS BOA 27'  廠='W CODECHAOS BOA 27 ( KI57'
+DIFF    KI5734        1B        1B        OK         197      395  DIFF   鞋型: 結='CODECHAOS 27'  廠='CODECHAOS 27 ( KI5734)'
+DIFF    KI5735        1A        1B        DIFF      3265     3944  DIFF   鞋型: 結='CODECHAOS 27'  廠='CODECHAOS 27 ( KI5735 , K'
+DIFF    KI5736        1A        1B        DIFF       241     3944  DIFF   鞋型: 結='CODECHAOS 27'  廠='CODECHAOS 27 ( KI5735 , K'
+DIFF    KI5737        1B        1B        OK        2089     1065  DIFF   鞋型: 結='CODECHAOS 27'  廠='CODECHAOS 27 ( KI5737 )'
+DIFF    KI5738        1B        1B        OK        8405      700  DIFF   鞋型: 結='CODECHAOS BOA 27'  廠='CODECHAOS BOA 27 ( KI5738'
+DIFF    KI5739        1C        1C        OK        2646    16699  DIFF   鞋型: 結='CODECHAOS BOA 27'  廠='CODECHAOS BOA 27 ( KI5741'
+DIFF    KI5740        1C        1C        OK        3044    16699  DIFF   鞋型: 結='CODECHAOS BOA 27'  廠='CODECHAOS BOA 27 ( KI5741'
+DIFF    KI5741        1B        1B        OK        2188     1475  DIFF   鞋型: 結='CODECHAOS BOA 27'  廠='CODECHAOS BOA 27 ( KI5741'
+DIFF    KI5746        1A        1A        OK         605      600  DIFF   鞋型: 結='JR CODECHAOS BOA 27'  廠='JR CODECHAOS BOA 27 ( KI5'
+DIFF    KI5747        1A        1A        OK         489      600  DIFF   鞋型: 結='JR CODECHAOS BOA 27'  廠='JR CODECHAOS BOA 27 ( KI5'
+DIFF    KI5750        1B        1A        DIFF       110     1812  DIFF   鞋型: 結='W CODECHAOS 27'  廠='W CODECHAOS 27 ( KI5750 ,'
+DIFF    KI5752        1B        1B        OK         236     6070  DIFF   鞋型: 結='W CODECHAOS BOA 27'  廠='W CODECHAOS BOA 27 ( KI57'
+DIFF    KI5753        1B        1B        OK        2423     6070  DIFF   鞋型: 結='W CODECHAOS BOA 27'  廠='W CODECHAOS BOA 27 ( KI57'
+DIFF    KI5754        1B        1B        OK        1440     6070  DIFF   鞋型: 結='W CODECHAOS BOA 27'  廠='W CODECHAOS BOA 27 ( KI57'
+DIFF    KJ5427        1A        1A        OK         263       53  DIFF   鞋型: 結='GAZELLE GOLF'  廠='GAZELLE GOLF ( KJ5427, KJ'
+DIFF    KJ5428        1A        1A        OK           1      827  DIFF   鞋型: 結='GAZELLE GOLF'  廠='GAZELLE GOLF ( KJ5427, KJ'
+DIFF    KJ5429        1A        1A        OK          25       53  DIFF   鞋型: 結='GAZELLE GOLF'  廠='GAZELLE GOLF ( KJ5427, KJ'
+DIFF    KJ8220        1A        1A        OK         149      827  DIFF   鞋型: 結='GAZELLE GOLF'  廠='GAZELLE GOLF ( KJ5427, KJ'
+DIFF    KJ8229        1A        1A        OK         178      890  DIFF   鞋型: 結='W GAZELLE GOLF'  廠='W GAZELLE GOLF ( JQ7755  '
+DIFF    KK0657        1B        1B        OK        1543     7432  DIFF   鞋型: 結='CODECHAOS 27'  廠='CODECHAOS 27 ( KI5735 , K'
+DIFF    KK0658        1A        1B        DIFF       753     3944  DIFF   鞋型: 結='CODECHAOS 27'  廠='CODECHAOS 27 ( KI5735 , K'
+DIFF    KK0660        1C        1C        OK         363     4753  DIFF   鞋型: 結='CODECHAOS BOA 27'  廠='CODECHAOS BOA 27 ( KK0660'
+DIFF    KK2705        1A        1A        OK         511     3072  DIFF   鞋型: 結='adidas TAEKWONDO W'  廠='adidas TAEKWONDO W ( KK27'
+DIFF    KK2852        1A        1A        OK          62      890  DIFF   鞋型: 結='W GAZELLE GOLF'  廠='W GAZELLE GOLF ( JQ7755  '
+DIFF    KK4938        1A        1A        OK        1024     3072  DIFF   鞋型: 結='adidas TAEKWONDO W'  廠='adidas TAEKWONDO W ( KK27'
+SKIP    MF2605        1A        —         n/a      19296        —  n/a    MF前綴跳過
+SKIP    MF2606        1A        —         n/a      21531        —  n/a    MF前綴跳過
+SKIP    MF2607        1A        —         n/a          1        —  n/a    MF前綴跳過
+
+  >>> ── 2部 ──
+
+DIFF    GV6891        2C        2C        OK         480     1853  DIFF   鞋型: 結='TECH RESPONSE 3.0 WD'  廠='TECH RESPONSE 3.0(WD) ( G'
+DIFF    GV6893        2C        2C        OK          56     1853  DIFF   鞋型: 結='TECH RESPONSE 3.0 WD'  廠='TECH RESPONSE 3.0(WD) ( G'
+DIFF    GV6894        2C        2C        OK        3987     6671  DIFF   鞋型: 結='TECH RESPONSE SL 3'  廠='TECH RESPONSE SL3 ( GV689'
+DIFF    GV6897        2C        2C        OK        1872     4268  DIFF   鞋型: 結='TECH RESPONSE SL 3 WD'  廠='TECH RESPONSE SL3 ( GV689'
+DIFF    GV6898        2C        2C        OK         261     4268  DIFF   鞋型: 結='TECH RESPONSE SL 3 WD'  廠='TECH RESPONSE SL3 ( GV689'
+DIFF    HQ9343        2A        2A        OK         551     4174  DIFF   鞋型: 結='MEGARIDE F50'  廠='MEGARIDE F50 ( LB8410 , H'
+DIFF    IH2247        2C        2C        OK           1     2404  DIFF   鞋型: 結='TRAXION RESPONSE SL'  廠='TRAXION RESPONSE SL ( IH2'
+DIFF    IH2248        2C        2C        OK         301     2404  DIFF   鞋型: 結='TRAXION RESPONSE SL'  廠='TRAXION RESPONSE SL ( IH2'
+DIFF    IH2249        2C        2C        OK         450     2404  DIFF   鞋型: 結='TRAXION RESPONSE SL'  廠='TRAXION RESPONSE SL ( IH2'
+DIFF    IH3396        2C        2C        OK         287     1081  DIFF   鞋型: 結='RETROCROSS 25'  廠='RETROCROSS 25 ( IH3396, J'
+DIFF    IH9978        2C        2C        OK           0     5578  DIFF   鞋型: 結='RETROCROSS 25'  廠='RETROCROSS 25 ( IH3396 , '
+DIFF    JP8521        2C        2C        OK           0     1081  DIFF   鞋型: 結='RETROCROSS 25'  廠='RETROCROSS 25 ( IH3396, J'
+DIFF    JQ0598        2B        2B        OK        2301     8472  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W (JQ0598 )'
+DIFF    JR1896        2B        2B        OK         146      292  DIFF   鞋型: 結='MC70 SPK'  廠='MC70 SPK ( JR1896 )'
+DIFF    JR1899        2C        2C        OK          38     1276  DIFF   鞋型: 結='RETROCROSS GRIPMORE'  廠='RETROCROSS GRIPMORE ( KK2'
+DIFF    KH8020        2A        2A        OK         350     1200  DIFF   鞋型: 結='MEGARIDE F50 Peaches'  廠='MEGARIDE F50 PEACHES ( KH'
+DIFF    KH8086        2A        2A        OK        1466      599  DIFF   鞋型: 結='HELLSTAR MEGARIDE S2'  廠='HELLSTAR MEGARIDE S2 ( KH'
+DIFF    KH8147        2A        2A        OK         250     1200  DIFF   鞋型: 結='MEGARIDE F50 Peaches'  廠='MEGARIDE F50 PEACHES ( KH'
+DIFF    KI0352        2A        2A        OK         159     1654  DIFF   鞋型: 結='R2C MID'  廠='R2C MID ( KI0352 )'
+DIFF    KI0820        2B        2B        OK          54      108  DIFF   鞋型: 結='MC70 FB SL 26'  廠='MC70 FB SL 26 ( KI0820 )'
+DIFF    KI1401        2A        2A        OK         554     1393  DIFF   鞋型: 結='R2C MID WD'  廠='R2C MID WD ( KI1401 )'
+DIFF    KI3647        2A        2A        OK         198     1128  DIFF   鞋型: 結='MEGARIDE F50'  廠='MEGARIDE F50 ( KI3647 , K'
+DIFF    KI4562        2B        2B        OK         866     1734  DIFF   鞋型: 結='GHOST MOTO MID W'  廠='GHOST MOTO MID W ( KI4562'
+DIFF    KI4714        2A        2A        OK          92      194  DIFF   鞋型: 結='MEGARIDE F50'  廠='MEGARIDE F50 (KI4715 , KI'
+DIFF    KI4715        2A        2A        OK         971      194  DIFF   鞋型: 結='MEGARIDE F50'  廠='MEGARIDE F50 (KI4715 , KI'
+DIFF    KI4718        2A        2A        OK         490     2496  DIFF   鞋型: 結='MEGARIDE F50'  廠='MEGARIDE F50 (KI4718, KI4'
+DIFF    KI4719        2A        2A        OK         287     2496  DIFF   鞋型: 結='MEGARIDE F50'  廠='MEGARIDE F50 (KI4718, KI4'
+DIFF    KI4740        2A        2A        OK         635     3823  DIFF   鞋型: 結='MEGARIDE F50'  廠='MEGARIDE F50 ( KI4740 , L'
+DIFF    KI4741        2A        2A        OK         250     3539  DIFF   鞋型: 結='MEGARIDE F50'  廠='MEGARIDE F50 (KI4740, KI4'
+DIFF    KI4742        2A        2A        OK         804     3539  DIFF   鞋型: 結='MEGARIDE F50'  廠='MEGARIDE F50 (KI4740, KI4'
+DIFF    KI4745        2A        2A        OK         471     1128  DIFF   鞋型: 結='MEGARIDE F50'  廠='MEGARIDE F50 ( KI3647 , K'
+DIFF    KI5325        2A        2A        OK         385      770  DIFF   鞋型: 結='MEGARIDE F50'  廠='MEGARIDE F50 RAYQUAZA ( K'
+DIFF    KI8143        2B        2B        OK         434     1706  DIFF   鞋型: 結='GHOST SPRINT BOOT W'  廠='GHOST SPRINT BOOT W ( KI8'
+DIFF    KI8144        2B        2B        OK         418     1706  DIFF   鞋型: 結='GHOST SPRINT BOOT W'  廠='GHOST SPRINT BOOT W ( KI8'
+DIFF    KJ5770        2C        2C        OK         671     1342  DIFF   鞋型: 結='RETROCROSS 25'  廠='RETROCROSS 25 ( KJ5770 )'
+DIFF    KJ5771        2C        2C        OK         202      405  DIFF   鞋型: 結='W RETROCROSS 25'  廠='W RETROCROSS 25 ( KJ5771 '
+DIFF    KK2857        2C        2C        OK         600     1276  DIFF   鞋型: 結='RETROCROSS GRIPMORE'  廠='RETROCROSS GRIPMORE ( KK2'
+DIFF    KZ9161        2C        12D       DIFF      2500    28317  DIFF   鞋型: 結='ADISTAR XLG 2.0 W'  廠='ADISTAR XLG 2.0 W ( KZ916'
+DIFF    KZ9162        2C        12D       DIFF      1818    28317  DIFF   鞋型: 結='ADISTAR XLG 2.0 W'  廠='ADISTAR XLG 2.0 W ( KZ916'
+DIFF    LA3432        2B        2B        OK        3355     7735  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( LA3433 , LA3432'
+DIFF    LA3433        2B        2B        OK        2867     7735  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( LA3433 , LA3432'
+DIFF    LB5626        2A        2A        OK         168      599  DIFF   鞋型: 結='HELLSTAR MEGARIDE S2'  廠='HELLSTAR MEGARIDE S2 ( KH'
+DIFF    LB8409        2A        2A        OK        1061     3823  DIFF   鞋型: 結='MEGARIDE F50'  廠='MEGARIDE F50 ( KI4740 , L'
+DIFF    LB8410        2A        2A        OK           0     4174  DIFF   鞋型: 結='MEGARIDE F50'  廠='MEGARIDE F50 ( LB8410 , H'
+SKIP    MF2605        2A        —         n/a       7304        —  n/a    MF前綴跳過
+SKIP    MF2606        2A        —         n/a      23655        —  n/a    MF前綴跳過
+SKIP    MF2607        2A        —         n/a       2178        —  n/a    MF前綴跳過
+
+  >>> ── 3部 ──
+
+DIFF    HQ2806        3A        3A        OK        1349     2698  DIFF   鞋型: 結='LA TRAINER OG'  廠='LA TRAINER OG W (HQ2806)'
+DIFF    HQ7468        3B        5B        DIFF      4145    21757  DIFF   鞋型: 結='ADISTAR XLG 2.0'  廠='ADISTAR XLG 2.0 ( HQ7468 '
+DIFF    IF1944        3B        3B        OK        1044     2631  DIFF   鞋型: 結='SAMBA J'  廠='SAMBA J ( IF1944 , IF1945'
+DIFF    IF1945        3B        3B        OK         271     2631  DIFF   鞋型: 結='SAMBA J'  廠='SAMBA J ( IF1944 , IF1945'
+DIFF    IG9016        3B        3B        OK         140      280  DIFF   鞋型: 結='OZWEEGO J'  廠='OZWEEGO J  ( IG9016 )'
+DIFF    IH6000        3B        3B        OK        4148     5253  DIFF   鞋型: 結='SAMBA'  廠='SAMBA ( IH6001 , IH6000 )'
+DIFF    IH6001        3B        3B        OK         975     5253  DIFF   鞋型: 結='SAMBA'  廠='SAMBA ( IH6001 , IH6000 )'
+DIFF    KH9677        3A        3A        OK         237      475  DIFF   鞋型: 結='LA TRAINER OG'  廠='LA TRAINER OG (KH9677)'
+DIFF    KH9679        3A        3A        OK        3577      900  DIFF   鞋型: 結='LA TRAINER OG'  廠='LA TRAINER OG (KH9679)'
+DIFF    KH9680        3A        3A        OK        1345     4963  DIFF   鞋型: 結='LA TRAINER OG'  廠='LA TRAINER OG (KH9679 , K'
+DIFF    KH9681        3A        3A        OK        1042     4963  DIFF   鞋型: 結='LA TRAINER OG'  廠='LA TRAINER OG (KH9679 , K'
+DIFF    KH9683        3A        3A        OK        1616     3232  DIFF   鞋型: 結='LA TRAINER OG'  廠='LA TRAINER OG (KH9683)'
+DIFF    KJ1675        3A        3A        OK         888      644  DIFF   鞋型: 結='LA TRAINER OG'  廠='LA TRAINER OG W ( KJ1676 '
+DIFF    KJ1676        3A        3A        OK         654      644  DIFF   鞋型: 結='LA TRAINER OG'  廠='LA TRAINER OG W ( KJ1676 '
+DIFF    KJ4380        3B        3B        OK         215      546  DIFF   鞋型: 結='LA TRAINER OG'  廠='LA TRAINER OG (KJ4380, KJ'
+DIFF    KJ4381        3A        3A        OK         200      135  DIFF   鞋型: 結='LA TRAINER OG'  廠='LA TRAINER OG (KJ4381)'
+DIFF    KJ4382        3A        3A        OK        2903     8423  DIFF   鞋型: 結='LA TRAINER OG'  廠='LA TRAINER OG (LA7413 , L'
+DIFF    KJ7892        3B        8A        DIFF      2075      750  DIFF   鞋型: 結='ADISTAR XLG 2.0 J'  廠='ADISTAR XLG 2.0 J ( KJ789'
+DIFF    KJ7893        3A        8A        DIFF       175      750  DIFF   鞋型: 結='ADISTAR XLG 2.0 J'  廠='ADISTAR XLG 2.0 J ( KJ789'
+DIFF    KJ7895        3B        8A        DIFF       801      200  DIFF   鞋型: 結='ADISTAR XLG 2.0'  廠='ADISTAR XLG 2.0 J ( KJ789'
+DIFF    KK2438        3A        3A        OK         426      853  DIFF   鞋型: 結='LA TRAINER OG W'  廠='LA TRAINER OG W ( KK2438 '
+DIFF    KK2444        3A        3A        OK         734      987  DIFF   鞋型: 結='LA TRAINER OG W'  廠='LA TRAINER OG W ( KK2444 '
+DIFF    KK2445        3A        3A        OK        1867     1822  DIFF   鞋型: 結='LA TRAINER OG W'  廠='LA TRAINER OG W ( KK2445 '
+DIFF    KZ6450        3B        10A       DIFF       900     6349  DIFF   鞋型: 結='ADISTAR XLG 2.0 J'  廠='ADISTAR XLG 2.0 J ( KK423'
+DIFF    KZ9155        3B        8A        DIFF       462     2436  DIFF   鞋型: 結='ADISTAR XLG 2.0'  廠='ADISTAR XLG 2.0 J ( KZ915'
+DIFF    KZ9161        3B        12D       DIFF      1372    28317  DIFF   鞋型: 結='ADISTAR XLG 2.0 W'  廠='ADISTAR XLG 2.0 W ( KZ916'
+DIFF    LA7413        3A        3A        OK        1464     8423  DIFF   鞋型: 結='LA TRAINER OG'  廠='LA TRAINER OG (LA7413 , L'
+DIFF    LA7414        3A        3A        OK        1464     8423  DIFF   鞋型: 結='LA TRAINER OG'  廠='LA TRAINER OG (LA7413 , L'
+SKIP    MF2603        3B        —         n/a       2076        —  n/a    MF前綴跳過
+SKIP    MF2604        3B        —         n/a       2164        —  n/a    MF前綴跳過
+SKIP    MF2605        3A        —         n/a       8377        —  n/a    MF前綴跳過
+SKIP    MF2606        3A        —         n/a      18855        —  n/a    MF前綴跳過
+SKIP    MF2607        3A        —         n/a       5064        —  n/a    MF前綴跳過
+
+  >>> ── 5部 ──
+
+DIFF    HP5123        5C        5C        OK        1765     8560  DIFF   鞋型: 結='HP5123'  廠='SL 72 ADITEX ( HP5124 , H'
+DIFF    HP5124        5C        5C        OK        2515     8560  DIFF   鞋型: 結='HP5124'  廠='SL 72 ADITEX ( HP5124 , H'
+DIFF    HQ7468        5B        5B        OK        7186    21757  DIFF   鞋型: 結='ADISTAR XLG 2.0'  廠='ADISTAR XLG 2.0 ( HQ7468 '
+MISS    IH5569        5C        ?         ??         415        ?  ??     不在廠務編制表
+DIFF    JI1281        5C        5C        OK           8     9626  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS ( JI1282 , KH965'
+DIFF    JI1282        5C        5C        OK        1730     9626  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS ( JI1282 , KH965'
+MISS    JQ9555        5C        ?         ??         475        ?  ??     不在廠務編制表
+DIFF    KH9644        5C        5C        OK          90     2288  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS J (STROBEL) ( KH'
+DIFF    KH9646        5C        5C        OK         673     2288  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS J (STROBEL) ( KH'
+DIFF    KH9647        5C        5C        OK         155     2288  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS J (STROBEL) ( KH'
+DIFF    KH9648        5C        5C        OK        1104     1231  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS (STROBEL) ( KH96'
+DIFF    KH9650        5C        5C        OK         374     2288  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS J (STROBEL) ( KH'
+MISS    KH9651        5C        ?         ??         506        ?  ??     不在廠務編制表
+DIFF    KH9652        5C        5C        OK        1319     9626  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS ( JI1282 , KH965'
+DIFF    KH9653        5C        5C        OK        3333     9626  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS ( JI1282 , KH965'
+DIFF    KH9656        5C        5C        OK         733     3239  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS ( KH9656 , KH965'
+DIFF    KH9658        5C        5C        OK         291     3239  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS ( KH9656 , KH965'
+DIFF    KH9680        5A        3A        DIFF       686     4963  DIFF   鞋型: 結='LA TRAINER OG'  廠='LA TRAINER OG (KH9679 , K'
+DIFF    KH9681        5A        3A        DIFF       418     4963  DIFF   鞋型: 結='LA TRAINER OG'  廠='LA TRAINER OG (KH9679 , K'
+DIFF    KI1403        5A        5A        OK          99      198  DIFF   鞋型: 結='ADICHILL'  廠='ADICHILL (  KI1403 )'
+DIFF    KI7557        5A        5A        OK        1500    11200  DIFF   鞋型: 結='ORGN ULTRA TECH'  廠='ORGN ULTRA TECH (KI7558 ,'
+DIFF    KI7558        5A        5A        OK        4250     5300  DIFF   鞋型: 結='ORGN ULTRA TECH'  廠='ORGN ULTRA TECH (KI7558 ,'
+DIFF    KI9862        5A        5A        OK        2500     5300  DIFF   鞋型: 結='ORGN ULTRA TECH'  廠='ORGN ULTRA TECH (KI7558 ,'
+DIFF    KJ1674        5C        5C        OK        1355     2715  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS ( KJ1674)- 外包鞋面'
+DIFF    KJ5260        5A        5A        OK        1211     1176  DIFF   鞋型: 結='ORGN ULTRA TECH'  廠='ORGN ULTRA TECH ( KJ5260 '
+DIFF    KJ5261        5A        5A        OK         504     1176  DIFF   鞋型: 結='ORGN ULTRA TECH'  廠='ORGN ULTRA TECH ( KJ5260 '
+OK      KJ7404        5C        5C        OK         300      300  OK     鞋型: 結='SL 72 RS J'  廠='SL 72 RS J (STROBEL) ( KJ'
+MISS    KJ8322        5A        ?         ??         450        ?  ??     不在廠務編制表
+DIFF    KK2438        5A        3A        DIFF       277      853  DIFF   鞋型: 結='LA TRAINER OG W'  廠='LA TRAINER OG W ( KK2438 '
+DIFF    KK2445        5A        3A        DIFF       556     1822  DIFF   鞋型: 結='LA TRAINER OG W'  廠='LA TRAINER OG W ( KK2445 '
+DIFF    KZ6381        5A        5A        OK         600     2400  DIFF   鞋型: 結='ORGN ULTRA TECH'  廠='ORGN ULTRA TECH ( KZ6382 '
+DIFF    KZ6382        5A        5A        OK         600     2400  DIFF   鞋型: 結='ORGN ULTRA TECH'  廠='ORGN ULTRA TECH ( KZ6382 '
+DIFF    KZ9155        5B        8A        DIFF      2059     2436  DIFF   鞋型: 結='ADISTAR XLG 2.0'  廠='ADISTAR XLG 2.0 J ( KZ915'
+DIFF    KZ9162        5B        12D       DIFF      1021    28317  DIFF   鞋型: 結='ADISTAR XLG 2.0 W'  廠='ADISTAR XLG 2.0 W ( KZ916'
+DIFF    KZ9344        5B        3B        DIFF      6403    12808  DIFF   鞋型: 結='ADISTAR XLG 2.0 W'  廠='ADISTAR XLG 2.0 J ( KZ934'
+MISS    LA1750        5C        ?         ??         152        ?  ??     不在廠務編制表
+DIFF    LA7413        5A        3A        DIFF       450     8423  DIFF   鞋型: 結='LA TRAINER OG'  廠='LA TRAINER OG (LA7413 , L'
+DIFF    LA7414        5A        3A        DIFF       450     8423  DIFF   鞋型: 結='LA TRAINER OG'  廠='LA TRAINER OG (LA7413 , L'
+SKIP    MF2603        5B        —         n/a       1896        —  n/a    MF前綴跳過
+SKIP    MF2604        5A        —         n/a       2510        —  n/a    MF前綴跳過
+SKIP    MF2605        5A        —         n/a       9852        —  n/a    MF前綴跳過
+SKIP    MF2606        5A        —         n/a      27394        —  n/a    MF前綴跳過
+SKIP    MF2607        5A        —         n/a       6893        —  n/a    MF前綴跳過
+
+  >>> ── 說明表 ──
+
+DIFF    KH9680        (空)       3A        DIFF       686     4963  DIFF   鞋型: 結='LA TRAINER OG'  廠='LA TRAINER OG (KH9679 , K'
+DIFF    KH9681        (空)       3A        DIFF       418     4963  DIFF   鞋型: 結='LA TRAINER OG'  廠='LA TRAINER OG (KH9679 , K'
+DIFF    KI7557        (空)       5A        DIFF      1500    11200  DIFF   鞋型: 結='ORGN ULTRA TECH'  廠='ORGN ULTRA TECH (KI7558 ,'
+DIFF    KI7558        (空)       5A        DIFF      4250     5300  DIFF   鞋型: 結='ORGN ULTRA TECH'  廠='ORGN ULTRA TECH (KI7558 ,'
+DIFF    KI9862        (空)       5A        DIFF      2500     5300  DIFF   鞋型: 結='ORGN ULTRA TECH'  廠='ORGN ULTRA TECH (KI7558 ,'
+DIFF    KJ5260        (空)       5A        DIFF       597     1176  DIFF   鞋型: 結='ORGN ULTRA TECH'  廠='ORGN ULTRA TECH ( KJ5260 '
+DIFF    KJ5261        (空)       5A        DIFF       304     1176  DIFF   鞋型: 結='ORGN ULTRA TECH'  廠='ORGN ULTRA TECH ( KJ5260 '
+MISS    KJ8322                  ?         ??         450        ?  ??     不在廠務編制表
+DIFF    KK2438        (空)       3A        DIFF       277      853  DIFF   鞋型: 結='LA TRAINER OG W'  廠='LA TRAINER OG W ( KK2438 '
+DIFF    KK2445        (空)       3A        DIFF       556     1822  DIFF   鞋型: 結='LA TRAINER OG W'  廠='LA TRAINER OG W ( KK2445 '
+DIFF    KZ6381        (空)       5A        DIFF       600     2400  DIFF   鞋型: 結='ORGN ULTRA TECH'  廠='ORGN ULTRA TECH ( KZ6382 '
+DIFF    KZ6382        (空)       5A        DIFF       600     2400  DIFF   鞋型: 結='ORGN ULTRA TECH'  廠='ORGN ULTRA TECH ( KZ6382 '
+DIFF    LA7413        (空)       3A        DIFF       450     8423  DIFF   鞋型: 結='LA TRAINER OG'  廠='LA TRAINER OG (LA7413 , L'
+DIFF    LA7414        (空)       3A        DIFF       450     8423  DIFF   鞋型: 結='LA TRAINER OG'  廠='LA TRAINER OG (LA7413 , L'
+SKIP    MF2604                  —         n/a        450        —  n/a    MF前綴跳過
+SKIP    MF2605                  —         n/a       1514        —  n/a    MF前綴跳過
+SKIP    MF2606                  —         n/a      11677        —  n/a    MF前綴跳過
+
+  >>> ── 6部 ──
+
+DIFF    HQ7636        6B        8B        DIFF      1128     1002  DIFF   鞋型: 結='GHOST SPRINT BALLET W'  廠='GHOST SPRINT BALLET  ( HQ'
+DIFF    HQ7638        6B        6B        OK         120      241  DIFF   鞋型: 結='GHOST SPRINT W'  廠='GHOST SPRINT W (HQ7638 )'
+DIFF    IG6045        6A        6A        OK       16952    17823  DIFF   鞋型: 結='OZGAIA W'  廠='OZGAIA W ( IG6045 )'
+DIFF    IH6000        6C        3B        DIFF      3058     5253  DIFF   鞋型: 結='SAMBA'  廠='SAMBA ( IH6001 , IH6000 )'
+DIFF    IH6001        6C        3B        DIFF      3725     5253  DIFF   鞋型: 結='SAMBA'  廠='SAMBA ( IH6001 , IH6000 )'
+DIFF    JH5523        6A        6A        OK         310     1587  DIFF   鞋型: 結='MEGARIDE'  廠='MEGARIDE  ( JP9626 , JH55'
+DIFF    JH6149        6C        6C        OK         186     2899  DIFF   鞋型: 結='SAMBA GOLF'  廠='SAMBA GOLF ( JH6151 , KJ8'
+DIFF    JH6151        6C        6C        OK         287     2899  DIFF   鞋型: 結='SAMBA GOLF'  廠='SAMBA GOLF ( JH6151 , KJ8'
+DIFF    JP9626        6A        6A        OK           0     1587  DIFF   鞋型: 結='MEGARIDE'  廠='MEGARIDE  ( JP9626 , JH55'
+DIFF    JQ0553        6A        6A        OK           0     1614  DIFF   鞋型: 結='MEGA GHOSTRIDE W'  廠='MEGA GHOSTRIDE W ( JQ0553'
+DIFF    JQ6439        6B        6B        OK         151      304  DIFF   鞋型: 結='GHOST SPRINT W'  廠='GHOST SPRINT W ( JQ6439)'
+DIFF    KH9590        6A        6A        OK         757     2457  DIFF   鞋型: 結='MEGARIDE'  廠='MEGARIDE ( KH9590 )'
+DIFF    KI0435        6B        8B        DIFF       379     5640  DIFF   鞋型: 結='GHOST SPRINT BALLET W'  廠='GHOST SPRINT BALLET  (KI0'
+DIFF    KI0436        6B        8B        DIFF       602     5640  DIFF   鞋型: 結='GHOST SPRINT BALLET W'  廠='GHOST SPRINT BALLET  (KI0'
+DIFF    KI4563        6B        6B        OK         400      800  DIFF   鞋型: 結='GHOST SPRINT W'  廠='GHOST SPRINT W (KI4563  )'
+DIFF    KI4564        6B        6B        OK         201      593  DIFF   鞋型: 結='GHOST SPRINT W'  廠='GHOST SPRINT W ( KI4564 ,'
+DIFF    KI4566        6B        6B        OK         856     1715  DIFF   鞋型: 結='GHOST MOTO LOW W'  廠='GHOST MOTO LOW W ( KI4566'
+DIFF    KI4568        6B        6B        OK         694     1390  DIFF   鞋型: 結='GHOST SPRINT W'  廠='GHOST SPRINT W ( KI4568)'
+DIFF    KI4569        6B        6B        OK        1528     1443  DIFF   鞋型: 結='GHOST SPRINT W'  廠='GHOST SPRINT W ( KI4569)'
+DIFF    KI4570        6B        6B        OK          50      520  DIFF   鞋型: 結='GHOST SPRINT W'  廠='GHOST SPRINT W ( KI4570 ,'
+DIFF    KI4571        6B        6B        OK         140      520  DIFF   鞋型: 結='GHOST SPRINT W'  廠='GHOST SPRINT W ( KI4570 ,'
+DIFF    KI4572        6B        6B        OK          70      520  DIFF   鞋型: 結='GHOST SPRINT W'  廠='GHOST SPRINT W ( KI4570 ,'
+DIFF    KI4673        6A        6A        OK         726     1614  DIFF   鞋型: 結='MEGA GHOSTRIDE W'  廠='MEGA GHOSTRIDE W ( JQ0553'
+DIFF    KJ0645        6B        6B        OK         740      140  DIFF   鞋型: 結='GHOST SPRINT W'  廠='GHOST SPRINT W (KJ0645)'
+DIFF    KJ5430        6C        6C        OK          47     2899  DIFF   鞋型: 結='SAMBA GOLF'  廠='SAMBA GOLF ( JH6151 , KJ8'
+DIFF    KJ5431        6C        6C        OK           8     2899  DIFF   鞋型: 結='SAMBA GOLF'  廠='SAMBA GOLF ( JH6151 , KJ8'
+DIFF    KJ7892        6A        8A        DIFF       900      750  DIFF   鞋型: 結='ADISTAR XLG 2.0 J'  廠='ADISTAR XLG 2.0 J ( KJ789'
+DIFF    KJ8225        6C        6C        OK         920     2899  DIFF   鞋型: 結='SAMBA GOLF'  廠='SAMBA GOLF ( JH6151 , KJ8'
+DIFF    KZ9155        6A        8A        DIFF      4856     2436  DIFF   鞋型: 結='ADISTAR XLG 2.0'  廠='ADISTAR XLG 2.0 J ( KZ915'
+DIFF    LA3614        6A        6A        OK         454      909  DIFF   鞋型: 結='F50 TUNIT MEGA JAH JAH'  廠='F50 TUNIT MEGA JAH JAH  ('
+DIFF    LA4019        6B        6B        OK          95      593  DIFF   鞋型: 結='GHOST SPRINT W'  廠='GHOST SPRINT W ( KI4564 ,'
+DIFF    LA7682        6B        6B        OK        3890    11766  DIFF   鞋型: 結='GHOST SPRINT W'  廠='GHOST SPRINT W ( LA7682 ,'
+DIFF    LA7683        6B        6B        OK        2969    11766  DIFF   鞋型: 結='GHOST SPRINT W'  廠='GHOST SPRINT W ( LA7682 ,'
+SKIP    MF2603        6A        —         n/a       5095        —  n/a    MF前綴跳過
+SKIP    MF2604        6A        —         n/a        239        —  n/a    MF前綴跳過
+SKIP    MF2605        6A        —         n/a       5675        —  n/a    MF前綴跳過
+SKIP    MF2606        6A        —         n/a      14596        —  n/a    MF前綴跳過
+SKIP    MF2607        6A        —         n/a      20961        —  n/a    MF前綴跳過
+SKIP    MF2608        6B        —         n/a        674        —  n/a    MF前綴跳過
+
+  >>> ── 7部 ──
+
+DIFF    HP5175        7B        7B        OK        2858     2859  DIFF   鞋型: 結='TOKYO W NATI'  廠='TOKYO W NATI ( HP5175 )'
+DIFF    HQ2887        7B        7B        OK        3024      300  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W (HQ2887)'
+DIFF    HQ3330        7A        7A        OK        4224     8451  DIFF   鞋型: 結='GHOST SPRINT W'  廠='GHOST SPRINT W ( HQ3330 )'
+DIFF    HQ7638        7A        6B        DIFF       264      241  DIFF   鞋型: 結='GHOST SPRINT W'  廠='GHOST SPRINT W (HQ7638 )'
+OK      HQ9512        7B        7B        OK         598      598  OK     鞋型: 結='TOKYO W'  廠='TOKYO W (HQ9512)'
+DIFF    IH3999        7B        8C        DIFF       524     4975  DIFF   鞋型: 結='TOKYO MJ W'  廠='TOKYO MJ W ( KJ8378 , JR4'
+OK      JQ0597        7B        7B        OK        5268     5268  OK     鞋型: 結='TOKYO W'  廠='TOKYO W ( JQ0597 )'
+DIFF    JS1067        7A        7A        OK        1614     2515  DIFF   鞋型: 結='GHOST SPRINT W'  廠='GHOST SPRINT W ( JS1067 ,'
+DIFF    KI3584        7B        7B        OK        1065     2131  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( KI3584 )- 外包鞋面'
+DIFF    KI4563        7A        6B        DIFF       440      800  DIFF   鞋型: 結='GHOST SPRINT W'  廠='GHOST SPRINT W (KI4563  )'
+DIFF    KI4569        7A        6B        DIFF       205     1443  DIFF   鞋型: 結='GHOST SPRINT W'  廠='GHOST SPRINT W ( KI4569)'
+DIFF    KI7740        7A        8B        DIFF       959     1069  DIFF   鞋型: 結='GHOST SPRINT BALLET W'  廠='GHOST SPRINT BALLET  ( KI'
+DIFF    KJ0644        7A        7A        OK         189     1958  DIFF   鞋型: 結='GHOST SPRINT W'  廠='GHOST SPRINT W ( KJ0644 ,'
+DIFF    KJ0646        7A        7A        OK         789     1958  DIFF   鞋型: 結='GHOST SPRINT W'  廠='GHOST SPRINT W ( KJ0644 ,'
+DIFF    KJ5221        7B        7B        OK        1256      698  DIFF   鞋型: 結='TOKYO MJ W'  廠='TOKYO MJ W ( KJ5221)'
+DIFF    KJ7499        7B        7B        OK         330      331  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W (KJ7499)'
+DIFF    KJ7539        7B        7B        OK        2728     1854  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( KJ7539 )'
+DIFF    KJ7541        7B        7B        OK        1406      860  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W  ( KJ7541 , KJ754'
+DIFF    KJ7542        7B        7B        OK         330      860  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W  ( KJ7541 , KJ754'
+DIFF    KJ7543        7B        7B        OK        4400     3211  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W  ( KJ7543 )'
+DIFF    KJ7544        7B        7B        OK        1310     1379  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W  (KJ7543 , KJ7544'
+DIFF    KJ7551        7B        7B        OK        2084     2302  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( KJ7551 , KJ7552'
+DIFF    KJ7552        7B        7B        OK         625     2302  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( KJ7551 , KJ7552'
+DIFF    KJ8377        7B        8C        DIFF       555     2284  DIFF   鞋型: 結='TOKYO MJ W'  廠='TOKYO MJ W ( KJ8377 )- 外包'
+DIFF    KJ8378        7B        8C        DIFF       308     4975  DIFF   鞋型: 結='TOKYO MJ W'  廠='TOKYO MJ W ( KJ8378 , JR4'
+DIFF    KK0030        7B        11B1      DIFF       760     1187  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W (KK0031 , KK0030)'
+DIFF    KK0031        7B        11B1      DIFF      1752     1187  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W (KK0031 , KK0030)'
+DIFF    KK2621        7B        7B        OK        3776     3777  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( KK2621 )'
+DIFF    LA7682        7A        6B        DIFF      3338    11766  DIFF   鞋型: 結='GHOST SPRINT W'  廠='GHOST SPRINT W ( LA7682 ,'
+DIFF    LA7683        7A        6B        DIFF      5932    11766  DIFF   鞋型: 結='GHOST SPRINT W'  廠='GHOST SPRINT W ( LA7682 ,'
+SKIP    MF2605        7A        —         n/a       5131        —  n/a    MF前綴跳過
+SKIP    MF2606        7A        —         n/a      34726        —  n/a    MF前綴跳過
+SKIP    MF2607        7A        —         n/a      13115        —  n/a    MF前綴跳過
+
+  >>> ── 8部 ──
+
+DIFF    HP4218        8B        8B        OK        3623      172  DIFF   鞋型: 結='BB F50 GHOST SPRINT'  廠='BB F50 GHOST SPRINT  ( HP'
+DIFF    HQ7636        8B        8B        OK         318     1002  DIFF   鞋型: 結='GHOST SPRINT BALLET W'  廠='GHOST SPRINT BALLET  ( HQ'
+DIFF    HQ7637        8B        8B        OK         182     1002  DIFF   鞋型: 結='GHOST SPRINT BALLET W'  廠='GHOST SPRINT BALLET  ( HQ'
+DIFF    IH3991        8C        8C        OK         221     2751  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( IH3994 , KJ7542'
+DIFF    IH3994        8C        8C        OK         914     2751  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( IH3994 , KJ7542'
+DIFF    IH3999        8C        8C        OK        2029     4975  DIFF   鞋型: 結='TOKYO MJ W'  廠='TOKYO MJ W ( KJ8378 , JR4'
+DIFF    IH6001        8A        3B        DIFF      2500     5253  DIFF   鞋型: 結='SAMBA'  廠='SAMBA ( IH6001 , IH6000 )'
+DIFF    JR4790        8C        8C        OK        2396     4975  DIFF   鞋型: 結='TOKYO MJ W'  廠='TOKYO MJ W ( KJ8378 , JR4'
+DIFF    KH6569        8B        8B        OK         201      804  DIFF   鞋型: 結='adidas F50 ADIFRAME'  廠='adidas F50 ADIFRAME  ( KH'
+DIFF    KH6570        8B        8B        OK         201      804  DIFF   鞋型: 結='adidas F50 ADIFRAME'  廠='adidas F50 ADIFRAME  ( KH'
+DIFF    KH7374        8A        8A        OK        1610     5464  DIFF   鞋型: 結='ADISTAR XLG 2.0 J'  廠='ADISTAR XLG 2.0 J ( KH737'
+DIFF    KI0435        8B        8B        OK        1441     5640  DIFF   鞋型: 結='GHOST SPRINT BALLET W'  廠='GHOST SPRINT BALLET  (KI0'
+DIFF    KI0436        8B        8B        OK        2490     5640  DIFF   鞋型: 結='GHOST SPRINT BALLET W'  廠='GHOST SPRINT BALLET  (KI0'
+DIFF    KI3584        8C        7B        DIFF      1050     2131  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( KI3584 )- 外包鞋面'
+DIFF    KI7713        8A        8A        OK         132     2394  DIFF   鞋型: 結='BUSENITZ'  廠='BUSENITZ ( KJ0261 , KJ026'
+DIFF    KI7714        8A        8A        OK          45     1304  DIFF   鞋型: 結='BUSENITZ VINTAGE'  廠='BUSENITZ VINTAGE ( KI7714'
+DIFF    KI7725        8A        8A        OK          25     1304  DIFF   鞋型: 結='BUSENITZ VINTAGE'  廠='BUSENITZ VINTAGE ( KI7714'
+DIFF    KI7738        8B        8B        OK         599     6086  DIFF   鞋型: 結='GHOST SPRINT BALLET W'  廠='GHOST SPRINT BALLET  ( KZ'
+DIFF    KI7739        8B        8B        OK         426     1069  DIFF   鞋型: 結='GHOST SPRINT BALLET W'  廠='GHOST SPRINT BALLET  ( KI'
+DIFF    KI7740        8B        8B        OK        1471     1069  DIFF   鞋型: 結='GHOST SPRINT BALLET W'  廠='GHOST SPRINT BALLET  ( KI'
+DIFF    KJ0259        8A        8A        OK         101     2394  DIFF   鞋型: 結='BUSENITZ'  廠='BUSENITZ ( KJ0261 , KJ026'
+DIFF    KJ0260        8A        8A        OK         431      798  DIFF   鞋型: 結='BUSENITZ'  廠='BUSENITZ ( KJ0261 , KJ026'
+DIFF    KJ0261        8A        8A        OK         346      798  DIFF   鞋型: 結='BUSENITZ'  廠='BUSENITZ ( KJ0261 , KJ026'
+DIFF    KJ7510        8C        9B        DIFF      2100     7831  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( JI0182  , KJ751'
+DIFF    KJ7542        8C        7B        DIFF       240      860  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W  ( KJ7541 , KJ754'
+DIFF    KJ7552        8C        7B        DIFF       387     2302  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( KJ7551 , KJ7552'
+DIFF    KJ7892        8A        8A        OK        4998      750  DIFF   鞋型: 結='ADISTAR XLG 2.0 J'  廠='ADISTAR XLG 2.0 J ( KJ789'
+DIFF    KJ7893        8A        8A        OK           0      750  DIFF   鞋型: 結='ADISTAR XLG 2.0 J'  廠='ADISTAR XLG 2.0 J ( KJ789'
+DIFF    KJ7895        8A        8A        OK         100      200  DIFF   鞋型: 結='ADISTAR XLG 2.0'  廠='ADISTAR XLG 2.0 J ( KJ789'
+DIFF    KJ8377        8C        8C        OK         841     2284  DIFF   鞋型: 結='TOKYO MJ W'  廠='TOKYO MJ W ( KJ8377 )- 外包'
+DIFF    KJ8378        8C        8C        OK         300     4975  DIFF   鞋型: 結='TOKYO MJ W'  廠='TOKYO MJ W ( KJ8378 , JR4'
+DIFF    KK0908        8B        8B        OK         172      655  DIFF   鞋型: 結='adidas F50 ADIFRAME W'  廠='adidas F50 ADIFRAME W  ( '
+DIFF    KK0909        8B        8B        OK         155      655  DIFF   鞋型: 結='adidas F50 ADIFRAME W'  廠='adidas F50 ADIFRAME W  ( '
+DIFF    KZ7290        8B        8B        OK         465     6086  DIFF   鞋型: 結='GHOST SPRINT BALLET W'  廠='GHOST SPRINT BALLET  ( KZ'
+DIFF    KZ7291        8B        8B        OK         615     6086  DIFF   鞋型: 結='GHOST SPRINT BALLET W'  廠='GHOST SPRINT BALLET  ( KZ'
+DIFF    KZ9155        8A        8A        OK        1218     2436  DIFF   鞋型: 結='ADISTAR XLG 2.0'  廠='ADISTAR XLG 2.0 J ( KZ915'
+MISS    LA3255        8C        ?         ??         799        ?  ??     不在廠務編制表
+SKIP    MF2603        8A        —         n/a       2446        —  n/a    MF前綴跳過
+SKIP    MF2604        8A        —         n/a       3425        —  n/a    MF前綴跳過
+SKIP    MF2605        8A        —         n/a       1608        —  n/a    MF前綴跳過
+SKIP    MF2606        8A        —         n/a      19299        —  n/a    MF前綴跳過
+SKIP    MF2607        8A        —         n/a       9558        —  n/a    MF前綴跳過
+
+  >>> ── 9部 ──
+
+DIFF    HP5123        9C        5C        DIFF      2000     8560  DIFF   鞋型: 結='HP5123'  廠='SL 72 ADITEX ( HP5124 , H'
+DIFF    HQ4909        9C        9C        OK        4561     3664  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS ( HQ4909 )- 外包鞋面'
+DIFF    IG6045        9A        6A        DIFF     14451    17823  DIFF   鞋型: 結='OZGAIA W'  廠='OZGAIA W ( IG6045 )'
+DIFF    IG6047        9A        9A        OK         458     6573  DIFF   鞋型: 結='OZGAIA W'  廠='OZGAIA W ( IG6049 , IG604'
+DIFF    IG6049        9A        9A        OK        2974     6573  DIFF   鞋型: 結='OZGAIA W'  廠='OZGAIA W ( IG6049 , IG604'
+DIFF    IH2978        9C        9C        OK         726     1016  DIFF   鞋型: 結='SL 72 RS EL I'  廠='SL 72 RS EL I ( JI3089 , '
+DIFF    IH2982        9C        9C        OK         260      523  DIFF   鞋型: 結='SL 72 RS EL C'  廠='SL 72 RS EL C ( IH2982 , '
+DIFF    IH3994        9B        8C        DIFF       588     2751  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( IH3994 , KJ7542'
+DIFF    JH9953        9C        9C        OK         262      523  DIFF   鞋型: 結='SL 72 RS EL C'  廠='SL 72 RS EL C ( IH2982 , '
+DIFF    JI0182        9B        9B        OK        1072     7831  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( JI0182  , KJ751'
+DIFF    JI0183        9B        9B        OK        1039     7831  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( JI0182  , KJ751'
+DIFF    JI3089        9C        9C        OK         454     1016  DIFF   鞋型: 結='SL 72 RS EL I'  廠='SL 72 RS EL I ( JI3089 , '
+OK      JQ9824        9C        9C        OK        3216     3216  OK     鞋型: 結='SL 72 RS'  廠='SL 72 RS ( JQ9824 )- 外包鞋面'
+DIFF    KH9652        9C        5C        DIFF       770     9626  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS ( JI1282 , KH965'
+DIFF    KH9653        9B        5C        DIFF      1442     9626  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS ( JI1282 , KH965'
+DIFF    KH9656        9C        5C        DIFF       152     3239  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS ( KH9656 , KH965'
+DIFF    KH9657        9C        9C        OK         300     1580  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS ( KH9653 , KH965'
+DIFF    KH9658        9C        5C        DIFF       152     3239  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS ( KH9656 , KH965'
+DIFF    KH9671        9C        9C        OK          68     6660  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS ( KH9671 , KH967'
+DIFF    KH9672        9C        9C        OK         771     6660  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS ( KH9671 , KH967'
+DIFF    KH9673        9C        9C        OK        2488     6660  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS ( KH9671 , KH967'
+DIFF    KJ0690        9C        9C        OK        1352      640  DIFF   鞋型: 結='SL 72 RS J'  廠='SL 72 RS J ( KJ0690 )'
+DIFF    KJ1666        9C        9C        OK        3576     3309  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS ( KJ1666 , KJ166'
+DIFF    KJ1667        9C        9C        OK        1700     3309  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS ( KJ1666 , KJ166'
+DIFF    KJ1669        9C        9C        OK        1032      636  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS ( KJ1669 )'
+DIFF    KJ1670        9C        9C        OK        1256     3102  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS ( KJ1670 , KJ167'
+DIFF    KJ1672        9C        9C        OK        2908     1914  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS (KJ1672 )'
+DIFF    KJ1673        9C        9C        OK        1140     3102  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS ( KJ1670 , KJ167'
+DIFF    KJ1674        9B        5C        DIFF      1051     2715  DIFF   鞋型: 結='SL 72 RS'  廠='SL 72 RS ( KJ1674)- 外包鞋面'
+MISS    KJ2282        9C        ?         ??        1320        ?  ??     不在廠務編制表
+DIFF    KJ7510        9B        9B        OK        1964     7831  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( JI0182  , KJ751'
+DIFF    KJ7895        9B        8A        DIFF      5621      200  DIFF   鞋型: 結='ADISTAR XLG 2.0'  廠='ADISTAR XLG 2.0 J ( KJ789'
+DIFF    KK4234        9A        10A       DIFF      2073     6349  DIFF   鞋型: 結='ADISTAR XLG 2.0 J'  廠='ADISTAR XLG 2.0 J ( KK423'
+DIFF    KZ6449        9B        9B        OK        3808    16804  DIFF   鞋型: 結='ADISTAR XLG 2.0 J'  廠='ADISTAR XLG 2.0 W ( KZ644'
+DIFF    KZ7071        9A        9A        OK        3484    12437  DIFF   鞋型: 結='OZGAIA W'  廠='OZGAIA W ( KZ7072 , KZ707'
+DIFF    KZ7072        9A        9A        OK        2734    12437  DIFF   鞋型: 結='OZGAIA W'  廠='OZGAIA W ( KZ7072 , KZ707'
+MISS    KZ8301        9B        ?         ??        3012        ?  ??     不在廠務編制表
+DIFF    KZ9155        9B        8A        DIFF       576     2436  DIFF   鞋型: 結='ADISTAR XLG 2.0'  廠='ADISTAR XLG 2.0 J ( KZ915'
+SKIP    MF2603        9A        —         n/a       7136        —  n/a    MF前綴跳過
+SKIP    MF2604        9A        —         n/a        450        —  n/a    MF前綴跳過
+SKIP    MF2605        9B        —         n/a       7914        —  n/a    MF前綴跳過
+SKIP    MF2606        9A        —         n/a      40323        —  n/a    MF前綴跳過
+SKIP    MF2607        9A        —         n/a      21054        —  n/a    MF前綴跳過
+
+  >>> ── 10部 ──
+
+DIFF    IG6045        10A       6A        DIFF      9377    17823  DIFF   鞋型: 結='OZGAIA W'  廠='OZGAIA W ( IG6045 )'
+DIFF    IG6047        10A       9A        DIFF       154     6573  DIFF   鞋型: 結='OZGAIA W'  廠='OZGAIA W ( IG6049 , IG604'
+DIFF    IG6049        10A       9A        DIFF      1007     6573  DIFF   鞋型: 結='OZGAIA W'  廠='OZGAIA W ( IG6049 , IG604'
+DIFF    IH0874        10A       10A       OK         300      600  DIFF   鞋型: 結='OZMILLEN'  廠='OZMILLEN ( IH0874 )'
+DIFF    JH5642        10A       10A       OK         290      580  DIFF   鞋型: 結='OZMILLEN W'  廠='OZMILLEN W ( JH5642 )'
+DIFF    JI2632        10A       10A       OK         250     1700  DIFF   鞋型: 結='OZMILLEN'  廠='OZMILLEN ( JI2633 , JI263'
+DIFF    JI2633        10A       10A       OK         600     1700  DIFF   鞋型: 結='OZMILLEN'  廠='OZMILLEN ( JI2633 , JI263'
+DIFF    JP7827        10A       10A       OK        1332     2664  DIFF   鞋型: 結='OZMILLEN'  廠='OZMILLEN ( JP7827 )'
+DIFF    KH6397        10C       10C       OK         155     1877  DIFF   鞋型: 結='HANDBALL SPEZIAL'  廠='HANDBALL SPEZIAL ( KK3019'
+DIFF    KH7374        10B       8A        DIFF       801     5464  DIFF   鞋型: 結='ADISTAR XLG 2.0 J'  廠='ADISTAR XLG 2.0 J ( KH737'
+DIFF    KI5241        10C       10C       OK        1937     2317  DIFF   鞋型: 結='HANDBALL SPEZIAL'  廠='HANDBALL SPEZIAL ( KI5241'
+DIFF    KI5303        10C       10C       OK         373     1329  DIFF   鞋型: 結='HANDBALL SPEZIAL'  廠='HANDBALL SPEZIAL ( KI5303'
+DIFF    KJ0849        10C       10C       OK        2261    12874  DIFF   鞋型: 結='SPEZIAL GOLF'  廠='SPEZIAL GOLF ( KJ0849 , K'
+DIFF    KJ0850        10C       10C       OK        2664    12874  DIFF   鞋型: 結='SPEZIAL GOLF'  廠='SPEZIAL GOLF ( KJ0849 , K'
+DIFF    KJ0851        10C       10C       OK        1273    12874  DIFF   鞋型: 結='SPEZIAL GOLF'  廠='SPEZIAL GOLF ( KJ0849 , K'
+DIFF    KJ0852        10C       10C       OK        1258    12874  DIFF   鞋型: 結='SPEZIAL GOLF'  廠='SPEZIAL GOLF ( KJ0849 , K'
+MISS    KJ7844        10B       ?         ??         525        ?  ??     不在廠務編制表
+MISS    KJ7845        10B       ?         ??         600        ?  ??     不在廠務編制表
+DIFF    KJ7852        10A       10A       OK        2465     4570  DIFF   鞋型: 結='ADISTAR XLG 2.0 W'  廠='ADISTAR XLG 2.0 J ( KJ785'
+DIFF    KJ7853        10A       10A       OK        1963     4570  DIFF   鞋型: 結='ADISTAR XLG 2.0 W'  廠='ADISTAR XLG 2.0 J ( KJ785'
+DIFF    KJ7892        10A       8A        DIFF      1710      750  DIFF   鞋型: 結='ADISTAR XLG 2.0 J'  廠='ADISTAR XLG 2.0 J ( KJ789'
+DIFF    KK2904        10B       10B       OK         929     6156  DIFF   鞋型: 結='ADISTAR XLG 2.0 W'  廠='ADISTAR XLG 2.0 W ( KK290'
+DIFF    KK3015        10C       10C       OK         806     1329  DIFF   鞋型: 結='HANDBALL SPEZIAL'  廠='HANDBALL SPEZIAL ( KI5303'
+MISS    KK3017        10C       ?         ??          50        ?  ??     不在廠務編制表
+MISS    KK3018        10C       ?         ??         155        ?  ??     不在廠務編制表
+DIFF    KK3019        10C       10C       OK        1386     1877  DIFF   鞋型: 結='HANDBALL SPEZIAL'  廠='HANDBALL SPEZIAL ( KK3019'
+DIFF    KK3021        10C       10C       OK         594     2118  DIFF   鞋型: 結='HANDBALL SPEZIAL'  廠='HANDBALL SPEZIAL ( KK3021'
+DIFF    KK3025        10C       10C       OK         497     2118  DIFF   鞋型: 結='HANDBALL SPEZIAL'  廠='HANDBALL SPEZIAL ( KK3021'
+DIFF    KK3026        10C       10C       OK         216     2118  DIFF   鞋型: 結='HANDBALL SPEZIAL'  廠='HANDBALL SPEZIAL ( KK3021'
+DIFF    KK3027        10C       10C       OK         216     2118  DIFF   鞋型: 結='HANDBALL SPEZIAL'  廠='HANDBALL SPEZIAL ( KK3021'
+MISS    KK3033        10C       ?         ??         192        ?  ??     不在廠務編制表
+DIFF    KK4234        10A       10A       OK        5282     6349  DIFF   鞋型: 結='ADISTAR XLG 2.0 J'  廠='ADISTAR XLG 2.0 J ( KK423'
+DIFF    KZ9155        10B       8A        DIFF       331     2436  DIFF   鞋型: 結='ADISTAR XLG 2.0'  廠='ADISTAR XLG 2.0 J ( KZ915'
+DIFF    KZ9344        10A       3B        DIFF      1398    12808  DIFF   鞋型: 結='ADISTAR XLG 2.0 W'  廠='ADISTAR XLG 2.0 J ( KZ934'
+DIFF    LA0522        10B       10B       OK           0     6156  DIFF   鞋型: 結='ADISTAR XLG 2.0 W'  廠='ADISTAR XLG 2.0 W ( KK290'
+MISS    LA3255        10C       ?         ??         550        ?  ??     不在廠務編制表
+DIFF    LA6421        10A       10A       OK         150      300  DIFF   鞋型: 結='LA6421'  廠='CAMPUS 00s GOLF ( LA6421 '
+SKIP    MF2603        10A       —         n/a       1266        —  n/a    MF前綴跳過
+SKIP    MF2605        10A       —         n/a       7323        —  n/a    MF前綴跳過
+SKIP    MF2606        10A       —         n/a      27490        —  n/a    MF前綴跳過
+SKIP    MF2607        10A       —         n/a       8005        —  n/a    MF前綴跳過
+
+  >>> ── 11部 ──
+
+DIFF    HP7087        11A1      11A1      OK         443     2518  DIFF   鞋型: 結='S2G 26 LEATHER'  廠='S2G 26 LEATHER ( JQ9311 ,'
+DIFF    HP7088        11A1      11A1      OK          38      642  DIFF   鞋型: 結='S2G 26 TEX'  廠='S2G 26 TEX  ( KK2872 , HP'
+DIFF    HQ5054        11A1      11A1      OK        1869     2518  DIFF   鞋型: 結='S2G 26 LEATHER'  廠='S2G 26 LEATHER ( JQ9311 ,'
+DIFF    JP8385        11A1      11A1      OK         174      695  DIFF   鞋型: 結='W ADIPOWER 26 SL BOA'  廠='W ADIPOWER 26 SL BOA ( KK'
+DIFF    JP8394        11A1      11A1      OK         124      706  DIFF   鞋型: 結='ADIPOWER 26 SL'  廠='ADIPOWER 26 SL ( KK2838 ,'
+DIFF    JP8395        11A1      11A1      OK          39      706  DIFF   鞋型: 結='ADIPOWER 26 SL'  廠='ADIPOWER 26 SL ( KK2838 ,'
+DIFF    JQ3560        11A1      11A1      OK         600     1203  DIFF   鞋型: 結='W S2G 26 LEATHER'  廠='S2G 26 LEATHER ( JQ3560 )'
+DIFF    JQ3563        11A1      11A1      OK          30      122  DIFF   鞋型: 結='W S2G 26 TEX'  廠='W S2G 26 TEX  ( JQ3563 , '
+DIFF    JQ9311        11A1      11A1      OK        1085     2518  DIFF   鞋型: 結='S2G 26 LEATHER'  廠='S2G 26 LEATHER ( JQ9311 ,'
+DIFF    JR1879        11A1      11A1      OK          94      642  DIFF   鞋型: 結='S2G 26 TEX'  廠='S2G 26 TEX  ( KK2872 , HP'
+DIFF    JS4138        11A1      11A1      OK         188     1081  DIFF   鞋型: 結='ADIPOWER 26 SL BOA'  廠='ADIPOWER 26 SL BOA  ( JS4'
+DIFF    JS4140        11A1      11A1      OK         110     1081  DIFF   鞋型: 結='ADIPOWER 26 SL BOA'  廠='ADIPOWER 26 SL BOA  ( JS4'
+DIFF    KI1392        11A1      11A1      OK         553     2310  DIFF   鞋型: 結='S2G VENT'  廠='S2G VENT ( KI1392 , KI839'
+DIFF    KI3584        11B1      7B        DIFF       637     2131  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( KI3584 )- 外包鞋面'
+DIFF    KI8398        11A1      11A1      OK         601     2310  DIFF   鞋型: 結='S2G VENT'  廠='S2G VENT ( KI1392 , KI839'
+DIFF    KI8401        11A1      11A1      OK         600     2068  DIFF   鞋型: 結='W S2G VENT'  廠='W S2G VENT ( KI8402 , KI8'
+DIFF    KI8402        11A1      11A1      OK        1292     1716  DIFF   鞋型: 結='W S2G VENT'  廠='W S2G VENT ( KI8402 )'
+DIFF    KJ3010        11A1      11A1      OK         601     1480  DIFF   鞋型: 結='ADIPOWER 26'  廠='ADIPOWER 26 ( KJ3010 , KK'
+DIFF    KJ7511        11B1      11B1      OK         634     1269  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W (KJ7511)'
+DIFF    KJ7543        11B1      7B        DIFF       281     3211  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W  ( KJ7543 )'
+DIFF    KJ7551        11B1      7B        DIFF       504     2302  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( KJ7551 , KJ7552'
+DIFF    KJ7552        11B1      7B        DIFF       487     2302  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( KJ7551 , KJ7552'
+DIFF    KK0030        11B1      11B1      OK         246     1187  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W (KK0031 , KK0030)'
+DIFF    KK0031        11B1      11B1      OK         346     1187  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W (KK0031 , KK0030)'
+DIFF    KK0036        11A2      11A2      OK        1653     7557  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( KK0037 , KK0036'
+DIFF    KK0037        11A2      11A2      OK        1638     7557  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( KK0037 , KK0036'
+DIFF    KK0666        11A1      11A1      OK          63      642  DIFF   鞋型: 結='S2G 26 TEX'  廠='S2G 26 TEX  ( KK2872 , HP'
+DIFF    KK2523        11A2      11A2      OK         155      410  DIFF   鞋型: 結='TAEKWONDO MEI ELITE W'  廠='TAEKWONDO MEI ELITE W ( K'
+DIFF    KK2524        11A2      11A2      OK          50      410  DIFF   鞋型: 結='TAEKWONDO MEI ELITE W'  廠='TAEKWONDO MEI ELITE W ( K'
+DIFF    KK2572        11A2      11A2      OK         798      300  DIFF   鞋型: 結='TAEKWONDO MEI ELITE W'  廠='TAEKWONDO MEI ELITE W ( K'
+DIFF    KK2573        11A2      11A2      OK         633     2564  DIFF   鞋型: 結='TAEKWONDO MEI ELITE W'  廠='TAEKWONDO MEI ELITE W ( K'
+DIFF    KK2575        11A2      11A2      OK        1677     2478  DIFF   鞋型: 結='TAEKWONDO MEI ELITE W'  廠='TAEKWONDO MEI ELITE W ( K'
+DIFF    KK2576        11A2      11A2      OK         813     2478  DIFF   鞋型: 結='TAEKWONDO MEI ELITE W'  廠='TAEKWONDO MEI ELITE W ( K'
+DIFF    KK2705        11A2      1A        DIFF      1125     3072  DIFF   鞋型: 結='adidas TAEKWONDO W'  廠='adidas TAEKWONDO W ( KK27'
+DIFF    KK2836        11A1      11A1      OK         137     1480  DIFF   鞋型: 結='ADIPOWER 26'  廠='ADIPOWER 26 ( KJ3010 , KK'
+DIFF    KK2838        11A1      11A1      OK         189      706  DIFF   鞋型: 結='ADIPOWER 26 SL'  廠='ADIPOWER 26 SL ( KK2838 ,'
+DIFF    KK2839        11A1      11A1      OK         241     1081  DIFF   鞋型: 結='ADIPOWER 26 SL BOA'  廠='ADIPOWER 26 SL BOA  ( JS4'
+DIFF    KK2843        11A1      11A1      OK         172      695  DIFF   鞋型: 結='W ADIPOWER 26 SL BOA'  廠='W ADIPOWER 26 SL BOA ( KK'
+DIFF    KK2862        11A1      11A1      OK          31      122  DIFF   鞋型: 結='W S2G 26 TEX'  廠='W S2G 26 TEX  ( JQ3563 , '
+DIFF    KK2864        11B1      11B1      OK         273      943  DIFF   鞋型: 結='W S2G 26 LEATHER'  廠='S2G 26 LEATHER ( KK2864 ,'
+DIFF    KK2865        11B1      11B1      OK         196      943  DIFF   鞋型: 結='W S2G 26 LEATHER'  廠='S2G 26 LEATHER ( KK2864 ,'
+DIFF    KK2871        11B1      11B1      OK         221     4727  DIFF   鞋型: 結='S2G 26 LEATHER'  廠='S2G 26 LEATHER ( HQ5054 ,'
+DIFF    KK2872        11A1      11A1      OK         124      642  DIFF   鞋型: 結='S2G 26 TEX'  廠='S2G 26 TEX  ( KK2872 , HP'
+DIFF    LA3432        11B1      2B        DIFF       332     7735  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( LA3433 , LA3432'
+DIFF    LA3433        11B1      2B        DIFF      2555     7735  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( LA3433 , LA3432'
+SKIP    MF2606        11A1      —         n/a      22287        —  n/a    MF前綴跳過
+SKIP    MF2607        11A1      —         n/a       2425        —  n/a    MF前綴跳過
+
+  >>> ── 11部 (2) ──
+
+DIFF    IF1944        11B2      3B        DIFF      1702     2631  DIFF   鞋型: 結='SAMBA J'  廠='SAMBA J ( IF1944 , IF1945'
+DIFF    IF1945        11B2      3B        DIFF      1336     2631  DIFF   鞋型: 結='SAMBA J'  廠='SAMBA J ( IF1944 , IF1945'
+DIFF    JQ3463        11B2      11B2      OK        1635     3596  DIFF   鞋型: 結='S2G 26 BOA'  廠='S2G 26 BOA ( JQ3463 , KK2'
+DIFF    JR4790        11C       8C        DIFF      2329     4975  DIFF   鞋型: 結='TOKYO MJ W'  廠='TOKYO MJ W ( KJ8378 , JR4'
+DIFF    KK2866        11B2      11B2      OK         542     1146  DIFF   鞋型: 結='W S2G 26 BOA'  廠='W S2G 26 BOA ( KK2866 , K'
+DIFF    KK2867        11B2      11B2      OK          31     1146  DIFF   鞋型: 結='W S2G 26 BOA'  廠='W S2G 26 BOA ( KK2866 , K'
+DIFF    KK2868        11B2      11B2      OK         993     3596  DIFF   鞋型: 結='S2G 26 BOA'  廠='S2G 26 BOA ( JQ3463 , KK2'
+DIFF    KK2869        11B2      11B2      OK          16     3596  DIFF   鞋型: 結='S2G 26 BOA'  廠='S2G 26 BOA ( JQ3463 , KK2'
+DIFF    KZ6449        11C       9B        DIFF      2197    16804  DIFF   鞋型: 結='ADISTAR XLG 2.0 J'  廠='ADISTAR XLG 2.0 W ( KZ644'
+DIFF    KZ9155        11B2      8A        DIFF      5963     2436  DIFF   鞋型: 結='ADISTAR XLG 2.0'  廠='ADISTAR XLG 2.0 J ( KZ915'
+DIFF    KZ9163        11C       12D       DIFF      2633    28317  DIFF   鞋型: 結='ADISTAR XLG 2.0 W'  廠='ADISTAR XLG 2.0 W ( KZ916'
+DIFF    LA1814        11C       3B        DIFF      2152     1805  DIFF   鞋型: 結='ADISTAR XLG 2.0 J'  廠='ADISTAR XLG 2.0 J ( LA181'
+SKIP    MF2603        11B2      —         n/a       7083        —  n/a    MF前綴跳過
+SKIP    MF2604        11C       —         n/a       2379        —  n/a    MF前綴跳過
+SKIP    MF2605        11C       —         n/a       1160        —  n/a    MF前綴跳過
+SKIP    MF2606        11B2      —         n/a       8590        —  n/a    MF前綴跳過
+SKIP    MF2607        11B2      —         n/a       2331        —  n/a    MF前綴跳過
+
+  >>> ── 12部 ──
+
+DIFF    HQ5207        12A       12A       OK        2960    18253  DIFF   鞋型: 結='1609ER RS'  廠='1609ER RS  ( KH9907 , KH9'
+DIFF    HQ5208        12A       12A       OK        1629    18253  DIFF   鞋型: 結='1609ER RS'  廠='1609ER RS  ( KH9907 , KH9'
+DIFF    HQ5209        12A       12A       OK        2229    18253  DIFF   鞋型: 結='1609ER RS'  廠='1609ER RS  ( KH9907 , KH9'
+DIFF    HQ7468        12C       5B        DIFF     11056    21757  DIFF   鞋型: 結='ADISTAR XLG 2.0'  廠='ADISTAR XLG 2.0 ( HQ7468 '
+DIFF    JI0182        12A       9B        DIFF       155     7831  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( JI0182  , KJ751'
+DIFF    KH9907        12A       12A       OK        2589     2538  DIFF   鞋型: 結='1609ER RS'  廠='1609ER RS  ( KH9907 , KH9'
+DIFF    KH9908        12A       12A       OK         554     2542  DIFF   鞋型: 結='1609ER RS'  廠='1609ER RS  ( KI9861 , KI9'
+DIFF    KH9909        12A       12A       OK         107     2538  DIFF   鞋型: 結='1609ER RS'  廠='1609ER RS  ( KH9907 , KH9'
+DIFF    KI9853        12A       12A       OK         185     2542  DIFF   鞋型: 結='1609ER RS'  廠='1609ER RS  ( KI9861 , KI9'
+DIFF    KI9855        12A       12A       OK         442     2542  DIFF   鞋型: 結='1609ER RS'  廠='1609ER RS  ( KI9861 , KI9'
+DIFF    KI9857        12A       12A       OK         395     2542  DIFF   鞋型: 結='1609ER RS'  廠='1609ER RS  ( KI9861 , KI9'
+DIFF    KI9860        12A       12A       OK         400    18253  DIFF   鞋型: 結='1609ER RS'  廠='1609ER RS  ( KH9907 , KH9'
+DIFF    KI9861        12A       12A       OK         172     2542  DIFF   鞋型: 結='1609ER RS'  廠='1609ER RS  ( KI9861 , KI9'
+DIFF    KJ7510        12A       9B        DIFF      3000     7831  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W ( JI0182  , KJ751'
+DIFF    KJ7893        12C       8A        DIFF      2273      750  DIFF   鞋型: 結='ADISTAR XLG 2.0 J'  廠='ADISTAR XLG 2.0 J ( KJ789'
+DIFF    KJ7895        12C       8A        DIFF      2113      200  DIFF   鞋型: 結='ADISTAR XLG 2.0'  廠='ADISTAR XLG 2.0 J ( KJ789'
+DIFF    KZ6449        12C       9B        DIFF      6101    16804  DIFF   鞋型: 結='ADISTAR XLG 2.0 J'  廠='ADISTAR XLG 2.0 W ( KZ644'
+DIFF    KZ6450        12D       10A       DIFF      1293     6349  DIFF   鞋型: 結='ADISTAR XLG 2.0 J'  廠='ADISTAR XLG 2.0 J ( KK423'
+DIFF    KZ9155        12C       8A        DIFF      2938     2436  DIFF   鞋型: 結='ADISTAR XLG 2.0'  廠='ADISTAR XLG 2.0 J ( KZ915'
+DIFF    KZ9161        12D       12D       OK         716    28317  DIFF   鞋型: 結='ADISTAR XLG 2.0 W'  廠='ADISTAR XLG 2.0 W ( KZ916'
+DIFF    KZ9162        12D       12D       OK        2398    28317  DIFF   鞋型: 結='ADISTAR XLG 2.0 W'  廠='ADISTAR XLG 2.0 W ( KZ916'
+DIFF    KZ9163        12D       12D       OK        1166    28317  DIFF   鞋型: 結='ADISTAR XLG 2.0 W'  廠='ADISTAR XLG 2.0 W ( KZ916'
+DIFF    KZ9344        12D       3B        DIFF      2500    12808  DIFF   鞋型: 結='ADISTAR XLG 2.0 W'  廠='ADISTAR XLG 2.0 J ( KZ934'
+DIFF    LA1814        12C       3B        DIFF      5000     1805  DIFF   鞋型: 結='ADISTAR XLG 2.0 J'  廠='ADISTAR XLG 2.0 J ( LA181'
+SKIP    MF2603        12C       —         n/a      17284        —  n/a    MF前綴跳過
+SKIP    MF2604        12C       —         n/a       3793        —  n/a    MF前綴跳過
+SKIP    MF2605        12C       —         n/a       8208        —  n/a    MF前綴跳過
+SKIP    MF2606        12A       —         n/a      18147        —  n/a    MF前綴跳過
+SKIP    MF2607        12A       —         n/a       4968        —  n/a    MF前綴跳過
+
+  >>> ── 外包  (永好) ──
+
+DIFF    IH6000        (空)       3B        DIFF      4032     5253  DIFF   鞋型: 結='SAMBA'  廠='SAMBA ( IH6001 , IH6000 )'
+DIFF    IH6001        (空)       3B        DIFF      8125     5253  DIFF   鞋型: 結='SAMBA'  廠='SAMBA ( IH6001 , IH6000 )'
+MISS    KJ7844                  ?         ??         400        ?  ??     不在廠務編制表
+MISS    KJ7845                  ?         ??         300        ?  ??     不在廠務編制表
+DIFF    KK4234        (空)       10A       DIFF       871     6349  DIFF   鞋型: 結='ADISTAR XLG 2.0 J'  廠='ADISTAR XLG 2.0 J ( KK423'
+DIFF    KZ6449        (空)       9B        DIFF      8065    16804  DIFF   鞋型: 結='ADISTAR XLG 2.0 J'  廠='ADISTAR XLG 2.0 W ( KZ644'
+SKIP    MF2603                  —         n/a       2500        —  n/a    MF前綴跳過
+SKIP    MF2604                  —         n/a        620        —  n/a    MF前綴跳過
+SKIP    MF2605                  —         n/a       2235        —  n/a    MF前綴跳過
+SKIP    MF2606                  —         n/a      13456        —  n/a    MF前綴跳過
+SKIP    MF2607                  —         n/a       2988        —  n/a    MF前綴跳過
+
+  >>> ── lay ra ──
+
+DIFF    IH3396        (空)       2C        DIFF       640     1081  DIFF   鞋型: 結='RETROCROSS 25'  廠='RETROCROSS 25 ( IH3396, J'
+DIFF    IH6001        (空)       3B        DIFF     42640     5253  DIFF   鞋型: 結='SAMBA'  廠='SAMBA ( IH6001 , IH6000 )'
+DIFF    IH9978        (空)       2C        DIFF      1500     5578  DIFF   鞋型: 結='RETROCROSS 25'  廠='RETROCROSS 25 ( IH3396 , '
+DIFF    JP8521        (空)       2C        DIFF        25     1081  DIFF   鞋型: 結='RETROCROSS 25'  廠='RETROCROSS 25 ( IH3396, J'
+DIFF    JQ0598        (空)       2B        DIFF      1935     8472  DIFF   鞋型: 結='TOKYO W'  廠='TOKYO W (JQ0598 )'
+DIFF    KI4741        (空)       2A        DIFF        79     3539  DIFF   鞋型: 結='MEGARIDE F50'  廠='MEGARIDE F50 (KI4740, KI4'
+SKIP    MF2606                  —         n/a      44582        —  n/a    MF前綴跳過
+SKIP    MF2607                  —         n/a       2241        —  n/a    MF前綴跳過
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+CSA 總計: OK=301  LEAN不符=114  ART缺=17
+訂單:     OK=4  DIFF=411
+
+⚠  不在廠務編制表的 ART (17 筆):
+   IH5569        LEAN='5C'      DS-04訂單=415
+   JQ9555        LEAN='5C'      DS-04訂單=475
+   KH9651        LEAN='5C'      DS-04訂單=506
+   KJ8322        LEAN='5A'      DS-04訂單=450
+   LA1750        LEAN='5C'      DS-04訂單=152
+   KJ8322        LEAN=''        DS-04訂單=450
+   LA3255        LEAN='8C'      DS-04訂單=799
+   KJ2282        LEAN='9C'      DS-04訂單=1320
+   KZ8301        LEAN='9B'      DS-04訂單=3012
+   KJ7844        LEAN='10B'     DS-04訂單=525
+   KJ7845        LEAN='10B'     DS-04訂單=600
+   KK3017        LEAN='10C'     DS-04訂單=50
+   KK3018        LEAN='10C'     DS-04訂單=155
+   KK3033        LEAN='10C'     DS-04訂單=192
+   LA3255        LEAN='10C'     DS-04訂單=550
+   KJ7844        LEAN=''        DS-04訂單=400
+   KJ7845        LEAN=''        DS-04訂單=300
+
+⚠  廠務編制表有但結果表無的 ART (1 筆):
+   JS1068        廠務LEAN='7A'      廠務鞋型='GHOST SPRINT W ( JS1067 , JS1068, KI4563'
+
+── OCS 固定單位 — 逐 Tab 比對 ───────────────────────────────────────────────────────────────────────────────────────
+
+  Tab: OCS_組底配套
+    OK    Tổ phối liệu PXD/大底课配套组         結果=   7  廠務=   7
+    OK    UV/水洗組/Tổ rửa nước              結果=None  廠務=None
+    OK    外包組/Tổ GCN                      結果=   4  廠務=   4
+    OK    打粗組/Tổ mài thô                  結果=  77  廠務=  77
+    OK    整理組/Tổ chỉnh lý                 結果=  22  廠務=  22
+    OK    組底倉庫/ kho                       結果=  19  廠務=  19
+    ──────────────────────────────────────────────────  小計: OK=6  DIFF=0  ✓ 全部一致
+
+  Tab: OCS_自動化
+    OK    同材共裁 1,2組                       結果=  60  廠務=  60
+    OK    自動化保全技術組/Bảo trì TĐH            結果=   6  廠務=   6
+    OK    自動化倉庫 Kho TĐH                   結果=  12  廠務=  12
+    OK    自動裁斷1,2組                        結果=  65  廠務=  65
+    OK    鞋墊手工組                           結果=  25  廠務=  25
+    ──────────────────────────────────────────────────  小計: OK=5  DIFF=0  ✓ 全部一致
+
+  Tab: OCS_電腦針車
+    OK    折邊/TGB                          結果=  23  廠務=  23
+    OK    電腦針車/ MVT                       結果= 124  廠務= 124
+    OK    電腦針車保全技術組/ Bảo trì MVT          結果=  15  廠務=  15
+    OK    電腦針車倉庫/ Kho MVT                 結果=  18  廠務=  18
+    ──────────────────────────────────────────────────  小計: OK=4  DIFF=0  ✓ 全部一致
+
+  Tab: OCS_印刷
+    OK    加工組/ Gia công ngoài             結果=  15  廠務=  15
+    OK    印刷房/ Phòng In dầu               結果=   3  廠務=   3
+    OK    印刷組/ In Dầu                     結果=  80  廠務=  80
+    OK    印刷開發/ Khai phát ISD             結果=  16  廠務=  16
+    OK    網板組/ Khuôn In lụa               結果=   6  廠務=   6
+    OK    配套組/ Tổ phối đôi                結果=  15  廠務=  15
+    OK    高周波/ In cao tần                 結果= 125  廠務= 125
+    ──────────────────────────────────────────────────  小計: OK=7  DIFF=0  ✓ 全部一致
+
+  Tab: OCS_設備工程
+    OK    保全/ Bảo trì                     結果=  56  廠務=  56
+    OK    西工/bảo trì RB                   結果=   6  廠務=   6
+    ──────────────────────────────────────────────────  小計: OK=2  DIFF=0  ✓ 全部一致
+
+==============================================================================================================
+  總結
+==============================================================================================================
+CSA LEAN:  ✗  LEAN不符=114  ART缺=17  廠務多=1
+OCS 單位:  ✓ 100%一致
+
+整體結論: ✗ 有差異（見上方清單）
