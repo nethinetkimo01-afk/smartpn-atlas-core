@@ -244,6 +244,131 @@ def load_ocs_fixed_units():
     return result
 
 
+# ── 廠務組織編制表: read RB and QC sections ──────────────────────────────────────
+RB_QC_SECTIONS = ['RB', 'QC']
+
+def load_rb_qc_units():
+    """
+    Scan 廠務組織編制表 6.2026 for RB and QC sections.
+    Returns dict: {'RB': [{unit, last_month, this_month}], 'QC': [...]}
+    col13 (idx 12) = 上月人數 reference
+    col15 (idx 14) = 本月人數 (editable; defaults to col13 if None)
+    """
+    wb = openpyxl.load_workbook(BIANCHE, data_only=True)
+    ws = None
+    for sh in wb.sheetnames:
+        if sh.strip() == MONTH_SH:
+            ws = wb[sh]
+            break
+    if ws is None:
+        wb.close()
+        return {s: [] for s in RB_QC_SECTIONS}
+
+    def _val(row, idx):
+        v = row[idx] if len(row) > idx else None
+        if v is None or str(v).strip() in ('', '.', '編制'): return None
+        try: return int(float(v))
+        except: return None
+
+    result = {s: [] for s in RB_QC_SECTIONS}
+    current_section = None
+    STOP_AFTER = {'設備工程'}
+
+    for row in ws.iter_rows(values_only=True):
+        col1 = str(row[0] or '').strip() if row else ''
+        col2 = str(row[1] or '').strip() if len(row) > 1 else ''
+
+        if col1 in RB_QC_SECTIONS:
+            current_section = col1
+            if col2 and col2 not in ('編制', ''):
+                last_m = _val(row, 12)
+                this_m = _val(row, 14) if _val(row, 14) is not None else last_m
+                result[current_section].append({
+                    'unit': col2, 'last_month': last_m, 'this_month': this_m
+                })
+            continue
+
+        if col1 in STOP_AFTER:
+            current_section = None
+            continue
+
+        if current_section:
+            if not col1 and col2 and col2 not in ('編制', ''):
+                last_m = _val(row, 12)
+                this_m = _val(row, 14) if _val(row, 14) is not None else last_m
+                result[current_section].append({
+                    'unit': col2, 'last_month': last_m, 'this_month': this_m
+                })
+            elif col1 and col1 not in RB_QC_SECTIONS:
+                current_section = None
+
+    wb.close()
+    return result
+
+
+# ── Build RB or QC tab ────────────────────────────────────────────────────────
+def build_rb_qc_tab(wb_obj, section_name, units):
+    """section_name: 'RB' or 'QC'. Columns: 單位 / 上月人數(readonly) / 本月人數(editable)."""
+    ws = wb_obj.create_sheet(section_name)
+
+    col_widths = [42, 12, 12]
+    headers    = ['單位', '上月人數', '本月人數']
+    for i, w in enumerate(col_widths, 1):
+        ws.column_dimensions[get_column_letter(i)].width = w
+
+    ws.row_dimensions[1].height = 20
+    ws.merge_cells('A1:C1')
+    c = ws['A1']
+    c.value = f'{section_name} — 廠務組織編制表 {MONTH_SH}（本月人數可修改）'
+    c.font = Font(bold=True, size=12)
+    c.alignment = CENTER
+
+    row = 2
+    ws.row_dimensions[row].height = 28
+    for ci, h in enumerate(headers, 1):
+        wc(ws, row, ci, h, font=HDR_FONT, fill=HDR_FILL, align=CENTER, border=THIN_BORDER)
+    ws.freeze_panes = 'A3'
+
+    GRAY_LOCK = PatternFill("solid", fgColor="F2F2F2")
+    row = 3
+
+    if not units:
+        ws.merge_cells('A3:C3')
+        wc(ws, row, 1, f'（{section_name} 無資料）', font=NORM, align=CENTER)
+        return ws
+
+    for u in units:
+        ws.row_dimensions[row].height = 14
+        wc(ws, row, 1, u['unit'],       font=NORM,  align=LEFT,  border=THIN_BORDER)
+        lm = u['last_month']
+        tm = u['this_month']
+        # 上月人數：灰底唯讀視覺提示
+        wc(ws, row, 2, lm, font=NORM, fill=GRAY_LOCK, align=RIGHT, border=THIN_BORDER,
+           num_fmt='#,##0')
+        # 本月人數：白底，可修改
+        if tm is not None:
+            wc(ws, row, 3, tm, font=NORM, align=RIGHT, border=THIN_BORDER, num_fmt='#,##0')
+        else:
+            wc(ws, row, 3, None, fill=RED_FILL, border=THIN_BORDER)
+        row += 1
+
+    # Total row
+    ws.row_dimensions[row].height = 14
+    last_total = sum(u['last_month'] for u in units if u['last_month'] is not None)
+    this_total = sum(u['this_month'] for u in units if u['this_month'] is not None)
+    wc(ws, row, 1, '合計', font=BOLD, fill=GRAY_FILL, align=RIGHT, border=THIN_BORDER)
+    wc(ws, row, 2, last_total, font=BOLD, fill=GRAY_FILL, align=RIGHT, border=THIN_BORDER, num_fmt='#,##0')
+    wc(ws, row, 3, this_total, font=BOLD, fill=GRAY_FILL, align=RIGHT, border=THIN_BORDER, num_fmt='#,##0')
+
+    # Note row
+    row += 1
+    ws.merge_cells(f'A{row}:C{row}')
+    wc(ws, row, 1, '＊ 上月人數唯讀（灰底）。本月人數可直接修改。',
+       font=Font(size=9, italic=True, color="666666"), align=LEFT)
+
+    return ws
+
+
 # ── Build one OCS fixed-unit tab ──────────────────────────────────────────────
 def build_ocs_fixed_tab(wb, section_name, units):
     ws = wb.create_sheet(f'OCS_{section_name}')

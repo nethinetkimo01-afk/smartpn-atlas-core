@@ -50,6 +50,11 @@ ocs_fixed = brt.load_ocs_fixed_units()
 for sec, units in ocs_fixed.items():
     print(f'  {sec}: {len(units)} units')
 
+print('Loading RB / QC units...')
+rb_qc = brt.load_rb_qc_units()
+for sec, units in rb_qc.items():
+    print(f'  {sec}: {len(units)} units')
+
 print('Building Excel...')
 wb = openpyxl.Workbook()
 wb.remove(wb.active)
@@ -57,6 +62,8 @@ brt.build_csa(wb, schedule_groups, bianche_rows)
 brt.build_ocs(wb, ocs_rows, ocs_err)
 for sec in brt.OCS_SECTIONS:
     brt.build_ocs_fixed_tab(wb, sec, ocs_fixed.get(sec, []))
+brt.build_rb_qc_tab(wb, 'RB', rb_qc.get('RB', []))
+brt.build_rb_qc_tab(wb, 'QC', rb_qc.get('QC', []))
 brt.build_ref(wb, bianche_rows)
 ws_diff, n1, n2 = brt.build_diff_sheet(wb, schedule_groups, bianche_rows)
 wb.save(OUTPUT_NEW)

@@ -1,7 +1,7 @@
 # Data System - Internal Data Automation Project
 
-Version: v3.0 | 2026-06-05
-Status: DS-01✅ DS-02✅ DS-03✅ DS-04✅ DS-05✅ 結果表v1✅ 比對完成✅
+Version: v3.1 | 2026-06-05
+Status: DS-01✅ DS-02✅ DS-03✅ DS-04✅ DS-05✅ 結果表v2✅ 比對完成✅ RB✅ QC✅
 Purpose: New Claude session reads this file to continue from last point.
 
 ---
@@ -128,8 +128,12 @@ Order parsing logic (CONFIRMED, implemented in analyze_result_table.py):
 
 DS-04 sheets in Jun 2026: 12 sheets (加1~加12), 331 unique ARTs (after dedup across sheets)
 
-LEAN mapping status: **PENDING** — DS-04 sheets named "1部 " etc.; ref uses 1A/1B/1C etc.
-Current approach: match ART to 廠務組織編制表 ref row to determine LEAN (partial coverage)
+LEAN mapping status: **CONFIRMED 2026-06-05** — 從 DS-04 組別標題行直接解析
+- 格式：加一A组 → 1A、加十一A1组 → 11A1、加十二D组 → 12D
+- 邏輯：去掉「加」和「组」→ 中文數字轉阿拉伯數字（一=1...十二=12）→ 保留英文字母和尾端數字
+- 實作：build_result_table.py `_parse_lean_title()` + `load_schedule()` 中 `art_lean` 欄位
+- 跨部門共用 ART：同一 ART 可出現在多個 DS-04 部門（正常業務），各部門各自顯示各自 LEAN
+- 114 筆 LEAN 不符廠務表 = 跨部門共用 ART / 廠務表 LEAN 指派不同 → 已確認不處理
 EOLR mapping: **PENDING** — Jim to provide Group → EOLR table
 
 ---
@@ -271,32 +275,51 @@ Pending Jim input.
 
 ---
 
-## 比對結果（2026-06-05）
+## 比對結果（2026-06-05 CONFIRMED）
 
-### 比對來源 vs 廠務組織編制表 6.2026 sheet
+### 非MP欄位比對 — result_table_v2.xlsx vs 廠務組織編制表 6.2026
 
-DS-04 Jun 2026: 331 unique ARTs (12 sheets)
-廠務組織編制表 ref: 209 rows
+DS-04 Jun 2026: 493 ART 行（15 sheets，含重複跨部門）
+廠務組織編制表 ref: 313 ART
 
-差異分類（共 384 筆）：
-- Type 1 ART/鞋型/訂單不一致: 68 筆
-  - A. DB有MP但編制表完全找不到此ART: 2個 (IG9016 OZWEEGO J, JH6149 SAMBA GOLF)
-  - B. ART在編制表有LEAN但裁/針欄位空白(DB有值): 30筆
-    - 10C: 13個ART (HANDBALL SPEZIAL, SPEZIAL GOLF)
-    - 5C: 12個ART (SL 72 RS 系列)
-    - 12A: 1個ART (1609ER RS)
-  - C. 編制表與DB均無裁/針值，差異來自成型欄位: 36筆
-    - 12A: 10個ART, 5C: 19個ART, 10C: 4個ART
-- Type 2 有MP但數值不一致: 132 筆 (MP邏輯未定義，暫不處理)
-- Type 3 DB無MP: 184 筆 (MP邏輯未定義，暫不處理)
+**LEAN 比對（CONFIRMED 2026-06-05）**
 
-重要發現 (Type 1 重複比對): 7個ART+LEAN組合被比對演算法重複匹配
-→ 比對腳本 compare_csa() 需優化匹配邏輯
+| 項目 | 筆數 |
+|------|------|
+| LEAN 一致 ✓ | 301 |
+| LEAN 不符 | 114 |
+| ├─ LEAN-跨部門共用 | ~89 | (同ART出現多個DS-04部門，廠務只記一個LEAN) |
+| └─ LEAN-廠務指派不同 | ~25 | (單部門ART，廠務LEAN不同) |
+| ART DS04有/廠務無 | 17 |
+| ART 廠務有/DS04無 | 1（JS1068，LEAN=7A） |
 
-### 非MP欄位差異 (ART層級)
+**結論（CONFIRMED）：114 筆 LEAN 不符 = 正常業務差異，不處理**
+- 廠務表 LEAN 是計畫分配，DS-04 是實際排程，可以不同
+- 跨部門共用 ART 是正常安排（例如 KZ9155 同時在 8 個部門排產）
 
-進度表有/編制表無: TBD (見 result_table_v1.xlsx 非MP差異 sheet)
-編制表有/進度表無: TBD (同上)
+**OCS 5 Tab（CONFIRMED 2026-06-05）**
+
+| Tab | 單位數 | 狀態 |
+|-----|--------|------|
+| OCS_組底配套 | 6 | ✓ 100% 一致 |
+| OCS_自動化 | 5 | ✓ 100% 一致 |
+| OCS_電腦針車 | 4 | ✓ 100% 一致 |
+| OCS_印刷 | 7 | ✓ 100% 一致 |
+| OCS_設備工程 | 2 | ✓ 100% 一致 |
+
+**RB / QC Tab（CONFIRMED 2026-06-05）**
+
+| Tab | 單位數 | 資料來源 |
+|-----|--------|---------|
+| RB | 15 | 廠務組織編制表 RB section（R398-R415） |
+| QC | ~47 | 廠務組織編制表 QC section（R417-R464） |
+
+欄位：單位 / 上月人數（col13，灰底唯讀）/ 本月人數（col15，白底可修改）
+
+**當前版本：result_table_v2.xlsx**
+- 路徑：flask_backend/test_output/result_table_v2.xlsx
+- Sheets：CSA / OCS大底課 / OCS_組底配套 / OCS_自動化 / OCS_電腦針車 / OCS_印刷 / OCS_設備工程 / RB / QC / 廠務編制表_Ref / 非MP差異
+- 比對報告：flask_backend/test_output/full_compare_report.txt
 
 ---
 
@@ -329,15 +352,25 @@ Scripts (all confirmed working 2026-06-05):
 - analyze_ds05.py: T-group parsing → /api/ds05/analyze
 - analyze_gongcai.py: 同材共裁 report → /api/gongcai/analyze
 - analyze_result_table.py: CSA+OCS full result table + compare vs 廠務編制表
-- build_result_table.py: build result_table_v1.xlsx (CSA+OCS+Ref+Diff sheets)
+- build_result_table.py: build result_table_v2.xlsx (CSA+OCS+RB+QC+Ref+Diff sheets)
+  - load_schedule(): DS-04 → LEAN from group titles (加一A组→1A)
+  - load_bianche_structure(): 廠務編制表 CSA ref rows
+  - load_ocs_fixed_units(): 廠務編制表 OCS 5 fixed sections
+  - load_rb_qc_units(): 廠務編制表 RB/QC sections (col13=上月, col15=本月)
+  - build_csa(): CSA tab with DS-04 LEAN assignment
+  - build_ocs_fixed_tab(): one tab per OCS section
+  - build_rb_qc_tab(): RB and QC tabs (上月人數唯讀, 本月人數可修改)
+- build_v2.py: standalone rebuild script (handles locked file via temp copy)
+- auto_compare.py: post-build comparison, outputs compare_result.txt
+- full_compare_report.py: row-by-row comparison with reason classification
 - classify_diffs.py: categorize diff_report_jim.txt into Type 1/2/3
 - backup.py
 - generate_comparison_table.py: ob_epph vs 廠務編制表 comparison_table.xlsx
 
 Output files (flask_backend/test_output/):
-- result_full.txt: full CSA + diff report (384 diffs)
-- diff_report_jim.txt: diff section only
-- result_table_v1.xlsx: Jim review Excel
+- result_table_v2.xlsx: current result Excel (11 sheets)
+- compare_result.txt: auto_compare summary
+- full_compare_report.txt: detailed row-by-row comparison with reason classification
 - comparison_table.xlsx: 309-row MISMATCH/MISSING_IE table
 
 API endpoints:
@@ -377,14 +410,16 @@ API endpoints:
    → Script built + API endpoint confirmed
    → 大底課進度表路徑: C:\Users\user\OneDrive\Desktop\Biên chế\Jun\2026年6月份正式贴底进度表进度表 5.16. (ĐẾ).xlsx
 6. 廠務組織編制表路徑: C:\Users\user\OneDrive\Desktop\Biên chế\Jun\2026年6月份廠務组织編制 20260524.xlsx
-7. 結果表 v1 ✅ — flask_backend/test_output/result_table_v1.xlsx
-   → 4 sheets: CSA / OCS大底課 / 廠務編制表_Ref / 非MP差異
-8. 已完成比對：
-   → Type 1 (結構不一致): 68筆，2個ART完全找不到 (IG9016, JH6149)
-   → Type 2/3 (MP差異/無MP): 316筆，等Jim確認MP分配規則後處理
+7. 結果表 v2 ✅ — flask_backend/test_output/result_table_v2.xlsx
+   → 11 sheets: CSA / OCS大底課 / OCS_組底配套 / OCS_自動化 / OCS_電腦針車 / OCS_印刷 / OCS_設備工程 / RB / QC / 廠務編制表_Ref / 非MP差異
+   → LEAN 來自 DS-04 組別標題（加一A组→1A），已確認
+   → OCS 5 Tab 100% 一致，已確認
+   → RB 15單位 / QC ~47單位，已建立（上月/本月人數欄位）
+8. 比對報告 ✅ — flask_backend/test_output/full_compare_report.txt
+   → LEAN一致 301筆 / 不符 114筆（正常業務差異，不處理）
+   → ART DS04有廠務無 17筆，廠務有DS04無 1筆（JS1068）
 9. PENDING (等Jim確認):
    → MP分配規則：DB ob_epph 是整條產線MP，廠務編制表是分配後MP，差距約2~3倍
-   → LEAN對應規則：DS-04 "1部" 對應 廠務編制表哪些LEAN？
    → EOLR mapping：每個組別對應哪個EOLR？
 10. Rule 15 ✅ 已加入 07_RULES.md：定義→試算→Jim確認→記錄GitHub→才繼續
 
