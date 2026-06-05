@@ -164,6 +164,104 @@ def load_bianche_structure():
     return rows
 
 
+# ── 廠務組織編制表: read OCS fixed unit sections ──────────────────────────────
+OCS_SECTIONS = ['組底配套', '自動化', '電腦針車', '印刷', '設備工程']
+
+def load_ocs_fixed_units():
+    """
+    Scan 廠務組織編制表 6.2026 for OCS fixed-unit sections.
+    Returns dict: {section_name: [{unit, headcount}]}
+    Section header row: col1 = section name (may also have first sub-unit in col2).
+    Sub-unit rows: col1 empty, col2 = unit name, headcount in col13 or col11.
+    設備工程 appears AFTER RB/QC sections — must scan full sheet.
+    """
+    wb = openpyxl.load_workbook(BIANCHE, data_only=True)
+    ws = None
+    for sh in wb.sheetnames:
+        if sh.strip() == MONTH_SH:
+            ws = wb[sh]
+            break
+    if ws is None:
+        wb.close()
+        return {}
+
+    def _headcount(row):
+        for idx in [12, 10, 14]:  # col13, col11, col15
+            v = row[idx] if len(row) > idx else None
+            if v is not None and str(v).strip() not in ('', '.', '編制'):
+                try:
+                    return int(float(v))
+                except (ValueError, TypeError):
+                    pass
+        return None
+
+    result = {s: [] for s in OCS_SECTIONS}
+    current_section = None
+
+    for row in ws.iter_rows(values_only=True):
+        col1 = str(row[0] or '').strip() if row else ''
+        col2 = str(row[1] or '').strip() if len(row) > 1 else ''
+
+        if col1 in OCS_SECTIONS:
+            current_section = col1
+            if col2 and col2 not in ('編制', ''):
+                result[current_section].append({'unit': col2, 'headcount': _headcount(row)})
+        elif current_section and not col1 and col2 and col2 not in ('編制', ''):
+            result[current_section].append({'unit': col2, 'headcount': _headcount(row)})
+        elif col1 and col1 not in OCS_SECTIONS:
+            current_section = None  # exit OCS section on any other non-empty col1
+
+    wb.close()
+    return result
+
+
+# ── Build one OCS fixed-unit tab ──────────────────────────────────────────────
+def build_ocs_fixed_tab(wb, section_name, units):
+    ws = wb.create_sheet(f'OCS_{section_name}')
+
+    col_widths = [40, 10]
+    headers    = ['單位', '人數']
+    for i, w in enumerate(col_widths, 1):
+        ws.column_dimensions[get_column_letter(i)].width = w
+
+    ws.row_dimensions[1].height = 20
+    ws.merge_cells('A1:B1')
+    c = ws['A1']
+    c.value = f'OCS {section_name} — 廠務組織編制表 {MONTH_SH}'
+    c.font = Font(bold=True, size=12)
+    c.alignment = CENTER
+
+    row = 2
+    ws.row_dimensions[row].height = 28
+    for ci, h in enumerate(headers, 1):
+        wc(ws, row, ci, h, font=HDR_FONT, fill=HDR_FILL, align=CENTER, border=THIN_BORDER)
+    ws.freeze_panes = 'A3'
+    row = 3
+
+    if not units:
+        ws.merge_cells('A3:B3')
+        wc(ws, row, 1, f'（{section_name} 無資料）', font=NORM, align=CENTER)
+        return ws
+
+    for u in units:
+        ws.row_dimensions[row].height = 14
+        wc(ws, row, 1, u['unit'],      font=NORM, align=LEFT,  border=THIN_BORDER)
+        hc = u['headcount']
+        if hc is not None:
+            wc(ws, row, 2, hc, font=NORM, align=RIGHT, border=THIN_BORDER, num_fmt='#,##0')
+        else:
+            wc(ws, row, 2, None, fill=RED_FILL, border=THIN_BORDER)
+        row += 1
+
+    # Total row
+    ws.row_dimensions[row].height = 14
+    total = sum(u['headcount'] for u in units if u['headcount'] is not None)
+    wc(ws, row, 1, '合計', font=BOLD, fill=GRAY_FILL, align=RIGHT, border=THIN_BORDER)
+    wc(ws, row, 2, total,  font=BOLD, fill=GRAY_FILL, align=RIGHT, border=THIN_BORDER, num_fmt='#,##0')
+
+    return ws
+
+
 # ── Helpers for writing styled cells ─────────────────────────────────────────
 def wc(ws, row, col, value, font=None, fill=None, align=None, border=None, num_fmt=None):
     cell = ws.cell(row=row, column=col, value=value)
@@ -208,7 +306,6 @@ def build_csa(wb, schedule_groups, bianche_rows):
     ws.freeze_panes = 'A3'
 
     row = 3
-    all_arts_seen = set()
 
     for group_info in schedule_groups:
         sheet = group_info['sheet']
@@ -223,9 +320,6 @@ def build_csa(wb, schedule_groups, bianche_rows):
         row += 1
 
         for art in sorted(orders):
-            if art in all_arts_seen:
-                continue
-            all_arts_seen.add(art)
             qty   = orders[art]
             model = get_model(art)
             lean  = art_to_lean.get(art, '')
@@ -447,12 +541,19 @@ def main():
     bianche_rows = load_bianche_structure()
     print(f'  {len(bianche_rows)} ref rows')
 
+    print('Loading OCS fixed units...')
+    ocs_fixed = load_ocs_fixed_units()
+    for sec, units in ocs_fixed.items():
+        print(f'  {sec}: {len(units)} units')
+
     print('Building Excel...')
     wb = openpyxl.Workbook()
     wb.remove(wb.active)  # remove default sheet
 
     build_csa(wb, schedule_groups, bianche_rows)
     build_ocs(wb, ocs_rows, ocs_err)
+    for sec in OCS_SECTIONS:
+        build_ocs_fixed_tab(wb, sec, ocs_fixed.get(sec, []))
     build_ref(wb, bianche_rows)
     ws_diff, n_sched_only, n_ref_only = build_diff_sheet(wb, schedule_groups, bianche_rows)
 
