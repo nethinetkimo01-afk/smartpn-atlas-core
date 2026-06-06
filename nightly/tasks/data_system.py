@@ -6,8 +6,9 @@ DATA SYSTEM nightly tasks:
   2. Regenerate comparison_table.xlsx (if 廠務組織編制表 accessible)
   3. Produce mp_allocation_analysis.txt
   4. Auto-compare result_table vs 廠務組織編制表 → compare_result.txt
+  5. Write execution summary to 00_HANDOFF/24_DATA_SYSTEM.md
 """
-import sys, os, hashlib, json
+import sys, os, hashlib, json, re, datetime
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 FLASK = os.path.join(ROOT, 'flask_backend')
@@ -36,10 +37,126 @@ def _sha256(path):
         return None
 
 
+def _parse_compare_result(out_path):
+    """Parse compare_result.txt, return summary dict."""
+    summary = {}
+    try:
+        with open(out_path, 'r', encoding='utf-8') as f:
+            text = f.read()
+        m = re.search(r'✓ 一致:\s*(\d+)', text)
+        if m:
+            summary['lean_ok'] = int(m.group(1))
+        m = re.search(r'LEAN不符(\d+)筆', text)
+        if m:
+            summary['lean_wrong'] = int(m.group(1))
+        m = re.search(r'ART缺(\d+)筆', text)
+        if m:
+            summary['lean_missing'] = int(m.group(1))
+        m = re.search(r'編制表多(\d+)筆', text)
+        if m:
+            summary['ref_only'] = int(m.group(1))
+        if '100%一致' in text or '✓ 完全一致' in text:
+            summary['ocs_status'] = '✓ 5 Tab 100% 一致'
+        else:
+            summary['ocs_status'] = '有差異（見報告）'
+    except Exception:
+        pass
+    return summary
+
+
+def _write_handoff_summary(logger, task_results, compare_summary):
+    """Write/replace ## 最新執行結果 block in 00_HANDOFF/24_DATA_SYSTEM.md."""
+    handoff_path = os.path.join(ROOT, '00_HANDOFF', '24_DATA_SYSTEM.md')
+    now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+
+    def _icon(st):
+        if st.startswith('ok'):   return '✅'
+        if st.startswith('skip'): return '⏭️'
+        if st.startswith('error'): return '❌'
+        return '❓'
+
+    task_rows = '\n'.join(
+        f'| {name} | {_icon(st)} {st} |'
+        for name, st in task_results.items()
+    )
+
+    if compare_summary:
+        lean_ok      = compare_summary.get('lean_ok', '?')
+        lean_wrong   = compare_summary.get('lean_wrong', '?')
+        lean_missing = compare_summary.get('lean_missing', '?')
+        ref_only     = compare_summary.get('ref_only', '?')
+        ocs_status   = compare_summary.get('ocs_status', '?')
+        compare_block = (
+            f'| LEAN 一致 | {lean_ok} 筆 |\n'
+            f'| LEAN 不符 | {lean_wrong} 筆（跨部門業務差異，不處理） |\n'
+            f'| ART DS04有/廠務無 | {lean_missing} 筆 |\n'
+            f'| ART 廠務有/DS04無 | {ref_only} 筆 |\n'
+            f'| OCS 固定單位 | {ocs_status} |'
+        )
+    else:
+        compare_block = '（compare_result.txt 未產生或無法解析）'
+
+    # Dynamic "需要確認" items
+    confirm_items = [
+        '- EOLR mapping：每個組別對應哪個 EOLR？（PENDING）',
+        '- MP 分配規則：DB ob_epph 整條產線 MP vs 廠務編制表分配後 MP，差距約 2~3 倍（PENDING）',
+    ]
+    if compare_summary:
+        if compare_summary.get('lean_missing', 0):
+            confirm_items.append(
+                f'- DS04 有/廠務無 ART **{compare_summary["lean_missing"]}** 筆 — 是否需補登廠務編制表？'
+            )
+        if compare_summary.get('ref_only', 0):
+            confirm_items.append(
+                f'- 廠務有/DS04 無 ART **{compare_summary["ref_only"]}** 筆（JS1068, LEAN=7A）— 廠務表是否刪除？'
+            )
+    confirm_block = '\n'.join(confirm_items)
+
+    block = f"""
+
+## 最新執行結果
+
+**執行時間**：{now}
+
+### 各任務狀態
+
+| 任務 | 狀態 |
+|------|------|
+{task_rows}
+
+### LEAN / OCS 比對摘要
+
+| 項目 | 數值 |
+|------|------|
+{compare_block}
+
+### 需要 Jim 確認的事項
+
+{confirm_block}
+"""
+
+    try:
+        with open(handoff_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        marker = '\n## 最新執行結果'
+        if marker in content:
+            content = content[:content.index(marker)]
+
+        with open(handoff_path, 'w', encoding='utf-8') as f:
+            f.write(content.rstrip() + block)
+
+        logger.log('[data_system] 24_DATA_SYSTEM.md ## 最新執行結果 已更新')
+    except Exception as e:
+        logger.log(f'[data_system] 寫入 handoff 摘要失敗: {e}')
+
+
 def run(logger):
     """Entry point called by run_nightly.py. Returns True on success."""
     import database as db
     db.init_db()
+
+    task_results = {}
 
     # ── Task 0: Check for updated handoff files ────────────────────────────
     logger.log('[data_system] Task 0: Check handoff file versions')
@@ -56,27 +173,28 @@ def run(logger):
             logger.log('[ACTION REQUIRED] Project files updated - Jim must re-upload to DATA SYSTEM Project:')
             for name in updated:
                 logger.log(f'  - D:\\smartpn-atlas-core\\00_HANDOFF\\{name}')
-            # Save new hashes
             stored.update({n: current[n] for n in updated if current[n]})
             with open(HASH_STATE, 'w', encoding='utf-8') as f:
                 json.dump(stored, f, indent=2)
         else:
             logger.log('[data_system] Handoff files unchanged')
+        task_results['T0 檔案版本檢查'] = 'ok'
     except Exception as e:
         logger.log(f'[data_system] File check error: {e}')
+        task_results['T0 檔案版本檢查'] = 'error'
 
     # ── Task 1: Import new IE files ────────────────────────────────────────
     logger.log('[data_system] Task 1: Import new Jun/IE files')
     try:
-        from import_jun_ie import main as jun_ie_main
-        # Temporarily redirect sys.argv so main() doesn't exit
         old_argv = sys.argv[:]
         sys.argv = ['import_jun_ie.py']
         _new = _run_jun_ie_import(logger)
         sys.argv = old_argv
         logger.log(f'[data_system] IE import: {_new} new records')
+        task_results['T1 IE 匯入'] = f'ok ({_new} new)'
     except Exception as e:
         logger.log(f'[data_system] IE import error: {e}')
+        task_results['T1 IE 匯入'] = 'error'
 
     # ── Task 2: Regenerate comparison_table.xlsx ───────────────────────────
     logger.log('[data_system] Task 2: Build comparison_table.xlsx')
@@ -84,8 +202,10 @@ def run(logger):
         from build_comparison_xlsx import main as xlsx_main
         xlsx_main()
         logger.log('[data_system] comparison_table.xlsx written')
+        task_results['T2 comparison_table.xlsx'] = 'ok'
     except Exception as e:
         logger.log(f'[data_system] xlsx error: {e}')
+        task_results['T2 comparison_table.xlsx'] = 'error'
 
     # ── Task 3: MP allocation analysis ────────────────────────────────────
     logger.log('[data_system] Task 3: MP allocation analysis')
@@ -93,14 +213,17 @@ def run(logger):
         from analyze_ki1387 import main as alloc_main
         alloc_main()
         logger.log('[data_system] mp_allocation_analysis.txt written')
+        task_results['T3 MP 分配分析'] = 'ok'
     except Exception as e:
         logger.log(f'[data_system] allocation analysis error: {e}')
+        task_results['T3 MP 分配分析'] = 'error'
 
     # ── Task 4: Auto-compare result_table vs 廠務組織編制表 ────────────────
     logger.log('[data_system] Task 4: Auto-compare result_table non-MP fields')
+    compare_summary = {}
+    out_path = os.path.join(OUTPUT_DIR, 'compare_result.txt')
     try:
         result_path = os.path.join(OUTPUT_DIR, 'result_table_v2.xlsx')
-        out_path    = os.path.join(OUTPUT_DIR, 'compare_result.txt')
         if os.path.exists(result_path) and os.path.exists(BIANCHE):
             from auto_compare import compare as auto_compare
             overall, lean_wrong, lean_missing, ref_only, ocs_diffs = auto_compare(
@@ -110,12 +233,26 @@ def run(logger):
             )
             if overall:
                 logger.log('[data_system] compare_result: ✓ 100% 一致')
+                task_results['T4 LEAN/OCS 比對'] = 'ok ✓ 100%一致'
             else:
                 logger.log(f'[data_system] compare_result: ✗ 差異 LEAN不符={lean_wrong} ART缺={lean_missing} 編制多={ref_only} OCS={ocs_diffs}')
+                task_results['T4 LEAN/OCS 比對'] = f'ok (差異: LEAN不符={lean_wrong} 缺={lean_missing})'
+            compare_summary = _parse_compare_result(out_path)
         else:
             logger.log('[data_system] result_table or 廠務組織編制表 not found, skip compare')
+            task_results['T4 LEAN/OCS 比對'] = 'skip'
+            # Try to parse existing compare_result.txt if available
+            if os.path.exists(out_path):
+                compare_summary = _parse_compare_result(out_path)
     except Exception as e:
         logger.log(f'[data_system] auto-compare error: {e}')
+        task_results['T4 LEAN/OCS 比對'] = 'error'
+        if os.path.exists(out_path):
+            compare_summary = _parse_compare_result(out_path)
+
+    # ── Task 5: Write summary to 24_DATA_SYSTEM.md ────────────────────────
+    logger.log('[data_system] Task 5: Write summary to 24_DATA_SYSTEM.md')
+    _write_handoff_summary(logger, task_results, compare_summary)
 
     return True
 

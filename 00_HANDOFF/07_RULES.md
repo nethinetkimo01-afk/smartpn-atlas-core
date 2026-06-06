@@ -1,6 +1,6 @@
 ﻿# SmartPN Atlas Operating Rules
 
-Version: v2.6 | 2026-06-05
+Version: v2.7 | 2026-06-06
 
 ## Session Start Protocol
 
@@ -169,3 +169,16 @@ An unverified definition is not complete.
 A definition not recorded to GitHub does not exist.
 
 <!-- Rule 15 updated: 2026-06-05 -->
+
+## Rule 16: Test Before Recording
+
+Before writing any new behaviour, script, or automation into GitHub rules or handoff files:
+1. Implement the code or change
+2. Run it once end-to-end with real data (`--force --no-push` for nightly tasks)
+3. Confirm the output is correct
+4. Only then commit to GitHub
+
+If the test fails: fix the code, re-run, confirm again — then commit.
+Do not write "confirmed working" until you have seen the output yourself.
+
+<!-- Rule 16 added: 2026-06-06 -->
