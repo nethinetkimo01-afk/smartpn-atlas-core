@@ -33,7 +33,7 @@ This is the ONLY source of truth. All sessions read from here. All sessions writ
 20_GTM_STRATEGY.md ??outreach intelligence, key people map
 22_WRITING_RULES.md ??hooks, ALL CAPS, logic chain, CEO perspective
 23_OUTREACH_AUTOMATION.md ??Make automation, keywords, Google Sheet
-
+25_PARTNER_OUTREACH_STRATEGY.md — system partner positioning, target list, outreach logic, commercial model options
 ### Layer 4 ??New Projects (Add as Needed)
 24_[PROJECT_NAME].md ??any new project gets its own file
 
