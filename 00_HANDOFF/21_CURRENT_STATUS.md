@@ -98,7 +98,21 @@ File: 00_HANDOFF/24_DATA_SYSTEM.md (v1.5)
 ---
 
 ## SmartPN Atlas Project
+## Partner Outreach Strategy
+File: 00_HANDOFF/25_PARTNER_OUTREACH_STRATEGY.md (v1.0)
+Status: Confirmed 2026-06-06
 
+Priority targets:
+1. GTS — already connected, handle with care
+2. TextileGenesis / Lectra — SCM angle, On case
+3. TrusTrace — adidas / ASICS / Brooks / New Balance / Lululemon
+4. Sourcemap — Deckers / HOKA connection
+
+Next steps:
+- Build target database
+- Prepare 8 separate outreach versions
+- Send GTS transparent note before approaching ecosystem partners
+- Research TextileGenesis and TrusTrace contact persons
 Make Automation: ACTIVE
 Google Sheet: https://docs.google.com/spreadsheets/d/1i9WgKNj5-ueNrP5ZCit9Cghug0BL2bJ_hbOSoSQchXU
 
