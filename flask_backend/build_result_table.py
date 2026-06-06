@@ -91,15 +91,20 @@ def get_model(art):
 
 # ── DS-04: extract all sheets with their orders ───────────────────────────────
 def load_schedule():
-    """Returns [{sheet_title, orders:{art:qty}, art_lean:{art:lean}}]
-    art_lean is derived from DS-04 group title rows (加一A组 → 1A).
+    """Returns [{sheet, rows:[{lean,art,qty}], orders:{art:qty}, art_lean:{art:lean}}]
+
+    Each sheet is independent — no cross-sheet aggregation.
+    Within one sheet, the same ART in different LEAN groups produces separate rows.
+    Quantities are summed only within the same (lean, art) pair in the same sheet.
+
+    'orders' and 'art_lean' are kept for backwards-compat (build_diff_sheet, etc.);
+    build_csa() should use 'rows' to preserve per-LEAN granularity.
     """
     wb = openpyxl.load_workbook(SCHEDULE, data_only=True, read_only=True)
     results = []
     for ws in wb.worksheets:
         title = ws.title.strip()
-        orders = {}
-        art_lean = {}
+        lean_art_qty = {}   # (lean, art) -> qty within this sheet
         current_lean = ''
         for row in ws.iter_rows(values_only=True):
             col1 = str(row[0] or '').strip() if row else ''
@@ -110,11 +115,24 @@ def load_schedule():
                 if not _is_order_cell(cell):
                     continue
                 for art, qty in _parse_order_cell(cell):
-                    orders[art] = orders.get(art, 0) + qty
-                    if current_lean and art not in art_lean:
-                        art_lean[art] = current_lean
-        if orders:
-            results.append({'sheet': title, 'orders': orders, 'art_lean': art_lean})
+                    key = (current_lean, art)
+                    lean_art_qty[key] = lean_art_qty.get(key, 0) + qty
+
+        if not lean_art_qty:
+            continue
+
+        rows = [{'lean': lean, 'art': art, 'qty': qty}
+                for (lean, art), qty in lean_art_qty.items()]
+
+        # Backwards-compat: per-art totals and first-seen lean
+        orders = {}
+        art_lean = {}
+        for r in rows:
+            orders[r['art']] = orders.get(r['art'], 0) + r['qty']
+            if r['art'] not in art_lean:
+                art_lean[r['art']] = r['lean']
+
+        results.append({'sheet': title, 'rows': rows, 'orders': orders, 'art_lean': art_lean})
     wb.close()
     return results
 
@@ -458,8 +476,9 @@ def build_csa(wb, schedule_groups, bianche_rows):
 
     for group_info in schedule_groups:
         sheet = group_info['sheet']
-        orders = group_info['orders']
-        sheet_art_lean = group_info.get('art_lean', {})
+        # Use rows (per lean+art) instead of the aggregated orders dict so that
+        # the same ART in different LEAN groups appears as separate CSA rows.
+        sheet_rows = group_info.get('rows', [])
 
         # Section header
         ws.row_dimensions[row].height = 16
@@ -469,10 +488,11 @@ def build_csa(wb, schedule_groups, bianche_rows):
                fill=GRAY_FILL, align=CENTER, border=THIN_BORDER)
         row += 1
 
-        for art in sorted(orders):
-            qty   = orders[art]
+        for r in sorted(sheet_rows, key=lambda x: (x['lean'], x['art'])):
+            art   = r['art']
+            qty   = r['qty']
+            lean  = r['lean']
             model = get_model(art)
-            lean  = sheet_art_lean.get(art, '')
 
             ws.row_dimensions[row].height = 14
             wc(ws, row, 1,  lean,              font=BOLD, fill=LEAN_FILL if lean else None, align=CENTER, border=THIN_BORDER)

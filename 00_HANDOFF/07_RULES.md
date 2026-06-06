@@ -1,6 +1,6 @@
 ﻿# SmartPN Atlas Operating Rules
 
-Version: v2.7 | 2026-06-06
+Version: v2.8 | 2026-06-06
 
 ## Session Start Protocol
 
@@ -182,3 +182,18 @@ If the test fails: fix the code, re-run, confirm again — then commit.
 Do not write "confirmed working" until you have seen the output yourself.
 
 <!-- Rule 16 added: 2026-06-06 -->
+
+## Rule 17: Data Validation Method
+
+Every table or field logic must be verified with this method:
+1. Pick a concrete number (e.g., KJ7844 = 1850)
+2. Trace where that number comes from (what is the raw source value)
+3. Confirm the aggregation logic is correct
+4. Jim confirms — only then is it complete
+
+DS-04 Schedule rules (CONFIRMED 2026-06-06):
+- Each sheet is independent — no cross-sheet aggregation
+- Same ART in different sheets = independent orders in different departments
+- Same ART in different LEAN groups within one sheet = separate rows in result table
+
+<!-- Rule 17 added: 2026-06-06 -->
