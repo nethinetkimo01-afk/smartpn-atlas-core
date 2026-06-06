@@ -118,13 +118,14 @@ Primary key (CONFIRMED): Department + Group + ART + Month
 Table range: max 35–37 rows per sheet
 File path (Jun 2026): C:\Users\user\OneDrive\Desktop\Biên chế\Jun\2026年6月份正式进度表 5 30.xlsx
 
-Order parsing logic (CONFIRMED, implemented in analyze_result_table.py):
-- Order cell format: MF2604KJ8322-03--900(5/29)
-- ART: first [A-Z]{2}\d{4,6} match in cell
-- Quantity: number between '--' and '('
-- Dual-ART cell: split qty evenly, remainder goes to first ART
+Order parsing logic (CONFIRMED, updated 2026-06-06 in build_result_table.py _parse_order_cell):
+- Order cell format: MF2604KJ8322-03--900(5/29) or MF2606KH8402-01-02--56-36(6/13)
+- ART: all [A-Z]{2}\d{4,6} matches in cell, excluding MF-prefix codes (manufacturing order numbers)
+- Quantity: sum ALL numbers between '--' and '(' (multi-lot support: 56-36 → 56+36=92)
+- Multi-ART cell: split qty evenly among non-MF ARTs, remainder goes to first ART
 - Scan all cells in all rows of the sheet
 - Sum across all occurrences of same ART within sheet
+- MF-prefix fix (2026-06-06): MF2606, MF2604 etc. are order numbers embedded in cells, NOT real ARTs
 
 DS-04 sheets in Jun 2026: 12 sheets (加1~加12), 331 unique ARTs (after dedup across sheets)
 
@@ -275,31 +276,32 @@ Pending Jim input.
 
 ---
 
-## 比對結果（2026-06-06 UPDATED）
+## 比對結果（2026-06-06 UPDATED v2，_parse_order_cell 修正後）
 
-### 非MP欄位比對 — result_table_v2.xlsx vs 廠務組織編制表 6.2026
+### 非MP欄位比對 — result_table_v2.xlsx / auto_bianche.xlsx vs 廠務組織編制表 6.2026
 
-DS-04 Jun 2026: 583 ART 行（15 sheets，含重複跨部門 + 同部門跨LEAN組）
+DS-04 Jun 2026: 15 sheets, 432 ARTs（MF-prefix codes 已排除）
+auto_bianche CSA 行數: 435（(sheet, lean, art) 各自獨立）
 廠務組織編制表 ref: 313 ART
 
-**load_schedule() 修正（2026-06-06）**：同一ART在不同LEAN組內各自獨立顯示，不跨sheet加總。
-CSA 行數從 493 → 583（+90 行，因同部門跨組ART現在各自顯示）。
+**_parse_order_cell 修正（2026-06-06）**：
+- 多製令格式 `--56-36(6/13)` 現在正確加總 → 92（舊邏輯只取 56）
+- MF-prefix 碼排除於 ART 清單（舊邏輯錯誤地將 MF2606 等當成獨立 ART）
+- 修正後 KH8402 LEAN=1A 訂單量 = 756 ✓（修正前 = 109）
 
-**LEAN 比對（UPDATED 2026-06-06）**
+**LEAN 比對（auto_bianche vs 廠務，雙方都有的 ART）**
 
 | 項目 | 筆數 |
 |------|------|
 | LEAN 一致 ✓ | 303 |
-| LEAN 不符 | 141 |
-| ├─ LEAN-跨部門共用 | 多數 | (同ART出現多個DS-04部門，廠務只記一個LEAN) |
-| └─ LEAN-指派差異 | 少數 | (ART僅在一個DS-04部門，但廠務LEAN不同) |
-| ART DS04有/廠務無 | 17 |
-| ART 廠務有/DS04無 | 1（JS1068，LEAN=7A） |
+| LEAN-跨部門 | 112 | (同ART出現多個DS-04部門，廠務只記一個LEAN) |
+| LEAN-指派差異 | 6 | (ART僅在一個DS-04部門，但廠務LEAN不同) |
+| ART auto有/廠務無 | 13 |
+| ART 廠務有/auto無 | 1（JS1068，LEAN=7A） |
 
-**結論：141 筆 LEAN 不符 = 業務差異，不處理**
+**結論：118 筆 LEAN 不符 = 業務差異，不處理**
 - 廠務表 LEAN 是計畫分配，DS-04 是實際排程，可以不同
 - 跨部門共用 ART 是正常安排（例如 KZ9155 同時在 8 個部門排產）
-- 141 筆中 27 筆是修正後新增揭露的跨組差異（原先被加總隱藏）
 
 **OCS 5 Tab（CONFIRMED 2026-06-05）**
 
@@ -445,7 +447,7 @@ API endpoints:
 
 ## 最新執行結果
 
-**執行時間**：2026-06-06 晚間（Claude Code 自動執行）
+**執行時間**：2026-06-06 晚間 v2（_parse_order_cell 修正後重建）
 
 ### 各任務狀態
 
@@ -457,41 +459,43 @@ API endpoints:
 | T3 MP 分配分析 | ✅ ok | |
 | T4 LEAN/OCS 比對 | ✅ ok | full_compare_report.txt 更新 |
 | T5 欄位比對報告 | ✅ ok | column_compare_report.txt |
-| T6 auto_bianche.xlsx 產生 | ✅ ok | DS-04每sheet獨立，LEAN/ART/訂單填入 |
-| T7 bianche_diff.txt 比對 | ✅ ok | auto_bianche vs 廠務表差異分析 |
-| T8 order_diff_top20.txt | ✅ ok | 訂單差異top20，每sheet獨立比對 |
+| T6 auto_bianche.xlsx 產生 | ✅ ok | 435行，33 LEAN組，MF碼修正後 |
+| T7 bianche_diff.txt 比對 | ✅ ok | 修正後重跑，訂單一致 30筆（原4筆）|
+| T8 order_diff_top20 | ✅ ok | 修正前版本，修正後差異已改善 |
+| **T9 _parse_order_cell 修正** | **✅ ok** | **多製令加總 + MF碼排除，KH8402=756 ✓** |
 
-### 訂單差異摘要（per-lean，每sheet獨立，不跨部門加總）
+### 訂單差異摘要（_parse_order_cell 修正後，bianche_diff 最新結果）
 
 | 類型 | 筆數 | 說明 |
 |------|------|------|
-| 訂單一致 | 4 | |
+| 訂單一致 ✓ | **30** | （修正前只有 4 筆）|
 | 邏輯差異（廠務合批多ART） | 236 | 廠務一行含多ART合計量，非錯誤 |
-| 跨部門差異 | 61 | 同ART多部門，廠務記總量 vs DS-04各部門量 |
-| **填寫差異（需核查）** | **50** | 單一LEAN，數量仍不符 |
+| **人為差異（需核查）** | **46** | 單一ART、單一LEAN，數量仍不符（修正前50筆）|
 
-**Top 3 最大填寫差異：**
-- JQ0598（TOKYO W）LEAN=2B：DS-04=2,301 vs 廠務=8,472（差-6,171）
-- HQ3330（GHOST SPRINT W）LEAN=7A：DS-04=4,224 vs 廠務=8,451（差-4,227）
-- HP4218（BB F50 GHOST SPRINT）LEAN=8B：DS-04=3,623 vs 廠務=172（差+3,451）
+**Top 填寫差異（絕對值最大）：**
+- IG6045：auto=81,564 vs 廠務=17,823（差+63,741）
+- KZ9155：auto=36,819 vs 廠務=2,436（差+34,383）
+- HQ7468：auto=46,072 vs 廠務=21,757（差+24,315）
+- JQ0597/JQ0598：差值±5,268（廠務=DS-04×2 的疑似雙倍模式）
 
-完整清單見 `test_output/order_diff_top20.txt`
+完整清單見 `test_output/bianche_diff.txt`
 
 ### 需要 Jim 確認的事項
 
 1. **EOLR mapping**：每個組別對應哪個 EOLR？（PENDING）
 2. **MP 分配規則**：DB ob_epph 整條產線 MP vs 廠務編制表分配後 MP，差距約 2~3 倍（PENDING）
-3. **ART DS04有/廠務無 13筆** — 是否需補登廠務編制表？
-   - KJ8322, IH5569, JQ9555, KH9651, LA1750, LA3255, KZ8301, KJ2282, KJ7844, KJ7845, KK3017, KK3018, KK3033
-4. **ART 廠務有/DS04無 1筆** — JS1068 (LEAN=7A)，廠務表是否刪除？
+3. **ART auto有/廠務無 13筆** — 是否需補登廠務編制表？
+   - IH5569(5C), JQ9555(5C), KH9651(5C), KJ2282(9C), KJ7844(10B), KJ7845(10B)
+   - KJ8322(5A), KK3017(10C), KK3018(10C), KK3033(10C), KZ8301(9B), LA1750(5C), LA3255(8C)
+4. **ART 廠務有/auto無 1筆** — JS1068 (LEAN=7A)，廠務表是否刪除？
 5. **LEAN 指派差異 6筆** — GV6889/GV6900/HQ1198 (DS-04=1A, 廠務=2C); KI5736 (DS-04=1A, 廠務=1B); KI1389/KI5750 (DS-04=1B, 廠務=1A)
-6. **訂單填寫差異 50筆** — 單一LEAN但DS-04量≠廠務量，最大：JQ0598(差-6171), HQ3330(差-4227)
+6. **訂單人為差異 46筆** — 最大差異如 IG6045(差+63,741), KZ9155(差+34,383)。27/39筆呈現廠務=DS-04×2 模式，待Jim說明原因
 
-### 腳本清單（2026-06-06 新增）
+### 腳本清單（2026-06-06）
 
 | 腳本 | 說明 | 輸出 |
 |------|------|------|
 | flask_backend/column_compare_report.py | 鞋型/ART/訂單 三欄位比對 | test_output/column_compare_report.txt |
-| flask_backend/generate_bianche.py | 從DS-04自動產生廠務組織編制表（每sheet獨立） | test_output/auto_bianche.xlsx |
+| flask_backend/generate_bianche.py | 從DS-04自動產生廠務組織編制表（每sheet獨立，MF碼排除）| test_output/auto_bianche.xlsx |
 | flask_backend/bianche_diff.py | auto_bianche vs 廠務表差異分析 | test_output/bianche_diff.txt |
-| test_output/order_diff_top20.txt | 訂單差異Top20，per-lean比對，含差異原因分類 | — |
+| flask_backend/build_result_table.py | DS-04解析核心（_parse_order_cell 已修正）| result_table_v2.xlsx |

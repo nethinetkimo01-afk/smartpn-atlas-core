@@ -8,52 +8,60 @@ T2  comparison_table.xlsx OK
 T3  MP 分配分析           OK
 T4  LEAN/OCS 比對         OK
 T5  column_compare_report OK  → test_output/column_compare_report.txt
-T6  generate_bianche      OK  → test_output/auto_bianche.xlsx (547 rows, 33 LEAN groups)
+T6  generate_bianche      OK  → test_output/auto_bianche.xlsx (435 rows, 33 LEAN groups)
 T7  bianche_diff          OK  → test_output/bianche_diff.txt
 T8  order_diff_top20      OK  → test_output/order_diff_top20.txt
+T9  _parse_order_cell 修正 OK → KH8402 LEAN=1A 驗證 = 756 ✓
 
 === 修正內容 ===
 
-generate_bianche.py: 修正 load_ds04_by_lean()
+[T6] generate_bianche.py: 修正 load_ds04_by_lean()
   - 舊：同一 (lean, art) 跨 sheet 加總
   - 新：每個 sheet 獨立，不跨 sheet 加總
   - 規則依據：Rule 17 (DS-04每sheet獨立計算)
 
-=== 比對結果 ===
+[T9] build_result_table.py _parse_order_cell():
+  - 舊：_QTY_RE = re.compile(r'--(\d+)\s*\(') → 只抓第一個數字
+  - 新：re.findall(r'\d+', m.group(1)) → 加總所有數字 (56+36=92)
+  - 同時：MF-prefix codes 排除於 ART 清單 (MF2606 等為製令號碼非真實ART)
+  - 影響：result_table_v2.xlsx 從 493 ARTs → 432 ARTs
+  - 影響：auto_bianche.xlsx 從 547 rows → 435 rows
+
+=== 比對結果（修正後最終版）===
 
 auto_bianche.xlsx vs 廠務組織編制表 6.2026:
   ART 雙方都有: 312 / 325
   ART auto有廠務無: 13 筆 (待Jim確認)
   ART 廠務有auto無: 1 筆 JS1068 (待Jim確認)
-  LEAN 一致: 303 / 421 筆
+  LEAN 一致: 303 筆
   LEAN 跨部門差異: 112 筆 (正常業務差異)
   LEAN 指派差異: 6 筆 (待Jim確認)
   OCS 5 Tab: 全部一致 ✓
 
-訂單差異 (per-lean，每sheet獨立):
-  一致: 4 筆
+訂單差異 (修正後 bianche_diff):
+  一致 ✓: 30 筆  (修正前 4 筆 → 改善 +26)
   廠務合批 (邏輯差異): 236 筆
-  跨部門 (結構差異): 61 筆
-  填寫差異 (需核查): 50 筆
+  人為差異 (需核查): 46 筆  (修正前 50 筆 → 改善 -4)
 
-Top 填寫差異:
-  JQ0598 LEAN=2B  DS04=2301  廠務=8472  差=-6171
-  HQ3330 LEAN=7A  DS04=4224  廠務=8451  差=-4227
-  HP4218 LEAN=8B  DS04=3623  廠務=172   差=+3451
+Top 人為差異 (修正後):
+  IG6045  auto=81564  廠務=17823  差=+63741
+  KZ9155  auto=36819  廠務=2436   差=+34383
+  HQ7468  auto=46072  廠務=21757  差=+24315
 
 === Git ===
 
-Commits pushed to origin/main:
-  e1c2ad1 Add order_diff_top20.txt
-  ab45801 Add bianche_diff.py + update 24_DATA_SYSTEM.md
-  157eb2e Add column_compare_report.py, generate_bianche.py, auto_bianche.xlsx
-  (evening) fix generate_bianche.py per-sheet logic + update 24_DATA_SYSTEM.md
+Commits pushed to origin/main (本輪):
+  [本次] Fix _parse_order_cell: sum multi-lot qty, exclude MF-prefix ARTs
+         → result_table_v2.xlsx (432 ARTs), auto_bianche.xlsx (435 rows)
+         → bianche_diff.txt updated, 24_DATA_SYSTEM.md updated
 
 === 待 Jim 確認 ===
 
-1. ART DS04有廠務無 13筆 — 補登廠務還是DS04誤填？
-2. JS1068 — 廠務表刪除？
+1. ART auto有廠務無 13筆 — 補登廠務還是DS04誤填？
+   IH5569/JQ9555/KH9651(5C), KJ2282(9C), KJ7844/KJ7845(10B),
+   KJ8322(5A), KK3017/KK3018/KK3033(10C), KZ8301(9B), LA1750(5C), LA3255(8C)
+2. JS1068 (LEAN=7A) — 廠務表刪除？
 3. LEAN指派差異 6筆 — GV6889/GV6900/HQ1198 (1A vs 2C), KI5736/KI1389/KI5750
-4. 訂單填寫差異 50筆 — 以DS-04為準還是廠務為準？
+4. 訂單人為差異 46筆 — 最大 IG6045(差+63741), 多筆呈現廠務=DS-04×2 模式
 5. EOLR mapping — (PENDING)
 6. MP分配規則 — (PENDING)

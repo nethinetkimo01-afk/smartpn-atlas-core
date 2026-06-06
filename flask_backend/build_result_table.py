@@ -69,9 +69,15 @@ def _is_order_cell(val):
 
 def _parse_order_cell(val):
     s = str(val or '').strip()
-    arts = _ART_RE.findall(s)
-    m = _QTY_RE.search(s)
-    qty = int(m.group(1)) if m else 0
+    all_arts = _ART_RE.findall(s)
+    # Sum ALL numbers between '--' and '(' to support multi-lot cells:
+    #   MF2606KH8402-01-02--56-36(6/13)  →  56+36=92
+    #   MF2604KJ8322-03--900(5/29)       →  900
+    m = re.search(r'--(.+?)\(', s)
+    qty = sum(int(x) for x in re.findall(r'\d+', m.group(1))) if m else 0
+    # Only real (non-MF) ARTs receive the qty; MF codes are manufacturing order
+    # numbers embedded in the cell, not separate product ARTs.
+    arts = [a for a in all_arts if not a.startswith('MF')]
     if not arts:
         return []
     per = qty // len(arts)
