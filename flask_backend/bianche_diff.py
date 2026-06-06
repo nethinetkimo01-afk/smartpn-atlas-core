@@ -188,29 +188,32 @@ def run():
                 lines.append(f"    {x['art']:12s}  auto={x['auto_lean']:<6}  廠務={x['ref_lean']}")
 
     # ── CSA: 訂單 比對 ────────────────────────────────────────────────────────
-    sub('3. 訂單 比對 (CSA，僅雙方都有的ART)')
-    ord_ok = ord_batch = ord_mismatch = 0
+    sub('3. 訂單 比對 (CSA，僅雙方都有的ART，按廠務LEAN對應比對)')
+    ord_ok = ord_batch = ord_mismatch = ord_lean_mismatch = 0
     ord_mismatch_rows = []
 
-    # Aggregate auto qty by ART for single-ART comparison
-    auto_art_total = {}
+    # Index auto rows by (art, lean) for per-LEAN comparison
+    auto_by_art_lean = {}
     for r in auto_rows:
-        auto_art_total[r['art']] = auto_art_total.get(r['art'], 0) + r['qty']
+        key = (r['art'], r['lean'])
+        auto_by_art_lean[key] = auto_by_art_lean.get(key, 0) + r['qty']
 
-    seen_arts = set()
-    for r in auto_rows:
-        art = r['art']
-        if art not in art_to_ref or art in seen_arts:
-            continue
-        seen_arts.add(art)
-
+    for art in sorted(both):
         ref   = art_to_ref[art]
         b_ord = ref['order']
+        b_lean= ref['lean']
         b_arts= re.findall(r'[A-Z]{2}\d{4,6}', ref['model'])
-        a_qty = auto_art_total[art]
 
         if b_ord is None:
             continue
+
+        # Use qty from matching LEAN; if LEAN doesn't match any auto row, skip
+        # (already counted as LEAN mismatch above)
+        a_qty = auto_by_art_lean.get((art, b_lean))
+        if a_qty is None:
+            ord_lean_mismatch += 1
+            continue
+
         if abs(a_qty - b_ord) < 0.5:
             ord_ok += 1
         elif len(b_arts) > 1:
@@ -218,20 +221,22 @@ def run():
         else:
             ord_mismatch += 1
             ord_mismatch_rows.append({
-                'art': art, 'auto_qty': a_qty, 'factory_qty': int(b_ord),
+                'art': art, 'lean': b_lean,
+                'auto_qty': a_qty, 'factory_qty': int(b_ord),
                 'diff': a_qty - int(b_ord),
             })
 
-    total_cmp = ord_ok + ord_batch + ord_mismatch
-    lines.append(f'  可比對 ART 筆數 (唯一ART)   : {total_cmp}')
+    total_cmp = ord_ok + ord_batch + ord_mismatch + ord_lean_mismatch
+    lines.append(f'  可比對 ART 筆數              : {total_cmp}')
     lines.append(f'  ✓ 完全一致                  : {ord_ok:4d}')
     lines.append(f'  △ 邏輯差異 (廠務合批多ART)  : {ord_batch:4d}  → 廠務一行合多ART合計量，非錯誤')
-    lines.append(f'  ✗ 人為填寫差異 (數量不符)   : {ord_mismatch:4d}  → 廠務只記一個ART，但數量不同')
+    lines.append(f'  ✗ 人為填寫差異 (數量不符)   : {ord_mismatch:4d}  → 同LEAN數量不符')
+    lines.append(f'  ─ LEAN不符 (跨部門)         : {ord_lean_mismatch:4d}  → auto在不同LEAN，廠務記一個LEAN')
 
     if ord_mismatch_rows:
         lines.append('')
         lines.append('  訂單差異 清單（按差異絕對值排序）：')
-        FMT = '    {art:12s}  auto={auto_qty:>7}  廠務={factory_qty:>7}  差={diff:+}'
+        FMT = '    {art:12s}  LEAN={lean:<6}  auto={auto_qty:>7}  廠務={factory_qty:>7}  差={diff:+}'
         for row in sorted(ord_mismatch_rows, key=lambda x: abs(x['diff']), reverse=True)[:30]:
             lines.append(FMT.format(**row))
         if len(ord_mismatch_rows) > 30:
@@ -272,7 +277,8 @@ def run():
     lines.append('')
     lines.append(f'  訂單 一致                   : {ord_ok:4d} 筆')
     lines.append(f'  訂單 邏輯差異 (廠務合批)    : {ord_batch:4d} 筆  → 非錯誤')
-    lines.append(f'  訂單 人為差異               : {ord_mismatch:4d} 筆  → 需確認')
+    lines.append(f'  訂單 人為差異               : {ord_mismatch:4d} 筆  → 需確認（同LEAN比對）')
+    lines.append(f'  訂單 LEAN不符 (跨部門)      : {ord_lean_mismatch:4d} 筆  → auto跨LEAN，廠務僅記一個LEAN')
     lines.append('')
     lines.append(f'  OCS 固定單位 比對           : ' + ('✓ 5 Tab 全部一致' if ocs_diff_total == 0 else f'✗ {ocs_diff_total} 筆差異'))
     lines.append('')
