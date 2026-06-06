@@ -1,0 +1,26 @@
+[16:07:05] === Nightly Run 20260606_160705 force=True no_push=True ===
+[16:07:05] START [data_system]
+[16:07:05] [data_system] Task 0: Check handoff file versions
+[16:07:05] [ACTION REQUIRED] Project files updated - Jim must re-upload to DATA SYSTEM Project:
+[16:07:05]   - D:\smartpn-atlas-core\00_HANDOFF\24_DATA_SYSTEM.md
+[16:07:05] [data_system] Task 1: Import new Jun/IE files
+[16:07:06] [data_system] IE import: 0 new records
+[16:07:06] [data_system] Task 2: Build comparison_table.xlsx
+[16:07:06] [data_system] comparison_table.xlsx written
+[16:07:06] [data_system] Task 3: MP allocation analysis
+[16:07:06] [data_system] mp_allocation_analysis.txt written
+[16:07:06] [data_system] Task 4: Auto-compare result_table non-MP fields
+[16:07:06] [data_system] auto-compare error: [Errno 13] Permission denied: 'C:\\Users\\user\\OneDrive\\Desktop\\Biên chế\\Jun\\2026年6月份廠務组织編制 20260524.xlsx'
+[16:07:06] [data_system] Task 5: Generate auto_bianche.xlsx (成型进度 section fix)
+[16:07:06] [data_system] JQ0597 LEAN=7B = 5,268 ✓ (expected 5,268)
+[16:07:06] [data_system] Task 5 error: [WinError 32] 程序無法存取檔案，因為檔案正由另一個程序使用。
+[16:07:06] [data_system] Task 6: Run bianche_diff
+[16:07:21] [data_system] bianche_diff.txt + bianche_diff_v2.txt written
+[16:07:21] [data_system] Task 7: Write summary to 24_DATA_SYSTEM.md
+[16:07:21] [data_system] 24_DATA_SYSTEM.md ## 最新執行結果 已更新
+[16:07:21] DONE  [data_system]
+[16:07:21] 
+[16:07:21] === Summary ===
+[16:07:21]   OK   data_system
+[16:07:21] Total: 1 OK, 0 failed
+[16:07:21] === Done. Log: D:\smartpn-atlas-core\nightly\logs\20260606_160705.txt ===

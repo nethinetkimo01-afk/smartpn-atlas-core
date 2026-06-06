@@ -1,0 +1,10 @@
+[16:06:49] === Nightly Run 20260606_160649 force=False no_push=False ===
+[16:06:50] SKIP [data_system] (already done today)
+[16:06:50] 
+[16:06:50] === Summary ===
+[16:06:50]   OK   data_system
+[16:06:50] Total: 1 OK, 0 failed
+[16:06:50] 
+[16:06:52] git: committed + pushed — nightly 20260606: 1/1 tasks OK
+[16:06:52] claudesync: .claudesync/config.json not found in 00_HANDOFF, skipping
+[16:06:52] === Done. Log: D:\smartpn-atlas-core\nightly\logs\20260606_160649.txt ===

@@ -118,14 +118,22 @@ Primary key (CONFIRMED): Department + Group + ART + Month
 Table range: max 35–37 rows per sheet
 File path (Jun 2026): C:\Users\user\OneDrive\Desktop\Biên chế\Jun\2026年6月份正式进度表 5 30.xlsx
 
-Order parsing logic (CONFIRMED, updated 2026-06-06 in build_result_table.py _parse_order_cell):
+Order parsing logic (CONFIRMED, updated 2026-06-06 in build_result_table.py _parse_order_cell + load_schedule):
 - Order cell format: MF2604KJ8322-03--900(5/29) or MF2606KH8402-01-02--56-36(6/13)
 - ART: all [A-Z]{2}\d{4,6} matches in cell, excluding MF-prefix codes (manufacturing order numbers)
 - Quantity: sum ALL numbers between '--' and '(' (multi-lot support: 56-36 → 56+36=92)
 - Multi-ART cell: split qty evenly among non-MF ARTs, remainder goes to first ART
-- Scan all cells in all rows of the sheet
-- Sum across all occurrences of same ART within sheet
 - MF-prefix fix (2026-06-06): MF2606, MF2604 etc. are order numbers embedded in cells, NOT real ARTs
+
+Sub-section filtering (CONFIRMED 2026-06-06):
+- Some LEAN groups have sub-sections: 成型进度 / 外包鞋面 / 针车进度
+- Rule: only take orders from 成型进度 section when it exists for that LEAN group
+- 外包鞋面 and 针车进度 sections are always skipped
+- If no section headers exist → take all orders (normal case for most LEAN groups)
+- Affected in Jun 2026: 7B (成型进度 at R54) and 9C (成型进度 at R64)
+- MF order number deduplication: (lean, MFyyyyARTCODE-lot) prevents double-counting
+  from repeated column sets within the same sheet
+- Verification: JQ0597 LEAN=7B = 5,268 ✓ (was 10,536 before fix)
 
 DS-04 sheets in Jun 2026: 12 sheets (加1~加12), 331 unique ARTs (after dedup across sheets)
 
@@ -447,55 +455,33 @@ API endpoints:
 
 ## 最新執行結果
 
-**執行時間**：2026-06-06 晚間 v2（_parse_order_cell 修正後重建）
+**執行時間**：2026-06-06 16:07
 
 ### 各任務狀態
 
-| 任務 | 狀態 | 說明 |
-|------|------|------|
-| T0 檔案版本檢查 | ✅ ok | |
-| T1 IE 匯入 | ✅ ok (0 new) | |
-| T2 comparison_table.xlsx | ✅ ok | |
-| T3 MP 分配分析 | ✅ ok | |
-| T4 LEAN/OCS 比對 | ✅ ok | full_compare_report.txt 更新 |
-| T5 欄位比對報告 | ✅ ok | column_compare_report.txt |
-| T6 auto_bianche.xlsx 產生 | ✅ ok | 435行，33 LEAN組，MF碼修正後 |
-| T7 bianche_diff.txt 比對 | ✅ ok | 修正後重跑，訂單一致 30筆（原4筆）|
-| T8 order_diff_top20 | ✅ ok | 修正前版本，修正後差異已改善 |
-| **T9 _parse_order_cell 修正** | **✅ ok** | **多製令加總 + MF碼排除，KH8402=756 ✓** |
+| 任務 | 狀態 |
+|------|------|
+| T0 檔案版本檢查 | ✅ ok |
+| T1 IE 匯入 | ✅ ok (0 new) |
+| T2 comparison_table.xlsx | ✅ ok |
+| T3 MP 分配分析 | ✅ ok |
+| T4 LEAN/OCS 比對 | ❌ error |
+| T5 auto_bianche生成 | ❌ error: [WinError 32] 程序無法存取檔案，因為檔案正由另一個程序使用。 |
+| T6 bianche_diff | ✅ ok |
 
-### 訂單差異摘要（_parse_order_cell 修正後，bianche_diff 最新結果）
+### LEAN / OCS 比對摘要
 
-| 類型 | 筆數 | 說明 |
-|------|------|------|
-| 訂單一致 ✓ | **30** | （修正前只有 4 筆）|
-| 邏輯差異（廠務合批多ART） | 236 | 廠務一行含多ART合計量，非錯誤 |
-| **人為差異（需核查）** | **46** | 單一ART、單一LEAN，數量仍不符（修正前50筆）|
-
-**Top 填寫差異（絕對值最大）：**
-- IG6045：auto=81,564 vs 廠務=17,823（差+63,741）
-- KZ9155：auto=36,819 vs 廠務=2,436（差+34,383）
-- HQ7468：auto=46,072 vs 廠務=21,757（差+24,315）
-- JQ0597/JQ0598：差值±5,268（廠務=DS-04×2 的疑似雙倍模式）
-
-完整清單見 `test_output/bianche_diff.txt`
+| 項目 | 數值 |
+|------|------|
+| LEAN 一致 | 303 筆 |
+| LEAN 不符 | 141 筆（跨部門業務差異，不處理） |
+| ART DS04有/廠務無 | 17 筆 |
+| ART 廠務有/DS04無 | 1 筆 |
+| OCS 固定單位 | ✓ 5 Tab 100% 一致 |
 
 ### 需要 Jim 確認的事項
 
-1. **EOLR mapping**：每個組別對應哪個 EOLR？（PENDING）
-2. **MP 分配規則**：DB ob_epph 整條產線 MP vs 廠務編制表分配後 MP，差距約 2~3 倍（PENDING）
-3. **ART auto有/廠務無 13筆** — 是否需補登廠務編制表？
-   - IH5569(5C), JQ9555(5C), KH9651(5C), KJ2282(9C), KJ7844(10B), KJ7845(10B)
-   - KJ8322(5A), KK3017(10C), KK3018(10C), KK3033(10C), KZ8301(9B), LA1750(5C), LA3255(8C)
-4. **ART 廠務有/auto無 1筆** — JS1068 (LEAN=7A)，廠務表是否刪除？
-5. **LEAN 指派差異 6筆** — GV6889/GV6900/HQ1198 (DS-04=1A, 廠務=2C); KI5736 (DS-04=1A, 廠務=1B); KI1389/KI5750 (DS-04=1B, 廠務=1A)
-6. **訂單人為差異 46筆** — 最大差異如 IG6045(差+63,741), KZ9155(差+34,383)。27/39筆呈現廠務=DS-04×2 模式，待Jim說明原因
-
-### 腳本清單（2026-06-06）
-
-| 腳本 | 說明 | 輸出 |
-|------|------|------|
-| flask_backend/column_compare_report.py | 鞋型/ART/訂單 三欄位比對 | test_output/column_compare_report.txt |
-| flask_backend/generate_bianche.py | 從DS-04自動產生廠務組織編制表（每sheet獨立，MF碼排除）| test_output/auto_bianche.xlsx |
-| flask_backend/bianche_diff.py | auto_bianche vs 廠務表差異分析 | test_output/bianche_diff.txt |
-| flask_backend/build_result_table.py | DS-04解析核心（_parse_order_cell 已修正）| result_table_v2.xlsx |
+- EOLR mapping：每個組別對應哪個 EOLR？（PENDING）
+- MP 分配規則：DB ob_epph 整條產線 MP vs 廠務編制表分配後 MP，差距約 2~3 倍（PENDING）
+- DS04 有/廠務無 ART **17** 筆 — 是否需補登廠務編制表？
+- 廠務有/DS04 無 ART **1** 筆（JS1068, LEAN=7A）— 廠務表是否刪除？
