@@ -367,14 +367,20 @@ Scripts (all confirmed working 2026-06-05):
 - build_v2.py: standalone rebuild script (handles locked file via temp copy)
 - auto_compare.py: post-build comparison, outputs compare_result.txt
 - full_compare_report.py: row-by-row comparison with reason classification
+- column_compare_report.py: 鞋型/ART/訂單 欄位比對，分類邏輯差異 vs 人為差異
+- generate_bianche.py: 從DS-04自動產生廠務組織編制表 (auto_bianche.xlsx)
+- bianche_diff.py: auto_bianche.xlsx vs 廠務表逐欄比對，輸出 bianche_diff.txt
 - classify_diffs.py: categorize diff_report_jim.txt into Type 1/2/3
 - backup.py
 - generate_comparison_table.py: ob_epph vs 廠務編制表 comparison_table.xlsx
 
 Output files (flask_backend/test_output/):
 - result_table_v2.xlsx: current result Excel (11 sheets)
+- auto_bianche.xlsx: DS-04自動產生廠務組織編制表（LEAN/ART/訂單填入，MP留空）
 - compare_result.txt: auto_compare summary
 - full_compare_report.txt: detailed row-by-row comparison with reason classification
+- column_compare_report.txt: 鞋型/ART/訂單 欄位比對報告（分類邏輯差異 vs 人為差異）
+- bianche_diff.txt: auto_bianche vs 廠務表差異分析
 - comparison_table.xlsx: 309-row MISMATCH/MISSING_IE table
 
 API endpoints:
@@ -439,31 +445,58 @@ API endpoints:
 
 ## 最新執行結果
 
-**執行時間**：2026-06-06 09:03
+**執行時間**：2026-06-06 14:00（Claude Code 自動執行）
 
 ### 各任務狀態
 
-| 任務 | 狀態 |
-|------|------|
-| T0 檔案版本檢查 | ✅ ok |
-| T1 IE 匯入 | ✅ ok (0 new) |
-| T2 comparison_table.xlsx | ✅ ok |
-| T3 MP 分配分析 | ✅ ok |
-| T4 LEAN/OCS 比對 | ❌ error |
+| 任務 | 狀態 | 說明 |
+|------|------|------|
+| T0 檔案版本檢查 | ✅ ok | |
+| T1 IE 匯入 | ✅ ok (0 new) | |
+| T2 comparison_table.xlsx | ✅ ok | |
+| T3 MP 分配分析 | ✅ ok | |
+| T4 LEAN/OCS 比對 | ✅ ok | full_compare_report.txt 更新 |
+| T5 欄位比對報告 | ✅ ok | column_compare_report.txt 新增 |
+| T6 auto_bianche.xlsx 產生 | ✅ ok | DS-04自動填入LEAN/ART/訂單 |
+| T7 bianche_diff.txt 比對 | ✅ ok | auto_bianche vs 廠務表差異分析 |
 
-### LEAN / OCS 比對摘要
+### 欄位比對摘要（result_table_v2.xlsx vs 廠務表）
+
+| 欄位 | 一致 | 邏輯差異（正常） | 人為差異（需確認） |
+|------|------|------|------|
+| ART 匹配 | 444 / 461 | — | auto有廠務無 17筆 / 廠務有auto無 1筆 |
+| 鞋型 | 301 | 143（廠務含ART括弧） | 0 |
+| 訂單 | 4 | 325（廠務合批多ART） | 115 |
+
+### auto_bianche.xlsx 比對摘要（auto vs 廠務表）
 
 | 項目 | 數值 |
 |------|------|
+| ART 雙方都有 | 312 / 325 筆 |
+| ART auto有廠務無 | 13 筆 ← 待確認 |
+| ART 廠務有auto無 | 1 筆 (JS1068) ← 待確認 |
 | LEAN 一致 | 303 筆 |
-| LEAN 不符 | 141 筆（跨部門業務差異，不處理） |
-| ART DS04有/廠務無 | 17 筆 |
-| ART 廠務有/DS04無 | 1 筆 |
-| OCS 固定單位 | ✓ 5 Tab 100% 一致 |
+| LEAN 不符（跨部門） | 112 筆 → 正常業務差異 |
+| LEAN 指派差異 | 6 筆 → 需確認 |
+| 訂單一致 | 4 筆 |
+| 訂單邏輯差異（合批） | 236 筆 → 正常 |
+| 訂單人為差異 | 72 筆 → 需確認 |
+| OCS 5 Tab | ✓ 全部一致 |
 
 ### 需要 Jim 確認的事項
 
-- EOLR mapping：每個組別對應哪個 EOLR？（PENDING）
-- MP 分配規則：DB ob_epph 整條產線 MP vs 廠務編制表分配後 MP，差距約 2~3 倍（PENDING）
-- DS04 有/廠務無 ART **17** 筆 — 是否需補登廠務編制表？
-- 廠務有/DS04 無 ART **1** 筆（JS1068, LEAN=7A）— 廠務表是否刪除？
+1. **EOLR mapping**：每個組別對應哪個 EOLR？（PENDING）
+2. **MP 分配規則**：DB ob_epph 整條產線 MP vs 廠務編制表分配後 MP，差距約 2~3 倍（PENDING）
+3. **ART DS04有/廠務無 13筆** — 是否需補登廠務編制表？
+   - 含：KJ8322, IH5569, JQ9555, KH9651, LA1750, LA3255, KZ8301, KJ2282, KJ7844, KJ7845, KK3017, KK3018, KK3033
+4. **ART 廠務有/DS04無 1筆** — JS1068 (LEAN=7A)，廠務表是否刪除？
+5. **LEAN 指派差異 6筆** — GV6889/GV6900/HQ1198 (auto=1A, 廠務=2C), KI5736 (auto=1A, 廠務=1B), KI1389/KI5750 (auto=1B, 廠務=1A)
+6. **訂單人為差異 72筆** — auto_bianche 與廠務表數量不符，最大差異 IG6045(差+22957), KZ9155(差+15967)
+
+### 新增腳本（2026-06-06）
+
+| 腳本 | 說明 | 輸出 |
+|------|------|------|
+| flask_backend/column_compare_report.py | 鞋型/ART/訂單 三欄位比對 | test_output/column_compare_report.txt |
+| flask_backend/generate_bianche.py | 從DS-04自動產生廠務組織編制表 | test_output/auto_bianche.xlsx |
+| flask_backend/bianche_diff.py | auto_bianche vs 廠務表差異分析 | test_output/bianche_diff.txt |
