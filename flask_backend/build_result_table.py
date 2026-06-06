@@ -95,31 +95,88 @@ def get_model(art):
         return ''
 
 
+# Section keywords for DS-04 sub-section filtering
+_SECTION_CHENGXING = frozenset({'成型进度', '成型進度'})
+_SECTION_SKIP      = frozenset({'外包鞋面', '针车进度', '针車進度'})
+_ALL_SECTIONS      = _SECTION_CHENGXING | _SECTION_SKIP
+# MF order number pattern for deduplication: MF2606JQ0597-01
+_MF_ORDER_RE = re.compile(r'(MF\d{4}[A-Z]{2}\d{4,6}-\d+)')
+
+
 # ── DS-04: extract all sheets with their orders ───────────────────────────────
 def load_schedule():
     """Returns [{sheet, rows:[{lean,art,qty}], orders:{art:qty}, art_lean:{art:lean}}]
 
-    Each sheet is independent — no cross-sheet aggregation.
-    Within one sheet, the same ART in different LEAN groups produces separate rows.
-    Quantities are summed only within the same (lean, art) pair in the same sheet.
+    Section-aware parsing rules (2026-06-06):
+    - LEAN groups with a 成型进度 sub-section: ONLY take orders from that section.
+      Main body (before section header) and 针车进度 are skipped.
+    - 外包鞋面 and 针车进度 sections are always skipped.
+    - MF order numbers (MFyyyyARTCODE-lot) are deduplicated within each LEAN to
+      prevent double-counting from repeated column sets in the same sheet.
 
-    'orders' and 'art_lean' are kept for backwards-compat (build_diff_sheet, etc.);
-    build_csa() should use 'rows' to preserve per-LEAN granularity.
+    Each sheet is independent — no cross-sheet aggregation.
+    'orders' and 'art_lean' are kept for backwards-compat.
     """
-    wb = openpyxl.load_workbook(SCHEDULE, data_only=True, read_only=True)
+    # Use data_only=True without read_only so we can iterate rows_data twice
+    wb = openpyxl.load_workbook(SCHEDULE, data_only=True)
     results = []
+
     for ws in wb.worksheets:
         title = ws.title.strip()
-        lean_art_qty = {}   # (lean, art) -> qty within this sheet
-        current_lean = ''
-        for row in ws.iter_rows(values_only=True):
+        rows_data = list(ws.iter_rows(values_only=True))
+
+        # Pass 1: find which LEAN groups have a 成型进度 sub-section
+        lean_has_cx = set()
+        tmp_lean = ''
+        for row in rows_data:
             col1 = str(row[0] or '').strip() if row else ''
-            lean = _parse_lean_title(col1)
-            if lean:
-                current_lean = lean
+            col2 = str(row[1] or '').strip() if len(row) > 1 else ''
+            lp = _parse_lean_title(col1)
+            if lp:
+                tmp_lean = lp
+            if col2 in _SECTION_CHENGXING and tmp_lean:
+                lean_has_cx.add(tmp_lean)
+
+        # Pass 2: collect orders with section filtering + MF-order deduplication
+        lean_art_qty = {}   # (lean, art) -> qty
+        seen_mf = set()     # (lean, mf_order_num) — e.g. ('7B', 'MF2606JQ0597-01')
+        current_lean = ''
+        current_section = ''
+
+        for row in rows_data:
+            col1 = str(row[0] or '').strip() if row else ''
+            col2 = str(row[1] or '').strip() if len(row) > 1 else ''
+
+            lp = _parse_lean_title(col1)
+            if lp:
+                current_lean = lp
+                current_section = ''
+                continue
+
+            if col2 in _ALL_SECTIONS:
+                current_section = col2
+                continue
+
+            # Skip unwanted sections
+            if current_section in _SECTION_SKIP:
+                continue
+            # If this LEAN has 成型进度, skip its main body (not in any section yet)
+            if current_lean in lean_has_cx and current_section not in _SECTION_CHENGXING:
+                continue
+
             for cell in row:
                 if not _is_order_cell(cell):
                     continue
+                cell_str = str(cell or '').strip()
+
+                # Deduplicate by full MF order number to avoid repeated column sets
+                mf_m = _MF_ORDER_RE.match(cell_str)
+                if mf_m:
+                    mf_key = (current_lean, mf_m.group(1))
+                    if mf_key in seen_mf:
+                        continue
+                    seen_mf.add(mf_key)
+
                 for art, qty in _parse_order_cell(cell):
                     key = (current_lean, art)
                     lean_art_qty[key] = lean_art_qty.get(key, 0) + qty
