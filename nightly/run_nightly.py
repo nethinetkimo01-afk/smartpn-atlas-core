@@ -21,9 +21,11 @@ Options:
 import sys, os, json, importlib, importlib.util, glob, subprocess, traceback
 from datetime import datetime
 
-ROOT   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TASKS  = os.path.join(ROOT, 'nightly', 'tasks')
-LOGS   = os.path.join(ROOT, 'nightly', 'logs')
+ROOT         = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TASKS        = os.path.join(ROOT, 'nightly', 'tasks')
+LOGS         = os.path.join(ROOT, 'nightly', 'logs')
+HANDOFF_DIR  = os.path.join(ROOT, '00_HANDOFF')
+CLAUDESYNC   = r'C:\Users\user\AppData\Local\Python\pythoncore-3.14-64\Scripts\claudesync.exe'
 
 os.makedirs(LOGS, exist_ok=True)
 
@@ -62,6 +64,32 @@ def save_state(state):
         json.dump(state, f, indent=2, ensure_ascii=False)
 
 
+def claudesync_push(logger):
+    """Push 00_HANDOFF to Claude.ai project after git push."""
+    if not os.path.exists(CLAUDESYNC):
+        logger.log('claudesync: executable not found, skipping')
+        return False
+    config = os.path.join(HANDOFF_DIR, '.claudesync', 'config.json')
+    if not os.path.exists(config):
+        logger.log('claudesync: .claudesync/config.json not found in 00_HANDOFF, skipping')
+        return False
+    try:
+        result = subprocess.run(
+            [CLAUDESYNC, 'push'],
+            cwd=HANDOFF_DIR,
+            capture_output=True, text=True, timeout=120
+        )
+        if result.returncode == 0:
+            logger.log('claudesync: pushed 00_HANDOFF to Claude.ai project')
+            return True
+        else:
+            logger.log(f'claudesync error: {result.stderr.strip() or result.stdout.strip()}')
+            return False
+    except Exception as e:
+        logger.log(f'claudesync exception: {e}')
+        return False
+
+
 def git_commit_push(logger, message=None):
     if not message:
         message = f'nightly: auto-update {DATE_STR}'
@@ -84,6 +112,7 @@ def git_commit_push(logger, message=None):
             check=True, capture_output=True
         )
         logger.log(f'git: committed + pushed — {message}')
+        claudesync_push(logger)
         return True
     except subprocess.CalledProcessError as e:
         logger.log(f'git error: {e}')
