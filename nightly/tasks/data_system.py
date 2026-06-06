@@ -250,8 +250,75 @@ def run(logger):
         if os.path.exists(out_path):
             compare_summary = _parse_compare_result(out_path)
 
-    # ── Task 5: Write summary to 24_DATA_SYSTEM.md ────────────────────────
-    logger.log('[data_system] Task 5: Write summary to 24_DATA_SYSTEM.md')
+    # ── Task 5: DS-04 成型进度 section fix + rebuild auto_bianche.xlsx ────────
+    logger.log('[data_system] Task 5: Generate auto_bianche.xlsx (成型进度 section fix)')
+    try:
+        import shutil, tempfile
+        import build_result_table as brt
+
+        # Patch brt to use temp copies (source files may be locked by Excel)
+        def _tmp(orig):
+            dst = os.path.join(tempfile.gettempdir(), os.path.basename(orig))
+            shutil.copy2(orig, dst)
+            return dst
+
+        brt.SCHEDULE = _tmp(SCHEDULE)
+        brt.BIANCHE  = _tmp(BIANCHE)
+
+        # Verify JQ0597 = 5,268 after section fix
+        sheets = brt.load_schedule()
+        jq0597_qty = 0
+        for s in sheets:
+            for r in s['rows']:
+                if r['art'] == 'JQ0597' and r['lean'] == '7B':
+                    jq0597_qty += r['qty']
+
+        if jq0597_qty == 5268:
+            logger.log(f'[data_system] JQ0597 LEAN=7B = {jq0597_qty:,} ✓ (expected 5,268)')
+        else:
+            logger.log(f'[data_system] WARNING: JQ0597 LEAN=7B = {jq0597_qty:,} (expected 5,268)')
+
+        # Rebuild auto_bianche.xlsx
+        import generate_bianche as gb
+        gb.brt.SCHEDULE = brt.SCHEDULE
+        gb.brt.BIANCHE  = brt.BIANCHE
+        lean_by_art = gb.load_ds04_by_lean()
+        bianche_path = gb._safe_bianche()
+        ocs, rbqc = gb.load_ocs_rb_qc(bianche_path)
+        import openpyxl
+        wb_out = openpyxl.Workbook()
+        ws_out = wb_out.active
+        ws_out.title = gb.MONTH_SH
+        gb.build_sheet(ws_out, lean_by_art, ocs, rbqc)
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        wb_out.save(gb.OUT_PATH)
+        total_rows = sum(len(v) for v in lean_by_art.values())
+        logger.log(f'[data_system] auto_bianche.xlsx rebuilt: {len(lean_by_art)} LEAN groups, {total_rows} rows')
+        task_results['T5 auto_bianche生成'] = f'ok (JQ0597={jq0597_qty:,})'
+    except Exception as e:
+        logger.log(f'[data_system] Task 5 error: {e}')
+        task_results['T5 auto_bianche生成'] = f'error: {e}'
+
+    # ── Task 6: Run bianche_diff → bianche_diff.txt + bianche_diff_v2.txt ──
+    logger.log('[data_system] Task 6: Run bianche_diff')
+    try:
+        from bianche_diff import run as bianche_diff_run
+        bianche_diff_run()
+
+        # Copy to bianche_diff_v2.txt for versioned archive
+        src = os.path.join(OUTPUT_DIR, 'bianche_diff.txt')
+        dst = os.path.join(OUTPUT_DIR, 'bianche_diff_v2.txt')
+        if os.path.exists(src):
+            shutil.copy2(src, dst)
+            logger.log(f'[data_system] bianche_diff.txt + bianche_diff_v2.txt written')
+
+        task_results['T6 bianche_diff'] = 'ok'
+    except Exception as e:
+        logger.log(f'[data_system] Task 6 error: {e}')
+        task_results['T6 bianche_diff'] = f'error: {e}'
+
+    # ── Task 7: Write summary to 24_DATA_SYSTEM.md ────────────────────────
+    logger.log('[data_system] Task 7: Write summary to 24_DATA_SYSTEM.md')
     _write_handoff_summary(logger, task_results, compare_summary)
 
     return True
