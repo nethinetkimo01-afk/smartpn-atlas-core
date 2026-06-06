@@ -71,25 +71,28 @@ def _lean_sort_key(lean):
 
 
 def load_ds04_by_lean():
-    """Aggregate DS-04 across all sheets → {lean: [{art, qty}]} sorted by lean."""
+    """Each DS-04 sheet is independent — no cross-sheet aggregation.
+    Returns {lean: [{art, qty, sheet}]} where each (sheet, lean, art) is a separate row.
+    If the same (lean, art) appears in multiple sheets → multiple rows in that LEAN group.
+    """
     print('Loading DS-04...')
     sheets = brt.load_schedule()
-    lean_art_qty = collections.defaultdict(lambda: collections.defaultdict(int))
+    lean_rows = collections.defaultdict(list)  # lean -> [{art, qty, sheet}]
     for s in sheets:
+        sheet_title = s['sheet']
         for r in s['rows']:
             lean = r['lean'].strip()
             if not lean:
                 continue
-            lean_art_qty[lean][r['art']] += r['qty']
+            lean_rows[lean].append({'art': r['art'], 'qty': r['qty'], 'sheet': sheet_title})
 
     result = {}
-    for lean in sorted(lean_art_qty, key=_lean_sort_key):
-        rows = [{'art': art, 'qty': qty}
-                for art, qty in sorted(lean_art_qty[lean].items())]
+    for lean in sorted(lean_rows, key=_lean_sort_key):
+        rows = sorted(lean_rows[lean], key=lambda x: (x['art'], x['sheet']))
         result[lean] = rows
 
     total = sum(len(v) for v in result.values())
-    print(f'  {len(result)} LEAN groups, {total} (lean,art) pairs')
+    print(f'  {len(result)} LEAN groups, {total} (sheet,lean,art) rows')
     return result
 
 

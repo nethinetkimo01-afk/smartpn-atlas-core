@@ -1,0 +1,59 @@
+2026-06-06 Evening — Claude Code Nightly Run
+
+=== 執行摘要 ===
+
+T0  檔案版本檢查          OK
+T1  IE 匯入               OK  (0 new)
+T2  comparison_table.xlsx OK
+T3  MP 分配分析           OK
+T4  LEAN/OCS 比對         OK
+T5  column_compare_report OK  → test_output/column_compare_report.txt
+T6  generate_bianche      OK  → test_output/auto_bianche.xlsx (547 rows, 33 LEAN groups)
+T7  bianche_diff          OK  → test_output/bianche_diff.txt
+T8  order_diff_top20      OK  → test_output/order_diff_top20.txt
+
+=== 修正內容 ===
+
+generate_bianche.py: 修正 load_ds04_by_lean()
+  - 舊：同一 (lean, art) 跨 sheet 加總
+  - 新：每個 sheet 獨立，不跨 sheet 加總
+  - 規則依據：Rule 17 (DS-04每sheet獨立計算)
+
+=== 比對結果 ===
+
+auto_bianche.xlsx vs 廠務組織編制表 6.2026:
+  ART 雙方都有: 312 / 325
+  ART auto有廠務無: 13 筆 (待Jim確認)
+  ART 廠務有auto無: 1 筆 JS1068 (待Jim確認)
+  LEAN 一致: 303 / 421 筆
+  LEAN 跨部門差異: 112 筆 (正常業務差異)
+  LEAN 指派差異: 6 筆 (待Jim確認)
+  OCS 5 Tab: 全部一致 ✓
+
+訂單差異 (per-lean，每sheet獨立):
+  一致: 4 筆
+  廠務合批 (邏輯差異): 236 筆
+  跨部門 (結構差異): 61 筆
+  填寫差異 (需核查): 50 筆
+
+Top 填寫差異:
+  JQ0598 LEAN=2B  DS04=2301  廠務=8472  差=-6171
+  HQ3330 LEAN=7A  DS04=4224  廠務=8451  差=-4227
+  HP4218 LEAN=8B  DS04=3623  廠務=172   差=+3451
+
+=== Git ===
+
+Commits pushed to origin/main:
+  e1c2ad1 Add order_diff_top20.txt
+  ab45801 Add bianche_diff.py + update 24_DATA_SYSTEM.md
+  157eb2e Add column_compare_report.py, generate_bianche.py, auto_bianche.xlsx
+  (evening) fix generate_bianche.py per-sheet logic + update 24_DATA_SYSTEM.md
+
+=== 待 Jim 確認 ===
+
+1. ART DS04有廠務無 13筆 — 補登廠務還是DS04誤填？
+2. JS1068 — 廠務表刪除？
+3. LEAN指派差異 6筆 — GV6889/GV6900/HQ1198 (1A vs 2C), KI5736/KI1389/KI5750
+4. 訂單填寫差異 50筆 — 以DS-04為準還是廠務為準？
+5. EOLR mapping — (PENDING)
+6. MP分配規則 — (PENDING)

@@ -445,7 +445,7 @@ API endpoints:
 
 ## 最新執行結果
 
-**執行時間**：2026-06-06 14:00（Claude Code 自動執行）
+**執行時間**：2026-06-06 晚間（Claude Code 自動執行）
 
 ### 各任務狀態
 
@@ -456,47 +456,42 @@ API endpoints:
 | T2 comparison_table.xlsx | ✅ ok | |
 | T3 MP 分配分析 | ✅ ok | |
 | T4 LEAN/OCS 比對 | ✅ ok | full_compare_report.txt 更新 |
-| T5 欄位比對報告 | ✅ ok | column_compare_report.txt 新增 |
-| T6 auto_bianche.xlsx 產生 | ✅ ok | DS-04自動填入LEAN/ART/訂單 |
+| T5 欄位比對報告 | ✅ ok | column_compare_report.txt |
+| T6 auto_bianche.xlsx 產生 | ✅ ok | DS-04每sheet獨立，LEAN/ART/訂單填入 |
 | T7 bianche_diff.txt 比對 | ✅ ok | auto_bianche vs 廠務表差異分析 |
+| T8 order_diff_top20.txt | ✅ ok | 訂單差異top20，每sheet獨立比對 |
 
-### 欄位比對摘要（result_table_v2.xlsx vs 廠務表）
+### 訂單差異摘要（per-lean，每sheet獨立，不跨部門加總）
 
-| 欄位 | 一致 | 邏輯差異（正常） | 人為差異（需確認） |
-|------|------|------|------|
-| ART 匹配 | 444 / 461 | — | auto有廠務無 17筆 / 廠務有auto無 1筆 |
-| 鞋型 | 301 | 143（廠務含ART括弧） | 0 |
-| 訂單 | 4 | 325（廠務合批多ART） | 115 |
+| 類型 | 筆數 | 說明 |
+|------|------|------|
+| 訂單一致 | 4 | |
+| 邏輯差異（廠務合批多ART） | 236 | 廠務一行含多ART合計量，非錯誤 |
+| 跨部門差異 | 61 | 同ART多部門，廠務記總量 vs DS-04各部門量 |
+| **填寫差異（需核查）** | **50** | 單一LEAN，數量仍不符 |
 
-### auto_bianche.xlsx 比對摘要（auto vs 廠務表）
+**Top 3 最大填寫差異：**
+- JQ0598（TOKYO W）LEAN=2B：DS-04=2,301 vs 廠務=8,472（差-6,171）
+- HQ3330（GHOST SPRINT W）LEAN=7A：DS-04=4,224 vs 廠務=8,451（差-4,227）
+- HP4218（BB F50 GHOST SPRINT）LEAN=8B：DS-04=3,623 vs 廠務=172（差+3,451）
 
-| 項目 | 數值 |
-|------|------|
-| ART 雙方都有 | 312 / 325 筆 |
-| ART auto有廠務無 | 13 筆 ← 待確認 |
-| ART 廠務有auto無 | 1 筆 (JS1068) ← 待確認 |
-| LEAN 一致 | 303 筆 |
-| LEAN 不符（跨部門） | 112 筆 → 正常業務差異 |
-| LEAN 指派差異 | 6 筆 → 需確認 |
-| 訂單一致 | 4 筆 |
-| 訂單邏輯差異（合批） | 236 筆 → 正常 |
-| 訂單人為差異 | 72 筆 → 需確認 |
-| OCS 5 Tab | ✓ 全部一致 |
+完整清單見 `test_output/order_diff_top20.txt`
 
 ### 需要 Jim 確認的事項
 
 1. **EOLR mapping**：每個組別對應哪個 EOLR？（PENDING）
 2. **MP 分配規則**：DB ob_epph 整條產線 MP vs 廠務編制表分配後 MP，差距約 2~3 倍（PENDING）
 3. **ART DS04有/廠務無 13筆** — 是否需補登廠務編制表？
-   - 含：KJ8322, IH5569, JQ9555, KH9651, LA1750, LA3255, KZ8301, KJ2282, KJ7844, KJ7845, KK3017, KK3018, KK3033
+   - KJ8322, IH5569, JQ9555, KH9651, LA1750, LA3255, KZ8301, KJ2282, KJ7844, KJ7845, KK3017, KK3018, KK3033
 4. **ART 廠務有/DS04無 1筆** — JS1068 (LEAN=7A)，廠務表是否刪除？
-5. **LEAN 指派差異 6筆** — GV6889/GV6900/HQ1198 (auto=1A, 廠務=2C), KI5736 (auto=1A, 廠務=1B), KI1389/KI5750 (auto=1B, 廠務=1A)
-6. **訂單人為差異 72筆** — auto_bianche 與廠務表數量不符，最大差異 IG6045(差+22957), KZ9155(差+15967)
+5. **LEAN 指派差異 6筆** — GV6889/GV6900/HQ1198 (DS-04=1A, 廠務=2C); KI5736 (DS-04=1A, 廠務=1B); KI1389/KI5750 (DS-04=1B, 廠務=1A)
+6. **訂單填寫差異 50筆** — 單一LEAN但DS-04量≠廠務量，最大：JQ0598(差-6171), HQ3330(差-4227)
 
-### 新增腳本（2026-06-06）
+### 腳本清單（2026-06-06 新增）
 
 | 腳本 | 說明 | 輸出 |
 |------|------|------|
 | flask_backend/column_compare_report.py | 鞋型/ART/訂單 三欄位比對 | test_output/column_compare_report.txt |
-| flask_backend/generate_bianche.py | 從DS-04自動產生廠務組織編制表 | test_output/auto_bianche.xlsx |
+| flask_backend/generate_bianche.py | 從DS-04自動產生廠務組織編制表（每sheet獨立） | test_output/auto_bianche.xlsx |
 | flask_backend/bianche_diff.py | auto_bianche vs 廠務表差異分析 | test_output/bianche_diff.txt |
+| test_output/order_diff_top20.txt | 訂單差異Top20，per-lean比對，含差異原因分類 | — |
