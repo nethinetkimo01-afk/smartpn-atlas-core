@@ -1,5 +1,5 @@
 === MP 分配邏輯分析報告 ===
-生成時間: 2026-06-05
+生成時間: 2026-06-06
 
 --- 問題描述 ---
 ob_epph 存的是整條產線 MP（No.of Operators），
@@ -21,32 +21,7 @@ ob_epph: ART=KI1387 EOLR=120 Season=FW26
 比例: 6/19 = 31.6%
 
 --- 進度表訂單分析（CODECHAOS BOA 27 家族） ---
-
-各進度表 sheet 的 CODECHAOS BOA 27 訂單:
-  1部: 24,772 prs
-    KI1387: 2,454
-    KI1390: 479
-    KI5738: 8,405
-    KI5739: 2,646
-    KI5740: 3,044
-    KI5741: 2,188
-    KI5746: 605
-    KI5747: 489
-    KI5752: 236
-    KI5753: 2,423
-    KI5754: 1,440
-    KK0660: 363
-  總計: 24,772 prs
-
-KI1387 所在 sheet: 1部
-KI1387 訂單量: 2,454 prs
-KI1387 占 CODECHAOS BOA 27 總量比例: 9.9%
-
---- 假說：按訂單比例分配 ---
-公式: 分配MP = 整條產線MP × (本組訂單 / 總訂單)
-裁斷: 19.0 × (2454/24772) = 1.9
-結果表值 = 6.0   計算值 = 1.9   ✗ 不一致
-
+讀取進度表失敗: [Errno 13] Permission denied: 'C:\\Users\\user\\OneDrive\\Desktop\\Biên chế\\Jun\\2026年6月份正式进度表 5 30.xlsx'
 --- CODECHAOS BOA 27 家族 ob_epph 一覽 ---
 ART          EOLR      Cut   Stitch    Asm
 ---------------------------------------------

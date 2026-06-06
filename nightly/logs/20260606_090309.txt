@@ -1,0 +1,22 @@
+[09:03:09] === Nightly Run 20260606_090309 force=True no_push=True ===
+[09:03:09] START [data_system]
+[09:03:09] [data_system] Task 0: Check handoff file versions
+[09:03:09] [ACTION REQUIRED] Project files updated - Jim must re-upload to DATA SYSTEM Project:
+[09:03:09]   - D:\smartpn-atlas-core\00_HANDOFF\24_DATA_SYSTEM.md
+[09:03:09]   - D:\smartpn-atlas-core\00_HANDOFF\07_RULES.md
+[09:03:09] [data_system] Task 1: Import new Jun/IE files
+[09:03:10] [data_system] IE import: 0 new records
+[09:03:10] [data_system] Task 2: Build comparison_table.xlsx
+[09:03:10] [data_system] comparison_table.xlsx written
+[09:03:10] [data_system] Task 3: MP allocation analysis
+[09:03:10] [data_system] mp_allocation_analysis.txt written
+[09:03:10] [data_system] Task 4: Auto-compare result_table non-MP fields
+[09:03:10] [data_system] auto-compare error: [Errno 13] Permission denied: 'C:\\Users\\user\\OneDrive\\Desktop\\Biên chế\\Jun\\2026年6月份廠務组织編制 20260524.xlsx'
+[09:03:10] [data_system] Task 5: Write summary to 24_DATA_SYSTEM.md
+[09:03:10] [data_system] 24_DATA_SYSTEM.md ## 最新執行結果 已更新
+[09:03:10] DONE  [data_system]
+[09:03:10] 
+[09:03:10] === Summary ===
+[09:03:10]   OK   data_system
+[09:03:10] Total: 1 OK, 0 failed
+[09:03:10] === Done. Log: D:\smartpn-atlas-core\nightly\logs\20260606_090309.txt ===

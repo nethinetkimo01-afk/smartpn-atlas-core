@@ -1,0 +1,22 @@
+[08:27:08] === Nightly Run 20260606_082708 force=True no_push=True ===
+[08:27:08] START [data_system]
+[08:27:08] [data_system] Task 0: Check handoff file versions
+[08:27:08] [ACTION REQUIRED] Project files updated - Jim must re-upload to DATA SYSTEM Project:
+[08:27:08]   - D:\smartpn-atlas-core\00_HANDOFF\24_DATA_SYSTEM.md
+[08:27:08]   - D:\smartpn-atlas-core\00_HANDOFF\07_RULES.md
+[08:27:08] [data_system] Task 1: Import new Jun/IE files
+[08:27:08] [data_system] IE import: 0 new records
+[08:27:08] [data_system] Task 2: Build comparison_table.xlsx
+[08:27:09] [data_system] comparison_table.xlsx written
+[08:27:09] [data_system] Task 3: MP allocation analysis
+[08:27:09] [data_system] mp_allocation_analysis.txt written
+[08:27:09] [data_system] Task 4: Auto-compare result_table non-MP fields
+[08:27:19] [data_system] compare_result: ✗ 差異 LEAN不符=114 ART缺=17 編制多=1 OCS=0
+[08:27:19] [data_system] Task 5: Write summary to 24_DATA_SYSTEM.md
+[08:27:19] [data_system] 24_DATA_SYSTEM.md ## 最新執行結果 已更新
+[08:27:19] DONE  [data_system]
+[08:27:19] 
+[08:27:19] === Summary ===
+[08:27:19]   OK   data_system
+[08:27:19] Total: 1 OK, 0 failed
+[08:27:19] === Done. Log: D:\smartpn-atlas-core\nightly\logs\20260606_082708.txt ===
