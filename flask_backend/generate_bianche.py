@@ -424,18 +424,20 @@ def build_detail_sheet(ws, detail_records, art_to_ref):
     RED_D  = PatternFill('solid', fgColor='FFCCCC')
     YELL_D = PatternFill('solid', fgColor='FFF2CC')
 
-    col_w = {1: 8, 2: 26, 3: 12, 4: 28, 5: 10, 6: 11, 7: 8, 8: 11, 9: 11}
+    col_w = {1: 8, 2: 26, 3: 12, 4: 28, 5: 10, 6: 11, 7: 8, 8: 11, 9: 11, 10: 11}
     for ci, w in col_w.items():
         ws.column_dimensions[get_column_letter(ci)].width = w
 
-    ws.merge_cells('A1:I1')
+    ws.merge_cells('A1:J1')
     wc(ws, 1, 1, f'製令明細 — DS-04 vs 廠務組織編制表 {MONTH_SH}',
        font=Font(bold=True, size=13), align=CENTER)
 
-    hdrs = ['LEAN', '製令號碼', 'ART', '鞋型', '段落', 'DS-04訂單量', '交期', '廠務訂單', '差異']
+    hdrs = ['LEAN', '製令號碼', 'ART', '鞋型', '段落', 'DS-04訂單量', '交期', '廠務訂單', '差異', '外包鞋面']
     for ci, h in enumerate(hdrs, 1):
         wc(ws, 2, ci, h, font=HDR_FONT, fill=HDR_FILL, align=CENTER, border=THIN_BDR)
     ws.freeze_panes = 'A3'
+
+    _WBMX = frozenset({'外包鞋面'})
 
     recs = sorted(detail_records,
                   key=lambda r: (_lean_sort_key(r['lean']), r['art'], r['mf_order']))
@@ -443,24 +445,29 @@ def build_detail_sheet(ws, detail_records, art_to_ref):
 
     for (lean, art), grp_iter in groupby(recs, key=lambda r: (r['lean'], r['art'])):
         buf = list(grp_iter)
-        model     = brt.get_model(art) or ''
-        ref       = art_to_ref.get(art, {})
-        fac_qty   = ref.get('order')
+        model      = brt.get_model(art) or ''
+        ref        = art_to_ref.get(art, {})
+        fac_qty    = ref.get('order')
         ds04_total = sum(o['qty'] for o in buf)
+        wbmx_total = sum(o['qty'] for o in buf if o['section'] in _WBMX)
         diff = (ds04_total - int(fac_qty)) if fac_qty is not None else None
 
         # Individual order rows
         for i, o in enumerate(buf):
-            is_first = (i == 0)
-            wc(ws, row, 1, lean if is_first else '', font=NORM, align=CENTER, border=THIN_BDR)
-            wc(ws, row, 2, o['mf_order'], font=Font(size=9), align=LEFT, border=THIN_BDR)
-            wc(ws, row, 3, art if is_first else '', font=NORM, align=LEFT, border=THIN_BDR)
-            wc(ws, row, 4, model if is_first else '', font=Font(size=9), align=LEFT, border=THIN_BDR)
-            wc(ws, row, 5, o['section'], font=Font(size=9), align=CENTER, border=THIN_BDR)
-            wc(ws, row, 6, o['qty'], font=NORM, align=RIGHT, border=THIN_BDR, num_fmt='#,##0')
-            wc(ws, row, 7, o['date'], font=Font(size=9), align=CENTER, border=THIN_BDR)
-            wc(ws, row, 8, None, border=THIN_BDR)
-            wc(ws, row, 9, None, border=THIN_BDR)
+            is_first  = (i == 0)
+            is_wbmx   = o['section'] in _WBMX
+            wc(ws, row, 1,  lean if is_first else '', font=NORM, align=CENTER, border=THIN_BDR)
+            wc(ws, row, 2,  o['mf_order'], font=Font(size=9), align=LEFT, border=THIN_BDR)
+            wc(ws, row, 3,  art if is_first else '', font=NORM, align=LEFT, border=THIN_BDR)
+            wc(ws, row, 4,  model if is_first else '', font=Font(size=9), align=LEFT, border=THIN_BDR)
+            wc(ws, row, 5,  o['section'], font=Font(size=9), align=CENTER, border=THIN_BDR)
+            wc(ws, row, 6,  o['qty'], font=NORM, align=RIGHT, border=THIN_BDR, num_fmt='#,##0')
+            wc(ws, row, 7,  o['date'], font=Font(size=9), align=CENTER, border=THIN_BDR)
+            wc(ws, row, 8,  None, border=THIN_BDR)
+            wc(ws, row, 9,  None, border=THIN_BDR)
+            wc(ws, row, 10, o['qty'] if is_wbmx else None,
+               font=Font(size=9, color='7030A0'), align=RIGHT, border=THIN_BDR,
+               num_fmt='#,##0')
             row += 1
 
         # Subtotal / summary row
@@ -488,6 +495,10 @@ def build_detail_sheet(ws, detail_records, art_to_ref):
         else:
             wc(ws, row, 8, '—', font=NORM, fill=LEAN_FILL, align=CENTER, border=THIN_BDR)
             wc(ws, row, 9, '—', font=NORM, fill=LEAN_FILL, align=CENTER, border=THIN_BDR)
+
+        wc(ws, row, 10, wbmx_total if wbmx_total else None,
+           font=Font(bold=True, color='7030A0'), fill=LEAN_FILL, align=RIGHT,
+           border=THIN_BDR, num_fmt='#,##0')
         row += 1
 
 
