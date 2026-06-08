@@ -32,3 +32,30 @@ Strongest claim: I understand how the manufacturing side actually works.
 Brand keeps BOM in its own system.
 Factory keeps BOM in its own system.
 SmartPN Atlas provides material identity reference and permission governance ONLY.
+
+## 7. 層定義（Layer Definitions）
+
+SmartPN Atlas 運作在三個層之間：
+
+| 層 | 英文 | 說明 |
+|----|------|------|
+| 身份層 | Identity Layer | 每個材料的唯一 SmartPN Atlas ID + 基礎屬性 |
+| 治理層 | Governance Layer | 誰可以看、誰可以改、誰可以發布（OPEN / PRIVATE / PENDING） |
+| 語言層 | Language Layer | 跨供應商、品牌、工廠的共同命名標準（Shared Language） |
+
+這三層不與任何一方 ERP 綁定。各方保留自己的 ERP，SmartPN Atlas 只做映射和治理。
+
+## 8. SGL 候選名詞
+
+SGL = Shared Governed Language（共同治理語言）
+
+候選用法（待 Jim 確認方向）：
+
+| 候選名稱 | 用途情境 |
+|---------|---------|
+| Shared Governed Language | 正式文件、品牌定義 |
+| SGL | 技術文件、API 文件縮寫 |
+| Governed Shared Language | 現行 slogan 中的用法（已鎖定） |
+| Standard Zero Zone | 場域定語，搭配 slogan 使用 |
+
+注意：Governed Shared Language 已作為 primary slogan 鎖定，SGL 作為縮寫時指向同一概念。

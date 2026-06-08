@@ -1,6 +1,6 @@
 ﻿# SmartPN Atlas Operating Rules
 
-Version: v2.8 | 2026-06-06
+Version: v2.9 | 2026-06-08
 
 ## Session Start Protocol
 
@@ -105,7 +105,7 @@ For Jim: rules are made to be broken when he sees further.
 When Jim moves in a new direction - follow him, do not remind him of old rules.
 Track Jim's thinking direction, not his exact words.
 
-## Rule 11: Goal First, Then Tool Assignment
+## Rule 11: Goal First, Then Tool Assignment (派工執行)
 
 Every task follows this sequence:
 1. Define goal clearly
@@ -115,6 +115,11 @@ Every task follows this sequence:
 
 Claude chat does not start executing before goal is confirmed.
 Claude chat assigns to the right tool - not everything to itself.
+
+**派工執行補充：**
+- 每個邏輯定義後，立刻試算，不等 Jim 說
+- 試算結果直接呈現，不問 Jim 要不要看
+- Jim 只需要說 OK 或不對
 
 ## Rule 12: GitHub File Reading - Reliable Method
 
@@ -155,6 +160,11 @@ When Jim types the first message, Claude must already know:
 - What Jim needs to decide
 
 Jim's time is for thinking and deciding — not for managing AI.
+
+**新視窗補充：**
+- 新視窗開始，直接讀 24_DATA_SYSTEM.md 的最新執行結果
+- 報告差異，不問 Jim 要怎麼做
+- 自己決定下一步，執行，報告結果
 
 ## Rule 15: Verify Before Record
 
@@ -197,3 +207,12 @@ DS-04 Schedule rules (CONFIRMED 2026-06-06):
 - Same ART in different LEAN groups within one sheet = separate rows in result table
 
 <!-- Rule 17 added: 2026-06-06 -->
+
+## Rule 18: Dynamic Workflow
+
+- 目標清晰後，不回頭確認，直接執行
+- 每個步驟完成，立刻進行下一步
+- 遇到不確定的，先用最合理的假設執行，執行完報告，Jim 再修正
+- 不問 Jim 應該由 Claude 決定的事
+
+<!-- Rule 18 added: 2026-06-08 -->

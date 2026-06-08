@@ -1,6 +1,6 @@
 # Data System - Internal Data Automation Project
 
-Version: v3.1 | 2026-06-05
+Version: v3.2 | 2026-06-08
 Status: DS-01✅ DS-02✅ DS-03✅ DS-04✅ DS-05✅ 結果表v2✅ 比對完成✅ RB✅ QC✅
 Purpose: New Claude session reads this file to continue from last point.
 
@@ -17,8 +17,9 @@ Team: daily data maintenance (data entry, file uploads).
 ## System Architecture (CONFIRMED)
 
 Deployment: Internal LAN server
-Server: One always-on office PC
+Server: One always-on office PC（24 小時運行）
 Tech stack: Python + Flask + SQLite
+Team size: 10人內操作，無需安裝任何軟體
 Team access: Browser via LAN URL, no software needed
 Flow: Source -> Import UI -> Python server -> SQLite -> Jim report dashboard
 
@@ -86,7 +87,8 @@ Import UI:  http://localhost:5000/admin → DS-02 section
 
 ### DS-03: IE/LC Operation Breakdown (OB)
 
-Type: Manual input via web interface
+Type: Manual input via web interface（標準化網頁界面）
+**輸入方式（CONFIRMED 2026-06-08）**：歷史文件批量導入已完成，未來只用標準化網頁界面輸入，不再上傳 Excel。
 Primary key (CONFIRMED): ART + EOLR + Run number (Lan 1, Lan 2...)
 EOLR options: 60 / 120 / 150 pairs/H
 Same ART + different EOLR = separate records
@@ -114,6 +116,7 @@ Batch import (CONFIRMED WORKING 2026-06-05):
 ### DS-04: Production Schedule (Monthly Progress)
 
 Type: System export, Excel, fixed format, one file per month, multiple sheets (by department)
+**月度更新流程（CONFIRMED 2026-06-08）**：每月上傳 Excel → 系統自動解析 → 重複跳過 → 新增/變更才更新
 Primary key (CONFIRMED): Department + Group + ART + Month
 Table range: max 35–37 rows per sheet
 File path (Jun 2026): C:\Users\user\OneDrive\Desktop\Biên chế\Jun\2026年6月份正式进度表 5 30.xlsx
@@ -150,6 +153,7 @@ EOLR mapping: **PENDING** — Jim to provide Group → EOLR table
 ### DS-05: 大底課進度表 (Sole Department Progress Sheet)
 
 Type: Manual Excel file, maintained by 大底課 team
+**月度更新流程（CONFIRMED 2026-06-08）**：每月上傳 Excel → 系統自動解析 → 重複跳過 → 新增/變更才更新
 Primary key: T-group + AD-code + Month
 File path (Jun 2026): C:\Users\user\OneDrive\Desktop\Biên chế\Jun\2026年6月份正式贴底进度表进度表 5.16. (ĐẾ).xlsx
 

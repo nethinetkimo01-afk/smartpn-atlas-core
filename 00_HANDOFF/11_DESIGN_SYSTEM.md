@@ -1,5 +1,5 @@
 ﻿# SmartPN Atlas ??Design System
-Version: v1.0 | 2026-05-29
+Version: v1.1 | 2026-06-08
 Status: Locked. All outputs must follow this system.
 
 ## Brand Positioning (LOCKED)
@@ -99,6 +99,40 @@ Main positioning: Governed Shared Language in the STANDARD ZERO ZONE.
 - STANDARD ZERO ZONE must always be ALL CAPS when used as a unit
 - Do not write Standard Zero Zone (mixed case) - inconsistent
 - Can use full slogan or just STANDARD ZERO ZONE as anchor phrase
+
+## Apple 風格視覺方向（2026-06-08 加入）
+
+適用範圍：Demo Software UI、Admin 後台介面、未來 SaaS 介面
+
+### 核心原則
+- 大量留白，內容呼吸感優先
+- 去除所有裝飾性元素，只留功能性視覺
+- 字重層次清晰：標題重、正文輕、輔助文字更輕
+
+### 色彩
+- 背景：純白 #FFFFFF 或系統灰 #F5F5F7
+- 卡片/浮層：白色 + 極淡陰影（box-shadow: 0 2px 12px rgba(0,0,0,0.08)）
+- 強調色：保留 SmartPN #54463A，搭配系統藍 #0071E3（互動元素）
+- 避免大面積彩色區塊
+
+### 字型
+- 主字體：-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif
+- 標題：24–32px weight 600, letter-spacing -0.02em
+- 副標題：16–18px weight 500
+- 正文：14px weight 400, line-height 1.6
+- 輔助文字：12px weight 400, color #86868B
+
+### 元件規則
+- 圓角：12px（卡片）/ 8px（按鈕）/ 6px（標籤）
+- 按鈕：填色按鈕用 #0071E3，文字白色；次要按鈕用白色 + border #D2D2D7
+- 輸入框：1px border #D2D2D7，focus 時 border #0071E3 + 淡藍光暈
+- 表格：無邊框，行間分隔用 #F5F5F7 底色交替
+- 圖示：SF Symbols 風格（線條輕、無填色）
+
+### 動效
+- 過渡：ease-out，duration 200–300ms
+- 不用彈跳、不用複雜路徑動畫
+- Hover：輕微 scale(1.01) 或 background 淡化
 
 ## What Comes Next
 - 12_AVATAR_FEATURES.md: Jim avatar visual features (from ChatGPT analysis)

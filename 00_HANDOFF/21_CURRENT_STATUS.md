@@ -1,6 +1,30 @@
 # Current Status
 
-Last updated: 2026-06-04
+Last updated: 2026-06-08
+
+---
+
+## 今日待辦（2026-06-08）
+
+### DATA SYSTEM
+- [ ] Jim 確認 EOLR mapping（每個 LEAN 組別對應哪個 EOLR）
+- [ ] Jim 確認 MP 分配規則（DB ob_epph 整條產線 vs 廠務分配後，差距 2~3 倍）
+- [ ] DS-04 有/廠務無 17 筆 ART — Jim 決定是否補登廠務編制表
+- [ ] 廠務有/DS04 無 1 筆（JS1068, LEAN=7A）— Jim 決定廠務表是否刪除
+- [ ] DS-06 定義 — 等 Jim 輸入
+- [ ] T5 auto_bianche 生成 ❌ 修復（上次 WinError 32 檔案鎖定問題）
+
+### SmartPN Atlas
+- [ ] Partner outreach 目標資料庫建立（8 個版本外聯信）
+- [ ] GTS 透明說明信草稿
+- [ ] Kate Nishimura 草稿送出
+- [ ] S02 PPT 最終確認
+- [ ] 11_DESIGN_SYSTEM.md Apple 風格補充（已完成 2026-06-08）
+- [ ] 01_CONSTITUTION.md 層定義 + SGL 候選名詞（已完成 2026-06-08）
+
+### 規則更新（已完成 2026-06-08）
+- [x] 07_RULES.md v2.9：Rule 11 派工執行補充 + Rule 14 新視窗補充 + Rule 18 Dynamic Workflow
+- [x] 24_DATA_SYSTEM.md v3.2：DS-03 輸入方式確認 + DS-04/05 月度更新流程 + 架構 10人/24h 確認
 
 ---
 
