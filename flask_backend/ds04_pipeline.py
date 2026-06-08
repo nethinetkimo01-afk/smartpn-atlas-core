@@ -15,8 +15,11 @@ if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 from itertools import groupby
+import re as _re
 import generate_bianche as gb
 from full_compare_report import load_bianche
+
+_ART_RE_PLAIN = _re.compile(r'[A-Z]{2}\d{4,6}')
 
 OUT_DIR    = r'D:\smartpn-atlas-core\flask_backend\test_output'
 DETAIL_TXT = os.path.join(OUT_DIR, 'ds04_order_detail.txt')
@@ -89,10 +92,15 @@ def step2_3_compare(recs_sorted, art_to_ref):
     groups = []
     for (lean, art), grp_it in groupby(recs_sorted, key=lambda r: (r['lean'], r['art'])):
         buf        = list(grp_it)
-        ds04_total = sum(o['qty'] for o in buf)
+        # Rule 19: only 成型进度 orders count for factory comparison
+        cx_orders  = [o for o in buf if o['section'] == '成型进度']
+        ds04_total = sum(o['qty'] for o in cx_orders)
         ref        = art_to_ref.get(art, {})
         fac_lean   = ref.get('lean', '')
         fac_qty    = ref.get('order')
+        fac_model  = ref.get('model', '')
+        fac_arts   = [a for a in _ART_RE_PLAIN.findall(fac_model) if not a.startswith('MF')]
+        is_batch   = len(fac_arts) > 1   # factory row bundles multiple ARTs → not a real error
 
         if art not in art_to_ref:
             mark = '廠務無此ART'
@@ -102,6 +110,9 @@ def step2_3_compare(recs_sorted, art_to_ref):
             mark = '廠務無訂單量'
         elif abs(ds04_total - int(fac_qty)) < 1:
             mark = '✓ 一致'
+        elif is_batch:
+            diff = ds04_total - int(fac_qty)
+            mark = f'廠務合批({len(fac_arts)}ART共一行) 差{diff:+,}'
         else:
             diff = ds04_total - int(fac_qty)
             pct  = abs(diff) / max(int(fac_qty), 1) * 100
@@ -116,12 +127,13 @@ def step2_3_compare(recs_sorted, art_to_ref):
             'orders': buf,
         })
 
-    ok_n   = sum(1 for g in groups if '一致'        in g['mark'])
-    noart  = sum(1 for g in groups if '廠務無此ART' in g['mark'])
-    lean_n = sum(1 for g in groups if 'LEAN不符'   in g['mark'])
-    diff_n = sum(1 for g in groups if '數量差異'   in g['mark'])
+    ok_n    = sum(1 for g in groups if '一致'        in g['mark'])
+    noart   = sum(1 for g in groups if '廠務無此ART' in g['mark'])
+    lean_n  = sum(1 for g in groups if 'LEAN不符'   in g['mark'])
+    batch_n = sum(1 for g in groups if '廠務合批'   in g['mark'])
+    diff_n  = sum(1 for g in groups if '數量差異'   in g['mark'])
 
-    print(f'  ✓ 一致: {ok_n}  |  廠務無此ART: {noart}  |  LEAN不符: {lean_n}  |  數量差異: {diff_n}')
+    print(f'  ✓ 一致: {ok_n}  |  廠務無此ART: {noart}  |  LEAN不符: {lean_n}  |  廠務合批: {batch_n}  |  數量差異: {diff_n}')
 
     # Build report
     lines = []
@@ -142,9 +154,10 @@ def step2_3_compare(recs_sorted, art_to_ref):
     lines.append(f'  ✓ 一致            : {ok_n:4d} 筆 (ART+LEAN 匹配，訂單量一致)')
     lines.append(f'  廠務無此ART       : {noart:4d} 筆 (廠務表找不到此 ART)')
     lines.append(f'  廠務 LEAN 不符    : {lean_n:4d} 筆 (ART 存在但 LEAN 指派不同)')
-    lines.append(f'  數量差異          : {diff_n:4d} 筆 (ART+LEAN 匹配，訂單量不同)')
+    lines.append(f'  廠務合批(非錯誤)  : {batch_n:4d} 筆 (廠務一行含多ART，合計量≠個別ART量，屬正常)')
+    lines.append(f'  數量差異          : {diff_n:4d} 筆 (單ART行，ART+LEAN 匹配，訂單量不同)')
 
-    GFMT = '  {art:<12}  LEAN={lean:<6}  DS-04={ds04:>8,}  廠務={fac_s:>8}  {mark}'
+    GFMT = '  {art:<12}  LEAN={lean:<6}  DS-04成型={ds04:>8,}  廠務={fac_s:>8}  {mark}'
     OFMT = '    {mf_order:<28} {section:<8} {qty:>6,}  {date}'
 
     def write_groups(grps, show_orders=True):
@@ -176,8 +189,12 @@ def step2_3_compare(recs_sorted, art_to_ref):
     sub(f'3. 廠務LEAN不符 ({lean_n} 筆)')
     write_groups([g for g in groups if 'LEAN不符' in g['mark']], show_orders=False)
 
-    # Section 4: 一致（只顯示清單，不展開製令）
-    sub(f'4. ✓ 一致 ({ok_n} 筆)')
+    # Section 4: 廠務合批（非錯誤）
+    sub(f'4. 廠務合批(非錯誤) ({batch_n} 筆)')
+    write_groups([g for g in groups if '廠務合批' in g['mark']], show_orders=False)
+
+    # Section 5: 一致（只顯示清單，不展開製令）
+    sub(f'5. ✓ 一致 ({ok_n} 筆)')
     write_groups([g for g in groups if '一致' in g['mark']], show_orders=False)
 
     # Footer
@@ -186,6 +203,7 @@ def step2_3_compare(recs_sorted, art_to_ref):
     lines.append(f'  ✓ 一致     : {ok_n:4d}')
     lines.append(f'  廠務無此ART: {noart:4d}  ← 需 Jim 確認（補登廠務 or DS-04 誤填）')
     lines.append(f'  LEAN 不符  : {lean_n:4d}  → 正常業務差異（跨部門共用ART / 廠務重新指派）')
+    lines.append(f'  廠務合批   : {batch_n:4d}  → 非錯誤（廠務一行含多ART，比對方式不同）')
     lines.append(f'  數量差異   : {diff_n:4d}  ← 需 Jim 確認（廠務漏登或 DS-04 更新未同步）')
 
     with open(DIFF_TXT, 'w', encoding='utf-8') as f:
