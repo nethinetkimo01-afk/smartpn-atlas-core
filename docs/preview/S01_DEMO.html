@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartPN Atlas — S01 Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, 'SF Pro Text', Arial, sans-serif; background: #fff; color: #1A1A1A; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .brand { font-size: 15px; font-weight: 500; color: #54463A; letter-spacing: -0.2px; }
+    .search-wrap { display: flex; align-items: center; gap: 8px; background: #FAFAF8; border: 0.5px solid #E5E5E5; border-radius: 8px; padding: 8px 14px; width: 280px; }
+    .search-wrap input { border: none; background: transparent; font-size: 13px; color: #1A1A1A; outline: none; width: 100%; }
+    .role-toggle { display: flex; gap: 6px; }
+    .role-btn { font-size: 12px; padding: 6px 14px; border-radius: 20px; border: 0.5px solid #E5E5E5; background: transparent; color: #666; cursor: pointer; transition: all 0.15s; }
+    .role-btn.active { background: #54463A; color: #fff; border-color: #54463A; }
+    .section-bar { display: flex; align-items: center; gap: 12px; padding: 12px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .toggle-wrap { display: flex; background: #FAFAF8; border-radius: 8px; padding: 3px; border: 0.5px solid #E5E5E5; }
+    .toggle-btn { font-size: 12px; padding: 5px 14px; border-radius: 6px; border: none; background: transparent; color: #666; cursor: pointer; transition: all 0.15s; }
+    .toggle-btn.active { background: #fff; color: #1A1A1A; font-weight: 500; box-shadow: 0 0 0 0.5px #E5E5E5; }
+    .supplier-label { font-size: 12px; color: #666; margin-left: auto; }
+    .supplier-val { font-weight: 500; color: #1A1A1A; font-size: 12px; }
+    .table-wrap { padding: 0 24px 24px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    thead th { font-size: 11px; font-weight: 500; color: #999; text-align: left; padding: 0 12px 10px; border-bottom: 0.5px solid #E5E5E5; letter-spacing: 0.04em; text-transform: uppercase; }
+    tbody tr { border-bottom: 0.5px solid #F0F0F0; }
+    tbody tr:hover { background: #FAFAF8; }
+    tbody td { font-size: 13px; color: #1A1A1A; padding: 13px 12px; vertical-align: middle; }
+    .badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
+    .badge-private { background: #F5F5F5; color: #888; border: 0.5px solid #E0E0E0; }
+    .badge-open { background: #EAF3DE; color: #3B6D11; }
+    .red { color: #A32D2D; font-weight: 500; }
+    .muted { color: #999; }
+    .shared { color: #54463A; font-weight: 500; }
+    .note { font-size: 12px; color: #666; margin-top: 16px; padding: 10px 14px; background: #FAFAF8; border-radius: 8px; border-left: 2px solid #54463A; }
+    .empty-row td { color: #E5E5E5; font-style: italic; font-size: 12px; }
+    .fade-in { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <span class="brand">SmartPN Atlas</span>
+    <div class="search-wrap">
+      <input type="text" placeholder="Search materials..." value="Supplier A" readonly />
+    </div>
+    <div class="role-toggle">
+      <button class="role-btn active" onclick="setRole('brand', this)">Brand view</button>
+      <button class="role-btn" onclick="setRole('external', this)">External view</button>
+    </div>
+  </div>
+
+  <div class="section-bar">
+    <div class="toggle-wrap">
+      <button class="toggle-btn active" id="btn-current" onclick="setState('current')">Current</button>
+      <button class="toggle-btn" id="btn-after" onclick="setState('after')">After SmartPN Atlas</button>
+    </div>
+    <span class="supplier-label">Supplier: <span class="supplier-val">A</span></span>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Supplier</th>
+          <th>Data</th>
+          <th>Updated</th>
+          <th>Maintained by</th>
+          <th>Code</th>
+          <th>Name</th>
+          <th>Permission</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+    <div class="note" id="bottom-note"></div>
+  </div>
+
+  <script>
+    let currentState = 'current';
+    let currentRole = 'brand';
+
+    const data = {
+      current: {
+        brand: [
+          { sup:'A', data:'1', updated:'Past', by:'Internal Team', code:'Independent', name:'Independent', perm:'PRIVATE' },
+          { sup:'A', data:'2', updated:'Past', by:'Internal Team', code:'Independent', name:'Independent', perm:'PRIVATE' },
+          { empty: true },
+          { empty: true },
+        ],
+        external: []
+      },
+      after: {
+        brand: [
+          { sup:'A', data:'1', updated:'Past', by:'Supplier', code:'Shared Language', name:'Shared Language', perm:'PRIVATE' },
+          { sup:'A', data:'2', updated:'Past', by:'Supplier', code:'Shared Language', name:'Shared Language', perm:'PRIVATE' },
+          { sup:'A', data:'3', updated:'TODAY', by:'Supplier', code:'Shared Language', name:'Shared Language', perm:'PRIVATE' },
+          { sup:'A', data:'4', updated:'TODAY', by:'Supplier', code:'Shared Language', name:'Shared Language', perm:'OPEN' },
+        ],
+        external: [
+          { sup:'A', data:'4', updated:'TODAY', by:'Supplier', code:'Shared Language', name:'Shared Language', perm:'OPEN' },
+        ]
+      }
+    };
+
+    const notes = {
+      current: 'Your team maintains 2 materials from Supplier A. 2 slots are empty — supplier has more that you cannot see.',
+      after_brand: 'After SmartPN Atlas: 4 materials visible. 2 added today by Supplier. Code and Name now use Shared Language. Only 1 is OPEN to others.',
+      after_external: 'External view: only 1 material is visible — the one Supplier A set to OPEN.'
+    };
+
+    function setRole(role, btn) {
+      currentRole = role;
+      document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    }
+
+    function setState(state) {
+      currentState = state;
+      document.getElementById('btn-current').classList.toggle('active', state === 'current');
+      document.getElementById('btn-after').classList.toggle('active', state === 'after');
+      render();
+    }
+
+    function render() {
+      const tbody = document.getElementById('table-body');
+      const note = document.getElementById('bottom-note');
+      tbody.innerHTML = '';
+
+      const rows = data[currentState][currentRole];
+
+      if (!rows || rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:#999;font-size:13px;">No materials visible with current permissions.</td></tr>';
+      } else {
+        rows.forEach(r => {
+          const tr = document.createElement('tr');
+          tr.className = 'fade-in';
+          if (r.empty) {
+            tr.className = 'empty-row';
+            tr.innerHTML = '<td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>';
+          } else {
+            const updClass = r.updated === 'TODAY' ? 'red' : 'muted';
+            const permBadge = r.perm === 'OPEN'
+              ? '<span class="badge badge-open">OPEN</span>'
+              : '<span class="badge badge-private">PRIVATE</span>';
+            const codeStyle = r.code === 'Shared Language' ? 'shared' : 'muted';
+            tr.innerHTML = `
+              <td>${r.sup}</td>
+              <td>${r.data}</td>
+              <td class="${updClass}">${r.updated}</td>
+              <td>${r.by}</td>
+              <td class="${codeStyle}">${r.code}</td>
+              <td class="${codeStyle}">${r.name}</td>
+              <td>${permBadge}</td>
+            `;
+          }
+          tbody.appendChild(tr);
+        });
+      }
+
+      if (currentState === 'current') {
+        note.textContent = notes.current;
+      } else if (currentRole === 'brand') {
+        note.textContent = notes.after_brand;
+      } else {
+        note.textContent = notes.after_external;
+      }
+    }
+
+    render();
+  </script>
+
+</body>
+</html>
