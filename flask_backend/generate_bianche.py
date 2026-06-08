@@ -20,6 +20,7 @@ from openpyxl.utils import get_column_letter
 
 import build_result_table as brt
 import database as db
+from full_compare_report import load_bianche
 
 BIANCHE_ORIG = r'C:\Users\user\OneDrive\Desktop\Biên chế\Jun\2026年6月份廠務组织編制 20260524.xlsx'
 BIANCHE_TMP  = r'C:\Users\user\AppData\Local\Temp\bianche_gen.xlsx'
@@ -151,6 +152,84 @@ def load_ds04_by_lean():
     total = sum(len(v) for v in result.values())
     print(f'  {len(result)} LEAN groups, {total} (sheet,lean,art) rows')
     return result
+
+
+def load_schedule_detail():
+    """Individual MF order records from DS-04 (not aggregated).
+    Includes 成型进度 AND 外包鞋面 sections; skips 针车进度 only.
+    Returns list of {lean, sheet, art, mf_order, section, qty, date}.
+    """
+    wb = openpyxl.load_workbook(brt.SCHEDULE, data_only=True)
+    records = []
+    _SKIP_SECT = frozenset({'针车进度', '针車進度'})
+
+    for ws in wb.worksheets:
+        title = ws.title.strip()
+        rows_data = list(ws.iter_rows(values_only=True))
+
+        # Pass 1: which LEANs have 成型进度 sub-section
+        lean_has_cx = set()
+        tmp_lean = ''
+        for row in rows_data:
+            col1 = str(row[0] or '').strip() if row else ''
+            col2 = str(row[1] or '').strip() if len(row) > 1 else ''
+            lp = brt._parse_lean_title(col1)
+            if lp:
+                tmp_lean = lp
+            if col2 in brt._SECTION_CHENGXING and tmp_lean:
+                lean_has_cx.add(tmp_lean)
+
+        # Pass 2: extract individual orders
+        seen_mf = set()
+        current_lean = ''
+        current_section = ''
+
+        for row in rows_data:
+            col1 = str(row[0] or '').strip() if row else ''
+            col2 = str(row[1] or '').strip() if len(row) > 1 else ''
+            lp = brt._parse_lean_title(col1)
+            if lp:
+                current_lean = lp
+                current_section = ''
+                continue
+            if col2 in brt._ALL_SECTIONS:
+                current_section = col2
+                continue
+            if current_section in _SKIP_SECT:
+                continue
+            # For LEANs with 成型进度: skip main body unless in 外包鞋面
+            if current_lean in lean_has_cx and current_section not in brt._SECTION_CHENGXING and current_section != '外包鞋面':
+                continue
+
+            for cell in row:
+                if not brt._is_order_cell(cell):
+                    continue
+                s = str(cell or '').strip()
+                mf_m = brt._MF_ORDER_RE.match(s)
+                mf_order = mf_m.group(1) if mf_m else ''
+                if mf_order:
+                    mf_key = (current_lean, mf_order)
+                    if mf_key in seen_mf:
+                        continue
+                    seen_mf.add(mf_key)
+
+                qty_m = re.search(r'--(.+?)\(', s)
+                qty = sum(int(x) for x in re.findall(r'\d+', qty_m.group(1))) if qty_m else 0
+                date_m = re.search(r'\(([^)]+)\)', s)
+                date = date_m.group(1) if date_m else ''
+                arts = [a for a in _ART_RE.findall(s) if not a.startswith('MF')]
+                if not arts:
+                    continue
+                sect = '成型进度' if current_section in brt._SECTION_CHENGXING else (current_section or '成型进度')
+                for art in arts:
+                    records.append({
+                        'lean': current_lean, 'sheet': title,
+                        'art': art, 'mf_order': mf_order,
+                        'section': sect, 'qty': qty, 'date': date,
+                    })
+
+    wb.close()
+    return records
 
 
 def load_ocs_rb_qc(bianche_path):
@@ -339,10 +418,94 @@ def build_sheet(ws, lean_by_art, ocs, rbqc):
         row += 1
 
 
+def build_detail_sheet(ws, detail_records, art_to_ref):
+    """製令明細 sheet: one row per MF order + subtotal vs factory qty."""
+    from itertools import groupby
+    RED_D  = PatternFill('solid', fgColor='FFCCCC')
+    YELL_D = PatternFill('solid', fgColor='FFF2CC')
+
+    col_w = {1: 8, 2: 26, 3: 12, 4: 28, 5: 10, 6: 11, 7: 8, 8: 11, 9: 11}
+    for ci, w in col_w.items():
+        ws.column_dimensions[get_column_letter(ci)].width = w
+
+    ws.merge_cells('A1:I1')
+    wc(ws, 1, 1, f'製令明細 — DS-04 vs 廠務組織編制表 {MONTH_SH}',
+       font=Font(bold=True, size=13), align=CENTER)
+
+    hdrs = ['LEAN', '製令號碼', 'ART', '鞋型', '段落', 'DS-04訂單量', '交期', '廠務訂單', '差異']
+    for ci, h in enumerate(hdrs, 1):
+        wc(ws, 2, ci, h, font=HDR_FONT, fill=HDR_FILL, align=CENTER, border=THIN_BDR)
+    ws.freeze_panes = 'A3'
+
+    recs = sorted(detail_records,
+                  key=lambda r: (_lean_sort_key(r['lean']), r['art'], r['mf_order']))
+    row = 3
+
+    for (lean, art), grp_iter in groupby(recs, key=lambda r: (r['lean'], r['art'])):
+        buf = list(grp_iter)
+        model     = brt.get_model(art) or ''
+        ref       = art_to_ref.get(art, {})
+        fac_qty   = ref.get('order')
+        ds04_total = sum(o['qty'] for o in buf)
+        diff = (ds04_total - int(fac_qty)) if fac_qty is not None else None
+
+        # Individual order rows
+        for i, o in enumerate(buf):
+            is_first = (i == 0)
+            wc(ws, row, 1, lean if is_first else '', font=NORM, align=CENTER, border=THIN_BDR)
+            wc(ws, row, 2, o['mf_order'], font=Font(size=9), align=LEFT, border=THIN_BDR)
+            wc(ws, row, 3, art if is_first else '', font=NORM, align=LEFT, border=THIN_BDR)
+            wc(ws, row, 4, model if is_first else '', font=Font(size=9), align=LEFT, border=THIN_BDR)
+            wc(ws, row, 5, o['section'], font=Font(size=9), align=CENTER, border=THIN_BDR)
+            wc(ws, row, 6, o['qty'], font=NORM, align=RIGHT, border=THIN_BDR, num_fmt='#,##0')
+            wc(ws, row, 7, o['date'], font=Font(size=9), align=CENTER, border=THIN_BDR)
+            wc(ws, row, 8, None, border=THIN_BDR)
+            wc(ws, row, 9, None, border=THIN_BDR)
+            row += 1
+
+        # Subtotal / summary row
+        label = f'小計 ({len(buf)} 製令)' if len(buf) > 1 else '合計'
+        wc(ws, row, 1, lean,  font=BOLD, fill=LEAN_FILL, align=CENTER, border=THIN_BDR)
+        wc(ws, row, 2, label, font=Font(bold=True, size=9, italic=True), fill=LEAN_FILL, align=LEFT, border=THIN_BDR)
+        wc(ws, row, 3, art,   font=BOLD, fill=LEAN_FILL, align=LEFT,   border=THIN_BDR)
+        for ci in [4, 5, 7]:
+            wc(ws, row, ci, None, fill=LEAN_FILL, border=THIN_BDR)
+        wc(ws, row, 6, ds04_total, font=BOLD, fill=LEAN_FILL, align=RIGHT, border=THIN_BDR, num_fmt='#,##0')
+
+        if fac_qty is not None:
+            wc(ws, row, 8, int(fac_qty), font=BOLD, fill=LEAN_FILL, align=RIGHT, border=THIN_BDR, num_fmt='#,##0')
+            threshold = max(int(fac_qty) * 0.2, 50)
+            if diff is not None and abs(diff) > threshold:
+                d_fill = RED_D
+                d_font = Font(bold=True, size=10, color='CC0000')
+            elif diff:
+                d_fill = YELL_D
+                d_font = BOLD
+            else:
+                d_fill = LEAN_FILL
+                d_font = BOLD
+            wc(ws, row, 9, diff, font=d_font, fill=d_fill, align=RIGHT, border=THIN_BDR, num_fmt='+#,##0;-#,##0;0')
+        else:
+            wc(ws, row, 8, '—', font=NORM, fill=LEAN_FILL, align=CENTER, border=THIN_BDR)
+            wc(ws, row, 9, '—', font=NORM, fill=LEAN_FILL, align=CENTER, border=THIN_BDR)
+        row += 1
+
+
 def run():
     bianche_path = _safe_bianche()
-    lean_by_art = load_ds04_by_lean()
-    ocs, rbqc = load_ocs_rb_qc(bianche_path)
+    lean_by_art  = load_ds04_by_lean()
+    ocs, rbqc    = load_ocs_rb_qc(bianche_path)
+
+    print('Loading factory reference for 製令明細...')
+    try:
+        art_to_ref, _ = load_bianche(bianche_path)
+    except Exception as e:
+        print(f'  Warning: {e}')
+        art_to_ref = {}
+
+    print('Loading individual MF order records...')
+    detail_records = load_schedule_detail()
+    print(f'  {len(detail_records)} individual order records')
 
     print('Building auto_bianche.xlsx...')
     wb = openpyxl.Workbook()
@@ -350,11 +513,28 @@ def run():
     ws.title = MONTH_SH
     build_sheet(ws, lean_by_art, ocs, rbqc)
 
+    ws_detail = wb.create_sheet('製令明細')
+    build_detail_sheet(ws_detail, detail_records, art_to_ref)
+
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
     wb.save(OUT_PATH)
     print(f'Saved: {OUT_PATH}')
 
-    # Quick diff summary vs factory table
+    # Verify HP4218 in 8B
+    hp_recs = [r for r in detail_records if r['art'] == 'HP4218']
+    print()
+    print('=== 驗證：HP4218 所有製令 ===')
+    if hp_recs:
+        for r in sorted(hp_recs, key=lambda x: (x['lean'], x['mf_order'])):
+            print(f"  LEAN={r['lean']:6s}  {r['mf_order']:26s}  {r['section']:6s}  {r['qty']:>6,}  交期:{r['date']}")
+        recs_8b   = [r for r in hp_recs if r['lean'] == '8B']
+        total_8b  = sum(r['qty'] for r in recs_8b)
+        fac       = art_to_ref.get('HP4218', {}).get('order')
+        print(f"  ─────────────────────────────────────────────────")
+        print(f"  8B DS-04合計: {total_8b:,}  廠務: {int(fac) if fac else '—'}  差異: {total_8b - (int(fac) if fac else 0):+,}")
+    else:
+        print('  HP4218: 無記錄')
+
     print()
     print('=== 與廠務組織編制表 差異摘要 ===')
     from column_compare_report import run as ccr_run

@@ -1,6 +1,6 @@
 # Data System - Internal Data Automation Project
 
-Version: v3.2 | 2026-06-08
+Version: v3.3 | 2026-06-08
 Status: DS-01✅ DS-02✅ DS-03✅ DS-04✅ DS-05✅ 結果表v2✅ 比對完成✅ RB✅ QC✅
 Purpose: New Claude session reads this file to continue from last point.
 
@@ -341,6 +341,27 @@ auto_bianche CSA 行數: 435（(sheet, lean, art) 各自獨立）
 
 ---
 
+## 設計教訓（2026-06-08）
+
+### Rule 20 教訓：先看製令明細，再比對總量
+
+**事件**：HP4218 8B — DS-04 有 12 張製令合計 7,247，廠務只登 172，差異 +7,075（42x）。
+
+**根本原因**：廠務表漏登了 11 張製令，只登了最小一張（MF2605HP4218-04 = 135 或 MF2605HP4218-07 = 26 附近的值）。最大一張 MF2604HP4218-31 = 4,450 完全沒登。
+
+**教訓**：
+- 若先設計製令明細表（每張製令一行），第一眼就能看到哪張製令漏登
+- 直接比對總量只顯示差異數字，看不到哪張製令造成的差異
+- Rule 20：新數據源 → 先讀說明表 → 設計明細表 → Jim 確認 → 才開始取值
+
+**製令明細表現狀**：
+- 位置：auto_bianche.xlsx Sheet 2「製令明細」
+- 欄位：LEAN | 製令號碼 | ART | 鞋型 | 段落 | DS-04訂單量 | 交期 | 廠務訂單 | 差異
+- 差異標示：>20% 或 >50 對 → 紅色（FFCCCC）；任何差異 → 黃色（FFF2CC）
+- 總計 1,367 筆個別製令記錄（含成型进度 + 外包鞋面，不含针车进度）
+
+---
+
 ## Cross-table Relationships
 
 DS-02 Article # = DS-01 Article ID (join key)
@@ -383,6 +404,8 @@ Scripts (all confirmed working 2026-06-05):
 - full_compare_report.py: row-by-row comparison with reason classification
 - column_compare_report.py: 鞋型/ART/訂單 欄位比對，分類邏輯差異 vs 人為差異
 - generate_bianche.py: 從DS-04自動產生廠務組織編制表 (auto_bianche.xlsx)
+  - Sheet 1: MONTH_SH — 主表（LEAN/鞋型/ART/訂單，MP留空）
+  - Sheet 2: 製令明細 — 每張製令一行（製令號碼/ART/鞋型/段落/DS-04訂單量/交期/廠務訂單/差異），差異>20%標紅
 - bianche_diff.py: auto_bianche.xlsx vs 廠務表逐欄比對，輸出 bianche_diff.txt
 - classify_diffs.py: categorize diff_report_jim.txt into Type 1/2/3
 - backup.py
