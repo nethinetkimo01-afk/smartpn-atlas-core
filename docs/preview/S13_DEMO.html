@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartPN Atlas — S13 Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, 'SF Pro Text', Arial, sans-serif; background: #fff; color: #1A1A1A; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .brand { font-size: 15px; font-weight: 500; color: #54463A; }
+    .scenario-tag { font-size: 12px; color: #888; border: 0.5px solid #E5E5E5; border-radius: 20px; padding: 4px 12px; }
+    .content { padding: 20px 24px; display: grid; gap: 20px; }
+    .card { border: 0.5px solid #E5E5E5; border-radius: 10px; overflow: hidden; }
+    .card-header { padding: 10px 16px; background: #FAFAF8; border-bottom: 0.5px solid #E5E5E5; font-size: 12px; font-weight: 500; color: #54463A; text-transform: uppercase; letter-spacing: 0.04em; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { font-size: 11px; font-weight: 500; color: #999; text-align: left; padding: 0 14px 10px; border-bottom: 0.5px solid #E5E5E5; letter-spacing: 0.04em; text-transform: uppercase; }
+    tbody tr { border-bottom: 0.5px solid #F0F0F0; }
+    tbody td { font-size: 13px; padding: 11px 14px; }
+    .status-mapped { background: #EAF3DE; color: #3B6D11; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+    .status-missing { background: #FFF0E6; color: #A04000; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+    .status-ready { background: #EAF3DE; color: #3B6D11; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+    .source-sys { color: #888; font-size: 12px; }
+    .source-spa { color: #54463A; font-size: 12px; font-weight: 500; }
+    .fill-btn { font-size: 11px; padding: 4px 12px; border-radius: 6px; border: 0.5px solid #54463A; background: transparent; color: #54463A; cursor: pointer; transition: all 0.15s; }
+    .fill-btn:hover { background: #54463A; color: #fff; }
+    .note { font-size: 12px; color: #666; padding: 10px 14px; background: #FAFAF8; border-radius: 8px; border-left: 2px solid #54463A; }
+    .boundary { font-size: 11px; color: #999; padding: 8px 14px; background: #F9F9F9; border-radius: 8px; border: 0.5px dashed #DDD; }
+    .fade-in { animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <span class="brand">SmartPN Atlas</span>
+    <span class="scenario-tag">S13 — Supplier Exchanges Data Without Full Regulation Knowledge</span>
+  </div>
+
+  <div class="content">
+    <div class="card">
+      <div class="card-header">Data Exchange Readiness — Guided Field View</div>
+      <table>
+        <thead><tr><th>Field</th><th>Source</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="fields-body">
+          <tr><td>product-code</td><td class="source-sys">Supplier system (mapped)</td><td><span class="status-mapped">Mapped</span></td><td>—</td></tr>
+          <tr><td>material-code</td><td class="source-sys">Supplier system (mapped)</td><td><span class="status-mapped">Mapped</span></td><td>—</td></tr>
+          <tr id="row-comp"><td>composition</td><td class="source-spa">SmartPN Atlas</td><td id="comp-status"><span class="status-missing">Missing</span></td><td><button class="fill-btn" onclick="fillField('comp')">Fill guided form</button></td></tr>
+          <tr id="row-recycled"><td>recycled content</td><td class="source-spa">SmartPN Atlas</td><td id="recycled-status"><span class="status-missing">Missing</span></td><td><button class="fill-btn" onclick="fillField('recycled')">Fill guided form</button></td></tr>
+          <tr id="row-evidence"><td>evidence-file</td><td class="source-spa">SmartPN Atlas</td><td id="evidence-status"><span class="status-missing">Missing</span></td><td><button class="fill-btn" onclick="fillField('evidence')">Upload file</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Exchange Readiness Summary</div>
+      <table>
+        <thead><tr><th>Field</th><th>Ready</th></tr></thead>
+        <tbody id="readiness-body">
+          <tr><td>product-code</td><td><span class="status-ready">Ready</span></td></tr>
+          <tr><td>material-code</td><td><span class="status-ready">Ready</span></td></tr>
+          <tr><td>composition</td><td id="r-comp"><span class="status-missing">Missing</span></td></tr>
+          <tr><td>recycled content</td><td id="r-recycled"><span class="status-missing">Missing</span></td></tr>
+          <tr><td>evidence-file</td><td id="r-evidence"><span class="status-missing">Missing</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">Supplier follows SmartPN Atlas field guidance — no need to read every regulation. Mapped fields come from existing systems. Missing fields are maintained directly in SmartPN Atlas.</div>
+    <div class="boundary">Boundary: SmartPN Atlas is NOT a forced central database. Supports mapping-based exchange and optional hosted fields. Complements weak supplier systems.</div>
+  </div>
+
+  <script>
+    const filled = {};
+
+    function fillField(key) {
+      filled[key] = true;
+      document.getElementById(key + '-status').innerHTML = '<span class="status-ready fade-in">Ready</span>';
+      document.getElementById('r-' + key).innerHTML = '<span class="status-ready fade-in">Ready</span>';
+      const btn = event.target;
+      btn.textContent = 'Filled';
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+    }
+  </script>
+</body>
+</html>

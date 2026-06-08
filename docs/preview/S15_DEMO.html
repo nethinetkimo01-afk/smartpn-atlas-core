@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartPN Atlas — S15 Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, 'SF Pro Text', Arial, sans-serif; background: #fff; color: #1A1A1A; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .brand { font-size: 15px; font-weight: 500; color: #54463A; }
+    .scenario-tag { font-size: 12px; color: #888; border: 0.5px solid #E5E5E5; border-radius: 20px; padding: 4px 12px; }
+    .section-bar { display: flex; align-items: center; gap: 12px; padding: 12px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .role-label { font-size: 12px; color: #999; }
+    .role-btns { display: flex; gap: 6px; }
+    .role-btn { font-size: 11px; padding: 5px 14px; border-radius: 20px; border: 0.5px solid #E5E5E5; background: transparent; color: #666; cursor: pointer; }
+    .role-btn.active { background: #54463A; color: #fff; border-color: #54463A; }
+    .content { padding: 20px 24px; display: grid; gap: 20px; }
+    .workflow { display: flex; align-items: center; gap: 0; margin-bottom: 8px; flex-wrap: wrap; }
+    .step { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 110px; }
+    .step-circle { width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid #E5E5E5; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #999; transition: all 0.3s; }
+    .step-circle.done { background: #54463A; border-color: #54463A; color: #fff; }
+    .step-circle.active-step { background: #FAFAF8; border-color: #54463A; color: #54463A; }
+    .step-label { font-size: 11px; color: #888; text-align: center; }
+    .step-by { font-size: 10px; color: #BBB; text-align: center; }
+    .arrow { font-size: 16px; color: #E5E5E5; padding: 0 4px; margin-bottom: 20px; }
+    .action-btn { font-size: 12px; padding: 7px 18px; border-radius: 8px; border: 0.5px solid #54463A; background: transparent; color: #54463A; cursor: pointer; font-weight: 500; transition: all 0.15s; }
+    .action-btn:hover { background: #54463A; color: #fff; }
+    .action-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .card { border: 0.5px solid #E5E5E5; border-radius: 10px; overflow: hidden; }
+    .card-header { padding: 10px 16px; background: #FAFAF8; border-bottom: 0.5px solid #E5E5E5; font-size: 12px; font-weight: 500; color: #54463A; text-transform: uppercase; letter-spacing: 0.04em; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { font-size: 11px; font-weight: 500; color: #999; text-align: left; padding: 0 14px 10px; border-bottom: 0.5px solid #E5E5E5; letter-spacing: 0.04em; text-transform: uppercase; }
+    tbody td { font-size: 13px; padding: 12px 14px; }
+    .badge-draft { background: #F5F5F5; color: #888; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+    .badge-pending { background: #FFF8E6; color: #8A6A00; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+    .badge-approved { background: #E8F0FB; color: #1A6ABA; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+    .badge-published { background: #EAF3DE; color: #3B6D11; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+    .note { font-size: 12px; color: #666; padding: 10px 14px; background: #FAFAF8; border-radius: 8px; border-left: 2px solid #54463A; }
+    .not-visible { text-align: center; padding: 24px; color: #999; font-size: 13px; }
+    .fade-in { animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <span class="brand">SmartPN Atlas</span>
+    <span class="scenario-tag">S15 — Supplier Shortens New Material Launch Time</span>
+  </div>
+
+  <div class="section-bar">
+    <span class="role-label">View as:</span>
+    <div class="role-btns">
+      <button class="role-btn active" onclick="setRole('supplier', this)">Supplier</button>
+      <button class="role-btn" onclick="setRole('brand', this)">brand-01</button>
+      <button class="role-btn" onclick="setRole('factory', this)">factory-01</button>
+      <button class="role-btn" onclick="setRole('other', this)">Other User</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="workflow" id="workflow"></div>
+
+    <div class="actions" id="actions"></div>
+
+    <div class="card">
+      <div class="card-header">New Material Record</div>
+      <table>
+        <thead><tr><th>Field</th><th>Value</th></tr></thead>
+        <tbody id="mat-body"></tbody>
+      </table>
+    </div>
+
+    <div class="note" id="bottom-note"></div>
+  </div>
+
+  <script>
+    let step = 1;
+    let role = 'supplier';
+
+    function renderWorkflow(currentStep) {
+      const steps = ['Save', 'Submit for Review', 'Approve', 'Publish', 'Permission Set'];
+      const actors = ['supplier-01', 'supplier-01', 'reviewer-01', 'publisher-01', 'publisher-01'];
+      const el = document.getElementById('workflow');
+      el.innerHTML = steps.map((s, i) => {
+        const n = i + 1;
+        const cls = n < currentStep ? 'done' : n === currentStep ? 'active-step' : '';
+        return `<div class="step"><div class="step-circle ${cls}">${n}</div><div class="step-label">${s}</div><div class="step-by">${actors[i]}</div></div>${i < steps.length - 1 ? '<span class="arrow">›</span>' : ''}`;
+      }).join('');
+    }
+
+    const statusBadges = ['', '<span class="badge-draft">Draft</span>', '<span class="badge-pending">Pending Review</span>', '<span class="badge-approved">Approved</span>', '<span class="badge-published">Published</span>', '<span class="badge-published">Published</span>'];
+    const visibleTo = ['', '', '', '', '', 'brand-01, factory-01'];
+
+    function renderMaterial(currentStep, viewRole) {
+      const tbody = document.getElementById('mat-body');
+      const visible = currentStep >= 4 || viewRole === 'supplier';
+
+      if (!visible) {
+        tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;padding:24px;color:#999">Material not yet published. Not visible.</td></tr>';
+        return;
+      }
+
+      const rows = [
+        ['Supplier', 'supplier-01'],
+        ['Local Code', 'supplier-code-new-01'],
+        ['Unified ID', 'unified-new-01'],
+        ['Material Name', 'new material name 01'],
+        ['Status', statusBadges[currentStep] || statusBadges[4]],
+      ];
+      if (currentStep >= 5) rows.push(['Visible to', visibleTo[5]]);
+      tbody.innerHTML = rows.map(([f, v]) => `<tr class="fade-in"><td style="color:#888">${f}</td><td>${v}</td></tr>`).join('');
+    }
+
+    const actionDefs = [
+      { label: 'Save', minStep: 1, maxStep: 1, advance: 2 },
+      { label: 'Submit for Review', minStep: 2, maxStep: 2, advance: 3 },
+      { label: 'Approve', minStep: 3, maxStep: 3, advance: 4 },
+      { label: 'Publish', minStep: 4, maxStep: 4, advance: 5 },
+      { label: 'Set Visibility: brand-01 + factory-01', minStep: 5, maxStep: 5, advance: 5 },
+    ];
+
+    function renderActions(currentStep, viewRole) {
+      const el = document.getElementById('actions');
+      if (viewRole !== 'supplier') { el.innerHTML = ''; return; }
+      el.innerHTML = actionDefs.map(a => {
+        const enabled = currentStep >= a.minStep && currentStep <= a.maxStep;
+        return `<button class="action-btn" ${enabled ? '' : 'disabled'} onclick="advanceStep(${a.advance})">${a.label}</button>`;
+      }).join('');
+    }
+
+    const notes = {
+      supplier: (s) => s < 5 ? `Step ${s} of 5. Click actions to advance the workflow.` : 'Material published and visible to brand-01 and factory-01.',
+      brand: (s) => s >= 4 ? 'brand-01: new material is now visible after supplier published and authorized.' : 'brand-01: material not yet published.',
+      factory: (s) => s >= 5 ? 'factory-01: visible after supplier authorized.' : 'factory-01: not visible yet.',
+      other: () => 'Other users: not authorized — cannot see this material.',
+    };
+
+    function renderAll() {
+      renderWorkflow(step);
+      renderMaterial(step, role);
+      renderActions(step, role);
+      document.getElementById('bottom-note').textContent = notes[role](step);
+    }
+
+    function advanceStep(n) { step = n; renderAll(); }
+
+    function setRole(r, btn) {
+      role = r;
+      document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderAll();
+    }
+
+    renderAll();
+  </script>
+</body>
+</html>

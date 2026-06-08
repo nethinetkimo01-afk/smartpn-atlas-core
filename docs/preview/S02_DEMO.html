@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartPN Atlas — S02 Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, 'SF Pro Text', Arial, sans-serif; background: #fff; color: #1A1A1A; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .brand { font-size: 15px; font-weight: 500; color: #54463A; }
+    .scenario-tag { font-size: 12px; color: #888; border: 0.5px solid #E5E5E5; border-radius: 20px; padding: 4px 12px; }
+    .section-bar { display: flex; align-items: center; gap: 12px; padding: 12px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .toggle-wrap { display: flex; background: #FAFAF8; border-radius: 8px; padding: 3px; border: 0.5px solid #E5E5E5; }
+    .toggle-btn { font-size: 12px; padding: 5px 14px; border-radius: 6px; border: none; background: transparent; color: #666; cursor: pointer; transition: all 0.15s; }
+    .toggle-btn.active { background: #fff; color: #1A1A1A; font-weight: 500; box-shadow: 0 0 0 0.5px #E5E5E5; }
+    .table-wrap { padding: 20px 24px; }
+    .section-title { font-size: 12px; font-weight: 500; color: #999; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+    thead th { font-size: 11px; font-weight: 500; color: #999; text-align: left; padding: 0 12px 10px; border-bottom: 0.5px solid #E5E5E5; letter-spacing: 0.04em; text-transform: uppercase; }
+    tbody tr { border-bottom: 0.5px solid #F0F0F0; }
+    tbody tr:hover { background: #FAFAF8; }
+    tbody td { font-size: 13px; color: #1A1A1A; padding: 12px; vertical-align: middle; }
+    .role-brand { color: #1A6ABA; font-weight: 500; }
+    .role-factory { color: #2D7A4A; font-weight: 500; }
+    .role-supplier { color: #7A2D7A; font-weight: 500; }
+    .unified { color: #54463A; font-weight: 600; }
+    .local-id { color: #888; font-size: 12px; }
+    .highlight { background: #FFF8E6; }
+    .note { font-size: 12px; color: #666; padding: 10px 14px; background: #FAFAF8; border-radius: 8px; border-left: 2px solid #54463A; }
+    .fade-in { animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <span class="brand">SmartPN Atlas</span>
+    <span class="scenario-tag">S02 — Shared Language &amp; Shared BOM</span>
+  </div>
+
+  <div class="section-bar">
+    <div class="toggle-wrap">
+      <button class="toggle-btn active" id="btn-current" onclick="setState('current')">Current</button>
+      <button class="toggle-btn" id="btn-after" onclick="setState('after')">After SmartPN Atlas</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="section-title">Material Identity Table — Upper Mesh Panel</div>
+    <table>
+      <thead id="thead-row"></thead>
+      <tbody id="table-body"></tbody>
+    </table>
+    <div class="note" id="bottom-note"></div>
+  </div>
+
+  <script>
+    let state = 'current';
+
+    const data = {
+      current: {
+        headers: ['Role', 'BOM Line', 'Combined Material ID', 'Description', 'Source 1', 'Source 2'],
+        rows: [
+          { role: 'Brand', cls: 'role-brand', bom: 'Upper mesh panel', combined: 'BR-COMP-7788', desc: 'Laminated black mesh', s1: 'BR-MAT-7781', s2: 'BR-FILM-4420' },
+          { role: 'Factory', cls: 'role-factory', bom: 'Upper mesh panel', combined: 'FAC-COMP-7008', desc: 'Laminated black mesh', s1: 'FAC-M-2039', s2: 'FAC-FILM-445' },
+          { role: 'Supplier', cls: 'role-supplier', bom: 'Upper mesh panel', combined: 'SUP-COMP-610', desc: 'Laminated black mesh', s1: 'SUP-A-991', s2: 'SUP-B-330' },
+        ],
+        note: 'Same material. Three parties — three different ID systems. Every cross-party reference requires manual confirmation.',
+      },
+      after: {
+        headers: ['Role', 'BOM Line', 'Unified Combined ID', 'Description', 'Unified Source 1', 'Unified Source 2'],
+        rows: [
+          { role: 'Brand', cls: 'role-brand', bom: 'Upper mesh panel', combined: 'SPA-COMP-0101', desc: 'Laminated black mesh', s1: 'SPA-MAT-0001', s2: 'SPA-MAT-0002', unified: true },
+          { role: 'Factory', cls: 'role-factory', bom: 'Upper mesh panel', combined: 'SPA-COMP-0101', desc: 'Laminated black mesh', s1: 'SPA-MAT-0001', s2: 'SPA-MAT-0002', unified: true },
+          { role: 'Supplier', cls: 'role-supplier', bom: 'Upper mesh panel', combined: 'SPA-COMP-0101', desc: 'Laminated black mesh', s1: 'SPA-MAT-0001', s2: 'SPA-MAT-0002', unified: true },
+        ],
+        note: 'After SmartPN Atlas: all parties use the same IDs — SPA-COMP-0101 (combined), SPA-MAT-0001, SPA-MAT-0002. Local IDs are preserved in each party\'s system. Shared BOM structure is consistent across brand, factory, and supplier.',
+      }
+    };
+
+    function setState(s) {
+      state = s;
+      document.getElementById('btn-current').classList.toggle('active', s === 'current');
+      document.getElementById('btn-after').classList.toggle('active', s === 'after');
+      render();
+    }
+
+    function render() {
+      const d = data[state];
+      document.getElementById('thead-row').innerHTML = '<tr>' + d.headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
+      const tbody = document.getElementById('table-body');
+      tbody.innerHTML = '';
+      d.rows.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.className = 'fade-in' + (r.unified ? ' highlight' : '');
+        const idCls = r.unified ? 'unified' : 'local-id';
+        tr.innerHTML = `
+          <td class="${r.cls}">${r.role}</td>
+          <td>${r.bom}</td>
+          <td class="${idCls}">${r.combined}</td>
+          <td>${r.desc}</td>
+          <td class="${idCls}">${r.s1}</td>
+          <td class="${idCls}">${r.s2}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      document.getElementById('bottom-note').textContent = d.note;
+    }
+
+    render();
+  </script>
+</body>
+</html>

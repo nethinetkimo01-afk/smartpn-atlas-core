@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartPN Atlas — S05 Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, 'SF Pro Text', Arial, sans-serif; background: #fff; color: #1A1A1A; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .brand { font-size: 15px; font-weight: 500; color: #54463A; }
+    .scenario-tag { font-size: 12px; color: #888; border: 0.5px solid #E5E5E5; border-radius: 20px; padding: 4px 12px; }
+    .section-bar { display: flex; align-items: center; gap: 10px; padding: 12px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .factory-btn { font-size: 12px; padding: 6px 16px; border-radius: 20px; border: 0.5px solid #E5E5E5; background: transparent; color: #666; cursor: pointer; transition: all 0.15s; }
+    .factory-btn.active { background: #54463A; color: #fff; border-color: #54463A; }
+    .label { font-size: 12px; color: #999; }
+    .content { padding: 20px 24px; display: grid; gap: 20px; }
+    .card { border: 0.5px solid #E5E5E5; border-radius: 10px; overflow: hidden; }
+    .card-header { padding: 10px 16px; background: #FAFAF8; border-bottom: 0.5px solid #E5E5E5; font-size: 12px; font-weight: 500; color: #54463A; letter-spacing: 0.04em; text-transform: uppercase; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { font-size: 11px; font-weight: 500; color: #999; text-align: left; padding: 0 14px 10px; border-bottom: 0.5px solid #E5E5E5; letter-spacing: 0.04em; text-transform: uppercase; }
+    tbody tr { border-bottom: 0.5px solid #F0F0F0; }
+    tbody td { font-size: 13px; padding: 11px 14px; }
+    .match { color: #2D7A4A; font-weight: 500; }
+    .diff { color: #A32D2D; font-weight: 500; }
+    .unified-id { color: #54463A; font-weight: 600; }
+    .credible { background: #EAF3DE; color: #3B6D11; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+    .approved { background: #E8F0FB; color: #1A6ABA; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+    .note { font-size: 12px; color: #666; padding: 10px 14px; background: #FAFAF8; border-radius: 8px; border-left: 2px solid #54463A; margin-top: 4px; }
+    .boundary { font-size: 11px; color: #999; padding: 8px 14px; background: #F9F9F9; border-radius: 8px; border: 0.5px dashed #DDD; margin-top: 16px; }
+    .fade-in { animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <span class="brand">SmartPN Atlas</span>
+    <span class="scenario-tag">S05 — Shared BOM vs Actual BOM vs DPP</span>
+  </div>
+
+  <div class="section-bar">
+    <span class="label">Select factory:</span>
+    <button class="factory-btn active" onclick="setFactory('A', this)">Factory A</button>
+    <button class="factory-btn" onclick="setFactory('B', this)">Factory B</button>
+  </div>
+
+  <div class="content">
+    <div class="card">
+      <div class="card-header">Brand Shared BOM</div>
+      <table>
+        <thead><tr><th>BOM Line</th><th>Shared BOM ID</th><th>Material Name</th><th>Source 1</th><th>Source 2</th></tr></thead>
+        <tbody>
+          <tr><td>Upper mesh panel</td><td class="unified-id">SPA-COMP-0101</td><td>Laminated black mesh</td><td class="unified-id">SPA-MAT-0001</td><td class="unified-id">SPA-MAT-0002</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Factory Actual BOM</div>
+      <table>
+        <thead><tr><th>Factory</th><th>BOM Line</th><th>Actual Combined ID</th><th>Actual Source 1</th><th>Actual Source 2</th><th>Difference</th></tr></thead>
+        <tbody id="actual-bom-body"></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-header">DPP Source Data</div>
+      <table>
+        <thead><tr><th>Factory</th><th>DPP Basis</th><th>Material Used</th><th>Credibility</th></tr></thead>
+        <tbody id="dpp-body"></tbody>
+      </table>
+      <div class="note" id="bottom-note" style="margin: 0 14px 14px;"></div>
+    </div>
+
+    <div class="boundary">Boundary: SmartPN Atlas proves DPP data based on actual factory BOM is more credible. SmartPN Atlas is NOT the DPP compliance authority.</div>
+  </div>
+
+  <script>
+    const factories = {
+      A: {
+        bom: { id: 'SPA-COMP-0101', s1: 'SPA-MAT-0001', s2: 'SPA-MAT-0002', diff: '<span class="match">No difference</span>' },
+        dpp: { mat: 'SPA-COMP-0101 + 0001 + 0002', cred: '<span class="credible">Matches Shared BOM</span>' },
+        note: 'Factory A uses the Shared BOM without substitution. DPP data fully aligned with brand Shared BOM.',
+      },
+      B: {
+        bom: { id: 'SPA-COMP-0101-B', s1: 'SPA-MAT-0001', s2: '<span class="diff">SPA-MAT-0048</span>', diff: '<span class="diff">Source 2 changed</span>' },
+        dpp: { mat: 'SPA-COMP-0101-B + 0001 + <span class="diff">0048</span>', cred: '<span class="approved">Brand-approved local replacement</span>' },
+        note: 'Factory B substituted Source 2 with SPA-MAT-0048 (brand-approved). DPP reflects actual BOM — different from Shared BOM but authorized.',
+      },
+    };
+
+    function setFactory(f, btn) {
+      document.querySelectorAll('.factory-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const d = factories[f];
+      document.getElementById('actual-bom-body').innerHTML = `
+        <tr class="fade-in">
+          <td>Factory ${f}</td><td>Upper mesh panel</td>
+          <td class="unified-id">${d.bom.id}</td>
+          <td class="unified-id">SPA-MAT-0001</td>
+          <td>${d.bom.s2}</td>
+          <td>${d.bom.diff}</td>
+        </tr>`;
+      document.getElementById('dpp-body').innerHTML = `
+        <tr class="fade-in">
+          <td>Factory ${f}</td><td>Actual BOM</td><td>${d.dpp.mat}</td><td>${d.dpp.cred}</td>
+        </tr>`;
+      document.getElementById('bottom-note').innerHTML = d.note;
+    }
+
+    setFactory('A', document.querySelector('.factory-btn'));
+  </script>
+</body>
+</html>

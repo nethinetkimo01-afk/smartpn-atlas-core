@@ -34,7 +34,10 @@ This is the ONLY source of truth. All sessions read from here. All sessions writ
 22_WRITING_RULES.md ??hooks, ALL CAPS, logic chain, CEO perspective
 23_OUTREACH_AUTOMATION.md ??Make automation, keywords, Google Sheet
 25_PARTNER_OUTREACH_STRATEGY.md — system partner positioning, target list, outreach logic, commercial model options
-### Layer 4 ??New Projects (Add as Needed)
+28_DEMO_MENU_STRUCTURE.md — Phase 1 Demo SaaS sidebar (18 items) + Formal Demo B sidebar (7 items), source file paths, version comparison
+### Layer 4 — Demo Screens (Read When Working on Demo)
+docs/preview/S01_DEMO.html through S17_DEMO.html — interactive demo screens for all 17 scenarios
+### Layer 5 — New Projects (Add as Needed)
 24_[PROJECT_NAME].md ??any new project gets its own file
 
 ---

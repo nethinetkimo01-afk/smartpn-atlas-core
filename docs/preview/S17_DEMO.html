@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartPN Atlas — S17 Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, 'SF Pro Text', Arial, sans-serif; background: #fff; color: #1A1A1A; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .brand { font-size: 15px; font-weight: 500; color: #54463A; }
+    .scenario-tag { font-size: 12px; color: #888; border: 0.5px solid #E5E5E5; border-radius: 20px; padding: 4px 12px; }
+    .section-bar { display: flex; align-items: center; gap: 12px; padding: 12px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .role-label { font-size: 12px; color: #999; }
+    .role-btns { display: flex; gap: 6px; }
+    .role-btn { font-size: 11px; padding: 5px 14px; border-radius: 20px; border: 0.5px solid #E5E5E5; background: transparent; color: #666; cursor: pointer; }
+    .role-btn.active { background: #54463A; color: #fff; border-color: #54463A; }
+    .content { padding: 20px 24px; display: grid; gap: 20px; }
+    .card { border: 0.5px solid #E5E5E5; border-radius: 10px; overflow: hidden; }
+    .card-header { padding: 10px 16px; background: #FAFAF8; border-bottom: 0.5px solid #E5E5E5; font-size: 12px; font-weight: 500; color: #54463A; text-transform: uppercase; letter-spacing: 0.04em; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { font-size: 11px; font-weight: 500; color: #999; text-align: left; padding: 0 14px 10px; border-bottom: 0.5px solid #E5E5E5; letter-spacing: 0.04em; text-transform: uppercase; }
+    tbody tr { border-bottom: 0.5px solid #F0F0F0; }
+    tbody td { font-size: 13px; padding: 11px 14px; }
+    .stars-good { color: #2D7A4A; font-size: 15px; }
+    .stars-bad { color: #A32D2D; font-size: 15px; }
+    .priv-badge { background: #F5F5F5; color: #888; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+    .pub-badge { background: #EAF3DE; color: #3B6D11; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+    .comment-input { width: 100%; padding: 10px 14px; border: 0.5px solid #E5E5E5; border-radius: 8px; font-family: inherit; font-size: 13px; margin-bottom: 10px; resize: none; height: 64px; }
+    .add-btn { font-size: 12px; padding: 7px 18px; border-radius: 8px; border: 0.5px solid #54463A; background: transparent; color: #54463A; cursor: pointer; font-weight: 500; }
+    .add-btn:hover { background: #54463A; color: #fff; }
+    .report-card { border: 0.5px solid #E5E5E5; border-radius: 10px; overflow: hidden; }
+    .not-visible { text-align: center; padding: 16px; color: #999; font-size: 13px; font-style: italic; }
+    .note { font-size: 12px; color: #666; padding: 10px 14px; background: #FAFAF8; border-radius: 8px; border-left: 2px solid #54463A; }
+    .fade-in { animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .stars { display: flex; gap: 2px; }
+    .star { cursor: pointer; font-size: 16px; color: #E5E5E5; }
+    .star.filled { color: #F5A623; }
+    .add-comment-form { padding: 14px 16px; background: #FAFAF8; border-top: 0.5px solid #E5E5E5; }
+    .form-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+    .form-label { font-size: 12px; color: #888; width: 80px; }
+    .supplier-sel { font-size: 12px; padding: 5px 10px; border: 0.5px solid #E5E5E5; border-radius: 6px; }
+    .visibility-sel { font-size: 12px; padding: 5px 10px; border: 0.5px solid #E5E5E5; border-radius: 6px; }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <span class="brand">SmartPN Atlas</span>
+    <span class="scenario-tag">S17 — Supplier Performance Comments</span>
+  </div>
+
+  <div class="section-bar">
+    <span class="role-label">View as:</span>
+    <div class="role-btns">
+      <button class="role-btn active" onclick="setRole('brand01', this)">brand-01</button>
+      <button class="role-btn" onclick="setRole('other', this)">Other company</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="card">
+      <div class="card-header">Performance Comments — unified name 01</div>
+      <table>
+        <thead><tr><th>Material</th><th>Supplier</th><th>Rating</th><th>Comment</th><th>Visibility</th></tr></thead>
+        <tbody id="comments-body"></tbody>
+      </table>
+      <div class="add-comment-form" id="comment-form">
+        <div class="form-row">
+          <span class="form-label">Supplier</span>
+          <select class="supplier-sel" id="sel-supplier">
+            <option value="supplier-01">supplier-01</option>
+            <option value="supplier-02">supplier-02</option>
+          </select>
+          <span class="form-label" style="margin-left:12px">Visibility</span>
+          <select class="visibility-sel" id="sel-vis">
+            <option value="private">Private (brand-01 only)</option>
+            <option value="public">Public</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <span class="form-label">Rating</span>
+          <div class="stars" id="star-row">
+            <span class="star" onclick="setStars(1)">★</span>
+            <span class="star" onclick="setStars(2)">★</span>
+            <span class="star" onclick="setStars(3)">★</span>
+            <span class="star" onclick="setStars(4)">★</span>
+            <span class="star" onclick="setStars(5)">★</span>
+          </div>
+        </div>
+        <textarea class="comment-input" id="comment-text" placeholder="Add performance comment..."></textarea>
+        <button class="add-btn" onclick="addComment()">Add Comment</button>
+      </div>
+    </div>
+
+    <div class="report-card card">
+      <div class="card-header">Supplier Comparison Report</div>
+      <table id="report-table">
+        <thead><tr><th>Material</th><th>Supplier</th><th>Rating</th><th>Reason</th></tr></thead>
+        <tbody id="report-body"></tbody>
+      </table>
+    </div>
+
+    <div class="note" id="bottom-note">brand-01: add private comments for supplier-01 and supplier-02. When two suppliers sell identical material, performance comments immediately reveal quality and delivery differences.</div>
+  </div>
+
+  <script>
+    let currentRole = 'brand01';
+    let stars = 0;
+    const comments = [
+      { mat: 'unified name 01', sup: 'supplier-01', stars: 5, text: 'Stable quality and delivery', vis: 'private', company: 'brand-01' },
+      { mat: 'unified name 01', sup: 'supplier-02', stars: 1, text: 'Unstable quality and delivery delays', vis: 'private', company: 'brand-01' },
+    ];
+
+    function setStars(n) {
+      stars = n;
+      document.querySelectorAll('.star').forEach((el, i) => {
+        el.classList.toggle('filled', i < n);
+      });
+    }
+
+    function addComment() {
+      const sup = document.getElementById('sel-supplier').value;
+      const vis = document.getElementById('sel-vis').value;
+      const text = document.getElementById('comment-text').value.trim();
+      if (!text || !stars) return;
+      comments.push({ mat: 'unified name 01', sup, stars, text, vis, company: 'brand-01' });
+      document.getElementById('comment-text').value = '';
+      setStars(0);
+      render();
+    }
+
+    function render() {
+      const tbody = document.getElementById('comments-body');
+      const rbody = document.getElementById('report-body');
+      tbody.innerHTML = '';
+      rbody.innerHTML = '';
+
+      const visible = comments.filter(c => currentRole === 'brand01' || c.vis === 'public');
+
+      if (visible.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="not-visible">No comments visible with current permissions.</td></tr>';
+        rbody.innerHTML = '<tr><td colspan="4" class="not-visible">No data.</td></tr>';
+        return;
+      }
+
+      visible.forEach(c => {
+        const starsHtml = Array(5).fill(0).map((_, i) => `<span style="color:${i < c.stars ? '#F5A623' : '#E5E5E5'}">★</span>`).join('');
+        const visBadge = c.vis === 'private' ? '<span class="priv-badge">Private</span>' : '<span class="pub-badge">Public</span>';
+        const ratingCls = c.stars >= 4 ? 'stars-good' : c.stars <= 2 ? 'stars-bad' : '';
+        tbody.innerHTML += `<tr class="fade-in"><td>${c.mat}</td><td>${c.sup}</td><td class="${ratingCls}">${starsHtml}</td><td>${c.text}</td><td>${visBadge}</td></tr>`;
+        rbody.innerHTML += `<tr class="fade-in"><td>${c.mat}</td><td>${c.sup}</td><td class="${ratingCls}">${starsHtml}</td><td>${c.text}</td></tr>`;
+      });
+
+      document.getElementById('bottom-note').textContent = currentRole === 'brand01'
+        ? 'brand-01 sees all private comments. Supplier-01 (5★) vs Supplier-02 (1★) for the same material — immediate development/purchasing reference.'
+        : 'Other company: private comments are not visible. Only public comments appear.';
+    }
+
+    function setRole(role, btn) {
+      currentRole = role;
+      document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('comment-form').style.display = role === 'brand01' ? '' : 'none';
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>

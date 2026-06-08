@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartPN Atlas — S11 Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, 'SF Pro Text', Arial, sans-serif; background: #fff; color: #1A1A1A; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .brand { font-size: 15px; font-weight: 500; color: #54463A; }
+    .scenario-tag { font-size: 12px; color: #888; border: 0.5px solid #E5E5E5; border-radius: 20px; padding: 4px 12px; }
+    .section-bar { display: flex; align-items: center; gap: 12px; padding: 12px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .role-label { font-size: 12px; color: #999; }
+    .role-btns { display: flex; gap: 6px; }
+    .role-btn { font-size: 11px; padding: 5px 14px; border-radius: 20px; border: 0.5px solid #E5E5E5; background: transparent; color: #666; cursor: pointer; }
+    .role-btn.active { background: #54463A; color: #fff; border-color: #54463A; }
+    .content { padding: 20px 24px; }
+    .card { border: 0.5px solid #E5E5E5; border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+    .card-header { padding: 10px 16px; background: #FAFAF8; border-bottom: 0.5px solid #E5E5E5; font-size: 12px; font-weight: 500; color: #54463A; text-transform: uppercase; letter-spacing: 0.04em; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { font-size: 11px; font-weight: 500; color: #999; text-align: left; padding: 0 14px 10px; border-bottom: 0.5px solid #E5E5E5; letter-spacing: 0.04em; text-transform: uppercase; }
+    tbody tr { border-bottom: 0.5px solid #F0F0F0; }
+    tbody td { font-size: 13px; padding: 11px 14px; }
+    .excess-tag { background: #FFF0E6; color: #A04000; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+    .option-badge { background: #EAF3DE; color: #3B6D11; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; margin-right: 4px; }
+    .unified-id { color: #54463A; font-weight: 600; }
+    .note { font-size: 12px; color: #666; padding: 10px 14px; background: #FAFAF8; border-radius: 8px; border-left: 2px solid #54463A; }
+    .not-visible { text-align: center; padding: 32px; color: #999; font-size: 13px; }
+    .fade-in { animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <span class="brand">SmartPN Atlas</span>
+    <span class="scenario-tag">S11 — Factory Reduces Excess Material</span>
+  </div>
+
+  <div class="section-bar">
+    <span class="role-label">View as:</span>
+    <div class="role-btns">
+      <button class="role-btn active" onclick="setRole('owner', this)">Factory Group Owner</button>
+      <button class="role-btn" onclick="setRole('factory01', this)">factory-01</button>
+      <button class="role-btn" onclick="setRole('factory02', this)">factory-02</button>
+      <button class="role-btn" onclick="setRole('supplier01', this)">supplier-01</button>
+      <button class="role-btn" onclick="setRole('factory03', this)">factory-03 (non-auth)</button>
+    </div>
+  </div>
+
+  <div class="content" id="main-content"></div>
+
+  <script>
+    const roles = {
+      owner: {
+        title: 'Excess Material — Group View',
+        rows: [
+          { factory: 'factory-01', matId: 'unified-01', name: 'unified name 01', qty: '1 roll', status: 'Excess', opt1: 'Sell back → supplier-01', opt2: 'Transfer → factory-02', opt3: 'Sell → factory-03' },
+        ],
+        note: 'Factory group owner sees excess material across all factories. Handling options: sell back, group transfer, or external sale.',
+        full: true,
+      },
+      factory01: {
+        title: 'factory-01 — My Excess Material',
+        rows: [
+          { factory: 'factory-01', matId: 'unified-01', name: 'unified name 01', qty: '1 roll', status: 'Excess', opt1: 'Sell back → supplier-01', opt2: 'Transfer → factory-02', opt3: 'Sell → factory-03' },
+        ],
+        note: 'factory-01 sees and lists its own excess material, with available handling options.',
+        full: true,
+      },
+      factory02: {
+        title: 'factory-02 — Transfer Option',
+        rows: [
+          { factory: 'factory-01', matId: 'unified-01', name: 'unified name 01', qty: '1 roll', status: 'Excess', opt1: '', opt2: 'Transfer → factory-02 (authorized)', opt3: '' },
+        ],
+        note: 'factory-02 sees only the group-transfer option for this excess material (authorized by group).',
+        partial: true,
+      },
+      supplier01: {
+        title: 'supplier-01 — Sell-Back Option',
+        rows: [
+          { factory: 'factory-01', matId: 'unified-01', name: 'unified name 01', qty: '1 roll', status: 'Excess', opt1: 'Sell back → supplier-01 (authorized)', opt2: '', opt3: '' },
+        ],
+        note: 'supplier-01 sees only the sell-back option (authorized).',
+        partial: true,
+      },
+      factory03: {
+        rows: null,
+        note: 'factory-03 is not authorized. No excess material visible.',
+      },
+    };
+
+    function setRole(role, btn) {
+      document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const d = roles[role];
+      const content = document.getElementById('main-content');
+
+      if (!d.rows) {
+        content.innerHTML = `<div style="border:0.5px solid #E5E5E5;border-radius:10px;overflow:hidden"><div class="not-visible">No excess material visible with current permissions.</div></div><div class="note" style="margin-top:16px">${d.note}</div>`;
+        return;
+      }
+
+      const headers = d.full
+        ? ['Factory', 'Material ID', 'Name', 'Excess Qty', 'Status', 'Option 1', 'Option 2', 'Option 3']
+        : ['Factory', 'Material ID', 'Name', 'Excess Qty', 'Status', 'Available Option'];
+
+      const rows = d.rows.map(r => {
+        if (d.full) {
+          return `<tr class="fade-in">
+            <td>${r.factory}</td><td class="unified-id">${r.matId}</td><td>${r.name}</td><td>${r.qty}</td>
+            <td><span class="excess-tag">${r.status}</span></td>
+            <td>${r.opt1 ? `<span class="option-badge">${r.opt1}</span>` : '—'}</td>
+            <td>${r.opt2 ? `<span class="option-badge">${r.opt2}</span>` : '—'}</td>
+            <td>${r.opt3 ? `<span class="option-badge">${r.opt3}</span>` : '—'}</td>
+          </tr>`;
+        } else {
+          const visOpt = r.opt1 || r.opt2 || r.opt3;
+          return `<tr class="fade-in">
+            <td>${r.factory}</td><td class="unified-id">${r.matId}</td><td>${r.name}</td><td>${r.qty}</td>
+            <td><span class="excess-tag">${r.status}</span></td>
+            <td>${visOpt ? `<span class="option-badge">${visOpt}</span>` : '—'}</td>
+          </tr>`;
+        }
+      }).join('');
+
+      content.innerHTML = `
+        <div class="card">
+          <div class="card-header">${d.title}</div>
+          <table>
+            <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        <div class="note">${d.note}</div>`;
+    }
+
+    setRole('owner', document.querySelector('.role-btn'));
+  </script>
+</body>
+</html>

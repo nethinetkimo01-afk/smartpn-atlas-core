@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartPN Atlas — S06 Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, 'SF Pro Text', Arial, sans-serif; background: #fff; color: #1A1A1A; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .brand { font-size: 15px; font-weight: 500; color: #54463A; }
+    .scenario-tag { font-size: 12px; color: #888; border: 0.5px solid #E5E5E5; border-radius: 20px; padding: 4px 12px; }
+    .section-bar { display: flex; align-items: center; gap: 12px; padding: 12px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .toggle-wrap { display: flex; background: #FAFAF8; border-radius: 8px; padding: 3px; border: 0.5px solid #E5E5E5; }
+    .toggle-btn { font-size: 12px; padding: 5px 14px; border-radius: 6px; border: none; background: transparent; color: #666; cursor: pointer; }
+    .toggle-btn.active { background: #fff; color: #1A1A1A; font-weight: 500; box-shadow: 0 0 0 0.5px #E5E5E5; }
+    .content { padding: 20px 24px; }
+    .card { border: 0.5px solid #E5E5E5; border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+    .card-header { padding: 10px 16px; background: #FAFAF8; border-bottom: 0.5px solid #E5E5E5; font-size: 12px; font-weight: 500; color: #54463A; text-transform: uppercase; letter-spacing: 0.04em; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { font-size: 11px; font-weight: 500; color: #999; text-align: left; padding: 0 14px 10px; border-bottom: 0.5px solid #E5E5E5; letter-spacing: 0.04em; text-transform: uppercase; }
+    tbody tr { border-bottom: 0.5px solid #F0F0F0; }
+    tbody td { font-size: 13px; padding: 12px 14px; }
+    .group-id { color: #54463A; font-weight: 600; }
+    .qty { font-weight: 500; color: #1A1A1A; }
+    .forecast { color: #2D7A4A; font-weight: 600; }
+    .source { font-size: 11px; color: #888; }
+    .note { font-size: 12px; color: #666; padding: 10px 14px; background: #FAFAF8; border-radius: 8px; border-left: 2px solid #54463A; }
+    .boundary { font-size: 11px; color: #999; padding: 8px 14px; background: #F9F9F9; border-radius: 8px; border: 0.5px dashed #DDD; margin-top: 16px; }
+    .fade-in { animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <span class="brand">SmartPN Atlas</span>
+    <span class="scenario-tag">S06 — Forecast Volume for Next-Season Negotiation</span>
+  </div>
+
+  <div class="section-bar">
+    <div class="toggle-wrap">
+      <button class="toggle-btn active" id="btn-current" onclick="setState('current')">Current</button>
+      <button class="toggle-btn" id="btn-after" onclick="setState('after')">After SmartPN Atlas</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="card" id="current-card">
+      <div class="card-header">Current — Material Group View</div>
+      <table>
+        <thead><tr><th>Material Group</th><th>Local IDs</th><th>SS Quantity</th><th>Source</th></tr></thead>
+        <tbody>
+          <tr class="fade-in">
+            <td>Black recycled polyester mesh</td>
+            <td class="source">BR-MAT-7781 / FAC-M-2039 / SUP-A-991</td>
+            <td class="qty">120,000 m</td>
+            <td class="source">Supplier collected report</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" id="after-card" style="display:none;">
+      <div class="card-header">After SmartPN Atlas — Structured Material Identity</div>
+      <table>
+        <thead><tr><th>SmartPN Group</th><th>Mapped Local IDs</th><th>SS Quantity</th><th>FW Forecast Reference</th><th>Calculation Source</th></tr></thead>
+        <tbody>
+          <tr class="fade-in">
+            <td class="group-id">SPA-GRP-0001</td>
+            <td class="source">BR-MAT-7781 / FAC-M-2039 / SUP-A-991</td>
+            <td class="qty">120,000 m</td>
+            <td class="forecast">180,000 m</td>
+            <td class="source">Brand calculation using SmartPN Atlas data</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note" id="bottom-note">Current: brand aggregates SS volumes manually from supplier reports. Different local IDs make cross-party volume consolidation error-prone.</div>
+
+    <div class="boundary">Boundary: SmartPN Atlas does NOT create forecasts. It provides structured material identity + usage data. Brand uses that data to calculate negotiation reference volumes.</div>
+  </div>
+
+  <script>
+    const notes = {
+      current: 'Current: brand aggregates SS volumes manually from supplier reports. Different local IDs make cross-party volume consolidation error-prone.',
+      after: 'After SmartPN Atlas: SPA-GRP-0001 maps all local IDs to one group. SS qty (120,000 m) verified. Brand calculates FW forecast reference (180,000 m) from structured data.',
+    };
+
+    function setState(s) {
+      document.getElementById('btn-current').classList.toggle('active', s === 'current');
+      document.getElementById('btn-after').classList.toggle('active', s === 'after');
+      document.getElementById('current-card').style.display = s === 'current' ? '' : 'none';
+      document.getElementById('after-card').style.display = s === 'after' ? '' : 'none';
+      document.getElementById('bottom-note').textContent = notes[s];
+    }
+  </script>
+</body>
+</html>

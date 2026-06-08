@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartPN Atlas — S07 Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, 'SF Pro Text', Arial, sans-serif; background: #fff; color: #1A1A1A; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .brand { font-size: 15px; font-weight: 500; color: #54463A; }
+    .scenario-tag { font-size: 12px; color: #888; border: 0.5px solid #E5E5E5; border-radius: 20px; padding: 4px 12px; }
+    .section-bar { display: flex; align-items: center; gap: 10px; padding: 12px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .toggle-wrap { display: flex; background: #FAFAF8; border-radius: 8px; padding: 3px; border: 0.5px solid #E5E5E5; }
+    .toggle-btn { font-size: 12px; padding: 5px 14px; border-radius: 6px; border: none; background: transparent; color: #666; cursor: pointer; }
+    .toggle-btn.active { background: #fff; color: #1A1A1A; font-weight: 500; box-shadow: 0 0 0 0.5px #E5E5E5; }
+    .scen-wrap { display: flex; background: #FAFAF8; border-radius: 8px; padding: 3px; border: 0.5px solid #E5E5E5; margin-left: auto; }
+    .content { padding: 20px 24px; display: grid; gap: 20px; }
+    .card { border: 0.5px solid #E5E5E5; border-radius: 10px; overflow: hidden; }
+    .card-header { padding: 10px 16px; background: #FAFAF8; border-bottom: 0.5px solid #E5E5E5; font-size: 12px; font-weight: 500; color: #54463A; text-transform: uppercase; letter-spacing: 0.04em; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { font-size: 11px; font-weight: 500; color: #999; text-align: left; padding: 0 14px 10px; border-bottom: 0.5px solid #E5E5E5; letter-spacing: 0.04em; text-transform: uppercase; }
+    tbody tr { border-bottom: 0.5px solid #F0F0F0; }
+    tbody td { font-size: 13px; padding: 11px 14px; }
+    .role-brand { color: #1A6ABA; font-weight: 500; }
+    .role-factory { color: #2D7A4A; font-weight: 500; }
+    .role-supplier { color: #7A2D7A; font-weight: 500; }
+    .unified-id { color: #54463A; font-weight: 600; }
+    .local-id { color: #888; }
+    .gap { color: #A32D2D; font-size: 12px; }
+    .resolved { color: #2D7A4A; font-size: 12px; }
+    .note { font-size: 12px; color: #666; padding: 10px 14px; background: #FAFAF8; border-radius: 8px; border-left: 2px solid #54463A; }
+    .boundary { font-size: 11px; color: #999; padding: 8px 14px; background: #F9F9F9; border-radius: 8px; border: 0.5px dashed #DDD; }
+    .fade-in { animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <span class="brand">SmartPN Atlas</span>
+    <span class="scenario-tag">S07 — 0 Communication Gap</span>
+  </div>
+
+  <div class="section-bar">
+    <div class="toggle-wrap">
+      <button class="toggle-btn active" id="btn-current" onclick="setState('current')">Current</button>
+      <button class="toggle-btn" id="btn-after" onclick="setState('after')">After SmartPN Atlas</button>
+    </div>
+    <div class="scen-wrap">
+      <button class="toggle-btn active" id="btn-a" onclick="setScen('A')">Scenario A</button>
+      <button class="toggle-btn" id="btn-b" onclick="setScen('B')">Scenario B</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div id="scen-a">
+      <div class="card">
+        <div class="card-header">Scenario A — Brand ↔ Factory ↔ Supplier Communication</div>
+        <table>
+          <thead><tr><th>Role</th><th>Local ID</th><th id="th-shared-a"></th><th>Material</th><th>Communication Result</th></tr></thead>
+          <tbody id="tbody-a"></tbody>
+        </table>
+      </div>
+    </div>
+    <div id="scen-b" class="hidden">
+      <div class="card">
+        <div class="card-header">Scenario B — Factory A to Factory B Transfer</div>
+        <table>
+          <thead><tr><th>Transfer Step</th><th>Factory</th><th>Local ID</th><th id="th-shared-b"></th><th>Communication Result</th></tr></thead>
+          <tbody id="tbody-b"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="note" id="bottom-note"></div>
+    <div class="boundary">Boundary: SmartPN Atlas does not mean people never need to communicate. Only means material identity / BOM reference gap is removed or greatly reduced.</div>
+  </div>
+
+  <script>
+    let state = 'current', scen = 'A';
+
+    const data = {
+      A: {
+        current: {
+          th: '',
+          rows: [
+            { r: 'Brand design', rc: 'role-brand', lid: 'BR-MAT-7781', spa: '', mat: 'Black recycled polyester mesh', comm: '<span class="gap">Sends design reference</span>' },
+            { r: 'Factory', rc: 'role-factory', lid: 'FAC-M-2039', spa: '', mat: 'Black RPET mesh', comm: '<span class="gap">Needs to confirm if same material</span>' },
+            { r: 'Supplier', rc: 'role-supplier', lid: 'SUP-A-991', spa: '', mat: 'Recycled polyester mesh black', comm: '<span class="gap">Needs to confirm against supplier record</span>' },
+          ],
+          note: 'Three parties. Three different IDs for the same material. Each cross-party interaction requires manual confirmation.',
+        },
+        after: {
+          th: 'SmartPN Atlas ID',
+          rows: [
+            { r: 'Brand design', rc: 'role-brand', lid: 'BR-MAT-7781', spa: 'SPA-MAT-0001', mat: 'Black recycled polyester mesh', comm: '<span class="resolved">Same shared reference</span>' },
+            { r: 'Factory', rc: 'role-factory', lid: 'FAC-M-2039', spa: 'SPA-MAT-0001', mat: 'Black recycled polyester mesh', comm: '<span class="resolved">Same shared reference</span>' },
+            { r: 'Supplier', rc: 'role-supplier', lid: 'SUP-A-991', spa: 'SPA-MAT-0001', mat: 'Black recycled polyester mesh', comm: '<span class="resolved">Same shared reference</span>' },
+          ],
+          note: 'After SmartPN Atlas: all three parties reference SPA-MAT-0001. Communication gap eliminated. Local IDs preserved.',
+        },
+      },
+      B: {
+        current: {
+          th: '',
+          rows: [
+            { step: 'Original', fac: 'Factory A', lid: 'FAC-A-COMP-7008', spa: '', comm: '<span class="gap">Factory A knows its own BOM</span>' },
+            { step: 'Transfer', fac: 'Factory B', lid: 'FAC-B-COMP-4410', spa: '', comm: '<span class="gap">Factory B must re-confirm equivalent material</span>' },
+          ],
+          note: 'Product transfers from Factory A to B. Different factory local IDs — Factory B must re-confirm equivalence.',
+        },
+        after: {
+          th: 'SmartPN Atlas BOM ID',
+          rows: [
+            { step: 'Original', fac: 'Factory A', lid: 'FAC-A-COMP-7008', spa: 'SPA-COMP-0101', comm: '<span class="resolved">Same Shared BOM reference</span>' },
+            { step: 'Transfer', fac: 'Factory B', lid: 'FAC-B-COMP-4410', spa: 'SPA-COMP-0101', comm: '<span class="resolved">Same Shared BOM reference</span>' },
+          ],
+          note: 'Both factories reference SPA-COMP-0101. Transfer proceeds without re-confirmation step.',
+        },
+      },
+    };
+
+    function render() {
+      const d = data[scen][state];
+      document.getElementById('scen-a').classList.toggle('hidden', scen !== 'A');
+      document.getElementById('scen-b').classList.toggle('hidden', scen !== 'B');
+
+      if (scen === 'A') {
+        document.getElementById('th-shared-a').textContent = d.th;
+        const tbody = document.getElementById('tbody-a');
+        tbody.innerHTML = '';
+        d.rows.forEach(r => {
+          const tr = document.createElement('tr');
+          tr.className = 'fade-in';
+          const spaCell = r.spa ? `<td class="unified-id">${r.spa}</td>` : `<td></td>`;
+          tr.innerHTML = `<td class="${r.rc}">${r.r}</td><td class="local-id">${r.lid}</td>${spaCell}<td>${r.mat}</td><td>${r.comm}</td>`;
+          tbody.appendChild(tr);
+        });
+      } else {
+        document.getElementById('th-shared-b').textContent = d.th;
+        const tbody = document.getElementById('tbody-b');
+        tbody.innerHTML = '';
+        d.rows.forEach(r => {
+          const tr = document.createElement('tr');
+          tr.className = 'fade-in';
+          const spaCell = r.spa ? `<td class="unified-id">${r.spa}</td>` : `<td></td>`;
+          tr.innerHTML = `<td>${r.step}</td><td>${r.fac}</td><td class="local-id">${r.lid}</td>${spaCell}<td>${r.comm}</td>`;
+          tbody.appendChild(tr);
+        });
+      }
+
+      document.getElementById('bottom-note').innerHTML = d.note;
+    }
+
+    function setState(s) {
+      state = s;
+      document.getElementById('btn-current').classList.toggle('active', s === 'current');
+      document.getElementById('btn-after').classList.toggle('active', s === 'after');
+      render();
+    }
+
+    function setScen(s) {
+      scen = s;
+      document.getElementById('btn-a').classList.toggle('active', s === 'A');
+      document.getElementById('btn-b').classList.toggle('active', s === 'B');
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>

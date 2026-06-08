@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartPN Atlas — S12 Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, 'SF Pro Text', Arial, sans-serif; background: #fff; color: #1A1A1A; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .brand { font-size: 15px; font-weight: 500; color: #54463A; }
+    .scenario-tag { font-size: 12px; color: #888; border: 0.5px solid #E5E5E5; border-radius: 20px; padding: 4px 12px; }
+    .section-bar { display: flex; align-items: center; gap: 12px; padding: 12px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .label { font-size: 12px; color: #999; }
+    .batch-btns { display: flex; gap: 6px; }
+    .batch-btn { font-size: 12px; padding: 6px 16px; border-radius: 20px; border: 0.5px solid #E5E5E5; background: transparent; color: #666; cursor: pointer; transition: all 0.15s; }
+    .batch-btn.active { background: #54463A; color: #fff; border-color: #54463A; }
+    .content { padding: 20px 24px; display: grid; gap: 20px; }
+    .product-card { background: #FAFAF8; border: 0.5px solid #E5E5E5; border-radius: 10px; padding: 14px; display: flex; gap: 24px; }
+    .product-attr { display: flex; flex-direction: column; gap: 2px; }
+    .attr-label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.04em; }
+    .attr-val { font-size: 14px; font-weight: 500; }
+    .same-badge { background: #E5E5E5; color: #888; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+    .card { border: 0.5px solid #E5E5E5; border-radius: 10px; overflow: hidden; }
+    .card-header { padding: 10px 16px; background: #FAFAF8; border-bottom: 0.5px solid #E5E5E5; font-size: 12px; font-weight: 500; color: #54463A; text-transform: uppercase; letter-spacing: 0.04em; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { font-size: 11px; font-weight: 500; color: #999; text-align: left; padding: 0 14px 10px; border-bottom: 0.5px solid #E5E5E5; letter-spacing: 0.04em; text-transform: uppercase; }
+    tbody tr { border-bottom: 0.5px solid #F0F0F0; }
+    tbody td { font-size: 13px; padding: 11px 14px; }
+    .composition-a { color: #2D7A4A; font-weight: 500; }
+    .composition-b { color: #A04000; font-weight: 500; }
+    .diff-highlight { background: #FFF8E6; }
+    .note { font-size: 12px; color: #666; padding: 10px 14px; background: #FAFAF8; border-radius: 8px; border-left: 2px solid #54463A; }
+    .boundary { font-size: 11px; color: #999; padding: 8px 14px; background: #F9F9F9; border-radius: 8px; border: 0.5px dashed #DDD; }
+    .fade-in { animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <span class="brand">SmartPN Atlas</span>
+    <span class="scenario-tag">S12 — Same QR, Different DPP Composition</span>
+  </div>
+
+  <div class="section-bar">
+    <span class="label">Select batch:</span>
+    <div class="batch-btns">
+      <button class="batch-btn active" onclick="setBatch('A', this)">Batch A</button>
+      <button class="batch-btn" onclick="setBatch('B', this)">Batch B</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="product-card">
+      <div class="product-attr"><span class="attr-label">Product</span><span class="attr-val">product-01</span></div>
+      <div class="product-attr"><span class="attr-label">QR Code</span><span class="attr-val">qr-01 <span class="same-badge">Same QR</span></span></div>
+      <div class="product-attr"><span class="attr-label">BOM Line</span><span class="attr-val">material group 01</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">DPP Composition by Batch</div>
+      <table>
+        <thead><tr><th>Case</th><th>Product</th><th>QR</th><th>Raw Material</th><th>Supplier</th><th>Composition</th></tr></thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+
+    <div class="note" id="bottom-note"></div>
+    <div class="boundary">Boundary: SmartPN Atlas is NOT a complete DPP platform or regulatory compliance authority. It provides structured source data for DPP composition based on actual factory BOM.</div>
+  </div>
+
+  <script>
+    const batches = {
+      A: {
+        row: { batch: 'Batch A', product: 'product-01', qr: 'qr-01', mat: 'raw material 01', sup: 'supplier-01', comp: '<span class="composition-a">60% recycled polyester / 40% TPU</span>' },
+        note: 'Batch A: supplier-01 delivers raw material 01. Composition: 60% recycled polyester / 40% TPU.',
+      },
+      B: {
+        row: { batch: 'Batch B', product: 'product-01', qr: 'qr-01', mat: 'raw material 01', sup: '<span class="composition-b">supplier-02</span>', comp: '<span class="composition-b">55% recycled polyester / 45% TPU</span>' },
+        note: 'Batch B: supplier-02 provides same material but different composition (55/45). Same QR code — different DPP content. SmartPN Atlas makes this visible.',
+        highlight: true,
+      },
+    };
+
+    function setBatch(b, btn) {
+      document.querySelectorAll('.batch-btn').forEach(x => x.classList.remove('active'));
+      btn.classList.add('active');
+      const d = batches[b];
+      const tbody = document.getElementById('table-body');
+      tbody.innerHTML = '';
+      const tr = document.createElement('tr');
+      tr.className = 'fade-in' + (d.highlight ? ' diff-highlight' : '');
+      tr.innerHTML = `<td>${d.row.batch}</td><td>${d.row.product}</td><td>${d.row.qr}</td><td>${d.row.mat}</td><td>${d.row.sup}</td><td>${d.row.comp}</td>`;
+      tbody.appendChild(tr);
+      document.getElementById('bottom-note').innerHTML = d.note;
+    }
+
+    setBatch('A', document.querySelector('.batch-btn'));
+  </script>
+</body>
+</html>

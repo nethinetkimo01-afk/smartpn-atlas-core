@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartPN Atlas — S04 Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, 'SF Pro Text', Arial, sans-serif; background: #fff; color: #1A1A1A; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .brand { font-size: 15px; font-weight: 500; color: #54463A; }
+    .scenario-tag { font-size: 12px; color: #888; border: 0.5px solid #E5E5E5; border-radius: 20px; padding: 4px 12px; }
+    .section-bar { display: flex; align-items: center; gap: 12px; padding: 12px 24px; border-bottom: 0.5px solid #E5E5E5; flex-wrap: wrap; }
+    .toggle-wrap { display: flex; background: #FAFAF8; border-radius: 8px; padding: 3px; border: 0.5px solid #E5E5E5; }
+    .toggle-btn { font-size: 12px; padding: 5px 14px; border-radius: 6px; border: none; background: transparent; color: #666; cursor: pointer; }
+    .toggle-btn.active { background: #fff; color: #1A1A1A; font-weight: 500; box-shadow: 0 0 0 0.5px #E5E5E5; }
+    .filter-grp { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+    .filter-label { font-size: 12px; color: #999; }
+    .filter-btn { font-size: 11px; padding: 5px 12px; border-radius: 20px; border: 0.5px solid #E5E5E5; background: transparent; color: #666; cursor: pointer; }
+    .filter-btn.active { background: #54463A; color: #fff; border-color: #54463A; }
+    .table-wrap { padding: 20px 24px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    thead th { font-size: 11px; font-weight: 500; color: #999; text-align: left; padding: 0 12px 10px; border-bottom: 0.5px solid #E5E5E5; letter-spacing: 0.04em; text-transform: uppercase; }
+    tbody tr { border-bottom: 0.5px solid #F0F0F0; }
+    tbody tr:hover { background: #FAFAF8; }
+    tbody td { font-size: 13px; padding: 12px; }
+    .brand-a { color: #1A6ABA; font-weight: 500; }
+    .brand-b { color: #BA4A1A; font-weight: 500; }
+    .unified-id { color: #54463A; font-weight: 600; }
+    .local-id { color: #888; }
+    .note { font-size: 12px; color: #666; padding: 10px 14px; background: #FAFAF8; border-radius: 8px; border-left: 2px solid #54463A; }
+    .fade-in { animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <span class="brand">SmartPN Atlas</span>
+    <span class="scenario-tag">S04 — Shared Language Across Brands &amp; Product Lines</span>
+  </div>
+
+  <div class="section-bar">
+    <div class="toggle-wrap">
+      <button class="toggle-btn active" id="btn-current" onclick="setState('current')">Current</button>
+      <button class="toggle-btn" id="btn-after" onclick="setState('after')">After SmartPN Atlas</button>
+    </div>
+    <div class="filter-grp">
+      <span class="filter-label">Brand:</span>
+      <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+      <button class="filter-btn" onclick="setFilter('a', this)">Brand A</button>
+      <button class="filter-btn" onclick="setFilter('b', this)">Brand B</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead id="thead-row"></thead>
+      <tbody id="table-body"></tbody>
+    </table>
+    <div class="note" id="bottom-note"></div>
+  </div>
+
+  <script>
+    let state = 'current';
+    let filter = 'all';
+
+    const rows = [
+      { key: 'a', group: 'Group A', brand: 'Brand A', brandCls: 'brand-a', line: 'Footwear', localId: 'A-SHOE-MAT-118', spaId: 'SPA-MAT-0001', mat: 'Black recycled polyester mesh' },
+      { key: 'a', group: 'Group A', brand: 'Brand A', brandCls: 'brand-a', line: 'Apparel', localId: 'A-APP-MAT-552', spaId: 'SPA-MAT-0001', mat: 'Black recycled polyester mesh' },
+      { key: 'b', group: 'Group A', brand: 'Brand B', brandCls: 'brand-b', line: 'Footwear', localId: 'B-SHOE-MAT-778', spaId: 'SPA-MAT-0001', mat: 'Black recycled polyester mesh' },
+      { key: 'b', group: 'Group A', brand: 'Brand B', brandCls: 'brand-b', line: 'Bags', localId: 'B-BAG-MAT-411', spaId: 'SPA-MAT-0001', mat: 'Black recycled polyester mesh' },
+    ];
+
+    const notes = {
+      current: 'Same group, two brands, multiple product lines — each maintains independent material IDs. No group-level shared reference exists.',
+      after: 'After SmartPN Atlas: all 4 entries map to SPA-MAT-0001. Group owner can see material usage across Brand A and Brand B simultaneously.',
+    };
+
+    function setState(s) {
+      state = s;
+      document.getElementById('btn-current').classList.toggle('active', s === 'current');
+      document.getElementById('btn-after').classList.toggle('active', s === 'after');
+      render();
+    }
+
+    function setFilter(f, btn) {
+      filter = f;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    }
+
+    function render() {
+      const filtered = filter === 'all' ? rows : rows.filter(r => r.key === filter);
+      const isAfter = state === 'after';
+      const headers = isAfter
+        ? ['Group', 'Brand', 'Product Line', 'Local ID', 'SmartPN Atlas ID', 'Material']
+        : ['Group', 'Brand', 'Product Line', 'Local ID', 'Material'];
+
+      document.getElementById('thead-row').innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
+      const tbody = document.getElementById('table-body');
+      tbody.innerHTML = '';
+      filtered.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.className = 'fade-in';
+        if (isAfter) {
+          tr.innerHTML = `<td>${r.group}</td><td class="${r.brandCls}">${r.brand}</td><td>${r.line}</td><td class="local-id">${r.localId}</td><td class="unified-id">${r.spaId}</td><td>${r.mat}</td>`;
+        } else {
+          tr.innerHTML = `<td>${r.group}</td><td class="${r.brandCls}">${r.brand}</td><td>${r.line}</td><td class="local-id">${r.localId}</td><td>${r.mat}</td>`;
+        }
+        tbody.appendChild(tr);
+      });
+      document.getElementById('bottom-note').textContent = notes[state];
+    }
+
+    render();
+  </script>
+</body>
+</html>

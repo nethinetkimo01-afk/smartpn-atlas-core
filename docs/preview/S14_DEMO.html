@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartPN Atlas — S14 Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, 'SF Pro Text', Arial, sans-serif; background: #fff; color: #1A1A1A; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .brand { font-size: 15px; font-weight: 500; color: #54463A; }
+    .scenario-tag { font-size: 12px; color: #888; border: 0.5px solid #E5E5E5; border-radius: 20px; padding: 4px 12px; }
+    .section-bar { display: flex; align-items: center; gap: 12px; padding: 12px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .role-label { font-size: 12px; color: #999; }
+    .role-btns { display: flex; gap: 6px; }
+    .role-btn { font-size: 11px; padding: 5px 14px; border-radius: 20px; border: 0.5px solid #E5E5E5; background: transparent; color: #666; cursor: pointer; }
+    .role-btn.active { background: #54463A; color: #fff; border-color: #54463A; }
+    .content { padding: 20px 24px; display: grid; gap: 20px; }
+    .card { border: 0.5px solid #E5E5E5; border-radius: 10px; overflow: hidden; }
+    .card-header { padding: 10px 16px; background: #FAFAF8; border-bottom: 0.5px solid #E5E5E5; font-size: 12px; font-weight: 500; color: #54463A; text-transform: uppercase; letter-spacing: 0.04em; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { font-size: 11px; font-weight: 500; color: #999; text-align: left; padding: 0 14px 10px; border-bottom: 0.5px solid #E5E5E5; letter-spacing: 0.04em; text-transform: uppercase; }
+    tbody tr { border-bottom: 0.5px solid #F0F0F0; }
+    tbody td { font-size: 13px; padding: 11px 14px; }
+    .status-ready { background: #EAF3DE; color: #3B6D11; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+    .status-auth { background: #E8F0FB; color: #1A6ABA; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+    .status-noauth { background: #F5F5F5; color: #888; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+    .auth-btn { font-size: 11px; padding: 4px 12px; border-radius: 6px; border: 0.5px solid #1A6ABA; background: transparent; color: #1A6ABA; cursor: pointer; transition: all 0.15s; }
+    .auth-btn:hover { background: #1A6ABA; color: #fff; }
+    .note { font-size: 12px; color: #666; padding: 10px 14px; background: #FAFAF8; border-radius: 8px; border-left: 2px solid #54463A; }
+    .not-visible { text-align: center; padding: 24px; color: #999; font-size: 13px; }
+    .fade-in { animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <span class="brand">SmartPN Atlas</span>
+    <span class="scenario-tag">S14 — Supplier Prepares Exchange-Ready Data</span>
+  </div>
+
+  <div class="section-bar">
+    <span class="role-label">View as:</span>
+    <div class="role-btns">
+      <button class="role-btn active" onclick="setRole('supplier', this)">Supplier</button>
+      <button class="role-btn" onclick="setRole('partner', this)">partner-01</button>
+    </div>
+  </div>
+
+  <div class="content" id="main-content"></div>
+
+  <script>
+    const authorized = { 'product-code': true, 'material-code': true, composition: true, 'evidence-file': false };
+
+    function renderSupplier() {
+      return `
+        <div class="card">
+          <div class="card-header">Data Fields — Authorization Control</div>
+          <table>
+            <thead><tr><th>Field</th><th>Source</th><th>Readiness</th><th>Authorized to partner-01</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td>product-code</td><td>Mapped</td><td><span class="status-ready">Ready</span></td><td id="auth-pc">${authorized['product-code'] ? '<span class="status-auth">Authorized</span>' : '<span class="status-noauth">Not authorized</span>'}</td><td>—</td></tr>
+              <tr><td>material-code</td><td>Mapped</td><td><span class="status-ready">Ready</span></td><td id="auth-mc">${authorized['material-code'] ? '<span class="status-auth">Authorized</span>' : '<span class="status-noauth">Not authorized</span>'}</td><td>—</td></tr>
+              <tr><td>composition</td><td>SmartPN Atlas</td><td><span class="status-ready">Ready</span></td><td id="auth-comp">${authorized['composition'] ? '<span class="status-auth">Authorized</span>' : '<span class="status-noauth">Not authorized</span>'}</td><td>—</td></tr>
+              <tr><td>evidence-file</td><td>SmartPN Atlas</td><td><span class="status-ready">Ready</span></td><td id="auth-ev">${authorized['evidence-file'] ? '<span class="status-auth">Authorized</span>' : '<span class="status-noauth">Not authorized</span>'}</td>
+                <td><button class="auth-btn" onclick="authorize()">Authorize</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">Supplier controls what is shared and with whom. Evidence-file is ready but not yet authorized for partner-01. Click Authorize to grant access.</div>`;
+    }
+
+    function renderPartner() {
+      const visible = Object.entries(authorized).filter(([k, v]) => v);
+      if (visible.length === 0) {
+        return `<div class="card"><div class="not-visible">No data fields authorized yet.</div></div>`;
+      }
+      const rows = visible.map(([k]) => `<tr class="fade-in"><td>${k}</td><td><span class="status-ready">Visible</span></td></tr>`).join('');
+      const hidden = Object.entries(authorized).filter(([k, v]) => !v).map(([k]) => `<tr><td>${k}</td><td><span class="status-noauth">Not authorized</span></td></tr>`).join('');
+      return `
+        <div class="card">
+          <div class="card-header">partner-01 — Authorized Field View</div>
+          <table>
+            <thead><tr><th>Field</th><th>Access</th></tr></thead>
+            <tbody>${rows}${hidden}</tbody>
+          </table>
+        </div>
+        <div class="note">partner-01 sees only fields supplier authorized. Evidence-file: not visible until supplier authorizes it.</div>`;
+    }
+
+    let currentRole = 'supplier';
+
+    function setRole(role, btn) {
+      currentRole = role;
+      document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('main-content').innerHTML = role === 'supplier' ? renderSupplier() : renderPartner();
+    }
+
+    function authorize() {
+      authorized['evidence-file'] = true;
+      setRole('supplier', document.querySelector('.role-btn'));
+    }
+
+    setRole('supplier', document.querySelector('.role-btn'));
+  </script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartPN Atlas — S10 Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, 'SF Pro Text', Arial, sans-serif; background: #fff; color: #1A1A1A; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .brand { font-size: 15px; font-weight: 500; color: #54463A; }
+    .scenario-tag { font-size: 12px; color: #888; border: 0.5px solid #E5E5E5; border-radius: 20px; padding: 4px 12px; }
+    .search-bar { display: flex; align-items: center; gap: 10px; padding: 14px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .search-wrap { display: flex; align-items: center; gap: 8px; background: #FAFAF8; border: 0.5px solid #E5E5E5; border-radius: 8px; padding: 8px 14px; width: 240px; }
+    .search-wrap input { border: none; background: transparent; font-size: 13px; outline: none; width: 100%; }
+    .search-btn { font-size: 12px; padding: 7px 16px; border-radius: 8px; border: 0.5px solid #E5E5E5; background: transparent; color: #54463A; cursor: pointer; font-weight: 500; transition: all 0.15s; }
+    .search-btn:hover { background: #54463A; color: #fff; border-color: #54463A; }
+    .search-btn.active { background: #54463A; color: #fff; border-color: #54463A; }
+    .content { padding: 20px 24px; }
+    .selected-card { border: 0.5px solid #54463A; border-radius: 10px; padding: 14px; margin-bottom: 20px; background: #FAFAF8; }
+    .selected-label { font-size: 11px; color: #888; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .selected-val { font-size: 14px; font-weight: 500; color: #1A1A1A; display: flex; gap: 24px; }
+    .attr { display: flex; flex-direction: column; gap: 2px; }
+    .attr-label { font-size: 11px; color: #999; }
+    .attr-val { font-size: 13px; font-weight: 500; }
+    .results-title { font-size: 12px; font-weight: 500; color: #999; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 10px; }
+    .card { border: 0.5px solid #E5E5E5; border-radius: 10px; overflow: hidden; margin-bottom: 16px; }
+    .card-header { padding: 10px 16px; background: #FAFAF8; border-bottom: 0.5px solid #E5E5E5; font-size: 12px; font-weight: 500; color: #54463A; text-transform: uppercase; letter-spacing: 0.04em; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { font-size: 11px; font-weight: 500; color: #999; text-align: left; padding: 0 14px 10px; border-bottom: 0.5px solid #E5E5E5; letter-spacing: 0.04em; text-transform: uppercase; }
+    tbody tr { border-bottom: 0.5px solid #F0F0F0; }
+    tbody td { font-size: 13px; padding: 11px 14px; }
+    .badge-id { background: #EAF3DE; color: #3B6D11; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+    .badge-alt { background: #E8F0FB; color: #1A6ABA; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+    .lt-shorter { color: #2D7A4A; font-weight: 500; }
+    .hidden { display: none; }
+    .fade-in { animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <span class="brand">SmartPN Atlas</span>
+    <span class="scenario-tag">S10 — Find Identical &amp; Alternative Materials</span>
+  </div>
+
+  <div class="search-bar">
+    <div class="search-wrap"><input type="text" value="unified name 01" readonly /></div>
+    <button class="search-btn" id="btn-identical" onclick="search('identical', this)">Search Identical</button>
+    <button class="search-btn" id="btn-alternative" onclick="search('alternative', this)">Search Alternative</button>
+  </div>
+
+  <div class="content">
+    <div class="selected-card">
+      <div class="selected-label">Selected Material</div>
+      <div class="selected-val">
+        <div class="attr"><span class="attr-label">SPU</span><span class="attr-val">spu-01</span></div>
+        <div class="attr"><span class="attr-label">SKU</span><span class="attr-val">sku-01</span></div>
+        <div class="attr"><span class="attr-label">Name</span><span class="attr-val">unified name 01</span></div>
+        <div class="attr"><span class="attr-label">Supplier</span><span class="attr-val">supplier-01</span></div>
+        <div class="attr"><span class="attr-label">Lead Time</span><span class="attr-val">30 days</span></div>
+      </div>
+    </div>
+
+    <div id="result-section" class="hidden fade-in">
+      <div class="results-title" id="result-title"></div>
+      <div class="card">
+        <div class="card-header" id="result-header"></div>
+        <table>
+          <thead><tr><th>Supplier</th><th>SPU</th><th>SKU</th><th>Name</th><th>Lead Time</th><th>Type</th></tr></thead>
+          <tbody id="result-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const results = {
+      identical: {
+        title: 'Identical Material Results (same SPU + same SKU)',
+        header: 'Identical Material — spu-01 / sku-01',
+        rows: [
+          { supplier: 'supplier-02', spu: 'spu-01', sku: 'sku-01', name: 'unified name 01', lt: '<span class="lt-shorter">20 days ↓</span>', type: '<span class="badge-id">Identical, shorter LT</span>' },
+        ],
+      },
+      alternative: {
+        title: 'Alternative Material Results (same SPU + different SKU)',
+        header: 'Alternative Material — spu-01 / different SKU',
+        rows: [
+          { supplier: 'supplier-03', spu: 'spu-01', sku: 'sku-02', name: 'alternative name 01', lt: '<span class="lt-shorter">15 days ↓↓</span>', type: '<span class="badge-alt">Alternative material</span>' },
+        ],
+      },
+    };
+
+    let current = null;
+
+    function search(type, btn) {
+      if (current === type) {
+        document.getElementById('result-section').classList.add('hidden');
+        btn.classList.remove('active');
+        current = null;
+        return;
+      }
+      current = type;
+      document.querySelectorAll('.search-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const d = results[type];
+      document.getElementById('result-title').textContent = d.title;
+      document.getElementById('result-header').textContent = d.header;
+      const tbody = document.getElementById('result-body');
+      tbody.innerHTML = '';
+      d.rows.forEach(r => {
+        tbody.innerHTML += `<tr><td>${r.supplier}</td><td>${r.spu}</td><td>${r.sku}</td><td>${r.name}</td><td>${r.lt}</td><td>${r.type}</td></tr>`;
+      });
+      document.getElementById('result-section').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>

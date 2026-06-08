@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartPN Atlas — S08 Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, 'SF Pro Text', Arial, sans-serif; background: #fff; color: #1A1A1A; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 0.5px solid #E5E5E5; }
+    .brand { font-size: 15px; font-weight: 500; color: #54463A; }
+    .scenario-tag { font-size: 12px; color: #888; border: 0.5px solid #E5E5E5; border-radius: 20px; padding: 4px 12px; }
+    .tab-bar { display: flex; gap: 0; border-bottom: 0.5px solid #E5E5E5; padding: 0 24px; }
+    .tab { font-size: 13px; padding: 12px 18px; border: none; background: transparent; color: #888; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
+    .tab.active { color: #54463A; font-weight: 500; border-bottom-color: #54463A; }
+    .content { padding: 20px 24px; }
+    .card { border: 0.5px solid #E5E5E5; border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+    .card-header { padding: 10px 16px; background: #FAFAF8; border-bottom: 0.5px solid #E5E5E5; font-size: 12px; font-weight: 500; color: #54463A; text-transform: uppercase; letter-spacing: 0.04em; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { font-size: 11px; font-weight: 500; color: #999; text-align: left; padding: 0 14px 10px; border-bottom: 0.5px solid #E5E5E5; letter-spacing: 0.04em; text-transform: uppercase; }
+    tbody tr { border-bottom: 0.5px solid #F0F0F0; }
+    tbody td { font-size: 13px; padding: 11px 14px; }
+    .amount { font-weight: 500; color: #1A1A1A; }
+    .sub { color: #54463A; font-weight: 600; }
+    .group-lbl { color: #7A2D7A; font-weight: 500; }
+    .boundary { font-size: 11px; color: #999; padding: 8px 14px; background: #F9F9F9; border-radius: 8px; border: 0.5px dashed #DDD; margin-top: 8px; }
+    .hidden { display: none; }
+    .fade-in { animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <span class="brand">SmartPN Atlas</span>
+    <span class="scenario-tag">S08 — Supplier Group Owner Dashboard</span>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab active" onclick="setTab('sales', this)">Sales Analysis</button>
+    <button class="tab" onclick="setTab('collection', this)">Collection Analysis</button>
+    <button class="tab" onclick="setTab('price', this)">Unit Price Maintenance</button>
+  </div>
+
+  <div class="content">
+    <!-- Sales -->
+    <div id="tab-sales" class="fade-in">
+      <div class="card">
+        <div class="card-header">Sales by Product Group &amp; Customer</div>
+        <table>
+          <thead><tr><th>Subsidiary</th><th>Country</th><th>Product Group</th><th>Customer</th><th>Sales Volume</th><th>Sales Amount</th></tr></thead>
+          <tbody>
+            <tr><td class="group-lbl">Supplier Vietnam Co.</td><td>Vietnam</td><td>Recycled polyester mesh</td><td>Factory Group A</td><td class="amount">120,000 m</td><td class="amount">$240,000</td></tr>
+            <tr><td class="group-lbl">Supplier Indonesia Co.</td><td>Indonesia</td><td>Recycled polyester mesh</td><td>Factory Group B</td><td class="amount">80,000 m</td><td class="amount">$168,000</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="boundary">KPIs: sales volume by product group, customer/factory company share by subsidiary or country. No brand-level sales comparison, no gross margin.</div>
+    </div>
+
+    <!-- Collection -->
+    <div id="tab-collection" class="hidden fade-in">
+      <div class="card">
+        <div class="card-header">Expected Collection by Factory Company</div>
+        <table>
+          <thead><tr><th>Factory Company</th><th>Payment Terms</th><th>AR Amount</th><th>Expected Collection Month</th><th>Expected Amount</th></tr></thead>
+          <tbody>
+            <tr><td>Factory A Vietnam Ltd.</td><td>Net 60</td><td class="amount">$80,000</td><td class="sub">2026-06</td><td class="amount">$80,000</td></tr>
+            <tr><td>Factory B Indonesia Ltd.</td><td>Net 45</td><td class="amount">$60,000</td><td class="sub">2026-05</td><td class="amount">$60,000</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Unit Price -->
+    <div id="tab-price" class="hidden fade-in">
+      <div class="card">
+        <div class="card-header">Unit Price Maintenance</div>
+        <table>
+          <thead><tr><th>Product Group</th><th>Local ID</th><th>Factory Company</th><th>Unit Price</th><th>Currency</th><th>Valid From</th><th>Valid To</th></tr></thead>
+          <tbody>
+            <tr><td>Recycled polyester mesh</td><td class="sub">SUP-A-991</td><td>Factory A Vietnam</td><td class="amount">2.00</td><td>USD/m</td><td>2026-01</td><td>2026-06</td></tr>
+            <tr><td>Recycled polyester mesh</td><td class="sub">SUP-A-991-V2</td><td>Factory B Indonesia</td><td class="amount">2.10</td><td>USD/m</td><td>2026-01</td><td>2026-06</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function setTab(tab, btn) {
+      document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      ['sales', 'collection', 'price'].forEach(t => {
+        document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab);
+      });
+    }
+  </script>
+</body>
+</html>

@@ -4,27 +4,37 @@ Last updated: 2026-06-08
 
 ---
 
-## 今日待辦（2026-06-08）
+## 今日完成（2026-06-08 evening）
 
-### DATA SYSTEM
+### DATA SYSTEM — 已完成
+- [x] ds04_pipeline.py 修正：Rule 19 成型进度段落過濾 + 廠務合批跳過 → 數量差異從 256→32 筆
+- [x] generate_bianche.py 製令明細加入「外包鞋面」欄位（J欄），小計行含外包鞋面小計
+- [x] IE 匯入：C:\Users\user\OneDrive\Desktop\IE 新增掃描（含縮寫ART還原）
+- [x] 1609 IE 文件導入（KI9854/55/56/57/61）
+- [x] nightly/tasks/data_system.py Task 6（IE全面掃描）+ Task 7（gb.run() + bianche_diff 更新 24_DATA_SYSTEM.md）
+- [x] missing_ie_list.txt：134 筆 ART 缺 IE 記錄
+- [x] 07_RULES.md v2.9：Rule 11 + Rule 14 + Rule 18 更新
+- [x] 24_DATA_SYSTEM.md v3.2：DS-03/04/05 月度流程確認
+
+### SmartPN Atlas — 已完成
+- [x] docs/preview/S01_DEMO.html（已提交）
+- [x] docs/preview/S02_DEMO.html 至 S17_DEMO.html 全部建立（16 個互動式 Demo 畫面）
+- [x] 28_DEMO_MENU_STRUCTURE.md 建立（Phase 1 Demo SaaS + Formal Demo B 側欄結構）
+- [x] 00_ENTRY_POINT.md 加入 28 號文件索引 + demo screens 路徑
+
+### 待確認（需 Jim 決定）
 - [ ] Jim 確認 EOLR mapping（每個 LEAN 組別對應哪個 EOLR）
 - [ ] Jim 確認 MP 分配規則（DB ob_epph 整條產線 vs 廠務分配後，差距 2~3 倍）
 - [ ] DS-04 有/廠務無 17 筆 ART — Jim 決定是否補登廠務編制表
 - [ ] 廠務有/DS04 無 1 筆（JS1068, LEAN=7A）— Jim 決定廠務表是否刪除
 - [ ] DS-06 定義 — 等 Jim 輸入
-- [ ] T5 auto_bianche 生成 ❌ 修復（上次 WinError 32 檔案鎖定問題）
+- [ ] 27_SMARTPN_LAYER_DEFINITION.md — Jim 尚未提供內容
 
-### SmartPN Atlas
+### 進行中
 - [ ] Partner outreach 目標資料庫建立（8 個版本外聯信）
 - [ ] GTS 透明說明信草稿
 - [ ] Kate Nishimura 草稿送出
 - [ ] S02 PPT 最終確認
-- [ ] 11_DESIGN_SYSTEM.md Apple 風格補充（已完成 2026-06-08）
-- [ ] 01_CONSTITUTION.md 層定義 + SGL 候選名詞（已完成 2026-06-08）
-
-### 規則更新（已完成 2026-06-08）
-- [x] 07_RULES.md v2.9：Rule 11 派工執行補充 + Rule 14 新視窗補充 + Rule 18 Dynamic Workflow
-- [x] 24_DATA_SYSTEM.md v3.2：DS-03 輸入方式確認 + DS-04/05 月度更新流程 + 架構 10人/24h 確認
 
 ---
 
