@@ -459,33 +459,40 @@ API endpoints:
 
 ## 最新執行結果
 
-**執行時間**：2026-06-06 16:07
+**執行時間**：2026-06-08
 
-### 各任務狀態
+### generate_bianche.py 合併邏輯修正（2026-06-08）
 
-| 任務 | 狀態 |
-|------|------|
-| T0 檔案版本檢查 | ✅ ok |
-| T1 IE 匯入 | ✅ ok (0 new) |
-| T2 comparison_table.xlsx | ✅ ok |
-| T3 MP 分配分析 | ✅ ok |
-| T4 LEAN/OCS 比對 | ❌ error |
-| T5 auto_bianche生成 | ❌ error: [WinError 32] 程序無法存取檔案，因為檔案正由另一個程序使用。 |
-| T6 bianche_diff | ✅ ok |
+**修正內容**：同一 LEAN 組內，Model Name 相同 + LC 值（cutting/stitching/assembly/stockfitting）相同 → 合併顯示，訂單加總；不同 LC 值 → 分開顯示。
 
-### LEAN / OCS 比對摘要
+**1A 驗算結果**：
 
-| 項目 | 數值 |
-|------|------|
-| LEAN 一致 | 303 筆 |
-| LEAN 不符 | 141 筆（跨部門業務差異，不處理） |
-| ART DS04有/廠務無 | 17 筆 |
-| ART 廠務有/DS04無 | 1 筆 |
-| OCS 固定單位 | ✓ 5 Tab 100% 一致 |
+| 合併後顯示 | ART 清單 | 訂單合計 |
+|-----------|---------|---------|
+| CODECHAOS 27 | KI1388 / KI5735 / KI5736 / KK0658 | 5,889 |
+| JR CODECHAOS BOA 27 | KI5746 / KI5747 | **600** ✓ |
+| W GAZELLE GOLF (KH8402) | KH8402 | **756** ✓ |
+
+- CODECHAOS 27 auto=5,889 vs Jim 廠務=2,830：差距為 DS-04 May 30 vs 廠務 May 24 日期差異（正常）
+- JR CODECHAOS BOA 27 = 600 ✓ 與廠務一致
+- W GAZELLE GOLF (KH8402) = 756 ✓ 與廠務一致
+
+### 合併後 bianche_diff 比對結果
+
+| 項目 | 修正前 | 修正後 |
+|------|--------|--------|
+| 訂單完全一致 | 39 筆 | **110 筆** ↑ |
+| 訂單邏輯差異（廠務合批） | 211 筆 | **131 筆** ↓ |
+| 訂單人為差異 | 32 筆 | **41 筆** |
+| ART auto有/廠務無 | 10 筆 | 10 筆（不變） |
+| ART 廠務有/auto無 | 14 筆 | 14 筆（全為外包鞋面，正常） |
+| LEAN 一致 | 282 筆 | 282 筆（不變） |
+| OCS 5 Tab | ✓ 全一致 | ✓ 全一致 |
 
 ### 需要 Jim 確認的事項
 
 - EOLR mapping：每個組別對應哪個 EOLR？（PENDING）
 - MP 分配規則：DB ob_epph 整條產線 MP vs 廠務編制表分配後 MP，差距約 2~3 倍（PENDING）
-- DS04 有/廠務無 ART **17** 筆 — 是否需補登廠務編制表？
-- 廠務有/DS04 無 ART **1** 筆（JS1068, LEAN=7A）— 廠務表是否刪除？
+- ART auto有/廠務無 **10** 筆 — 是否需補登廠務編制表？
+- ART 廠務有/auto無 **14** 筆（全為外包鞋面）— 確認廠務表保留即可
+- 訂單人為差異 **41** 筆 — 見 bianche_diff.txt 完整清單

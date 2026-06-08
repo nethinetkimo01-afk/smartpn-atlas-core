@@ -19,6 +19,7 @@ from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
 import build_result_table as brt
+import database as db
 
 BIANCHE_ORIG = r'C:\Users\user\OneDrive\Desktop\Biên chế\Jun\2026年6月份廠務组织編制 20260524.xlsx'
 BIANCHE_TMP  = r'C:\Users\user\AppData\Local\Temp\bianche_gen.xlsx'
@@ -61,6 +62,62 @@ def _safe_bianche():
         if not os.path.exists(BIANCHE_TMP):
             shutil.copy2(BIANCHE_ORIG, BIANCHE_TMP)
         return BIANCHE_TMP
+
+
+def get_lc(art):
+    """Return (cut, stitch, asm, stock) tuple from DS-02, or None if not found."""
+    try:
+        conn = db.get_conn()
+        row = conn.execute(
+            'SELECT lc_cutting, lc_stitching, lc_assembly, lc_stockfitting '
+            'FROM ds02_fob WHERE art=? LIMIT 1', (art,)
+        ).fetchone()
+        conn.close()
+        if row and any(v is not None for v in row):
+            return tuple(row)
+        return None
+    except Exception:
+        return None
+
+
+def merge_lean_rows(art_rows):
+    """Within a LEAN group: same model_name + same LC key → merge, sum qty.
+    Different LC or no DS-02 data → separate row.
+    Returns list of {'label': str, 'qty': int, 'arts': [str]}.
+    """
+    # Use ordered dict to preserve first-seen order per group
+    groups = {}   # key (model, lc_tuple) -> {'model', 'lc', 'arts': [], 'qty': 0}
+    order  = []   # insertion order of keys
+
+    for r in art_rows:
+        art   = r['art']
+        qty   = r['qty']
+        model = brt.get_model(art) or ''
+        lc    = get_lc(art)
+
+        if model and lc:
+            key = (model, lc)
+        else:
+            # No match possible — treat as unique singleton
+            key = ('', None, art)   # unique key per ART
+
+        if key not in groups:
+            groups[key] = {'model': model, 'lc': lc, 'arts': [], 'qty': 0}
+            order.append(key)
+        groups[key]['arts'].append(art)
+        groups[key]['qty'] += qty
+
+    result = []
+    for key in order:
+        g = groups[key]
+        arts_sorted = sorted(g['arts'])
+        arts_joined = ' / '.join(arts_sorted)
+        if g['model']:
+            label = g['model'] + ' ( ' + arts_joined + ' )'
+        else:
+            label = '( ' + arts_joined + ' )'
+        result.append({'label': label, 'qty': g['qty'], 'arts': arts_sorted})
+    return result
 
 
 def _lean_sort_key(lean):
@@ -219,21 +276,14 @@ def build_sheet(ws, lean_by_art, ocs, rbqc):
                 wc(ws, row, ci, None, fill=BLANK_FILL, border=THIN_BDR)
             row += 1
 
-            # Data rows
-            for r_data in arts:
-                art = r_data['art']
-                qty = r_data['qty']
-                model = brt.get_model(art)
-                if model:
-                    model_text = f'{model} ( {art} )'
-                else:
-                    model_text = f'( {art} )'
-
+            # Merge rows: same model_name + same LC → one row, sum qty
+            merged = merge_lean_rows(arts)
+            for m in merged:
                 ws.row_dimensions[row].height = 15
                 wc(ws, row, 1, None, border=THIN_BDR)
                 ws.merge_cells(f'B{row}:E{row}')
-                wc(ws, row, 2, model_text, font=NORM, align=LEFT, border=THIN_BDR)
-                wc(ws, row, 6, qty, font=NORM, align=RIGHT, border=THIN_BDR, num_fmt='#,##0')
+                wc(ws, row, 2, m['label'], font=NORM, align=LEFT, border=THIN_BDR)
+                wc(ws, row, 6, m['qty'], font=NORM, align=RIGHT, border=THIN_BDR, num_fmt='#,##0')
                 for ci in [7, 8, 9, 10, 11, 12]:
                     wc(ws, row, ci, None, fill=BLANK_FILL, border=THIN_BDR)
                 row += 1
