@@ -10,16 +10,51 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
+import tempfile
 import openpyxl
 from full_compare_report import (
     load_bianche, _safe_bianche_path, _ART_RE,
     R_ORD_BATCH, R_ORD_MISMATCH,
 )
+import build_result_table as brt
 
 AUTO_PATH = r'D:\smartpn-atlas-core\flask_backend\test_output\auto_bianche.xlsx'
 OUT_PATH  = r'D:\smartpn-atlas-core\flask_backend\test_output\bianche_diff.txt'
 OCS_SECTIONS = ['組底配套', '自動化', '電腦針車', '印刷', '設備工程']
 W = 120
+
+
+def load_ds04_quantities():
+    """Load individual ART quantities per LEAN directly from raw DS-04 data.
+
+    After auto_bianche merges rows, reading qty back from the Excel gives each
+    ART in a merged group the *group total*, not its individual quantity.
+    This function bypasses the generated file and reads the source data instead,
+    giving the correct per-ART qty for order comparison.
+
+    Returns: {(art, lean): qty}
+    """
+    orig = brt.SCHEDULE
+    try:
+        tmp = shutil.copy2(orig, tempfile.gettempdir() + '/sched_biancdiff.xlsx')
+        brt.SCHEDULE = tmp
+    except Exception:
+        pass  # use original path if copy fails
+
+    qty_map = {}   # (art, lean) -> qty
+    try:
+        sheets = brt.load_schedule()
+        for s in sheets:
+            for r in s['rows']:
+                lean = r['lean'].strip()
+                art  = r['art']
+                if lean and not art.startswith('MF'):
+                    key = (art, lean)
+                    qty_map[key] = qty_map.get(key, 0) + r['qty']
+    finally:
+        brt.SCHEDULE = orig
+
+    return qty_map
 
 
 def load_auto_bianche_csa(path):
@@ -115,6 +150,13 @@ def run():
     auto_rows = load_auto_bianche_csa(AUTO_PATH)
     auto_ocs, auto_rbqc = load_auto_bianche_ocs(AUTO_PATH)
 
+    # Load per-ART quantities from raw DS-04 data.
+    # auto_bianche.xlsx has merged rows (one row = multiple ARTs sharing the same
+    # model+LC), so reading qty back from the Excel gives each ART in a merged
+    # group the *group total*, not its individual quantity.  Using DS-04 source
+    # data avoids that artefact and gives the correct per-ART qty for comparison.
+    ds04_qty = load_ds04_quantities()
+
     lines = []
     def hdr(t): lines.extend(['=' * W, f'  {t}', '=' * W])
     def sub(t): lines.extend(['', f'── {t} ' + '─' * max(0, W - len(t) - 4)])
@@ -141,7 +183,9 @@ def run():
         lines.append('  auto有/廠務無 清單：')
         for art in auto_only:
             match = next((r for r in auto_rows if r['art'] == art), {})
-            lines.append(f"    {art:12s}  LEAN={match.get('lean','?')!r:8s}  auto訂單={match.get('qty',0):>6}")
+            lean  = match.get('lean', '?')
+            qty   = ds04_qty.get((art, lean), match.get('qty', 0))
+            lines.append(f"    {art:12s}  LEAN={lean!r:8s}  auto訂單={qty:>6}")
 
     if ref_only:
         lines.append('')
@@ -192,11 +236,10 @@ def run():
     ord_ok = ord_batch = ord_mismatch = ord_lean_mismatch = 0
     ord_mismatch_rows = []
 
-    # Index auto rows by (art, lean) for per-LEAN comparison
-    auto_by_art_lean = {}
-    for r in auto_rows:
-        key = (r['art'], r['lean'])
-        auto_by_art_lean[key] = auto_by_art_lean.get(key, 0) + r['qty']
+    # Use DS-04 raw quantities (not auto_bianche xlsx) to avoid merged-row artefact.
+    # auto_bianche merges multiple ARTs into one row; reading qty from the xlsx
+    # would assign the group total to every individual ART in the merged group.
+    auto_by_art_lean = ds04_qty
 
     for art in sorted(both):
         ref   = art_to_ref[art]

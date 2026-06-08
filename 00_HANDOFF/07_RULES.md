@@ -1,6 +1,6 @@
 ﻿# SmartPN Atlas Operating Rules
 
-Version: v2.9 | 2026-06-08
+Version: v3.0 | 2026-06-08
 
 ## Session Start Protocol
 
@@ -216,3 +216,16 @@ DS-04 Schedule rules (CONFIRMED 2026-06-06):
 - 不問 Jim 應該由 Claude 決定的事
 
 <!-- Rule 18 added: 2026-06-08 -->
+
+## Rule 19: DS-04 進度表取值規則（已確認）
+
+- 製令號碼唯一，全廠不重複
+- 每個 sheet 獨立，不跨 sheet 加總
+- LEAN 組分多段時，只取「成型进度」段，外包鞋面 / 针车进度跳過
+- 合併行邏輯：同 LEAN + 同 Model Name + 同 LC → 合併顯示，訂單加總；合併行總量不等於個別 ART 量，比對時須用原始 DS-04 個別 ART 量
+- 雙製令格式 `MF2606KH8402-01-02--56-36`：`--` 後兩個數字相加（56+36=92）
+- 非標準製令號碼 → 記錄到 non_standard.txt，不處理
+
+這些規則適用於所有月份，未來新月份直接套用，不重新問 Jim。
+
+<!-- Rule 19 added: 2026-06-08 -->
