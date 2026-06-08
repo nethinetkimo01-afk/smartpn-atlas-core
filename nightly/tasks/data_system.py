@@ -15,6 +15,7 @@ FLASK = os.path.join(ROOT, 'flask_backend')
 sys.path.insert(0, FLASK)
 
 IE_FOLDER  = r"C:\Users\user\OneDrive\Desktop\Biên chế\Jun\IE"
+IE_FOLDER2 = r"C:\Users\user\OneDrive\Desktop\IE"        # additional IE folder (not under Jun)
 BIANCHE    = r"C:\Users\user\OneDrive\Desktop\Biên chế\Jun\2026年6月份廠務组织編制 20260524.xlsx"
 SCHEDULE   = r"C:\Users\user\OneDrive\Desktop\Biên chế\Jun\2026年6月份正式进度表 5 30.xlsx"
 OUTPUT_DIR = os.path.join(FLASK, 'test_output')
@@ -64,7 +65,7 @@ def _parse_compare_result(out_path):
     return summary
 
 
-def _write_handoff_summary(logger, task_results, compare_summary):
+def _write_handoff_summary(logger, task_results, compare_summary, bianche_diff_stats=None):
     """Write/replace ## 最新執行結果 block in 00_HANDOFF/24_DATA_SYSTEM.md."""
     handoff_path = os.path.join(ROOT, '00_HANDOFF', '24_DATA_SYSTEM.md')
     now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
@@ -95,6 +96,22 @@ def _write_handoff_summary(logger, task_results, compare_summary):
         )
     else:
         compare_block = '（compare_result.txt 未產生或無法解析）'
+
+    if bianche_diff_stats:
+        ord_ok       = bianche_diff_stats.get('ord_ok', '?')
+        ord_batch    = bianche_diff_stats.get('ord_batch', '?')
+        ord_mismatch = bianche_diff_stats.get('ord_mismatch', '?')
+        auto_only    = bianche_diff_stats.get('auto_only', '?')
+        ref_only_bd  = bianche_diff_stats.get('ref_only', '?')
+        diff_block = (
+            f'| 訂單 一致 | {ord_ok} 筆 |\n'
+            f'| 訂單 邏輯差異(廠務合批) | {ord_batch} 筆（非錯誤） |\n'
+            f'| **訂單 人為差異** | **{ord_mismatch} 筆** ← 需 Jim 確認 |\n'
+            f'| auto有/廠務無 ART | {auto_only} 筆 |\n'
+            f'| 廠務有/auto無 ART | {ref_only_bd} 筆 |'
+        )
+    else:
+        diff_block = '（bianche_diff 未執行或無法解析）'
 
     # Dynamic "需要確認" items
     confirm_items = [
@@ -129,6 +146,12 @@ def _write_handoff_summary(logger, task_results, compare_summary):
 | 項目 | 數值 |
 |------|------|
 {compare_block}
+
+### bianche_diff — auto_bianche.xlsx vs 廠務組織編制表
+
+| 項目 | 數值 |
+|------|------|
+{diff_block}
 
 ### 需要 Jim 確認的事項
 
@@ -183,18 +206,15 @@ def run(logger):
         logger.log(f'[data_system] File check error: {e}')
         task_results['T0 檔案版本檢查'] = 'error'
 
-    # ── Task 1: Import new IE files ────────────────────────────────────────
-    logger.log('[data_system] Task 1: Import new Jun/IE files')
+    # ── Task 1: Full IE scan — all folders + abbreviated ART expansion ────
+    logger.log('[data_system] Task 1: Full IE scan (all folders, abbreviated ART)')
     try:
-        old_argv = sys.argv[:]
-        sys.argv = ['import_jun_ie.py']
-        _new = _run_jun_ie_import(logger)
-        sys.argv = old_argv
-        logger.log(f'[data_system] IE import: {_new} new records')
-        task_results['T1 IE 匯入'] = f'ok ({_new} new)'
+        _new, _skip, _err = _run_full_ie_import(logger)
+        logger.log(f'[data_system] IE import: {_new} new  {_skip} skipped  {_err} errors')
+        task_results['T1 IE 全面掃描'] = f'ok ({_new} new, {_skip} skip)'
     except Exception as e:
         logger.log(f'[data_system] IE import error: {e}')
-        task_results['T1 IE 匯入'] = 'error'
+        task_results['T1 IE 全面掃描'] = f'error: {e}'
 
     # ── Task 2: Regenerate comparison_table.xlsx ───────────────────────────
     logger.log('[data_system] Task 2: Build comparison_table.xlsx')
@@ -250,13 +270,12 @@ def run(logger):
         if os.path.exists(out_path):
             compare_summary = _parse_compare_result(out_path)
 
-    # ── Task 5: DS-04 成型进度 section fix + rebuild auto_bianche.xlsx ────────
-    logger.log('[data_system] Task 5: Generate auto_bianche.xlsx (成型进度 section fix)')
+    # ── Task 5: Rebuild auto_bianche.xlsx (full: CSA + 製令明細) ─────────────
+    logger.log('[data_system] Task 5: Rebuild auto_bianche.xlsx (CSA + 製令明細 tab)')
     try:
         import shutil, tempfile
         import build_result_table as brt
 
-        # Patch brt to use temp copies (source files may be locked by Excel)
         def _tmp(orig):
             dst = os.path.join(tempfile.gettempdir(), os.path.basename(orig))
             shutil.copy2(orig, dst)
@@ -265,88 +284,118 @@ def run(logger):
         brt.SCHEDULE = _tmp(SCHEDULE)
         brt.BIANCHE  = _tmp(BIANCHE)
 
-        # Verify JQ0597 = 5,268 after section fix
-        sheets = brt.load_schedule()
-        jq0597_qty = 0
-        for s in sheets:
-            for r in s['rows']:
-                if r['art'] == 'JQ0597' and r['lean'] == '7B':
-                    jq0597_qty += r['qty']
-
-        if jq0597_qty == 5268:
-            logger.log(f'[data_system] JQ0597 LEAN=7B = {jq0597_qty:,} ✓ (expected 5,268)')
-        else:
-            logger.log(f'[data_system] WARNING: JQ0597 LEAN=7B = {jq0597_qty:,} (expected 5,268)')
-
-        # Rebuild auto_bianche.xlsx
         import generate_bianche as gb
         gb.brt.SCHEDULE = brt.SCHEDULE
         gb.brt.BIANCHE  = brt.BIANCHE
-        lean_by_art = gb.load_ds04_by_lean()
-        bianche_path = gb._safe_bianche()
-        ocs, rbqc = gb.load_ocs_rb_qc(bianche_path)
-        import openpyxl
-        wb_out = openpyxl.Workbook()
-        ws_out = wb_out.active
-        ws_out.title = gb.MONTH_SH
-        gb.build_sheet(ws_out, lean_by_art, ocs, rbqc)
+
         os.makedirs(OUTPUT_DIR, exist_ok=True)
-        wb_out.save(gb.OUT_PATH)
-        total_rows = sum(len(v) for v in lean_by_art.values())
-        logger.log(f'[data_system] auto_bianche.xlsx rebuilt: {len(lean_by_art)} LEAN groups, {total_rows} rows')
-        task_results['T5 auto_bianche生成'] = f'ok (JQ0597={jq0597_qty:,})'
+        gb.run()   # builds CSA sheet + 製令明細 tab + prints comparison report
+
+        logger.log('[data_system] auto_bianche.xlsx rebuilt (CSA + 製令明細)')
+        task_results['T5 auto_bianche生成'] = 'ok'
     except Exception as e:
         logger.log(f'[data_system] Task 5 error: {e}')
         task_results['T5 auto_bianche生成'] = f'error: {e}'
 
-    # ── Task 6: Run bianche_diff → bianche_diff.txt + bianche_diff_v2.txt ──
+    # ── Task 6: Run bianche_diff → bianche_diff.txt ───────────────────────
     logger.log('[data_system] Task 6: Run bianche_diff')
+    bianche_diff_stats = {}
     try:
+        import shutil as _shutil
         from bianche_diff import run as bianche_diff_run
-        bianche_diff_run()
+        result = bianche_diff_run()
 
-        # Copy to bianche_diff_v2.txt for versioned archive
+        if isinstance(result, dict):
+            bianche_diff_stats = result
+
         src = os.path.join(OUTPUT_DIR, 'bianche_diff.txt')
         dst = os.path.join(OUTPUT_DIR, 'bianche_diff_v2.txt')
         if os.path.exists(src):
-            shutil.copy2(src, dst)
-            logger.log(f'[data_system] bianche_diff.txt + bianche_diff_v2.txt written')
+            _shutil.copy2(src, dst)
 
-        task_results['T6 bianche_diff'] = 'ok'
+        ord_mismatch = bianche_diff_stats.get('ord_mismatch', '?')
+        logger.log(f'[data_system] bianche_diff done: 人為差異={ord_mismatch} 筆')
+        task_results['T6 bianche_diff'] = f'ok (人為差異={ord_mismatch})'
     except Exception as e:
         logger.log(f'[data_system] Task 6 error: {e}')
         task_results['T6 bianche_diff'] = f'error: {e}'
 
     # ── Task 7: Write summary to 24_DATA_SYSTEM.md ────────────────────────
     logger.log('[data_system] Task 7: Write summary to 24_DATA_SYSTEM.md')
-    _write_handoff_summary(logger, task_results, compare_summary)
+    _write_handoff_summary(logger, task_results, compare_summary, bianche_diff_stats)
 
     return True
 
 
-def _run_jun_ie_import(logger):
-    """Run Jun IE import inline, return count of new records."""
-    import glob, re
-    from import_jun_ie import all_arts_from_filename, art_already_in_db, save_secondary_art
+def _expand_abbrev_arts(basename):
+    """
+    Expand abbreviated ART codes in IE filenames.
+
+    Example: 'KI9853-54-55-56-57-61' → ['KI9853','KI9854','KI9855','KI9856','KI9857','KI9861']
+
+    Strategy: after every full ART code ([A-Z]{2}\\d{4,6}), collect dash-separated
+    short numbers; reconstruct each by replacing the last N digits of the numeric
+    part, where N = len(abbreviated number).
+    """
+    _FULL  = re.compile(r'[A-Z]{2}\d{4,6}')
+    _ABBREV = re.compile(r'([A-Z]{2})(\d{4,6})((?:-\d{1,4})+)')
+
+    arts = list(dict.fromkeys(_FULL.findall(basename)))   # deduplicated, ordered
+
+    for m in _ABBREV.finditer(basename):
+        letters, base_num, tail = m.group(1), m.group(2), m.group(3)
+        for abbrev in tail.split('-'):
+            if not abbrev:
+                continue
+            n = len(abbrev)
+            if n >= len(base_num):
+                continue
+            candidate = letters + base_num[:-n] + abbrev
+            if re.match(r'^[A-Z]{2}\d{4,6}$', candidate) and candidate not in arts:
+                arts.append(candidate)
+
+    return arts
+
+
+def _run_full_ie_import(logger):
+    """
+    Scan ALL IE folders for xlsx files not yet in ob_header.
+    Handles abbreviated ART codes (KI9853-54-55-56-57-61 → all 6 ARTs).
+    Returns (new_count, skip_count, error_count).
+    """
+    import glob
+    from import_jun_ie import art_already_in_db, save_secondary_art
     from import_ds03_batch import process_file, fn_eolr
     import database as db
 
-    _SKIP = {'120双_FW26_GHOST SPRINT W_HQ3330..xlsx'}
-    _ART_RE = re.compile(r'[A-Z]{2}\d{4,6}')
+    _SKIP = {
+        '120双_FW26_GHOST SPRINT W_HQ3330..xlsx',
+    }
 
-    files = glob.glob(os.path.join(IE_FOLDER, '**', '*.xlsx'), recursive=True)
-    files = [f for f in files
-             if not os.path.basename(f).startswith('~$')
-             and os.path.basename(f) not in _SKIP]
-    files.sort()
+    # Collect files from all IE folders (deduplicate by basename to avoid double-processing)
+    ie_folders = [f for f in [IE_FOLDER, IE_FOLDER2] if os.path.isdir(f)]
+    seen_basenames = set()
+    files = []
+    for folder in ie_folders:
+        for path in sorted(glob.glob(os.path.join(folder, '**', '*.xlsx'), recursive=True)):
+            bn = os.path.basename(path)
+            if bn.startswith('~$') or bn in _SKIP:
+                continue
+            if bn not in seen_basenames:
+                seen_basenames.add(bn)
+                files.append(path)
+            else:
+                logger.log(f'[data_system] IE dup skip: {bn}')
 
-    total_new = 0
+    logger.log(f'[data_system] IE files found: {len(files)} across {len(ie_folders)} folder(s)')
+
+    total_new = total_skip = total_err = 0
 
     for path in files:
-        arts = _ART_RE.findall(os.path.basename(path))
+        arts = _expand_abbrev_arts(os.path.basename(path))
         if not arts:
             continue
-        eolr = fn_eolr(path) or 120
+        eolr    = fn_eolr(path) or 120
         primary = arts[0]
         secondaries = arts[1:]
 
@@ -365,28 +414,38 @@ def _run_jun_ie_import(logger):
             conn.close()
             if not row:
                 continue
-            season, model = row[0], row[1]
+            season = row[0] or ''
+            model  = row[1] or ''
             mp = {'cutting': row[2], 'stitching': row[3], 'assembly': row[4], 'stock': row[5]}
         else:
             r = process_file(path)
             if not r.get('ok'):
+                logger.log(f'[data_system] IE parse error: {os.path.basename(path)}: {r.get("error")}')
+                total_err += 1
                 continue
-            mp = r.get('mp', {})
-            hdr = r.get('header', {})
+            mp    = r.get('mp', {})
+            hdr   = r.get('header', {})
             season = hdr.get('season', '')
             model  = hdr.get('model', '')
             ob = r.get('ob_save', {})
             if ob and ob.get('new'):
                 total_new += 1
+                logger.log(f'[data_system] IE primary new: {primary}/EOLR={eolr}')
+            else:
+                total_skip += 1
 
         for art in secondaries:
             conn = db.get_conn()
             exists = art_already_in_db(conn, art, eolr)
             conn.close()
             if exists:
+                total_skip += 1
                 continue
             r2 = save_secondary_art(art, eolr, season, model, mp)
             if r2.get('ok') and r2.get('new'):
                 total_new += 1
+                logger.log(f'[data_system] IE secondary new: {art}/EOLR={eolr} ← {primary}')
+            else:
+                total_err += 1
 
-    return total_new
+    return total_new, total_skip, total_err
