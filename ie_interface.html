@@ -98,7 +98,7 @@ thead th:last-child{border-right:none}
         <th id="th-cut"   style="width:76px;text-align:center">裁斷MP</th>
         <th id="th-stitch"style="width:76px;text-align:center">針車MP</th>
         <th id="th-asm"   style="width:76px;text-align:center">成型MP</th>
-        <th id="th-sf"    style="width:76px;text-align:center">庫存</th>
+        <th id="th-sf"    style="width:76px;text-align:center">貼底</th>
       </tr>
     </thead>
     <tbody id="ie-tbody">
@@ -110,7 +110,7 @@ thead th:last-child{border-right:none}
 <script>
 // ── i18n ──────────────────────────────────────────────
 const LANGS = {
-  zh:{title:'IE 標準化界面 · MP 一覽',col_model:'鞋型',col_arts:'ART 列表',col_eolr:'EOLR',col_cut:'裁斷MP',col_stitch:'針車MP',col_asm:'成型MP',col_sf:'庫存',search_ph:'搜尋鞋型 / ART...',btn_reload:'重新載入',stats:(n,m)=>`共 ${n} 筆記錄 · ${m} 筆缺 MP`,loading:'載入中...',offline:'伺服器離線',empty:'無記錄',back:'← DS-03'},
+  zh:{title:'IE 標準化界面 · MP 一覽',col_model:'鞋型',col_arts:'ART 列表',col_eolr:'EOLR',col_cut:'裁斷MP',col_stitch:'針車MP',col_asm:'成型MP',col_sf:'貼底',search_ph:'搜尋鞋型 / ART...',btn_reload:'重新載入',stats:(n,m)=>`共 ${n} 筆記錄 · ${m} 筆缺 MP`,loading:'載入中...',offline:'伺服器離線',empty:'無記錄',back:'← DS-03'},
   en:{title:'IE Interface · MP Overview',col_model:'Model Name',col_arts:'ART List',col_eolr:'EOLR',col_cut:'Cutting MP',col_stitch:'Stitching MP',col_asm:'Assembly MP',col_sf:'Stockfitting',search_ph:'Search model / ART...',btn_reload:'Reload',stats:(n,m)=>`${n} records · ${m} missing MP`,loading:'Loading...',offline:'Server offline',empty:'No records',back:'← DS-03'},
   vi:{title:'Giao diện IE · Tổng quan MP',col_model:'Tên giày',col_arts:'Danh sách ART',col_eolr:'EOLR',col_cut:'MP Cắt',col_stitch:'MP May',col_asm:'MP Lắp ráp',col_sf:'Stockfitting',search_ph:'Tìm kiểu giày / ART...',btn_reload:'Tải lại',stats:(n,m)=>`${n} bản ghi · ${m} thiếu MP`,loading:'Đang tải...',offline:'Máy chủ offline',empty:'Không có dữ liệu',back:'← DS-03'},
 };
