@@ -150,8 +150,7 @@ function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,
 function fmtModel(name){
   if(!name) return '<span class="model-short" style="color:#aaa">—</span>';
   const short = name.replace(/\s+Target Output.*$/i,'').replace(/\s{2,}/g,' ').trim();
-  const detail = name.length > short.length ? name.slice(short.length).trim() : '';
-  return `<span class="model-short">${esc(short)}</span>`+(detail?`<div class="model-detail">${esc(detail.slice(0,60))}</div>`:'');
+  return `<span class="model-short">${esc(short)}</span>`;
 }
 
 function eolrBadge(eolr){
