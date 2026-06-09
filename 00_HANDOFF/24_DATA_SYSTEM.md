@@ -1,6 +1,6 @@
 # Data System - Internal Data Automation Project
 
-Version: v3.3 | 2026-06-08
+Version: v3.4 | 2026-06-09
 Status: DS-01✅ DS-02✅ DS-03✅ DS-04✅ DS-05✅ 結果表v2✅ 比對完成✅ RB✅ QC✅
 Purpose: New Claude session reads this file to continue from last point.
 
@@ -100,16 +100,32 @@ Interface: ds03_ob_interface.html v1.4
 Backend: flask_backend/ (app.py v1.1, database.py, schema.sql)
 Start server: double-click flask_backend/start.bat → http://localhost:5000
 
-ob_epph MP (CONFIRMED 2026-06-04, 326/326 records filled after Jun\IE import):
+ob_epph MP (CONFIRMED 2026-06-04, all records filled):
 - Extracted from SUM_C2B sheet "No.of Operators" header row
 - cutting / stitching / assembly / stock all > 0
 - Sheet selection: prefer shortest matching SUM_C2B sheet name
 
-Batch import (CONFIRMED WORKING 2026-06-05):
-- ob_header: 326 records (original 152 + Jun\IE 174)
-- Source 1: C:\Users\user\OneDrive\Desktop\IE (155 xlsx, 3 skipped duplicates)
-- Source 2: C:\Users\user\OneDrive\Desktop\Biên chế\Jun\IE (Jun batch, multi-ART)
+Batch import + regroup (UPDATED 2026-06-09):
+- ob_header: 197 records (after regroup migration — same model+EOLR+4MP → one row)
+- Source 1: C:\Users\user\OneDrive\Desktop\IE (155 xlsx)
+- Source 2: C:\Users\user\OneDrive\Desktop\Biên chế\Jun\IE (140 xlsx in subdirs, per LEAN group)
+- Regroup script: python flask_backend/regroup_ob_articles.py
 - Jun\IE import: python flask_backend/import_jun_ie.py
+
+IE Interface (COMPLETED 2026-06-09):
+- /ie list page (ie_interface.html v1.4): read-only, grouped by model_name, EOLR sub-rows
+- /ie/<header_id> detail page (ie_detail.html): ART management + 7 placeholder tabs + Excel export
+- Columns: 鞋型 | ART列表 | 材料類 | EOLR | 裁斷MP | 針車MP | 成型MP | 貼底
+- 材料類: extracted from SUM.C2B row 4 "Loại nguyên liệu" field → 175/197 headers populated
+- Grouping: model_name only (EOLR=60+120 show as sub-rows under same model block)
+- Sticky header: fixed (overflow:auto on .table-wrap, thead top:0)
+- Script: python flask_backend/populate_ie_material.py (re-run to refresh material data)
+- IE sheet inventory: flask_backend/test_output/ie_sheets_inventory.txt (154 files, 206 unique names)
+
+IE sheet 標準清單（PENDING Jim確認）:
+- SUM.C2B: 79% (標準)
+- Assembly 2: 73% | 打粗: 60% | 电脑针车: 54% | Cutting: 52%
+- 完整清單: flask_backend/test_output/ie_sheets_inventory.txt
 
 ---
 
@@ -387,6 +403,8 @@ Scripts (all confirmed working 2026-06-05):
 - import_ds02.py
 - import_ds03_batch.py
 - import_jun_ie.py: import Jun\IE folder (multi-ART IE files)
+- populate_ie_material.py: extract 材料類 from SUM.C2B → populate ob_header.material
+- regroup_ob_articles.py: regroup ob_header by (model+EOLR+4MP) merge key
 - analyze_ds04.py: per-group analysis → /api/ds04/analyze
 - analyze_ds05.py: T-group parsing → /api/ds05/analyze
 - analyze_gongcai.py: 同材共裁 report → /api/gongcai/analyze
@@ -421,6 +439,9 @@ Output files (flask_backend/test_output/):
 - comparison_table.xlsx: 309-row MISMATCH/MISSING_IE table
 
 API endpoints:
+- GET  /ie                  GET /ie/<header_id>                (IE interface pages)
+- GET  /api/ie/list         GET /api/ie/detail/<header_id>   (IE API — returns material field)
+- POST /api/ie/remove_art   GET /api/ie/export/<header_id>   (IE ART mgmt + Excel export)
 - POST /api/ds03/save       GET /api/ds03/load    GET /api/ds03/list    DELETE /api/ds03/delete
 - POST /api/ds02/upload     POST /api/ds01/upload
 - GET  /api/ds02/list       GET  /api/ds01/list
@@ -446,9 +467,11 @@ API endpoints:
 
 1. DS-01 ✅ imported — C:\Users\user\OneDrive\Desktop\SS27 SP1 & FW26 SP7.xlsx
 2. DS-02 ✅ imported — C:\Users\user\OneDrive\Desktop\FOB Price List.xlsx
-3. DS-03 ✅ 326 records (ob_header), all MP filled
-   → Source 1: C:\Users\user\OneDrive\Desktop\IE
-   → Source 2: C:\Users\user\OneDrive\Desktop\Biên chế\Jun\IE
+3. DS-03 ✅ 197 records (ob_header after regroup), 175/197 material filled
+   → IE interface /ie: v1.4 (材料類, grouping by model, sticky header)
+   → ob_articles: 583 ART records
+   → Source 1: C:\Users\user\OneDrive\Desktop\IE (155 xlsx)
+   → Source 2: C:\Users\user\OneDrive\Desktop\Biên chế\Jun\IE (140 xlsx in LEAN subdirs)
 4. DS-04: Production Schedule ✅
    → 進度表路徑: C:\Users\user\OneDrive\Desktop\Biên chế\Jun\2026年6月份正式进度表 5 30.xlsx
    → 12 sheets, 331 unique ARTs

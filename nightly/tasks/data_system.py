@@ -326,6 +326,41 @@ def run(logger):
         logger.log(f'[data_system] Task 7 error: {e}')
         task_results['T7 自動表+diff+MD更新'] = f'error: {e}'
 
+    # ── Task 8: IE sheet name inventory ──────────────────────────────────────
+    logger.log('[data_system] Task 8: IE sheet name inventory')
+    try:
+        import openpyxl as _opxl
+        from collections import defaultdict as _dd
+        _scan_dirs = [d for d in [IE_FOLDER, IE_FOLDER2] if os.path.isdir(d)]
+        _sc = _dd(int)
+        _tf = 0
+        for _bd in _scan_dirs:
+            for _root, _dirs, _fns in os.walk(_bd):
+                _dirs.sort()
+                for _fn in sorted(_fns):
+                    if not (_fn.lower().endswith(('.xlsx','.xlsm')) and not _fn.startswith('~$')):
+                        continue
+                    try:
+                        _wb = _opxl.load_workbook(os.path.join(_root,_fn), read_only=True, data_only=True)
+                        _tf += 1
+                        for _sn in _wb.sheetnames:
+                            _sc[_sn.encode('utf-8','replace').decode('utf-8')] += 1
+                        _wb.close()
+                    except Exception: pass
+        _inv_path = os.path.join(OUTPUT_DIR, 'ie_sheets_inventory.txt')
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        with open(_inv_path, 'w', encoding='utf-8') as _f:
+            _f.write(f'Total xlsx files: {_tf}\nUnique sheet names: {len(_sc)}\n\n')
+            _f.write('sheet名稱 | 出現次數 | 佔總文件%\n' + '-'*60 + '\n')
+            for _nm, _cnt in sorted(_sc.items(), key=lambda x: -x[1]):
+                _pct = _cnt / _tf * 100 if _tf else 0
+                _f.write(f'{_nm} | {_cnt} | {_pct:.0f}%\n')
+        logger.log(f'[data_system] Task 8: {_tf} files, {len(_sc)} unique sheet names → {_inv_path}')
+        task_results['T8 IE sheet inventory'] = f'ok ({_tf} files, {len(_sc)} unique names)'
+    except Exception as e:
+        logger.log(f'[data_system] Task 8 error: {e}')
+        task_results['T8 IE sheet inventory'] = f'error: {e}'
+
     # Write summary to 24_DATA_SYSTEM.md (always runs)
     _write_handoff_summary(logger, task_results, compare_summary, bianche_diff_stats)
 
@@ -411,9 +446,11 @@ def _run_full_ie_import(logger):
         if primary_exists:
             conn = db.get_conn()
             row = conn.execute(
-                '''SELECT h.season, h.model, e.cutting, e.stitching, e.assembly, e.stock
-                   FROM ob_header h JOIN ob_epph e ON e.header_id=h.id
-                   WHERE h.art=? AND h.eolr=? ORDER BY h.id DESC LIMIT 1''',
+                '''SELECT h.season, h.model_name, e.cutting, e.stitching, e.assembly, e.stock
+                   FROM ob_header h
+                   JOIN ob_articles a ON a.header_id=h.id
+                   JOIN ob_epph e ON e.header_id=h.id
+                   WHERE a.art=? AND h.eolr=? ORDER BY h.id DESC LIMIT 1''',
                 (primary, eolr)
             ).fetchone()
             conn.close()

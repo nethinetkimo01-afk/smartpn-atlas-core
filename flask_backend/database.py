@@ -225,7 +225,7 @@ def list_ie_records():
     conn = get_conn()
     try:
         rows = conn.execute('''
-            SELECT h.id, h.model_name, h.eolr, h.season,
+            SELECT h.id, h.model_name, h.eolr, h.season, h.material,
                    e.cutting, e.stitching, e.assembly, e.stock, e.source
             FROM ob_header h
             LEFT JOIN ob_epph e ON e.header_id = h.id
@@ -241,6 +241,7 @@ def list_ie_records():
                 'model_name': r['model_name'],
                 'eolr':       r['eolr'],
                 'season':     r['season'] or '',
+                'material':   r['material'] or '',
                 'arts':       arts,
                 'cutting':    r['cutting'],
                 'stitching':  r['stitching'],

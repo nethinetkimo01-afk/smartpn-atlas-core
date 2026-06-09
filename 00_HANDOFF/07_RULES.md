@@ -1,6 +1,6 @@
 ﻿# SmartPN Atlas Operating Rules
 
-Version: v3.1 | 2026-06-08
+Version: v3.2 | 2026-06-09
 
 ## Session Start Protocol
 
@@ -247,3 +247,43 @@ DS-04 HP4218 8B：廠務登 172，DS-04 有 12 張製令合計 7,247。
 直接比對總量只會看到差異，看不到原因。
 
 <!-- Rule 20 added: 2026-06-08 -->
+
+## Rule 21: 交接 SOP（適用所有專案）
+
+當 Jim 說「交接」時，立刻執行以下步驟，不需要 Jim 提醒或操作：
+
+**Step 1：儲存所有變更**
+- git add .
+- git commit -m "交接：[日期] [今日主要工作摘要]"
+- git push origin main
+
+**Step 2：更新該專案的主要 handoff 文件（如 24_DATA_SYSTEM.md / 21_CURRENT_STATUS.md）**：
+- 今日完成事項
+- 進行中任務（未完成）
+- 待 Jim 確認事項
+- 今晚自動化任務
+- 明天開機第一件事
+
+**Step 3：git push origin main**
+
+**Step 4：輸出交接摘要給 Jim 確認（格式固定）**：
+```
+---
+交接摘要 [日期]
+已完成：
+進行中：
+待確認：
+今晚自動化：
+明天第一件事：
+---
+```
+
+**Step 5：確認 Claude Project Files 已同步最新版本**
+
+規則：
+- Jim 只說「交接」，其餘全由 Claude Code 完成
+- 不問 Jim 任何問題
+- 不需要 Jim 執行任何指令
+- 每次交接必須完整執行全部 5 步驟
+
+<!-- Rule 21 added: 2026-06-09 -->

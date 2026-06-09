@@ -82,7 +82,7 @@ thead th:last-child{border-right:none}
       <button class="btn-lang"        data-lang="vi" onclick="setLang('vi')">VI</button>
     </div>
     <a href="/" class="btn-link" id="btn-back">← DS-03</a>
-    <span class="version">v1.3</span>
+    <span class="version">v1.4</span>
   </div>
 </div>
 
@@ -98,6 +98,7 @@ thead th:last-child{border-right:none}
       <tr>
         <th id="th-model" style="min-width:200px">鞋型</th>
         <th id="th-arts"  style="min-width:150px">ART 列表</th>
+        <th id="th-mat"   style="min-width:120px">材料類</th>
         <th id="th-eolr"  style="width:52px;text-align:center">EOLR</th>
         <th id="th-cut"   style="width:76px;text-align:center">裁斷MP</th>
         <th id="th-stitch"style="width:76px;text-align:center">針車MP</th>
@@ -106,7 +107,7 @@ thead th:last-child{border-right:none}
       </tr>
     </thead>
     <tbody id="ie-tbody">
-      <tr><td colspan="7" class="loading">載入中...</td></tr>
+      <tr><td colspan="8" class="loading">載入中...</td></tr>
     </tbody>
   </table>
 </div>
@@ -114,9 +115,9 @@ thead th:last-child{border-right:none}
 <script>
 // ── i18n ──────────────────────────────────────────────
 const LANGS = {
-  zh:{title:'IE 標準化界面 · MP 一覽',col_model:'鞋型',col_arts:'ART 列表',col_eolr:'EOLR',col_cut:'裁斷MP',col_stitch:'針車MP',col_asm:'成型MP',col_sf:'貼底',search_ph:'搜尋鞋型 / ART...',btn_reload:'重新載入',stats:(n,m)=>`共 ${n} 筆記錄 · ${m} 筆缺 MP`,loading:'載入中...',offline:'伺服器離線',empty:'無記錄',back:'← DS-03'},
-  en:{title:'IE Interface · MP Overview',col_model:'Model Name',col_arts:'ART List',col_eolr:'EOLR',col_cut:'Cutting MP',col_stitch:'Stitching MP',col_asm:'Assembly MP',col_sf:'Stockfitting',search_ph:'Search model / ART...',btn_reload:'Reload',stats:(n,m)=>`${n} records · ${m} missing MP`,loading:'Loading...',offline:'Server offline',empty:'No records',back:'← DS-03'},
-  vi:{title:'Giao diện IE · Tổng quan MP',col_model:'Tên giày',col_arts:'Danh sách ART',col_eolr:'EOLR',col_cut:'MP Cắt',col_stitch:'MP May',col_asm:'MP Lắp ráp',col_sf:'Stockfitting',search_ph:'Tìm kiểu giày / ART...',btn_reload:'Tải lại',stats:(n,m)=>`${n} bản ghi · ${m} thiếu MP`,loading:'Đang tải...',offline:'Máy chủ offline',empty:'Không có dữ liệu',back:'← DS-03'},
+  zh:{title:'IE 標準化界面 · MP 一覽',col_model:'鞋型',col_arts:'ART 列表',col_mat:'材料類',col_eolr:'EOLR',col_cut:'裁斷MP',col_stitch:'針車MP',col_asm:'成型MP',col_sf:'貼底',search_ph:'搜尋鞋型 / ART...',btn_reload:'重新載入',stats:(n,m)=>`共 ${n} 筆記錄 · ${m} 筆缺 MP`,loading:'載入中...',offline:'伺服器離線',empty:'無記錄',back:'← DS-03'},
+  en:{title:'IE Interface · MP Overview',col_model:'Model Name',col_arts:'ART List',col_mat:'Material',col_eolr:'EOLR',col_cut:'Cutting MP',col_stitch:'Stitching MP',col_asm:'Assembly MP',col_sf:'Stockfitting',search_ph:'Search model / ART...',btn_reload:'Reload',stats:(n,m)=>`${n} records · ${m} missing MP`,loading:'Loading...',offline:'Server offline',empty:'No records',back:'← DS-03'},
+  vi:{title:'Giao diện IE · Tổng quan MP',col_model:'Tên giày',col_arts:'Danh sách ART',col_mat:'Nguyên liệu',col_eolr:'EOLR',col_cut:'MP Cắt',col_stitch:'MP May',col_asm:'MP Lắp ráp',col_sf:'Stockfitting',search_ph:'Tìm kiểu giày / ART...',btn_reload:'Tải lại',stats:(n,m)=>`${n} bản ghi · ${m} thiếu MP`,loading:'Đang tải...',offline:'Máy chủ offline',empty:'Không có dữ liệu',back:'← DS-03'},
 };
 let currentLang = localStorage.getItem('ie_lang') || 'zh';
 let allRecords = [];
@@ -129,6 +130,7 @@ function setLang(lang){
   document.getElementById('page-title').textContent  = d.title; document.title = d.title;
   document.getElementById('th-model').textContent   = d.col_model;
   document.getElementById('th-arts').textContent    = d.col_arts;
+  document.getElementById('th-mat').textContent     = d.col_mat;
   document.getElementById('th-eolr').textContent    = d.col_eolr;
   document.getElementById('th-cut').textContent     = d.col_cut;
   document.getElementById('th-stitch').textContent  = d.col_stitch;
@@ -170,37 +172,35 @@ function mpText(v){
 function isMissing(v){ return v===null||v===undefined||parseFloat(v)===0; }
 
 // ── Grouping ──────────────────────────────────────────
-// Mirror the DB merge rule: only records with identical (model_name + all 4 MP values)
-// are merged into one group (EOLR shown as sub-rows within that group).
-// Different MP values → separate groups, even for the same model_name.
+// Group by model_name: EOLR=60 and EOLR=120 for the same model appear
+// as sub-rows under one shared model/ART block.
 function groupByModel(records){
   const map = new Map();
   records.forEach(r=>{
-    const key = [
-      r.model_name||'',
-      parseFloat(r.cutting  ||0).toFixed(4),
-      parseFloat(r.stitching||0).toFixed(4),
-      parseFloat(r.assembly ||0).toFixed(4),
-      parseFloat(r.stock    ||0).toFixed(4),
-    ].join('|');
+    const key = r.model_name||'';
     if(!map.has(key)) map.set(key,[]);
     map.get(key).push(r);
   });
   const groups = [...map.values()].map(rows=>{
-    rows.sort((a,b)=>a.eolr-b.eolr);
+    rows.sort((a,b)=>a.eolr-b.eolr||parseFloat(a.cutting||0)-parseFloat(b.cutting||0));
     const arts=[...new Set(rows.flatMap(r=>r.arts||[]))];
-    return {model_name:rows[0].model_name, arts, ids:rows.map(r=>r.id), rows};
+    const mat = rows[0].material||'';
+    return {model_name:rows[0].model_name, arts, mat, ids:rows.map(r=>r.id), rows};
   });
-  // Sort: group same model_names together, then by first EOLR value
-  groups.sort((a,b)=>
-    a.model_name.localeCompare(b.model_name)||a.rows[0].eolr-b.rows[0].eolr
-  );
+  groups.sort((a,b)=>a.model_name.localeCompare(b.model_name));
   return groups;
 }
 
 // ── Render ────────────────────────────────────────────
+function matText(v){
+  if(!v) return '<span style="color:#aaa;font-size:11px">—</span>';
+  const short = v.split('/').map(s=>s.trim()).filter(Boolean);
+  // Show all three parts (VI/EN/ZH) as stacked lines
+  return short.map(s=>`<span style="font-size:10px;display:block;line-height:1.4;color:#444">${esc(s)}</span>`).join('');
+}
+
 function renderGroup(g, rowCls){
-  // rowCls: 'tr-model-sep' (first group for a new model) or 'tr-mp-sep' (new MP in same model)
+  // rowCls: 'tr-model-sep' (new model block) — always true since grouping is by model_name
   const n = g.rows.length;
   const chips = g.arts.map(a=>`<span class="art-chip">${esc(a)}</span>`).join('');
   let html = '';
@@ -209,6 +209,7 @@ function renderGroup(g, rowCls){
     if(i===0){
       html += `<td class="model-cell" rowspan="${n}"><a href="/ie/${g.ids[0]}" class="model-link">${fmtModel(r.model_name)}</a></td>`;
       html += `<td class="arts-cell" rowspan="${n}">${chips||'<span style="color:#aaa;font-size:11px">—</span>'}</td>`;
+      html += `<td class="mp-cell" rowspan="${n}" style="min-width:120px;vertical-align:top;padding-top:7px">${matText(g.mat)}</td>`;
     }
     html += `<td class="eolr-cell">${eolrBadge(r.eolr)}</td>`;
     html += `<td class="mp-cell">${mpText(r.cutting)}</td>`;
@@ -227,7 +228,7 @@ function updateStats(){
 
 // ── Data ──────────────────────────────────────────────
 async function loadData(){
-  document.getElementById('ie-tbody').innerHTML = `<tr><td colspan="7" class="loading">${esc(L('loading'))}</td></tr>`;
+  document.getElementById('ie-tbody').innerHTML = `<tr><td colspan="8" class="loading">${esc(L('loading'))}</td></tr>`;
   try{
     const res = await fetch('/api/ie/list');
     const data = await res.json();
@@ -236,19 +237,15 @@ async function loadData(){
     updateStats();
     fixStickyOffsets();
   }catch(e){
-    document.getElementById('ie-tbody').innerHTML = `<tr><td colspan="7" class="empty">${esc(L('offline'))}</td></tr>`;
+    document.getElementById('ie-tbody').innerHTML = `<tr><td colspan="8" class="empty">${esc(L('offline'))}</td></tr>`;
   }
 }
 
 function renderGroupedTable(groups){
   const tbody = document.getElementById('ie-tbody');
-  if(!groups.length){ tbody.innerHTML=`<tr><td colspan="7" class="empty">${esc(L('empty'))}</td></tr>`; return; }
-  let html = '', lastModel = null;
-  groups.forEach(g=>{
-    const isNewModel = g.model_name !== lastModel;
-    html += renderGroup(g, isNewModel ? 'tr-model-sep' : 'tr-mp-sep');
-    lastModel = g.model_name;
-  });
+  if(!groups.length){ tbody.innerHTML=`<tr><td colspan="8" class="empty">${esc(L('empty'))}</td></tr>`; return; }
+  let html = '';
+  groups.forEach(g=>{ html += renderGroup(g, 'tr-model-sep'); });
   tbody.innerHTML = html;
 }
 
