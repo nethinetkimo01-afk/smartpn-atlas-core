@@ -8,7 +8,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background:#f0f2f5;color:#1a1a2e;min-height:100vh}
 
-:root{--ph-h:40px;--tb-h:44px}
+:root{--ph-h:40px;--tb-h:44px;--thead-r1-h:32px}
 
 .page-header{background:#1a2744;color:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3)}
 .page-header h1{font-size:15px;font-weight:600}
@@ -29,44 +29,66 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background
 .btn-lang:hover{background:#3a5080;color:#fff}
 .btn-lang.active{background:#4a6cf7;color:#fff}
 
-/* Table — table-wrap scrolls independently so thead sticky top:0 works */
+/* table-wrap scrolls independently so thead sticky top:0 works */
 .table-wrap{overflow:auto;margin:14px 20px;border-radius:8px;box-shadow:0 1px 8px rgba(0,0,0,.1);max-height:calc(100vh - var(--ph-h) - var(--tb-h) - 28px)}
-table{width:100%;border-collapse:collapse;background:#fff;font-size:12px}
-thead th{background:#1a2744;color:#fff;padding:8px 6px;text-align:left;font-weight:600;white-space:nowrap;font-size:11px;border-right:1px solid #243356;position:sticky;top:0;z-index:5}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:12px;min-width:960px}
+
+/* Row 1: sticky at top:0 */
+thead tr:first-child th{
+  background:#1a2744;color:#fff;padding:7px 8px;
+  text-align:center;font-weight:700;white-space:nowrap;font-size:11px;
+  border-right:1px solid #2e3d5c;
+  position:sticky;top:0;z-index:5
+}
+/* Row 2: sticky at row1 height */
+thead tr:last-child th{
+  background:#243356;color:#c8d8f0;padding:5px 6px;
+  text-align:center;font-weight:600;white-space:nowrap;font-size:10px;
+  border-right:1px solid #1a2744;
+  position:sticky;top:var(--thead-r1-h);z-index:4
+}
 thead th:last-child{border-right:none}
+thead tr:first-child th.th-left{text-align:left}
 
-/* tr-model-sep = first row of a new model_name block (strong border) */
-/* tr-mp-sep   = first row of a new MP group within same model (medium border) */
-/* tr-sub      = additional EOLR sub-row within same MP group */
-.tr-model-sep td{border-top:2px solid #4a6cf7!important;background:#f4f7ff}
-.tr-mp-sep td{border-top:2px solid #cdd8f0}
-.tr-model-sep td,.tr-mp-sep td,.tr-sub td{padding:6px 6px;border-bottom:1px solid #edf0f7;vertical-align:middle}
-.tr-sub td{border-top:1px dashed #e4e9f2;background:#f9fbff}
-.tr-model-sep:hover td,.tr-mp-sep:hover td,.tr-sub:hover td{background:#eef2ff}
+/* EOLR group spanning headers */
+.eolr-hdr-60 {background:#c84b00!important;color:#fff!important;border-left:2px solid #fff!important}
+.eolr-hdr-120{background:#276e2a!important;color:#fff!important;border-left:2px solid #fff!important}
 
-/* Model */
-.model-cell{max-width:220px;word-break:break-word;font-size:11px;color:#333;line-height:1.4;border-right:1px solid #e4e9f2}
-.model-link{text-decoration:none;color:inherit;display:block}.model-link:hover .model-short{color:#4a6cf7;text-decoration:underline}
+/* Sub-header row */
+thead tr:last-child th.sub-60 {background:#fff3e0!important;color:#c84b00!important;border-top:2px solid #c84b00}
+thead tr:last-child th.sub-120{background:#e8f5e9!important;color:#1b5e20!important;border-top:2px solid #276e2a}
+
+/* Data rows */
+.tr-model td{
+  border-top:2px solid #c5cfe8;background:#fff;
+  padding:6px 6px;border-bottom:1px solid #edf0f7;vertical-align:middle
+}
+.tr-model:nth-child(even) td{background:#f8faff}
+.tr-model:hover td{background:#eef2ff!important}
+
+/* Separator before EOLR=120 group */
+.sep-120{border-left:2px solid #276e2a!important}
+
+/* Fixed left columns */
+.model-cell{max-width:210px;word-break:break-word;font-size:11px;color:#333;
+  line-height:1.4;border-right:1px solid #e4e9f2;text-align:left!important}
+.model-link{text-decoration:none;color:inherit;display:block}
+.model-link:hover .model-short{color:#4a6cf7;text-decoration:underline}
 .model-short{font-weight:700;color:#1a2744;font-size:12px}
-.model-detail{color:#888;font-size:10px;margin-top:2px}
 
-/* ARTs */
-.arts-cell{min-width:160px;border-right:1px solid #e4e9f2;padding:6px}
-.art-chip{display:inline-block;background:#e8f0fe;color:#1a2744;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:600;margin:1px 2px 1px 0}
+.arts-cell{min-width:150px;border-right:1px solid #e4e9f2;padding:5px 6px;text-align:left!important}
+.art-chip{display:inline-block;background:#e8f0fe;color:#1a2744;border-radius:10px;
+  padding:1px 8px;font-size:11px;font-weight:600;margin:1px 2px 1px 0}
 
-/* EOLR */
-.eolr-cell{text-align:center;width:52px;white-space:nowrap}
-.eolr-badge{display:inline-block;font-size:11px;font-weight:700;border-radius:4px;padding:1px 7px}
-.eolr-60{background:#fff3e0;color:#e65100}
-.eolr-120{background:#e8f5e9;color:#2e7d32}
-.eolr-other{background:#f3e5f5;color:#7b1fa2}
+.mat-cell{min-width:110px;border-right:1px solid #e4e9f2;text-align:left!important;
+  padding:5px 6px;vertical-align:top}
 
-/* MP read-only */
-.mp-cell{min-width:72px;text-align:center}
+/* MP cells */
+.mp-cell{min-width:68px;text-align:center}
 .mp-val{font-size:12px;font-weight:600;color:#1a2744}
-.mp-dash{font-size:13px;color:#e05252;font-weight:700}
+.mp-zero{font-size:12px;color:#bbb}
+.mp-na{font-size:11px;color:#ddd}
 
-/* States */
 .loading{text-align:center;padding:40px;color:#888}
 .empty{text-align:center;padding:30px;color:#aaa;font-size:12px}
 </style>
@@ -82,7 +104,7 @@ thead th:last-child{border-right:none}
       <button class="btn-lang"        data-lang="vi" onclick="setLang('vi')">VI</button>
     </div>
     <a href="/" class="btn-link" id="btn-back">← DS-03</a>
-    <span class="version">v1.4</span>
+    <span class="version">v1.5</span>
   </div>
 </div>
 
@@ -96,18 +118,25 @@ thead th:last-child{border-right:none}
   <table>
     <thead>
       <tr>
-        <th id="th-model" style="min-width:200px">鞋型</th>
-        <th id="th-arts"  style="min-width:150px">ART 列表</th>
-        <th id="th-mat"   style="min-width:120px">材料類</th>
-        <th id="th-eolr"  style="width:52px;text-align:center">EOLR</th>
-        <th id="th-cut"   style="width:76px;text-align:center">裁斷MP</th>
-        <th id="th-stitch"style="width:76px;text-align:center">針車MP</th>
-        <th id="th-asm"   style="width:76px;text-align:center">成型MP</th>
-        <th id="th-sf"    style="width:76px;text-align:center">貼底</th>
+        <th id="th-model" rowspan="2" class="th-left" style="min-width:190px">鞋型</th>
+        <th id="th-arts"  rowspan="2" class="th-left" style="min-width:150px">ART 列表</th>
+        <th id="th-mat"   rowspan="2" class="th-left" style="min-width:110px">材料類</th>
+        <th colspan="4" class="eolr-hdr-60">EOLR = 60</th>
+        <th colspan="4" class="eolr-hdr-120">EOLR = 120</th>
+      </tr>
+      <tr>
+        <th id="th-cut60"     class="sub-60"  style="width:72px">裁斷MP</th>
+        <th id="th-stitch60"  class="sub-60"  style="width:72px">針車MP</th>
+        <th id="th-asm60"     class="sub-60"  style="width:72px">成型MP</th>
+        <th id="th-sf60"      class="sub-60"  style="width:72px">貼底</th>
+        <th id="th-cut120"    class="sub-120" style="width:72px">裁斷MP</th>
+        <th id="th-stitch120" class="sub-120" style="width:72px">針車MP</th>
+        <th id="th-asm120"    class="sub-120" style="width:72px">成型MP</th>
+        <th id="th-sf120"     class="sub-120" style="width:72px">貼底</th>
       </tr>
     </thead>
     <tbody id="ie-tbody">
-      <tr><td colspan="8" class="loading">載入中...</td></tr>
+      <tr><td colspan="11" class="loading">載入中...</td></tr>
     </tbody>
   </table>
 </div>
@@ -115,31 +144,61 @@ thead th:last-child{border-right:none}
 <script>
 // ── i18n ──────────────────────────────────────────────
 const LANGS = {
-  zh:{title:'IE 標準化界面 · MP 一覽',col_model:'鞋型',col_arts:'ART 列表',col_mat:'材料類',col_eolr:'EOLR',col_cut:'裁斷MP',col_stitch:'針車MP',col_asm:'成型MP',col_sf:'貼底',search_ph:'搜尋鞋型 / ART...',btn_reload:'重新載入',stats:(n,m)=>`共 ${n} 筆記錄 · ${m} 筆缺 MP`,loading:'載入中...',offline:'伺服器離線',empty:'無記錄',back:'← DS-03'},
-  en:{title:'IE Interface · MP Overview',col_model:'Model Name',col_arts:'ART List',col_mat:'Material',col_eolr:'EOLR',col_cut:'Cutting MP',col_stitch:'Stitching MP',col_asm:'Assembly MP',col_sf:'Stockfitting',search_ph:'Search model / ART...',btn_reload:'Reload',stats:(n,m)=>`${n} records · ${m} missing MP`,loading:'Loading...',offline:'Server offline',empty:'No records',back:'← DS-03'},
-  vi:{title:'Giao diện IE · Tổng quan MP',col_model:'Tên giày',col_arts:'Danh sách ART',col_mat:'Nguyên liệu',col_eolr:'EOLR',col_cut:'MP Cắt',col_stitch:'MP May',col_asm:'MP Lắp ráp',col_sf:'Stockfitting',search_ph:'Tìm kiểu giày / ART...',btn_reload:'Tải lại',stats:(n,m)=>`${n} bản ghi · ${m} thiếu MP`,loading:'Đang tải...',offline:'Máy chủ offline',empty:'Không có dữ liệu',back:'← DS-03'},
+  zh:{
+    title:'IE 標準化界面 · MP 一覽',
+    col_model:'鞋型',col_arts:'ART 列表',col_mat:'材料類',
+    col_eolr60:'EOLR = 60',col_eolr120:'EOLR = 120',
+    col_cut:'裁斷MP',col_stitch:'針車MP',col_asm:'成型MP',col_sf:'貼底',
+    search_ph:'搜尋鞋型 / ART...',btn_reload:'重新載入',
+    stats:(n,m)=>`共 ${n} 款鞋型 · ${m} 款缺 MP`,
+    loading:'載入中...',offline:'伺服器離線',empty:'無記錄',back:'← DS-03'
+  },
+  en:{
+    title:'IE Interface · MP Overview',
+    col_model:'Model Name',col_arts:'ART List',col_mat:'Material',
+    col_eolr60:'EOLR = 60',col_eolr120:'EOLR = 120',
+    col_cut:'Cutting MP',col_stitch:'Stitching MP',col_asm:'Assembly MP',col_sf:'Stockfitting',
+    search_ph:'Search model / ART...',btn_reload:'Reload',
+    stats:(n,m)=>`${n} models · ${m} missing MP`,
+    loading:'Loading...',offline:'Server offline',empty:'No records',back:'← DS-03'
+  },
+  vi:{
+    title:'Giao diện IE · Tổng quan MP',
+    col_model:'Tên giày',col_arts:'Danh sách ART',col_mat:'Nguyên liệu',
+    col_eolr60:'EOLR = 60',col_eolr120:'EOLR = 120',
+    col_cut:'MP Cắt',col_stitch:'MP May',col_asm:'MP Lắp ráp',col_sf:'Stockfitting',
+    search_ph:'Tìm kiểu giày / ART...',btn_reload:'Tải lại',
+    stats:(n,m)=>`${n} kiểu giày · ${m} thiếu MP`,
+    loading:'Đang tải...',offline:'Máy chủ offline',empty:'Không có dữ liệu',back:'← DS-03'
+  },
 };
 let currentLang = localStorage.getItem('ie_lang') || 'zh';
 let allRecords = [];
+let allGroups  = [];
 function L(k){ return LANGS[currentLang][k]; }
 
 function setLang(lang){
   currentLang = lang;
   localStorage.setItem('ie_lang', lang);
   const d = LANGS[lang];
-  document.getElementById('page-title').textContent  = d.title; document.title = d.title;
-  document.getElementById('th-model').textContent   = d.col_model;
-  document.getElementById('th-arts').textContent    = d.col_arts;
-  document.getElementById('th-mat').textContent     = d.col_mat;
-  document.getElementById('th-eolr').textContent    = d.col_eolr;
-  document.getElementById('th-cut').textContent     = d.col_cut;
-  document.getElementById('th-stitch').textContent  = d.col_stitch;
-  document.getElementById('th-asm').textContent     = d.col_asm;
-  document.getElementById('th-sf').textContent      = d.col_sf;
-  document.getElementById('search').placeholder     = d.search_ph;
-  document.getElementById('btn-reload').textContent = d.btn_reload;
-  document.getElementById('btn-back').textContent   = d.back;
-  document.querySelectorAll('.btn-lang').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  document.getElementById('page-title').textContent    = d.title; document.title = d.title;
+  document.getElementById('th-model').textContent      = d.col_model;
+  document.getElementById('th-arts').textContent       = d.col_arts;
+  document.getElementById('th-mat').textContent        = d.col_mat;
+  document.querySelector('.eolr-hdr-60').textContent   = d.col_eolr60;
+  document.querySelector('.eolr-hdr-120').textContent  = d.col_eolr120;
+  document.getElementById('th-cut60').textContent      = d.col_cut;
+  document.getElementById('th-stitch60').textContent   = d.col_stitch;
+  document.getElementById('th-asm60').textContent      = d.col_asm;
+  document.getElementById('th-sf60').textContent       = d.col_sf;
+  document.getElementById('th-cut120').textContent     = d.col_cut;
+  document.getElementById('th-stitch120').textContent  = d.col_stitch;
+  document.getElementById('th-asm120').textContent     = d.col_asm;
+  document.getElementById('th-sf120').textContent      = d.col_sf;
+  document.getElementById('search').placeholder        = d.search_ph;
+  document.getElementById('btn-reload').textContent    = d.btn_reload;
+  document.getElementById('btn-back').textContent      = d.back;
+  document.querySelectorAll('.btn-lang').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));
   updateStats();
 }
 
@@ -148,6 +207,8 @@ function fixStickyOffsets(){
   const tb = document.getElementById('toolbar').getBoundingClientRect().height;
   document.documentElement.style.setProperty('--ph-h', Math.round(ph)+'px');
   document.documentElement.style.setProperty('--tb-h', Math.round(tb)+'px');
+  const r1 = document.querySelector('thead tr:first-child');
+  if(r1) document.documentElement.style.setProperty('--thead-r1-h', Math.round(r1.getBoundingClientRect().height)+'px');
 }
 
 // ── Helpers ───────────────────────────────────────────
@@ -159,100 +220,108 @@ function fmtModel(name){
   return `<span class="model-short">${esc(short)}</span>`;
 }
 
-function eolrBadge(eolr){
-  const cls = eolr===60?'eolr-60':eolr===120?'eolr-120':'eolr-other';
-  return `<span class="eolr-badge ${cls}">${eolr}</span>`;
-}
-
 function mpText(v){
-  if(v===null||v===undefined||parseFloat(v)===0) return '<span class="mp-dash">—</span>';
+  if(v===null||v===undefined||parseFloat(v)===0)
+    return '<span class="mp-zero">—</span>';
   return `<span class="mp-val">${parseFloat(v).toFixed(1)}</span>`;
 }
 
-function isMissing(v){ return v===null||v===undefined||parseFloat(v)===0; }
+function matText(v){
+  if(!v) return '<span style="color:#aaa;font-size:11px">—</span>';
+  return v.split('/').map(s=>s.trim()).filter(Boolean)
+    .map(s=>`<span style="font-size:10px;display:block;line-height:1.5;color:#444">${esc(s)}</span>`).join('');
+}
+
+function isMissing(r){
+  return !r||((!r.cutting||parseFloat(r.cutting)===0)&&
+              (!r.stitching||parseFloat(r.stitching)===0)&&
+              (!r.assembly||parseFloat(r.assembly)===0));
+}
 
 // ── Grouping ──────────────────────────────────────────
-// Group by model_name: EOLR=60 and EOLR=120 for the same model appear
-// as sub-rows under one shared model/ART block.
+// Normalize model name for grouping: strip the " Target Output..." suffix that
+// the IE Excel embeds in the model_name field.  fmtModel() does the same strip
+// for display, so the group key matches the visible label.
+function normKey(name){
+  return (name||'').replace(/\s+Target Output.*$/i,'').replace(/\s{2,}/g,' ').trim().toLowerCase();
+}
+
+// API already deduplicates (1 record per model_name+eolr, latest wins).
+// Group by normalized model name so r60/r120 share one UI row even when the
+// raw model_name strings differ only in the Target Output suffix.
 function groupByModel(records){
   const map = new Map();
   records.forEach(r=>{
-    const key = r.model_name||'';
-    if(!map.has(key)) map.set(key,[]);
-    map.get(key).push(r);
+    const key = normKey(r.model_name);
+    if(!map.has(key)) map.set(key,{model_name:r.model_name||'',arts:[],mat:'',r60:null,r120:null,id60:null,id120:null});
+    const g = map.get(key);
+    (r.arts||[]).forEach(a=>{ if(!g.arts.includes(a)) g.arts.push(a); });
+    if(!g.mat && r.material) g.mat = r.material;
+    const eolr = parseInt(r.eolr, 10);
+    if(eolr===60)  { g.r60=r;  g.id60=r.id; }
+    if(eolr===120) { g.r120=r; g.id120=r.id; }
   });
-  const groups = [...map.values()].map(rows=>{
-    rows.sort((a,b)=>a.eolr-b.eolr||parseFloat(a.cutting||0)-parseFloat(b.cutting||0));
-    const arts=[...new Set(rows.flatMap(r=>r.arts||[]))];
-    const mat = rows[0].material||'';
-    return {model_name:rows[0].model_name, arts, mat, ids:rows.map(r=>r.id), rows};
-  });
-  groups.sort((a,b)=>a.model_name.localeCompare(b.model_name));
+  const groups = [...map.values()];
+  groups.sort((a,b)=>normKey(a.model_name).localeCompare(normKey(b.model_name)));
   return groups;
 }
 
 // ── Render ────────────────────────────────────────────
-function matText(v){
-  if(!v) return '<span style="color:#aaa;font-size:11px">—</span>';
-  const short = v.split('/').map(s=>s.trim()).filter(Boolean);
-  // Show all three parts (VI/EN/ZH) as stacked lines
-  return short.map(s=>`<span style="font-size:10px;display:block;line-height:1.4;color:#444">${esc(s)}</span>`).join('');
+function mp4cells(r, firstCls){
+  const c1 = 'mp-cell'+(firstCls?' '+firstCls:'');
+  if(!r){
+    const na = '<span class="mp-na">—</span>';
+    return `<td class="${c1}">${na}</td><td class="mp-cell">${na}</td><td class="mp-cell">${na}</td><td class="mp-cell">${na}</td>`;
+  }
+  return `<td class="${c1}">${mpText(r.cutting)}</td>`+
+    `<td class="mp-cell">${mpText(r.stitching)}</td>`+
+    `<td class="mp-cell">${mpText(r.assembly)}</td>`+
+    `<td class="mp-cell">${mpText(r.stock)}</td>`;
 }
 
-function renderGroup(g, rowCls){
-  // rowCls: 'tr-model-sep' (new model block) — always true since grouping is by model_name
-  const n = g.rows.length;
+function renderRow(g){
   const chips = g.arts.map(a=>`<span class="art-chip">${esc(a)}</span>`).join('');
-  let html = '';
-  g.rows.forEach((r,i)=>{
-    html += `<tr class="${i===0 ? rowCls : 'tr-sub'}">`;
-    if(i===0){
-      html += `<td class="model-cell" rowspan="${n}"><a href="/ie/${g.ids[0]}" class="model-link">${fmtModel(r.model_name)}</a></td>`;
-      html += `<td class="arts-cell" rowspan="${n}">${chips||'<span style="color:#aaa;font-size:11px">—</span>'}</td>`;
-      html += `<td class="mp-cell" rowspan="${n}" style="min-width:120px;vertical-align:top;padding-top:7px">${matText(g.mat)}</td>`;
-    }
-    html += `<td class="eolr-cell">${eolrBadge(r.eolr)}</td>`;
-    html += `<td class="mp-cell">${mpText(r.cutting)}</td>`;
-    html += `<td class="mp-cell">${mpText(r.stitching)}</td>`;
-    html += `<td class="mp-cell">${mpText(r.assembly)}</td>`;
-    html += `<td class="mp-cell">${mpText(r.stock)}</td>`;
-    html += '</tr>';
-  });
-  return html;
+  const linkId = g.id120||g.id60||0;
+  return `<tr class="tr-model">`+
+    `<td class="model-cell"><a href="/ie/${linkId}" class="model-link">${fmtModel(g.model_name)}</a></td>`+
+    `<td class="arts-cell">${chips||'<span style="color:#aaa;font-size:11px">—</span>'}</td>`+
+    `<td class="mat-cell">${matText(g.mat)}</td>`+
+    mp4cells(g.r60, '')+
+    mp4cells(g.r120, 'sep-120')+
+    `</tr>`;
 }
 
 function updateStats(){
-  const missing = allRecords.filter(r=>isMissing(r.cutting)&&isMissing(r.stitching)&&isMissing(r.assembly)).length;
-  document.getElementById('stats').textContent = allRecords.length ? L('stats')(allRecords.length, missing) : '—';
+  if(!allGroups.length){ document.getElementById('stats').textContent='—'; return; }
+  const missing = allGroups.filter(g=>isMissing(g.r60)&&isMissing(g.r120)).length;
+  document.getElementById('stats').textContent = L('stats')(allGroups.length, missing);
 }
 
 // ── Data ──────────────────────────────────────────────
 async function loadData(){
-  document.getElementById('ie-tbody').innerHTML = `<tr><td colspan="8" class="loading">${esc(L('loading'))}</td></tr>`;
+  document.getElementById('ie-tbody').innerHTML=`<tr><td colspan="11" class="loading">${esc(L('loading'))}</td></tr>`;
   try{
-    const res = await fetch('/api/ie/list');
+    const res  = await fetch('/api/ie/list');
     const data = await res.json();
-    allRecords = data.ok ? (data.records||[]) : [];
-    renderGroupedTable(groupByModel(allRecords));
+    allRecords = data.ok?(data.records||[]):[];
+    allGroups  = groupByModel(allRecords);
+    renderGroupedTable(allGroups);
     updateStats();
     fixStickyOffsets();
   }catch(e){
-    document.getElementById('ie-tbody').innerHTML = `<tr><td colspan="8" class="empty">${esc(L('offline'))}</td></tr>`;
+    document.getElementById('ie-tbody').innerHTML=`<tr><td colspan="11" class="empty">${esc(L('offline'))}</td></tr>`;
   }
 }
 
 function renderGroupedTable(groups){
   const tbody = document.getElementById('ie-tbody');
-  if(!groups.length){ tbody.innerHTML=`<tr><td colspan="8" class="empty">${esc(L('empty'))}</td></tr>`; return; }
-  let html = '';
-  groups.forEach(g=>{ html += renderGroup(g, 'tr-model-sep'); });
-  tbody.innerHTML = html;
+  if(!groups.length){ tbody.innerHTML=`<tr><td colspan="11" class="empty">${esc(L('empty'))}</td></tr>`; return; }
+  tbody.innerHTML = groups.map(renderRow).join('');
 }
 
 function filterTable(){
   const q = document.getElementById('search').value.toLowerCase();
-  if(!q){ renderGroupedTable(groupByModel(allRecords)); return; }
-  // Filter individual records by model name or ART, then re-group
+  if(!q){ renderGroupedTable(allGroups); return; }
   const filtered = allRecords.filter(r=>
     (r.model_name||'').toLowerCase().includes(q)||
     (r.arts||[]).some(a=>a.toLowerCase().includes(q))

@@ -229,6 +229,11 @@ def list_ie_records():
                    e.cutting, e.stitching, e.assembly, e.stock, e.source
             FROM ob_header h
             LEFT JOIN ob_epph e ON e.header_id = h.id
+            WHERE h.id = (
+                SELECT id FROM ob_header
+                WHERE model_name = h.model_name AND eolr = h.eolr
+                ORDER BY created_at DESC LIMIT 1
+            )
             ORDER BY h.model_name, h.eolr, h.id
         ''').fetchall()
         result = []
