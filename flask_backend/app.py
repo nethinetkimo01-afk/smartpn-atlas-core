@@ -110,11 +110,19 @@ def index():
 def ie_interface():
     return send_from_directory('..', 'ie_interface.html')
 
+@app.route('/ie/<int:header_id>')
+def ie_detail(header_id):
+    return send_from_directory('..', 'ie_detail.html')
+
 # ── IE Interface API ─────────────────────────────────────────────────────────
 
 @app.route('/api/ie/list', methods=['GET'])
 def ie_list():
     return jsonify(db.list_ie_records())
+
+@app.route('/api/ie/detail/<int:header_id>')
+def ie_detail_api(header_id):
+    return jsonify(db.get_ie_model_detail(header_id))
 
 @app.route('/api/ie/update_mp', methods=['POST'])
 def ie_update_mp():

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IE 明細</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background:#f0f2f5;color:#1a1a2e;min-height:100vh}
+
+/* ── Sticky header ───────────────────────────────────── */
+:root{--ph-h:40px}
+.page-header{background:#1a2744;color:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.page-header h1{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60vw}
+.header-right{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.version{font-size:11px;color:#7a9bcc;background:#243356;padding:3px 8px;border-radius:4px}
+.btn-link{background:#5c6bc0;color:#fff;text-decoration:none;padding:5px 12px;border-radius:5px;font-size:12px;font-weight:500}.btn-link:hover{background:#3949ab}
+
+/* ── Info bar ────────────────────────────────────────── */
+.info-bar{background:#fff;border-bottom:1px solid #e4e9f2;padding:10px 20px;display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.info-section{display:flex;flex-direction:column;gap:3px}
+.info-label{font-size:10px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.info-value{font-size:13px;font-weight:600;color:#1a2744}
+.eolr-group{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.eolr-badge{display:inline-block;font-size:11px;font-weight:700;border-radius:4px;padding:2px 8px}
+.eolr-60{background:#fff3e0;color:#e65100}
+.eolr-120{background:#e8f5e9;color:#2e7d32}
+.eolr-other{background:#f3e5f5;color:#7b1fa2}
+.art-chip{display:inline-block;background:#e8f0fe;color:#1a2744;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:600;margin:1px 2px 1px 0}
+.arts-wrap{display:flex;flex-wrap:wrap;gap:2px;align-items:center}
+
+/* ── Tabs ────────────────────────────────────────────── */
+.tab-bar{background:#fff;border-bottom:2px solid #e4e9f2;padding:0 20px;display:flex;gap:0;position:sticky;top:var(--ph-h);z-index:90;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.tab-btn{padding:10px 16px;border:none;background:transparent;font-size:12px;font-weight:600;color:#666;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:color .15s,border-color .15s;white-space:nowrap}
+.tab-btn:hover{color:#4a6cf7}
+.tab-btn.active{color:#4a6cf7;border-bottom-color:#4a6cf7}
+
+/* ── Content ─────────────────────────────────────────── */
+.content{padding:20px}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+.placeholder-box{background:#fff;border:1px dashed #c0c8d8;border-radius:8px;padding:40px;text-align:center;color:#999}
+.placeholder-box .ph-icon{font-size:32px;margin-bottom:10px}
+.placeholder-box .ph-title{font-size:14px;font-weight:600;color:#555;margin-bottom:6px}
+.placeholder-box .ph-sub{font-size:12px;color:#aaa}
+
+/* ── MP Summary ──────────────────────────────────────── */
+.mp-summary{background:#fff;border-radius:8px;box-shadow:0 1px 8px rgba(0,0,0,.08);padding:16px 20px;margin-top:20px}
+.mp-summary-title{font-size:12px;font-weight:700;color:#1a2744;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #e4e9f2}
+.mp-grid{display:flex;gap:24px;flex-wrap:wrap}
+.mp-eolr-block{display:flex;flex-direction:column;gap:8px;min-width:240px}
+.mp-eolr-label{font-size:11px;font-weight:700;margin-bottom:2px}
+.mp-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.mp-item{display:flex;flex-direction:column;align-items:center;background:#f4f7ff;border-radius:6px;padding:6px 14px;min-width:80px}
+.mp-item-label{font-size:10px;color:#888;font-weight:600}
+.mp-item-val{font-size:16px;font-weight:700;color:#1a2744;margin-top:2px}
+.mp-item-val.missing{color:#cc2222}
+.mp-source{font-size:10px;color:#aaa;margin-top:2px}
+
+/* ── States ──────────────────────────────────────────── */
+.loading{text-align:center;padding:60px;color:#888;font-size:14px}
+.error-box{background:#fff3f3;border:1px solid #ffcccc;border-radius:8px;padding:20px;margin:20px;color:#cc2222;font-size:13px}
+</style>
+</head>
+<body>
+
+<!-- ═══ PAGE HEADER ═══ -->
+<div class="page-header" id="page-header">
+  <h1 id="page-title">IE 明細</h1>
+  <div class="header-right">
+    <a href="/ie" class="btn-link">← IE 列表</a>
+    <span class="version">v1.0</span>
+  </div>
+</div>
+
+<!-- ═══ INFO BAR ═══ -->
+<div class="info-bar" id="info-bar" style="display:none">
+  <div class="info-section">
+    <div class="info-label">鞋型</div>
+    <div class="info-value" id="info-model">—</div>
+  </div>
+  <div class="info-section">
+    <div class="info-label">EOLR</div>
+    <div class="info-value eolr-group" id="info-eolr">—</div>
+  </div>
+  <div class="info-section" style="flex:1;min-width:200px">
+    <div class="info-label">ART 列表</div>
+    <div class="arts-wrap" id="info-arts">—</div>
+  </div>
+</div>
+
+<!-- ═══ TABS ═══ -->
+<div class="tab-bar" id="tab-bar" style="display:none">
+  <button class="tab-btn active" data-tab="cutting"    onclick="switchTab(this)">Cutting</button>
+  <button class="tab-btn"        data-tab="atom"       onclick="switchTab(this)">ATOM-自動化</button>
+  <button class="tab-btn"        data-tab="stitch_a"   onclick="switchTab(this)">Stitching 支流</button>
+  <button class="tab-btn"        data-tab="stitch_b"   onclick="switchTab(this)">Stitching 主流</button>
+  <button class="tab-btn"        data-tab="assembly_1" onclick="switchTab(this)">Assembly 1</button>
+  <button class="tab-btn"        data-tab="assembly_2" onclick="switchTab(this)">Assembly 2</button>
+  <button class="tab-btn"        data-tab="sum_stock"  onclick="switchTab(this)">SUM_Stock</button>
+</div>
+
+<!-- ═══ CONTENT ═══ -->
+<div class="content" id="content">
+  <div class="loading" id="loading">載入中...</div>
+
+  <!-- Tab panels (hidden until loaded) -->
+  <div id="tab-panels" style="display:none">
+    <div class="tab-panel active" id="panel-cutting">
+      <div class="placeholder-box">
+        <div class="ph-icon">✂️</div>
+        <div class="ph-title">Cutting 明細</div>
+        <div class="ph-sub">待 Jim 說明計算邏輯後填入</div>
+      </div>
+    </div>
+    <div class="tab-panel" id="panel-atom">
+      <div class="placeholder-box">
+        <div class="ph-icon">🤖</div>
+        <div class="ph-title">ATOM-自動化 明細</div>
+        <div class="ph-sub">待 Jim 說明計算邏輯後填入</div>
+      </div>
+    </div>
+    <div class="tab-panel" id="panel-stitch_a">
+      <div class="placeholder-box">
+        <div class="ph-icon">🧵</div>
+        <div class="ph-title">Stitching 支流 明細</div>
+        <div class="ph-sub">待 Jim 說明計算邏輯後填入</div>
+      </div>
+    </div>
+    <div class="tab-panel" id="panel-stitch_b">
+      <div class="placeholder-box">
+        <div class="ph-icon">🧵</div>
+        <div class="ph-title">Stitching 主流 明細</div>
+        <div class="ph-sub">待 Jim 說明計算邏輯後填入</div>
+      </div>
+    </div>
+    <div class="tab-panel" id="panel-assembly_1">
+      <div class="placeholder-box">
+        <div class="ph-icon">🔧</div>
+        <div class="ph-title">Assembly 1 明細</div>
+        <div class="ph-sub">待 Jim 說明計算邏輯後填入</div>
+      </div>
+    </div>
+    <div class="tab-panel" id="panel-assembly_2">
+      <div class="placeholder-box">
+        <div class="ph-icon">🔧</div>
+        <div class="ph-title">Assembly 2 明細</div>
+        <div class="ph-sub">待 Jim 說明計算邏輯後填入</div>
+      </div>
+    </div>
+    <div class="tab-panel" id="panel-sum_stock">
+      <div class="placeholder-box">
+        <div class="ph-icon">📦</div>
+        <div class="ph-title">SUM_Stock 明細</div>
+        <div class="ph-sub">待 Jim 說明計算邏輯後填入</div>
+      </div>
+    </div>
+
+    <!-- MP Summary (from ob_epph) -->
+    <div class="mp-summary" id="mp-summary">
+      <div class="mp-summary-title">MP 彙總（來自 ob_epph）</div>
+      <div class="mp-grid" id="mp-grid">—</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+// Tab switching
+// ════════════════════════════════════════════════════════
+function switchTab(btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+}
+
+// ════════════════════════════════════════════════════════
+// Utils
+// ════════════════════════════════════════════════════════
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function getHeaderId() {
+  const parts = window.location.pathname.split('/');
+  return parseInt(parts[parts.length - 1]) || null;
+}
+
+function eolrBadge(eolr) {
+  const cls = eolr === 60 ? 'eolr-60' : eolr === 120 ? 'eolr-120' : 'eolr-other';
+  return `<span class="eolr-badge ${cls}">${eolr}</span>`;
+}
+
+function fmtMP(v) {
+  if (v === null || v === undefined || parseFloat(v) === 0) {
+    return `<span class="mp-item-val missing">—</span>`;
+  }
+  return `<span class="mp-item-val">${parseFloat(v).toFixed(1)}</span>`;
+}
+
+// ════════════════════════════════════════════════════════
+// Load
+// ════════════════════════════════════════════════════════
+async function loadDetail() {
+  const id = getHeaderId();
+  if (!id) {
+    document.getElementById('loading').innerHTML =
+      '<div class="error-box">URL 格式錯誤：需要有效的 header_id</div>';
+    return;
+  }
+  try {
+    const res  = await fetch('/api/ie/detail/' + id);
+    const data = await res.json();
+    if (!data.ok) {
+      document.getElementById('loading').innerHTML =
+        `<div class="error-box">錯誤：${esc(data.error)}</div>`;
+      return;
+    }
+    renderDetail(data);
+  } catch(e) {
+    document.getElementById('loading').innerHTML =
+      '<div class="error-box">伺服器離線，請確認 Flask 服務正在運行</div>';
+  }
+}
+
+function renderDetail(data) {
+  // Page title
+  const shortName = (data.model_name || '—').replace(/\s+Target Output.*$/i,'').trim();
+  document.getElementById('page-title').textContent = shortName + ' · IE 明細';
+  document.title = shortName + ' · IE 明細';
+
+  // Info bar
+  document.getElementById('info-model').textContent = data.model_name || '—';
+
+  const eolrEl = document.getElementById('info-eolr');
+  eolrEl.innerHTML = data.headers.map(h => eolrBadge(h.eolr)).join(' ');
+
+  const allArts = [...new Set(data.headers.flatMap(h => h.arts || []))];
+  document.getElementById('info-arts').innerHTML =
+    allArts.map(a => `<span class="art-chip">${esc(a)}</span>`).join('') || '—';
+
+  // MP summary
+  const mpGrid = document.getElementById('mp-grid');
+  if (data.headers.length === 0) {
+    mpGrid.innerHTML = '<span style="color:#aaa;font-size:12px">無資料</span>';
+  } else {
+    mpGrid.innerHTML = data.headers.map(h => {
+      const e = h.epph || {};
+      return `<div class="mp-eolr-block">
+        <div class="mp-eolr-label">${eolrBadge(h.eolr)}</div>
+        <div class="mp-row">
+          <div class="mp-item">
+            <div class="mp-item-label">裁斷MP</div>
+            ${fmtMP(e.cutting)}
+          </div>
+          <div class="mp-item">
+            <div class="mp-item-label">針車MP</div>
+            ${fmtMP(e.stitching)}
+          </div>
+          <div class="mp-item">
+            <div class="mp-item-label">成型MP</div>
+            ${fmtMP(e.assembly)}
+          </div>
+          <div class="mp-item">
+            <div class="mp-item-label">庫存MP</div>
+            ${fmtMP(e.stock)}
+          </div>
+        </div>
+        <div class="mp-source">來源：${esc(e.source || 'N/A')}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Show UI
+  document.getElementById('loading').style.display   = 'none';
+  document.getElementById('info-bar').style.display  = 'flex';
+  document.getElementById('tab-bar').style.display   = 'flex';
+  document.getElementById('tab-panels').style.display = 'block';
+
+  // Fix sticky offset
+  const ph = document.getElementById('page-header').getBoundingClientRect().height;
+  document.documentElement.style.setProperty('--ph-h', Math.round(ph) + 'px');
+}
+
+// ── Init ──────────────────────────────────────────────
+loadDetail();
+</script>
+</body>
+</html>

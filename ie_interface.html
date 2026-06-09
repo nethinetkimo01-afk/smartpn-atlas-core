@@ -49,6 +49,9 @@ thead th:last-child{border-right:none}
 .model-short{font-weight:700;color:#1a2744;font-size:12px}
 .model-detail{color:#888;font-size:10px;margin-top:2px}
 
+/* Model link */
+.model-link{text-decoration:none;color:inherit;display:block}.model-link:hover .model-short{color:#4a6cf7;text-decoration:underline}
+
 /* ART chips */
 .arts-cell{min-width:160px;border-right:1px solid #e4e9f2}
 .art-chip{display:inline-block;background:#e8f0fe;color:#1a2744;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:600;margin:1px 2px 1px 0}
@@ -308,8 +311,8 @@ function renderGroup(g) {
     html += `<tr class="${cls}">`;
 
     if (i === 0) {
-      // Model + ART cells span all sub-rows
-      html += `<td class="model-cell" rowspan="${n}">${fmtModel(r.model_name)}</td>`;
+      // Model + ART cells span all sub-rows; model name links to detail page
+      html += `<td class="model-cell" rowspan="${n}"><a href="/ie/${g.ids[0]}" class="model-link">${fmtModel(r.model_name)}</a></td>`;
       html += `<td class="arts-cell" rowspan="${n}">${chips}${artAddHtml(g.ids)}</td>`;
     }
 
