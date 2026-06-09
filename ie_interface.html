@@ -35,10 +35,14 @@ table{width:100%;border-collapse:collapse;background:#fff;font-size:12px}
 thead th{background:#1a2744;color:#fff;padding:8px 6px;text-align:left;font-weight:600;white-space:nowrap;font-size:11px;border-right:1px solid #243356;position:sticky;top:0;z-index:5}
 thead th:last-child{border-right:none}
 
-.tr-first{border-top:2px solid #cdd8f0}
-.tr-first td,.tr-sub td{padding:6px 6px;border-bottom:1px solid #edf0f7;vertical-align:middle}
+/* tr-model-sep = first row of a new model_name block (strong border) */
+/* tr-mp-sep   = first row of a new MP group within same model (medium border) */
+/* tr-sub      = additional EOLR sub-row within same MP group */
+.tr-model-sep td{border-top:2px solid #4a6cf7!important;background:#f4f7ff}
+.tr-mp-sep td{border-top:2px solid #cdd8f0}
+.tr-model-sep td,.tr-mp-sep td,.tr-sub td{padding:6px 6px;border-bottom:1px solid #edf0f7;vertical-align:middle}
 .tr-sub td{border-top:1px dashed #e4e9f2;background:#f9fbff}
-.tr-first:hover td,.tr-sub:hover td{background:#eef2ff}
+.tr-model-sep:hover td,.tr-mp-sep:hover td,.tr-sub:hover td{background:#eef2ff}
 
 /* Model */
 .model-cell{max-width:220px;word-break:break-word;font-size:11px;color:#333;line-height:1.4;border-right:1px solid #e4e9f2}
@@ -166,23 +170,42 @@ function mpText(v){
 function isMissing(v){ return v===null||v===undefined||parseFloat(v)===0; }
 
 // ── Grouping ──────────────────────────────────────────
+// Mirror the DB merge rule: only records with identical (model_name + all 4 MP values)
+// are merged into one group (EOLR shown as sub-rows within that group).
+// Different MP values → separate groups, even for the same model_name.
 function groupByModel(records){
-  const map={};
-  records.forEach(r=>{ const k=r.model_name||'—'; if(!map[k])map[k]=[]; map[k].push(r); });
-  return Object.values(map).map(rows=>{
+  const map = new Map();
+  records.forEach(r=>{
+    const key = [
+      r.model_name||'',
+      parseFloat(r.cutting  ||0).toFixed(4),
+      parseFloat(r.stitching||0).toFixed(4),
+      parseFloat(r.assembly ||0).toFixed(4),
+      parseFloat(r.stock    ||0).toFixed(4),
+    ].join('|');
+    if(!map.has(key)) map.set(key,[]);
+    map.get(key).push(r);
+  });
+  const groups = [...map.values()].map(rows=>{
     rows.sort((a,b)=>a.eolr-b.eolr);
     const arts=[...new Set(rows.flatMap(r=>r.arts||[]))];
     return {model_name:rows[0].model_name, arts, ids:rows.map(r=>r.id), rows};
   });
+  // Sort: group same model_names together, then by first EOLR value
+  groups.sort((a,b)=>
+    a.model_name.localeCompare(b.model_name)||a.rows[0].eolr-b.rows[0].eolr
+  );
+  return groups;
 }
 
 // ── Render ────────────────────────────────────────────
-function renderGroup(g){
+function renderGroup(g, rowCls){
+  // rowCls: 'tr-model-sep' (first group for a new model) or 'tr-mp-sep' (new MP in same model)
   const n = g.rows.length;
   const chips = g.arts.map(a=>`<span class="art-chip">${esc(a)}</span>`).join('');
   let html = '';
   g.rows.forEach((r,i)=>{
-    html += `<tr class="${i===0?'tr-first':'tr-sub'}">`;
+    html += `<tr class="${i===0 ? rowCls : 'tr-sub'}">`;
     if(i===0){
       html += `<td class="model-cell" rowspan="${n}"><a href="/ie/${g.ids[0]}" class="model-link">${fmtModel(r.model_name)}</a></td>`;
       html += `<td class="arts-cell" rowspan="${n}">${chips||'<span style="color:#aaa;font-size:11px">—</span>'}</td>`;
@@ -220,14 +243,24 @@ async function loadData(){
 function renderGroupedTable(groups){
   const tbody = document.getElementById('ie-tbody');
   if(!groups.length){ tbody.innerHTML=`<tr><td colspan="7" class="empty">${esc(L('empty'))}</td></tr>`; return; }
-  tbody.innerHTML = groups.map(renderGroup).join('');
+  let html = '', lastModel = null;
+  groups.forEach(g=>{
+    const isNewModel = g.model_name !== lastModel;
+    html += renderGroup(g, isNewModel ? 'tr-model-sep' : 'tr-mp-sep');
+    lastModel = g.model_name;
+  });
+  tbody.innerHTML = html;
 }
 
 function filterTable(){
   const q = document.getElementById('search').value.toLowerCase();
   if(!q){ renderGroupedTable(groupByModel(allRecords)); return; }
-  const matched = new Set(allRecords.filter(r=>(r.model_name||'').toLowerCase().includes(q)||(r.arts||[]).some(a=>a.toLowerCase().includes(q))).map(r=>r.model_name));
-  renderGroupedTable(groupByModel(allRecords.filter(r=>matched.has(r.model_name))));
+  // Filter individual records by model name or ART, then re-group
+  const filtered = allRecords.filter(r=>
+    (r.model_name||'').toLowerCase().includes(q)||
+    (r.arts||[]).some(a=>a.toLowerCase().includes(q))
+  );
+  renderGroupedTable(groupByModel(filtered));
 }
 
 setLang(currentLang);
