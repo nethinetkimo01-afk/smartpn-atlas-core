@@ -19,8 +19,12 @@ Last updated: 2026-06-08
 ### SmartPN Atlas — 已完成
 - [x] docs/preview/S01_DEMO.html（已提交）
 - [x] docs/preview/S02_DEMO.html 至 S17_DEMO.html 全部建立（16 個互動式 Demo 畫面）
+- [x] S01-S17 全部 Demo HTML：DONE（docs/preview/S01_DEMO.html ~ S17_DEMO.html）
+- [x] S01 PPT：已建立為互動式 Widget，尚未經 Jim 確認最終版本
+- [x] 26_S01_DEMO_LOGIC.md 建立並推送 GitHub
+- [x] 27_SMARTPN_LAYER_DEFINITION.md 建立（placeholder，等 Jim 提供內容）
 - [x] 28_DEMO_MENU_STRUCTURE.md 建立（Phase 1 Demo SaaS + Formal Demo B 側欄結構）
-- [x] 00_ENTRY_POINT.md 加入 28 號文件索引 + demo screens 路徑
+- [x] 00_ENTRY_POINT.md Layer 3 加入 26/27/28 號文件索引 + demo screens 路徑
 
 ### 待確認（需 Jim 決定）
 - [ ] Jim 確認 EOLR mapping（每個 LEAN 組別對應哪個 EOLR）
