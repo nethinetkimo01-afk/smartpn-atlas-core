@@ -201,8 +201,10 @@ def main():
         conn = db.get_conn()
         epph = conn.execute(
             '''SELECT e.cutting, e.stitching, e.assembly
-               FROM ob_header h JOIN ob_epph e ON e.header_id=h.id
-               WHERE h.art=? ORDER BY h.id DESC LIMIT 1''', (art,)
+               FROM ob_header h
+               JOIN ob_articles a ON a.header_id=h.id
+               JOIN ob_epph e ON e.header_id=h.id
+               WHERE a.art=? ORDER BY h.id DESC LIMIT 1''', (art,)
         ).fetchone()
         conn.close()
 

@@ -106,9 +106,11 @@ def main():
             # Primary already imported — just handle secondary ARTs using DB values
             conn = db.get_conn()
             row = conn.execute(
-                '''SELECT h.season, h.model, e.cutting, e.stitching, e.assembly, e.stock
-                   FROM ob_header h JOIN ob_epph e ON e.header_id=h.id
-                   WHERE h.art=? AND h.eolr=? ORDER BY h.id DESC LIMIT 1''',
+                '''SELECT h.season, h.model_name, e.cutting, e.stitching, e.assembly, e.stock
+                   FROM ob_header h
+                   JOIN ob_articles a ON a.header_id=h.id
+                   JOIN ob_epph e ON e.header_id=h.id
+                   WHERE a.art=? AND h.eolr=? ORDER BY h.id DESC LIMIT 1''',
                 (primary_art, eolr)
             ).fetchone()
             conn.close()

@@ -286,4 +286,24 @@ DS-04 HP4218 8B：廠務登 172，DS-04 有 12 張製令合計 7,247。
 - 不需要 Jim 執行任何指令
 - 每次交接必須完整執行全部 5 步驟
 
+### Rule 21 補充：交接常見問題 SOP
+
+**問題 1：Project Files 版本過舊**
+原因：GitHub connector 不自動同步，需手動刷新或重新上傳
+解決：交接 Step 3 完成後，立刻提醒 Jim：
+「請到 DATA SYSTEM Project → Files → 刪除舊的 24_DATA_SYSTEM.md → 重新上傳最新版本」
+預防：每次 git push 後，nightly log 自動提示 `[ACTION REQUIRED] Project Files 需要更新`
+
+**問題 2：新視窗讀到舊版，報告狀態不正確**
+原因：Project Files 沒有同步最新版本
+解決：新視窗開始時，先確認 24_DATA_SYSTEM.md 版本號，若版本不是最新，告知 Jim 需要更新 Project Files
+
+**問題 3：新視窗問 Jim 應該由 Claude 決定的事**
+原因：Instructions 不夠強
+解決：Claude 遇到兩個技術任務時，同時執行，不問 Jim 選哪個
+
+**問題 4：交接摘要狀態與 GitHub 不一致**
+原因：交接時 GitHub 已有最新版，但摘要說「尚未寫入」
+解決：交接前先確認 git push 成功，再生成交接摘要
+
 <!-- Rule 21 added: 2026-06-09 -->
