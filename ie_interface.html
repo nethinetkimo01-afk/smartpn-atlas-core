@@ -29,10 +29,10 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background
 .btn-lang:hover{background:#3a5080;color:#fff}
 .btn-lang.active{background:#4a6cf7;color:#fff}
 
-/* Table */
-.table-wrap{overflow-x:auto;margin:14px 20px;border-radius:8px;box-shadow:0 1px 8px rgba(0,0,0,.1)}
+/* Table — table-wrap scrolls independently so thead sticky top:0 works */
+.table-wrap{overflow:auto;margin:14px 20px;border-radius:8px;box-shadow:0 1px 8px rgba(0,0,0,.1);max-height:calc(100vh - var(--ph-h) - var(--tb-h) - 28px)}
 table{width:100%;border-collapse:collapse;background:#fff;font-size:12px}
-thead th{background:#1a2744;color:#fff;padding:8px 6px;text-align:left;font-weight:600;white-space:nowrap;font-size:11px;border-right:1px solid #243356;position:sticky;top:calc(var(--ph-h) + var(--tb-h));z-index:5}
+thead th{background:#1a2744;color:#fff;padding:8px 6px;text-align:left;font-weight:600;white-space:nowrap;font-size:11px;border-right:1px solid #243356;position:sticky;top:0;z-index:5}
 thead th:last-child{border-right:none}
 
 .tr-first{border-top:2px solid #cdd8f0}
