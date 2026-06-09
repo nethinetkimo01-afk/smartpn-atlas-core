@@ -125,7 +125,9 @@ def get_mp(art, eolr=120):
     conn = db.get_conn()
     try:
         row = conn.execute(
-            'SELECT h.id FROM ob_header h WHERE h.art = ? AND h.eolr = ? ORDER BY h.id DESC LIMIT 1',
+            '''SELECT h.id FROM ob_header h
+               JOIN ob_articles a ON a.header_id = h.id
+               WHERE a.art = ? AND h.eolr = ? ORDER BY h.id DESC LIMIT 1''',
             (art, eolr)
         ).fetchone()
         if not row:

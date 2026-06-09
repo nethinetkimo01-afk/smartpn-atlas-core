@@ -99,7 +99,8 @@ def get_mp(art, eolr=120):
             '''SELECT e.cutting, e.stitching, e.assembly
                FROM ob_epph e
                JOIN ob_header h ON h.id = e.header_id
-               WHERE h.art = ? AND h.eolr = ?
+               JOIN ob_articles a ON a.header_id = h.id
+               WHERE a.art = ? AND h.eolr = ?
                ORDER BY h.id DESC LIMIT 1''',
             (art, eolr)
         ).fetchone()

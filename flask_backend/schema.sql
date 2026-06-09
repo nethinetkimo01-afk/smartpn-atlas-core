@@ -1,16 +1,22 @@
--- DS-03: OB Header (primary key: art + eolr + run)
+-- DS-03: OB Header (one row per shoe model + EOLR + MP combo)
 CREATE TABLE IF NOT EXISTS ob_header (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    art         TEXT NOT NULL,
+    model_name  TEXT NOT NULL DEFAULT '',
     season      TEXT,
-    model       TEXT,
     material    TEXT,
     category    TEXT,
     eolr        INTEGER NOT NULL,
     run         INTEGER NOT NULL,
     created_at  TEXT NOT NULL,
-    updated_at  TEXT NOT NULL,
-    UNIQUE(art, eolr, run)
+    updated_at  TEXT NOT NULL
+);
+
+-- DS-03: OB Articles (many ARTs per header)
+CREATE TABLE IF NOT EXISTS ob_articles (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    header_id INTEGER NOT NULL REFERENCES ob_header(id) ON DELETE CASCADE,
+    art       TEXT NOT NULL,
+    UNIQUE(art, header_id)
 );
 
 -- DS-03: OB sub-sheet rows
@@ -103,7 +109,9 @@ CREATE TABLE IF NOT EXISTS ds02_fob (
 );
 
 -- Indexes
-CREATE INDEX IF NOT EXISTS idx_ob_header_art ON ob_header(art);
-CREATE INDEX IF NOT EXISTS idx_ob_rows_header ON ob_rows(header_id, sheet_key);
-CREATE INDEX IF NOT EXISTS idx_change_log_key ON change_log(table_name, record_key);
-CREATE INDEX IF NOT EXISTS idx_ds02_art ON ds02_fob(art);
+CREATE INDEX IF NOT EXISTS idx_ob_articles_art    ON ob_articles(art);
+CREATE INDEX IF NOT EXISTS idx_ob_articles_header ON ob_articles(header_id);
+CREATE INDEX IF NOT EXISTS idx_ob_epph_header     ON ob_epph(header_id);
+CREATE INDEX IF NOT EXISTS idx_ob_rows_header     ON ob_rows(header_id, sheet_key);
+CREATE INDEX IF NOT EXISTS idx_change_log_key     ON change_log(table_name, record_key);
+CREATE INDEX IF NOT EXISTS idx_ds02_art           ON ds02_fob(art);

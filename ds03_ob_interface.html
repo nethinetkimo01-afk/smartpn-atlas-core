@@ -120,6 +120,18 @@ td.grand-dept{color:#0d1a44;font-weight:800}
 .btn-open{background:#5c6bc0;color:#fff}.btn-open:hover{background:#3949ab}
 .btn-ds02{background:#00897b;color:#fff;font-size:11px;padding:3px 9px;border-radius:4px;border:none;cursor:pointer;white-space:nowrap;font-weight:500}.btn-ds02:hover{background:#00796b}
 
+/* ── Multi-ART chips ── */
+.arts-row{background:#fff;border-bottom:1px solid #e8ecf4;padding:5px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:30px}
+.arts-label{font-size:10px;color:#888;font-weight:700;text-transform:uppercase;white-space:nowrap}
+.art-chip{display:inline-flex;align-items:center;gap:4px;background:#e8f0fe;color:#1a2744;border-radius:12px;padding:2px 10px;font-size:11px;font-weight:600}
+.art-chip.no-mp{background:#fde8e8;color:#cc2222}
+.art-chip-del{background:none;border:none;color:#888;cursor:pointer;font-size:12px;padding:0 1px;line-height:1}.art-chip-del:hover{color:#cc2222}
+.art-add-wrap{display:flex;gap:4px;align-items:center}
+.art-add-inp{border:1px solid #d0d5e0;border-radius:4px;padding:2px 7px;font-size:11px;width:90px;outline:none}
+.art-add-inp:focus{border-color:#4a6cf7}
+.btn-art-add{background:#4a6cf7;color:#fff;border:none;border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;font-weight:500}.btn-art-add:hover{background:#3a5ce7}
+.epph-missing{background:#fff0f0!important;border-bottom-color:#ffaaaa!important}
+
 /* ── Record Browser Modal ── */
 .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center}
 .modal-box{background:#fff;border-radius:8px;width:660px;max-height:75vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.3)}
@@ -179,8 +191,19 @@ td.grand-dept{color:#0d1a44;font-weight:800}
   <span class="rec-id" id="rec-id-display">—</span>
 </div>
 
+<!-- ═══ ARTS ROW ═══ -->
+<div class="arts-row" id="arts-row">
+  <span class="arts-label">ARTs</span>
+  <span id="arts-chips"></span>
+  <div class="art-add-wrap">
+    <input id="art-add-inp" class="art-add-inp" type="text" placeholder="add ART..." maxlength="10"
+           onkeydown="if(event.key==='Enter')addArtToHeader()">
+    <button class="btn-art-add" onclick="addArtToHeader()">+</button>
+  </div>
+</div>
+
 <!-- ═══ E-PPH BAR ═══ -->
-<div class="epph-bar">
+<div class="epph-bar" id="epph-bar">
   <span class="epph-label">E-PPH (from DS-02 LC)</span>
   <div class="epph-item"><label>Cutting</label><input id="epph-cutting" type="number" step="0.01" value="" placeholder="0.00" oninput="renderSums()"></div>
   <div class="epph-item"><label>Stitching</label><input id="epph-stitching" type="number" step="0.01" value="" placeholder="0.00" oninput="renderSums()"></div>
@@ -400,7 +423,7 @@ const C2B_GROUPS = [
 // STATE
 // ════════════════════════════════════════════════════════
 let state = {
-  header: { art:'', season:'', model:'', material:'', category:'', eolr:60, run:1 },
+  header: { art:'', season:'', model:'', material:'', category:'', eolr:60, run:1, arts:[], header_id:null },
   epph:   { cutting:'', stitching:'', assembly:'', stock:'' },
   sheets: {}
 };
@@ -855,6 +878,7 @@ function renderSumStock() {
 function renderSums() {
   renderSumC2B();
   renderSumStock();
+  updateEpphMissingStyle();
 }
 
 // ════════════════════════════════════════════════════════
@@ -882,8 +906,10 @@ async function saveData() {
       body: JSON.stringify(state)
     });
     const r = await res.json();
-    if (r.ok) showStatus('✓ Saved to server', 'save-ok');
-    else showStatus('Server error: ' + r.error, 'save-err', 4000);
+    if (r.ok) {
+      if (r.header_id) state.header.header_id = r.header_id;
+      showStatus('✓ Saved to server', 'save-ok');
+    } else showStatus('Server error: ' + r.error, 'save-err', 4000);
   } catch(e) {
     showStatus('Offline – localStorage only', 'save-local');
   }
@@ -894,7 +920,10 @@ function loadData() {
     const raw = localStorage.getItem('ds03_state');
     if (!raw) return;
     const parsed = JSON.parse(raw);
-    state.header = { ...state.header, ...(parsed.header||{}) };
+    state.header = {
+      art:'', season:'', model:'', material:'', category:'', eolr:60, run:1, arts:[], header_id:null,
+      ...(parsed.header||{})
+    };
     state.epph   = { ...state.epph,   ...(parsed.epph||{}) };
     Object.keys(SHEETS).forEach(k => {
       state.sheets[k] = (parsed.sheets||{})[k] || [];
@@ -917,13 +946,54 @@ function restoreUI() {
   document.getElementById('epph-assembly').value  = state.epph.assembly  || '';
   document.getElementById('epph-stock').value     = state.epph.stock     || '';
 
+  renderArtsChips();
+  updateEpphMissingStyle();
   updateRecordId();
+}
+
+function renderArtsChips() {
+  const arts = state.header.arts || [];
+  const hasMp = parseFloat(state.epph.cutting) > 0 || parseFloat(state.epph.stitching) > 0 || parseFloat(state.epph.assembly) > 0;
+  const el = document.getElementById('arts-chips');
+  if (!arts.length) { el.innerHTML = ''; return; }
+  el.innerHTML = arts.map(a =>
+    `<span class="art-chip${!hasMp ? ' no-mp' : ''}">${esc(a)}</span>`
+  ).join('');
+}
+
+function updateEpphMissingStyle() {
+  const bar = document.getElementById('epph-bar');
+  if (!bar) return;
+  const hasMp = parseFloat(state.epph.cutting) > 0 || parseFloat(state.epph.stitching) > 0 || parseFloat(state.epph.assembly) > 0;
+  bar.classList.toggle('epph-missing', (state.header.header_id !== null) && !hasMp);
+}
+
+async function addArtToHeader() {
+  const newArt = document.getElementById('art-add-inp').value.trim().toUpperCase();
+  if (!newArt) return;
+  const header_id = state.header.header_id;
+  if (!header_id) { showStatus('Save the record first before adding ARTs', 'save-err', 3000); return; }
+  try {
+    const res = await fetch('/api/ds03/add_art', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ art: newArt, header_id })
+    });
+    const r = await res.json();
+    if (r.ok) {
+      if (!state.header.arts.includes(newArt)) state.header.arts.push(newArt);
+      document.getElementById('art-add-inp').value = '';
+      renderArtsChips();
+      showStatus('✓ ART added: ' + newArt, 'save-ok', 2000);
+    } else {
+      showStatus('Error: ' + r.error, 'save-err', 3000);
+    }
+  } catch(e) { showStatus('Server offline', 'save-err', 2000); }
 }
 
 function newRecord() {
   if (!confirm('Clear all data and start a new record?')) return;
   state = {
-    header: { art:'', season:'', model:'', material:'', category:'', eolr:60, run:1 },
+    header: { art:'', season:'', model:'', material:'', category:'', eolr:60, run:1, arts:[], header_id:null },
     epph: { cutting:'', stitching:'', assembly:'', stock:'' },
     sheets: {}
   };
@@ -1001,13 +1071,15 @@ async function loadRecordFromServer(art, eolr, run) {
 
     const h = data.header || {};
     state.header = {
-      art:      h.art      || '',
-      season:   h.season   || '',
-      model:    h.model    || '',
-      material: h.material || '',
-      category: h.category || '',
-      eolr:     h.eolr     || 60,
-      run:      h.run      || 1
+      art:       h.art       || '',
+      season:    h.season    || '',
+      model:     h.model     || '',
+      material:  h.material  || '',
+      category:  h.category  || '',
+      eolr:      h.eolr      || 60,
+      run:       h.run       || 1,
+      arts:      h.arts      || [],
+      header_id: h.id        || null
     };
     const ep = data.epph || {};
     state.epph = {

@@ -81,6 +81,27 @@ def get_lc(art):
         return None
 
 
+def get_ob_mp(art):
+    """Return (cutting, stitching, assembly) from ob_epph via ob_articles, or None."""
+    try:
+        conn = db.get_conn()
+        row = conn.execute(
+            '''SELECT e.cutting, e.stitching, e.assembly
+               FROM ob_epph e
+               JOIN ob_header h ON h.id = e.header_id
+               JOIN ob_articles a ON a.header_id = h.id
+               WHERE a.art = ?
+               ORDER BY (h.eolr=120) DESC, h.id DESC LIMIT 1''',
+            (art,)
+        ).fetchone()
+        conn.close()
+        if row and any(v for v in row):
+            return float(row[0] or 0), float(row[1] or 0), float(row[2] or 0)
+        return None
+    except Exception:
+        return None
+
+
 def merge_lean_rows(art_rows):
     """Within a LEAN group: same model_name + same LC key → merge, sum qty.
     Different LC or no DS-02 data → separate row.
@@ -298,37 +319,48 @@ def wc(ws, r, c, val, font=None, fill=None, align=None, border=None, num_fmt=Non
     return cell
 
 
+MP_FILL   = PatternFill('solid', fgColor='E2EFDA')   # green tint = has IE MP data
+
+# Column layout (1-indexed):
+# 1:LEAN  2-5:鞋型+ART  6:訂單  7:裁斷IE MP  8:針車IE MP  9:成型IE MP
+# 10:自動化MP  11:訂單編制MP  12:裁斷MP  13:針車MP  14:成型MP  15:協理給  16:合計
+_NCOLS = 16
+
+
 def build_sheet(ws, lean_by_art, ocs, rbqc):
     # Column widths
-    widths = {1: 8, 2: 45, 3: 8, 4: 8, 5: 8, 6: 10, 7: 8, 8: 8, 9: 8, 10: 8, 11: 8, 12: 8}
+    widths = {1: 8, 2: 45, 3: 5, 4: 5, 5: 5, 6: 10,
+              7: 9, 8: 9, 9: 9, 10: 8, 11: 9,
+              12: 8, 13: 8, 14: 8, 15: 8, 16: 8}
     for ci, w in widths.items():
         ws.column_dimensions[get_column_letter(ci)].width = w
 
     row = 1
 
     # ── Title ────────────────────────────────────────────────────────────────
-    ws.merge_cells(f'A{row}:L{row}')
+    ws.merge_cells(f'A{row}:P{row}')
     wc(ws, row, 1, f'廠務組織編制表（自動產生 auto_bianche）— {MONTH_SH}',
        font=Font(bold=True, size=13), align=CENTER)
     row += 1
 
-    ws.merge_cells(f'A{row}:L{row}')
+    ws.merge_cells(f'A{row}:P{row}')
     wc(ws, row, 1,
-       '★ 橙色欄位 = 本月無資料（MP、協理給等待 Jim 填入）| 此表由 DS-04 自動產生',
+       '★ 橙色欄位 = 本月無資料（MP、協理給等待 Jim 填入）| G/H/I = DS-03 IE MP | 此表由 DS-04 自動產生',
        font=Font(size=9, italic=True, color='CC4400'), align=LEFT)
     row += 2
 
     # ── Column headers ───────────────────────────────────────────────────────
-    headers = ['LEAN', '鞋型 + ART', '', '', '', '訂單', '',
+    hdr_row = ['LEAN', '鞋型 + ART', '', '', '', '訂單',
+               '裁斷IE MP', '針車IE MP', '成型IE MP',
+               '自動化MP', '訂單編制MP',
                '裁斷MP', '針車MP', '成型MP', '協理給', '合計']
-    ws.row_dimensions[row].height = 28
-    for ci, h in enumerate(headers, 1):
+    ws.row_dimensions[row].height = 36
+    for ci, h in enumerate(hdr_row, 1):
         wc(ws, row, ci, h, font=HDR_FONT, fill=HDR_FILL, align=CENTER, border=THIN_BDR)
     row += 1
     ws.freeze_panes = f'A{row}'
 
     # ── CSA section ──────────────────────────────────────────────────────────
-    # Determine LEAN number groups (1, 2, ... 12)
     lean_num_groups = {}
     for lean in lean_by_art:
         m = re.match(r'^(\d+)', lean)
@@ -336,8 +368,7 @@ def build_sheet(ws, lean_by_art, ocs, rbqc):
         lean_num_groups.setdefault(n, []).append(lean)
 
     for dept_num in sorted(lean_num_groups):
-        # Dept section header
-        ws.merge_cells(f'A{row}:L{row}')
+        ws.merge_cells(f'A{row}:P{row}')
         wc(ws, row, 1, f'LEAN {dept_num} （加{dept_num}部）',
            font=Font(bold=True, size=10, color='1F4E79'), fill=SEC_FILL, align=LEFT)
         row += 1
@@ -351,69 +382,85 @@ def build_sheet(ws, lean_by_art, ocs, rbqc):
             ws.merge_cells(f'B{row}:E{row}')
             wc(ws, row, 2, '鞋型 + ART', font=BOLD, fill=LEAN_FILL, align=CENTER, border=THIN_BDR)
             wc(ws, row, 6, '訂單', font=BOLD, fill=LEAN_FILL, align=CENTER, border=THIN_BDR)
-            for ci in [7, 8, 9, 10, 11, 12]:
+            for ci in range(7, _NCOLS + 1):
                 wc(ws, row, ci, None, fill=BLANK_FILL, border=THIN_BDR)
             row += 1
 
             # Merge rows: same model_name + same LC → one row, sum qty
             merged = merge_lean_rows(arts)
-            for m in merged:
+            for mg in merged:
                 ws.row_dimensions[row].height = 15
                 wc(ws, row, 1, None, border=THIN_BDR)
                 ws.merge_cells(f'B{row}:E{row}')
-                wc(ws, row, 2, m['label'], font=NORM, align=LEFT, border=THIN_BDR)
-                wc(ws, row, 6, m['qty'], font=NORM, align=RIGHT, border=THIN_BDR, num_fmt='#,##0')
-                for ci in [7, 8, 9, 10, 11, 12]:
+                wc(ws, row, 2, mg['label'], font=NORM, align=LEFT, border=THIN_BDR)
+                wc(ws, row, 6, mg['qty'], font=NORM, align=RIGHT, border=THIN_BDR, num_fmt='#,##0')
+
+                # Fill G/H/I from ob_epph (try each ART in the group)
+                ob_mp = None
+                for a in mg['arts']:
+                    ob_mp = get_ob_mp(a)
+                    if ob_mp:
+                        break
+
+                if ob_mp:
+                    cut_v, stch_v, asm_v = ob_mp
+                    wc(ws, row, 7,  cut_v,  font=NORM, fill=MP_FILL, align=CENTER, border=THIN_BDR, num_fmt='0.0')
+                    wc(ws, row, 8,  stch_v, font=NORM, fill=MP_FILL, align=CENTER, border=THIN_BDR, num_fmt='0.0')
+                    wc(ws, row, 9,  asm_v,  font=NORM, fill=MP_FILL, align=CENTER, border=THIN_BDR, num_fmt='0.0')
+                else:
+                    for ci in [7, 8, 9]:
+                        wc(ws, row, ci, None, fill=BLANK_FILL, border=THIN_BDR)
+
+                for ci in range(10, _NCOLS + 1):
                     wc(ws, row, ci, None, fill=BLANK_FILL, border=THIN_BDR)
                 row += 1
 
     row += 1  # spacer
 
     # ── OCS sections ─────────────────────────────────────────────────────────
-    ws.merge_cells(f'A{row}:L{row}')
+    ws.merge_cells(f'A{row}:P{row}')
     wc(ws, row, 1, 'OCS 固定單位（直接從廠務組織編制表讀入）',
        font=Font(bold=True, size=11, color='1F4E79'), fill=SEC_FILL, align=LEFT)
     row += 1
 
     for sec in OCS_SECTIONS:
         units = ocs.get(sec, [])
-        # Section header
-        ws.merge_cells(f'A{row}:L{row}')
+        ws.merge_cells(f'A{row}:P{row}')
         wc(ws, row, 1, sec, font=BOLD, fill=LEAN_FILL, align=LEFT, border=THIN_BDR)
         row += 1
         for u in units:
             wc(ws, row, 1, None, border=THIN_BDR)
-            ws.merge_cells(f'B{row}:K{row}')
-            wc(ws, row, 2, u['unit'], font=NORM, align=LEFT, border=THIN_BDR)
-            wc(ws, row, 12, u['hc'], font=NORM, align=RIGHT, border=THIN_BDR, num_fmt='#,##0')
+            ws.merge_cells(f'B{row}:O{row}')
+            wc(ws, row, 2,  u['unit'], font=NORM, align=LEFT, border=THIN_BDR)
+            wc(ws, row, 16, u['hc'],   font=NORM, align=RIGHT, border=THIN_BDR, num_fmt='#,##0')
             row += 1
         row += 1
 
     # ── RB / QC sections ─────────────────────────────────────────────────────
-    ws.merge_cells(f'A{row}:L{row}')
+    ws.merge_cells(f'A{row}:P{row}')
     wc(ws, row, 1, 'RB / QC（直接從廠務組織編制表讀入）',
        font=Font(bold=True, size=11, color='1F4E79'), fill=SEC_FILL, align=LEFT)
     row += 1
 
     for sec in RB_QC_SECTIONS:
         units = rbqc.get(sec, [])
-        ws.merge_cells(f'A{row}:L{row}')
+        ws.merge_cells(f'A{row}:P{row}')
         wc(ws, row, 1, sec, font=BOLD, fill=LEAN_FILL, align=LEFT, border=THIN_BDR)
         row += 1
 
         # Sub-headers
         ws.row_dimensions[row].height = 18
-        ws.merge_cells(f'A{row}:J{row}')
-        wc(ws, row, 1, '單位', font=HDR_FONT, fill=HDR_FILL, align=CENTER, border=THIN_BDR)
-        wc(ws, row, 11, '上月人數', font=HDR_FONT, fill=HDR_FILL, align=CENTER, border=THIN_BDR)
-        wc(ws, row, 12, '本月人數', font=HDR_FONT, fill=HDR_FILL, align=CENTER, border=THIN_BDR)
+        ws.merge_cells(f'A{row}:N{row}')
+        wc(ws, row, 1,  '單位',    font=HDR_FONT, fill=HDR_FILL, align=CENTER, border=THIN_BDR)
+        wc(ws, row, 15, '上月人數', font=HDR_FONT, fill=HDR_FILL, align=CENTER, border=THIN_BDR)
+        wc(ws, row, 16, '本月人數', font=HDR_FONT, fill=HDR_FILL, align=CENTER, border=THIN_BDR)
         row += 1
 
         for u in units:
-            ws.merge_cells(f'A{row}:J{row}')
-            wc(ws, row, 1, u['unit'], font=NORM, align=LEFT, border=THIN_BDR)
-            wc(ws, row, 11, u['last_month'], font=NORM, align=RIGHT, border=THIN_BDR, num_fmt='#,##0')
-            wc(ws, row, 12, u['this_month'], font=NORM, align=RIGHT, border=THIN_BDR, num_fmt='#,##0')
+            ws.merge_cells(f'A{row}:N{row}')
+            wc(ws, row, 1,  u['unit'],       font=NORM, align=LEFT,  border=THIN_BDR)
+            wc(ws, row, 15, u['last_month'], font=NORM, align=RIGHT, border=THIN_BDR, num_fmt='#,##0')
+            wc(ws, row, 16, u['this_month'], font=NORM, align=RIGHT, border=THIN_BDR, num_fmt='#,##0')
             row += 1
         row += 1
 

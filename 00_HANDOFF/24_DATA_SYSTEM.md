@@ -482,18 +482,18 @@ API endpoints:
 
 ## 最新執行結果
 
-**執行時間**：2026-06-09 08:00
+**執行時間**：2026-06-09 08:39
 
 ### 各任務狀態
 
 | 任務 | 狀態 |
 |------|------|
 | T0 檔案版本檢查 | ✅ ok |
-| T1 IE 全面掃描 | ✅ ok (0 new, 442 skip) |
-| T2 comparison_table.xlsx | ✅ ok |
+| T1 IE 全面掃描 | ❌ error: no such column: h.model |
+| T2 comparison_table.xlsx | ❌ error |
 | T3 MP 分配分析 | ✅ ok |
 | T4 LEAN/OCS 比對 | ✅ ok (差異: LEAN不符=134 缺=14) |
-| T6 IE 補充掃描 | ✅ ok (0 new, 442 skip) |
+| T6 IE 補充掃描 | ❌ error: no such column: h.model |
 | T7 自動表+diff+MD更新 | ✅ ok (人為差異=32) |
 
 ### LEAN / OCS 比對摘要

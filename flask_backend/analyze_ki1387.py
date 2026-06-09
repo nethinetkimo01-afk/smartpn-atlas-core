@@ -67,9 +67,10 @@ def main():
     lines.append('')
 
     ki_row = conn.execute(
-        '''SELECT h.art, h.eolr, h.season, e.cutting, e.stitching, e.assembly, e.stock
+        '''SELECT a.art, h.eolr, h.season, e.cutting, e.stitching, e.assembly, e.stock
            FROM ob_header h JOIN ob_epph e ON e.header_id=h.id
-           WHERE h.art='KI1387' ORDER BY h.id DESC LIMIT 1'''
+           JOIN ob_articles a ON a.header_id=h.id
+           WHERE a.art='KI1387' ORDER BY h.id DESC LIMIT 1'''
     ).fetchone()
 
     lines.append('=== 案例一：KI1387 (CODECHAOS BOA 27) ===')
@@ -138,9 +139,10 @@ def main():
 
     lines.append('--- CODECHAOS BOA 27 家族 ob_epph 一覽 ---')
     rows = conn.execute(
-        'SELECT h.art, h.eolr, e.cutting, e.stitching, e.assembly '
+        'SELECT a.art, h.eolr, e.cutting, e.stitching, e.assembly '
         'FROM ob_header h JOIN ob_epph e ON e.header_id=h.id '
-        'WHERE h.art IN ({}) ORDER BY h.art, h.eolr'.format(
+        'JOIN ob_articles a ON a.header_id=h.id '
+        'WHERE a.art IN ({}) ORDER BY a.art, h.eolr'.format(
             ','.join(['?' for _ in BOA27_ARTS])),
         tuple(BOA27_ARTS)
     ).fetchall()

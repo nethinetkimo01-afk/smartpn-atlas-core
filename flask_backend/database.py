@@ -61,30 +61,36 @@ def save_ob_record(data):
             return {'ok': False, 'error': 'ART is required'}
 
         ts = now_iso()
-        existing = conn.execute(
-            'SELECT id FROM ob_header WHERE art=? AND eolr=? AND run=?',
+        art_row = conn.execute(
+            '''SELECT a.header_id FROM ob_articles a
+               JOIN ob_header h ON h.id = a.header_id
+               WHERE a.art=? AND h.eolr=? AND h.run=?''',
             (art, eolr, run)
         ).fetchone()
 
-        is_new = existing is None
-        if existing:
-            header_id = existing['id']
+        is_new = art_row is None
+        if art_row:
+            header_id = art_row['header_id']
             conn.execute(
-                '''UPDATE ob_header SET season=?, model=?, material=?, category=?, updated_at=?
+                '''UPDATE ob_header SET model_name=?, season=?, material=?, category=?, updated_at=?
                    WHERE id=?''',
-                (h.get('season',''), h.get('model',''), h.get('material',''),
+                (h.get('model',''), h.get('season',''), h.get('material',''),
                  h.get('category',''), ts, header_id)
             )
             conn.execute('DELETE FROM ob_rows WHERE header_id=?', (header_id,))
             conn.execute('DELETE FROM ob_epph  WHERE header_id=?', (header_id,))
         else:
             cur = conn.execute(
-                '''INSERT INTO ob_header (art, season, model, material, category, eolr, run, created_at, updated_at)
-                   VALUES (?,?,?,?,?,?,?,?,?)''',
-                (art, h.get('season',''), h.get('model',''), h.get('material',''),
+                '''INSERT INTO ob_header (model_name, season, material, category, eolr, run, created_at, updated_at)
+                   VALUES (?,?,?,?,?,?,?,?)''',
+                (h.get('model',''), h.get('season',''), h.get('material',''),
                  h.get('category',''), eolr, run, ts, ts)
             )
             header_id = cur.lastrowid
+            conn.execute(
+                'INSERT OR IGNORE INTO ob_articles (header_id, art) VALUES (?,?)',
+                (header_id, art)
+            )
 
         ep = data.get('epph', {})
         conn.execute(
@@ -130,7 +136,9 @@ def load_ob_record(art, eolr, run):
     conn = get_conn()
     try:
         row = conn.execute(
-            'SELECT * FROM ob_header WHERE art=? AND eolr=? AND run=?',
+            '''SELECT h.* FROM ob_header h
+               JOIN ob_articles a ON a.header_id = h.id
+               WHERE a.art=? AND h.eolr=? AND h.run=?''',
             (art, int(eolr), int(run))
         ).fetchone()
         if not row:
@@ -138,6 +146,12 @@ def load_ob_record(art, eolr, run):
 
         header_id = row['id']
         header = dict(row)
+        header['art'] = art
+        header['model'] = header.get('model_name', '')
+        arts = [r['art'] for r in conn.execute(
+            'SELECT art FROM ob_articles WHERE header_id=? ORDER BY id', (header_id,)
+        ).fetchall()]
+        header['arts'] = arts
 
         ep_row = conn.execute('SELECT * FROM ob_epph WHERE header_id=?', (header_id,)).fetchone()
         epph = dict(ep_row) if ep_row else {}
@@ -169,8 +183,10 @@ def list_ob_records():
     conn = get_conn()
     try:
         rows = conn.execute(
-            '''SELECT art, season, model, eolr, run, updated_at
-               FROM ob_header ORDER BY updated_at DESC'''
+            '''SELECT a.art, h.season, h.model_name AS model, h.eolr, h.run, h.updated_at
+               FROM ob_articles a
+               JOIN ob_header h ON h.id = a.header_id
+               ORDER BY h.updated_at DESC, a.id ASC'''
         ).fetchall()
         return {'ok': True, 'records': [dict(r) for r in rows]}
     finally:
@@ -180,9 +196,104 @@ def list_ob_records():
 def delete_ob_record(art, eolr, run):
     conn = get_conn()
     try:
-        conn.execute(
-            'DELETE FROM ob_header WHERE art=? AND eolr=? AND run=?',
+        art_row = conn.execute(
+            '''SELECT a.id, a.header_id FROM ob_articles a
+               JOIN ob_header h ON h.id = a.header_id
+               WHERE a.art=? AND h.eolr=? AND h.run=?''',
             (art, int(eolr), int(run))
+        ).fetchone()
+        if art_row:
+            header_id = art_row['header_id']
+            conn.execute('DELETE FROM ob_articles WHERE id=?', (art_row['id'],))
+            remaining = conn.execute(
+                'SELECT COUNT(*) FROM ob_articles WHERE header_id=?', (header_id,)
+            ).fetchone()[0]
+            if remaining == 0:
+                conn.execute('DELETE FROM ob_epph   WHERE header_id=?', (header_id,))
+                conn.execute('DELETE FROM ob_rows   WHERE header_id=?', (header_id,))
+                conn.execute('DELETE FROM ob_header WHERE id=?',        (header_id,))
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def list_ie_records():
+    """Return all ob_header rows with their ARTs and MP values for the IE interface."""
+    conn = get_conn()
+    try:
+        rows = conn.execute('''
+            SELECT h.id, h.model_name, h.eolr, h.season,
+                   e.cutting, e.stitching, e.assembly, e.stock, e.source
+            FROM ob_header h
+            LEFT JOIN ob_epph e ON e.header_id = h.id
+            ORDER BY h.model_name, h.eolr, h.id
+        ''').fetchall()
+        result = []
+        for r in rows:
+            arts = [x['art'] for x in conn.execute(
+                'SELECT art FROM ob_articles WHERE header_id=? ORDER BY id', (r['id'],)
+            ).fetchall()]
+            result.append({
+                'id':         r['id'],
+                'model_name': r['model_name'],
+                'eolr':       r['eolr'],
+                'season':     r['season'] or '',
+                'arts':       arts,
+                'cutting':    r['cutting'],
+                'stitching':  r['stitching'],
+                'assembly':   r['assembly'],
+                'stock':      r['stock'],
+                'source':     r['source'] or '',
+            })
+        return {'ok': True, 'records': result}
+    finally:
+        conn.close()
+
+
+def update_ie_mp(header_id, cutting, stitching, assembly, stock):
+    """Update ob_epph values for a header (creates row if missing)."""
+    conn = get_conn()
+    try:
+        ts = now_iso()
+        existing = conn.execute(
+            'SELECT id FROM ob_epph WHERE header_id=?', (header_id,)
+        ).fetchone()
+        if existing:
+            conn.execute(
+                '''UPDATE ob_epph SET cutting=?, stitching=?, assembly=?, stock=?,
+                   source='manual_ie' WHERE header_id=?''',
+                (float(cutting or 0), float(stitching or 0),
+                 float(assembly or 0), float(stock or 0), header_id)
+            )
+        else:
+            conn.execute(
+                '''INSERT INTO ob_epph (header_id, cutting, stitching, assembly, stock, source)
+                   VALUES (?,?,?,?,?,'manual_ie')''',
+                (header_id, float(cutting or 0), float(stitching or 0),
+                 float(assembly or 0), float(stock or 0))
+            )
+        conn.execute(
+            "UPDATE ob_header SET updated_at=? WHERE id=?", (ts, header_id)
+        )
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        conn.rollback()
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def add_art_to_header(art, header_id):
+    """Add an ART to an existing ob_header. Silently ignores if already present."""
+    conn = get_conn()
+    try:
+        conn.execute(
+            'INSERT OR IGNORE INTO ob_articles (header_id, art) VALUES (?,?)',
+            (header_id, art.strip())
         )
         conn.commit()
         return {'ok': True}

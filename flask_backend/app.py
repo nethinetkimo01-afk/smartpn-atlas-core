@@ -106,6 +106,28 @@ CORS(app)
 def index():
     return send_from_directory('..', 'ds03_ob_interface.html')
 
+@app.route('/ie')
+def ie_interface():
+    return send_from_directory('..', 'ie_interface.html')
+
+# ── IE Interface API ─────────────────────────────────────────────────────────
+
+@app.route('/api/ie/list', methods=['GET'])
+def ie_list():
+    return jsonify(db.list_ie_records())
+
+@app.route('/api/ie/update_mp', methods=['POST'])
+def ie_update_mp():
+    data = request.get_json(force=True)
+    header_id = data.get('header_id')
+    if not header_id:
+        return jsonify({'ok': False, 'error': 'header_id required'}), 400
+    return jsonify(db.update_ie_mp(
+        int(header_id),
+        data.get('cutting'), data.get('stitching'),
+        data.get('assembly'), data.get('stock')
+    ))
+
 # ── DS-03 OB ─────────────────────────────────────────────────────────────────
 
 @app.route('/api/ds03/save', methods=['POST'])
@@ -132,6 +154,15 @@ def delete_ob():
     eolr = request.args.get('eolr', 60)
     run  = request.args.get('run', 1)
     return jsonify(db.delete_ob_record(art, eolr, run))
+
+@app.route('/api/ds03/add_art', methods=['POST'])
+def add_art():
+    data = request.get_json(force=True)
+    art = data.get('art', '').strip()
+    header_id = data.get('header_id')
+    if not art or not header_id:
+        return jsonify({'ok': False, 'error': 'art and header_id required'}), 400
+    return jsonify(db.add_art_to_header(art, int(header_id)))
 
 # ── Lookup ────────────────────────────────────────────────────────────────────
 
@@ -347,9 +378,10 @@ def import_corrections():
                 skipped.append(art)
                 continue
 
-            # Find or create ob_header for this ART (EOLR=120 default)
+            # Find or create ob_header for this ART via ob_articles (EOLR=120 default)
             h_row = conn.execute(
-                'SELECT id FROM ob_header WHERE art=? ORDER BY id DESC LIMIT 1', (art,)
+                '''SELECT a.header_id AS id FROM ob_articles a
+                   WHERE a.art=? ORDER BY a.id DESC LIMIT 1''', (art,)
             ).fetchone()
 
             if h_row:
@@ -375,13 +407,14 @@ def import_corrections():
                         (header_id, ref_cut or 0, ref_s or 0, ref_asm or 0)
                     )
             else:
-                conn.execute(
-                    '''INSERT INTO ob_header (art, season, model, eolr, run, created_at)
-                       VALUES (?, '', '', 120, 1, ?)''', (art, ts)
+                cur = conn.execute(
+                    '''INSERT INTO ob_header (model_name, season, material, category, eolr, run, created_at, updated_at)
+                       VALUES ('', '', '', '', 120, 1, ?, ?)''', (ts, ts)
                 )
-                header_id = conn.execute(
-                    'SELECT id FROM ob_header WHERE art=? ORDER BY id DESC LIMIT 1', (art,)
-                ).fetchone()[0]
+                header_id = cur.lastrowid
+                conn.execute(
+                    'INSERT INTO ob_articles (header_id, art) VALUES (?,?)', (header_id, art)
+                )
                 conn.execute(
                     '''INSERT INTO ob_epph (header_id, cutting, stitching, assembly, stock, source)
                        VALUES (?,?,?,?,0,'manual_correction')''',

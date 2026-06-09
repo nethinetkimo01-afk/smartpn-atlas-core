@@ -8,7 +8,7 @@ DATA SYSTEM nightly tasks:
   4. Auto-compare result_table vs 廠務組織編制表 → compare_result.txt
   5. (reserved)
   6. Scan IE folders for unimported files → batch import (top-up pass)
-  7. Rebuild auto_bianche.xlsx + re-run bianche_diff + update 24_DATA_SYSTEM.md
+  7. Rebuild auto_bianche.xlsx (G/H/I = IE MP from ob_epph) + re-run bianche_diff + update 24_DATA_SYSTEM.md
 """
 import sys, os, hashlib, json, re, datetime
 

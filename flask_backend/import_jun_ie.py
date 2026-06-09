@@ -34,7 +34,10 @@ def all_arts_from_filename(path):
 
 def art_already_in_db(conn, art, eolr):
     row = conn.execute(
-        'SELECT id FROM ob_header WHERE art=? AND eolr=?', (art, eolr)
+        '''SELECT a.id FROM ob_articles a
+           JOIN ob_header h ON h.id = a.header_id
+           WHERE a.art=? AND h.eolr=?''',
+        (art, eolr)
     ).fetchone()
     return row is not None
 
