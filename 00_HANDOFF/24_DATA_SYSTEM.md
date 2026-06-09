@@ -482,19 +482,19 @@ API endpoints:
 
 ## 最新執行結果
 
-**執行時間**：2026-06-08 16:10
+**執行時間**：2026-06-09 08:00
 
 ### 各任務狀態
 
 | 任務 | 狀態 |
 |------|------|
 | T0 檔案版本檢查 | ✅ ok |
-| T1 IE 全面掃描 | ✅ ok (235 new, 208 skip) |
+| T1 IE 全面掃描 | ✅ ok (0 new, 442 skip) |
 | T2 comparison_table.xlsx | ✅ ok |
 | T3 MP 分配分析 | ✅ ok |
 | T4 LEAN/OCS 比對 | ✅ ok (差異: LEAN不符=134 缺=14) |
-| T5 auto_bianche生成 | ❌ error: [WinError 32] 程序無法存取檔案，因為檔案正由另一個程序使用。 |
-| T6 bianche_diff | ✅ ok (人為差異=32) |
+| T6 IE 補充掃描 | ✅ ok (0 new, 442 skip) |
+| T7 自動表+diff+MD更新 | ✅ ok (人為差異=32) |
 
 ### LEAN / OCS 比對摘要
 

@@ -2,11 +2,13 @@
 """
 DATA SYSTEM nightly tasks:
   0. Check if 24_DATA_SYSTEM.md / 07_RULES.md have been updated → remind Jim
-  1. Scan Biên chế/Jun/IE for new multi-ART IE files → import ob_epph
+  1. Full IE scan (all folders) + abbreviated ART expansion → import ob_epph
   2. Regenerate comparison_table.xlsx (if 廠務組織編制表 accessible)
   3. Produce mp_allocation_analysis.txt
   4. Auto-compare result_table vs 廠務組織編制表 → compare_result.txt
-  5. Write execution summary to 00_HANDOFF/24_DATA_SYSTEM.md
+  5. (reserved)
+  6. Scan IE folders for unimported files → batch import (top-up pass)
+  7. Rebuild auto_bianche.xlsx + re-run bianche_diff + update 24_DATA_SYSTEM.md
 """
 import sys, os, hashlib, json, re, datetime
 
@@ -270,58 +272,61 @@ def run(logger):
         if os.path.exists(out_path):
             compare_summary = _parse_compare_result(out_path)
 
-    # ── Task 5: Rebuild auto_bianche.xlsx (full: CSA + 製令明細) ─────────────
-    logger.log('[data_system] Task 5: Rebuild auto_bianche.xlsx (CSA + 製令明細 tab)')
+    # ── Task 6: Scan IE folders — find unimported files, batch import ────────
+    logger.log('[data_system] Task 6: Scan IE folders for unimported files (top-up pass)')
     try:
-        import shutil, tempfile
-        import build_result_table as brt
+        _new6, _skip6, _err6 = _run_full_ie_import(logger)
+        logger.log(f'[data_system] Task 6: {_new6} new  {_skip6} skipped  {_err6} errors')
+        task_results['T6 IE 補充掃描'] = f'ok ({_new6} new, {_skip6} skip)'
+    except Exception as e:
+        logger.log(f'[data_system] Task 6 error: {e}')
+        task_results['T6 IE 補充掃描'] = f'error: {e}'
 
-        def _tmp(orig):
+    # ── Task 7: Rebuild auto_bianche.xlsx + bianche_diff + update MD ─────────
+    logger.log('[data_system] Task 7: Rebuild auto_bianche + bianche_diff + update 24_DATA_SYSTEM.md')
+    bianche_diff_stats = {}
+    try:
+        import shutil as _shutil, tempfile
+        import build_result_table as brt
+        import generate_bianche as gb
+
+        def _tmp7(orig):
             dst = os.path.join(tempfile.gettempdir(), os.path.basename(orig))
-            shutil.copy2(orig, dst)
+            _shutil.copy2(orig, dst)
             return dst
 
-        brt.SCHEDULE = _tmp(SCHEDULE)
-        brt.BIANCHE  = _tmp(BIANCHE)
-
-        import generate_bianche as gb
+        brt.SCHEDULE = _tmp7(SCHEDULE)
+        brt.BIANCHE  = _tmp7(BIANCHE)
         gb.brt.SCHEDULE = brt.SCHEDULE
         gb.brt.BIANCHE  = brt.BIANCHE
 
         os.makedirs(OUTPUT_DIR, exist_ok=True)
-        gb.run()   # builds CSA sheet + 製令明細 tab + prints comparison report
 
+        # Write to temp first to avoid WinError 32 when auto_bianche.xlsx is open in Excel
+        tmp_out   = os.path.join(tempfile.gettempdir(), 'auto_bianche_nightly.xlsx')
+        final_out = os.path.join(OUTPUT_DIR, 'auto_bianche.xlsx')
+        orig_out  = gb.OUT_PATH
+        gb.OUT_PATH = tmp_out
+
+        gb.run()  # builds CSA sheet + 製令明細 tab
+
+        gb.OUT_PATH = orig_out
+        _shutil.copy2(tmp_out, final_out)
         logger.log('[data_system] auto_bianche.xlsx rebuilt (CSA + 製令明細)')
-        task_results['T5 auto_bianche生成'] = 'ok'
-    except Exception as e:
-        logger.log(f'[data_system] Task 5 error: {e}')
-        task_results['T5 auto_bianche生成'] = f'error: {e}'
 
-    # ── Task 6: Run bianche_diff → bianche_diff.txt ───────────────────────
-    logger.log('[data_system] Task 6: Run bianche_diff')
-    bianche_diff_stats = {}
-    try:
-        import shutil as _shutil
         from bianche_diff import run as bianche_diff_run
         result = bianche_diff_run()
-
         if isinstance(result, dict):
             bianche_diff_stats = result
 
-        src = os.path.join(OUTPUT_DIR, 'bianche_diff.txt')
-        dst = os.path.join(OUTPUT_DIR, 'bianche_diff_v2.txt')
-        if os.path.exists(src):
-            _shutil.copy2(src, dst)
-
         ord_mismatch = bianche_diff_stats.get('ord_mismatch', '?')
         logger.log(f'[data_system] bianche_diff done: 人為差異={ord_mismatch} 筆')
-        task_results['T6 bianche_diff'] = f'ok (人為差異={ord_mismatch})'
+        task_results['T7 自動表+diff+MD更新'] = f'ok (人為差異={ord_mismatch})'
     except Exception as e:
-        logger.log(f'[data_system] Task 6 error: {e}')
-        task_results['T6 bianche_diff'] = f'error: {e}'
+        logger.log(f'[data_system] Task 7 error: {e}')
+        task_results['T7 自動表+diff+MD更新'] = f'error: {e}'
 
-    # ── Task 7: Write summary to 24_DATA_SYSTEM.md ────────────────────────
-    logger.log('[data_system] Task 7: Write summary to 24_DATA_SYSTEM.md')
+    # Write summary to 24_DATA_SYSTEM.md (always runs)
     _write_handoff_summary(logger, task_results, compare_summary, bianche_diff_stats)
 
     return True

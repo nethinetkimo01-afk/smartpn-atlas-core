@@ -5,11 +5,11 @@
 廠務表: 2026年6月份廠務组织編制 20260524.xlsx
 
 廠務編制表 ART 索引: 313 筆
-結果表 CSA 行數:     583 筆
+結果表 CSA 行數:     430 筆
 
 ── CSA LEAN 一致性 ──
-✓ 一致: 303
-✗ LEAN不符: 141 筆
+✓ 一致: 282
+✗ LEAN不符: 134 筆
   LEAN不符  GV6889        結果表='1A'      編制表='2C'
   LEAN不符  GV6900        結果表='1A'      編制表='2C'
   LEAN不符  HQ1198        結果表='1A'      編制表='2C'
@@ -73,7 +73,6 @@
   LEAN不符  HQ7638        結果表='7A'      編制表='6B'
   LEAN不符  KI4563        結果表='7A'      編制表='6B'
   LEAN不符  KI4569        結果表='7A'      編制表='6B'
-  LEAN不符  KI7740        結果表='7A'      編制表='8B'
   LEAN不符  LA7682        結果表='7A'      編制表='6B'
   LEAN不符  LA7683        結果表='7A'      編制表='6B'
   LEAN不符  IH3999        結果表='7B'      編制表='8C'
@@ -85,7 +84,6 @@
   LEAN不符  KI3584        結果表='8C'      編制表='7B'
   LEAN不符  KJ7510        結果表='8C'      編制表='9B'
   LEAN不符  KJ7542        結果表='8C'      編制表='7B'
-  LEAN不符  KJ7552        結果表='8C'      編制表='7B'
   LEAN不符  IG6045        結果表='9A'      編制表='6A'
   LEAN不符  KK4234        結果表='9A'      編制表='10A'
   LEAN不符  IH3994        結果表='9B'      編制表='8C'
@@ -131,16 +129,11 @@
   LEAN不符  JI0182        結果表='12A'     編制表='9B'
   LEAN不符  KJ7510        結果表='12A'     編制表='9B'
   LEAN不符  HQ7468        結果表='12C'     編制表='5B'
-  LEAN不符  KJ7893        結果表='12C'     編制表='8A'
   LEAN不符  KJ7895        結果表='12C'     編制表='8A'
-  LEAN不符  KZ6449        結果表='12C'     編制表='9B'
   LEAN不符  KZ9155        結果表='12C'     編制表='8A'
-  LEAN不符  LA1814        結果表='12C'     編制表='3B'
   LEAN不符  HQ7468        結果表='12D'     編制表='5B'
-  LEAN不符  KJ7893        結果表='12D'     編制表='8A'
   LEAN不符  KZ6450        結果表='12D'     編制表='10A'
   LEAN不符  KZ9344        結果表='12D'     編制表='3B'
-  LEAN不符  LA1814        結果表='12D'     編制表='3B'
   LEAN不符  IH6000        結果表=''        編制表='3B'
   LEAN不符  IH6001        結果表=''        編制表='3B'
   LEAN不符  KK4234        結果表=''        編制表='10A'
@@ -151,26 +144,33 @@
   LEAN不符  JP8521        結果表=''        編制表='2C'
   LEAN不符  JQ0598        結果表=''        編制表='2B'
   LEAN不符  KI4741        結果表=''        編制表='2A'
-✗ ART不在編制表: 17 筆（排除MF前綴）
+✗ ART不在編制表: 14 筆（排除MF前綴）
   MISSING  KJ8322        LEAN='5A'
   MISSING  IH5569        LEAN='5C'
   MISSING  JQ9555        LEAN='5C'
   MISSING  KH9651        LEAN='5C'
-  MISSING  LA1750        LEAN='5C'
   MISSING  KJ8322        LEAN=''
   MISSING  LA3255        LEAN='8C'
   MISSING  KZ8301        LEAN='9B'
   MISSING  KJ2282        LEAN='9C'
   MISSING  KJ7844        LEAN='10B'
   MISSING  KJ7845        LEAN='10B'
-  MISSING  KK3017        LEAN='10C'
   MISSING  KK3018        LEAN='10C'
-  MISSING  KK3033        LEAN='10C'
   MISSING  LA3255        LEAN='10C'
   MISSING  KJ7844        LEAN=''
   MISSING  KJ7845        LEAN=''
-✗ 廠務編制表有但結果表無: 1 筆
+✗ 廠務編制表有但結果表無: 14 筆
+  REF_ONLY  HP5124        LEAN=5C
+  REF_ONLY  HQ5207        LEAN=12A
+  REF_ONLY  HQ5209        LEAN=12A
+  REF_ONLY  JI0183        LEAN=9B
   REF_ONLY  JS1068        LEAN=7A
+  REF_ONLY  KH9671        LEAN=9C
+  REF_ONLY  KH9672        LEAN=9C
+  REF_ONLY  KH9673        LEAN=9C
+  REF_ONLY  KI5303        LEAN=10C
+  REF_ONLY  KI9857        LEAN=12A
+  ... 共 14 筆
 
 ── OCS 固定單位一致性 ──
   組底配套: ✓ 完全一致 (6 units)
@@ -182,7 +182,7 @@
 ======================================================================
 總結
 ======================================================================
-CSA LEAN一致性: ✗ LEAN不符141筆 / ART缺17筆 / 編制表多1筆
+CSA LEAN一致性: ✗ LEAN不符134筆 / ART缺14筆 / 編制表多14筆
 OCS 固定單位:   ✓ 100%一致
 
 整體結論: ✗ 有差異（見上方清單）
