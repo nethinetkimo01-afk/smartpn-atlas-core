@@ -8,59 +8,74 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background:#f0f2f5;color:#1a1a2e;min-height:100vh}
 
-/* ── Sticky header ───────────────────────────────────── */
 :root{--ph-h:40px}
+
+/* ── Page header ─────────────────────────────────────── */
 .page-header{background:#1a2744;color:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3)}
-.page-header h1{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60vw}
+.page-header h1{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:55vw}
 .header-right{display:flex;gap:8px;align-items:center;flex-shrink:0}
 .version{font-size:11px;color:#7a9bcc;background:#243356;padding:3px 8px;border-radius:4px}
-.btn-link{background:#5c6bc0;color:#fff;text-decoration:none;padding:5px 12px;border-radius:5px;font-size:12px;font-weight:500}.btn-link:hover{background:#3949ab}
+.btn-link{background:#5c6bc0;color:#fff;text-decoration:none;padding:5px 12px;border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;border:none}.btn-link:hover{background:#3949ab}
+.btn-export{background:#1d9e6b;color:#fff;text-decoration:none;padding:5px 12px;border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;border:none;white-space:nowrap}.btn-export:hover{background:#178059}
 
 /* ── Info bar ────────────────────────────────────────── */
-.info-bar{background:#fff;border-bottom:1px solid #e4e9f2;padding:10px 20px;display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,.05)}
-.info-section{display:flex;flex-direction:column;gap:3px}
-.info-label{font-size:10px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
-.info-value{font-size:13px;font-weight:600;color:#1a2744}
-.eolr-group{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.eolr-badge{display:inline-block;font-size:11px;font-weight:700;border-radius:4px;padding:2px 8px}
+.info-bar{background:#fff;border-bottom:1px solid #e4e9f2;padding:12px 20px;display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.info-section{display:flex;flex-direction:column;gap:4px;min-width:0}
+.info-label{font-size:10px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.info-value{font-size:14px;font-weight:700;color:#1a2744}
+
+/* EOLR badges */
+.eolr-badge{display:inline-block;font-size:11px;font-weight:700;border-radius:4px;padding:2px 8px;margin-right:4px}
 .eolr-60{background:#fff3e0;color:#e65100}
 .eolr-120{background:#e8f5e9;color:#2e7d32}
 .eolr-other{background:#f3e5f5;color:#7b1fa2}
-.art-chip{display:inline-block;background:#e8f0fe;color:#1a2744;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:600;margin:1px 2px 1px 0}
-.arts-wrap{display:flex;flex-wrap:wrap;gap:2px;align-items:center}
 
-/* ── Tabs ────────────────────────────────────────────── */
-.tab-bar{background:#fff;border-bottom:2px solid #e4e9f2;padding:0 20px;display:flex;gap:0;position:sticky;top:var(--ph-h);z-index:90;box-shadow:0 1px 4px rgba(0,0,0,.05)}
-.tab-btn{padding:10px 16px;border:none;background:transparent;font-size:12px;font-weight:600;color:#666;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:color .15s,border-color .15s;white-space:nowrap}
+/* ART chips with remove */
+.arts-wrap{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.art-chip{display:inline-flex;align-items:center;gap:3px;background:#e8f0fe;color:#1a2744;border-radius:10px;padding:2px 8px 2px 10px;font-size:11px;font-weight:600}
+.art-remove{background:none;border:none;color:#7a8fc0;font-size:12px;line-height:1;cursor:pointer;padding:0 1px}.art-remove:hover{color:#cc2222}
+.art-add-wrap{display:flex;gap:4px;align-items:center;margin-top:2px}
+.art-add-inp{border:1px solid #d0d5e0;border-radius:4px;padding:3px 8px;font-size:11px;width:84px;outline:none}
+.art-add-inp:focus{border-color:#4a6cf7}
+.btn-art-add{background:#4a6cf7;color:#fff;border:none;border-radius:4px;padding:3px 10px;font-size:11px;cursor:pointer;font-weight:500}.btn-art-add:hover{background:#3a5ce7}
+.art-msg{font-size:11px;margin-left:4px}
+.art-ok{color:#1a7a40}.art-err{color:#cc2222}
+
+/* ── Tab bar ─────────────────────────────────────────── */
+.tab-bar{background:#fff;border-bottom:2px solid #e4e9f2;padding:0 20px;display:flex;gap:0;overflow-x:auto;position:sticky;top:var(--ph-h);z-index:90;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.tab-btn{padding:10px 16px;border:none;background:transparent;font-size:12px;font-weight:600;color:#777;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:color .12s,border-color .12s}
 .tab-btn:hover{color:#4a6cf7}
 .tab-btn.active{color:#4a6cf7;border-bottom-color:#4a6cf7}
 
 /* ── Content ─────────────────────────────────────────── */
-.content{padding:20px}
+.content{padding:20px;display:flex;flex-direction:column;gap:20px}
 .tab-panel{display:none}
 .tab-panel.active{display:block}
 
-.placeholder-box{background:#fff;border:1px dashed #c0c8d8;border-radius:8px;padding:40px;text-align:center;color:#999}
-.placeholder-box .ph-icon{font-size:32px;margin-bottom:10px}
-.placeholder-box .ph-title{font-size:14px;font-weight:600;color:#555;margin-bottom:6px}
-.placeholder-box .ph-sub{font-size:12px;color:#aaa}
+/* Placeholder */
+.placeholder-box{background:#fff;border:1px dashed #c0c8d8;border-radius:8px;padding:40px 20px;display:flex;flex-direction:column;align-items:center;gap:8px;color:#aaa;text-align:center}
+.ph-icon{font-size:32px}
+.ph-title{font-size:14px;font-weight:600;color:#666}
+.ph-sub{font-size:12px}
+.tab-save-bar{display:flex;justify-content:flex-end;margin-bottom:10px}
+.btn-tab-save{background:#1d9e6b;color:#fff;border:none;border-radius:5px;padding:5px 16px;font-size:12px;font-weight:600;cursor:pointer}.btn-tab-save:hover{background:#178059}
 
 /* ── MP Summary ──────────────────────────────────────── */
-.mp-summary{background:#fff;border-radius:8px;box-shadow:0 1px 8px rgba(0,0,0,.08);padding:16px 20px;margin-top:20px}
-.mp-summary-title{font-size:12px;font-weight:700;color:#1a2744;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #e4e9f2}
-.mp-grid{display:flex;gap:24px;flex-wrap:wrap}
-.mp-eolr-block{display:flex;flex-direction:column;gap:8px;min-width:240px}
-.mp-eolr-label{font-size:11px;font-weight:700;margin-bottom:2px}
-.mp-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.mp-item{display:flex;flex-direction:column;align-items:center;background:#f4f7ff;border-radius:6px;padding:6px 14px;min-width:80px}
-.mp-item-label{font-size:10px;color:#888;font-weight:600}
-.mp-item-val{font-size:16px;font-weight:700;color:#1a2744;margin-top:2px}
-.mp-item-val.missing{color:#cc2222}
-.mp-source{font-size:10px;color:#aaa;margin-top:2px}
+.mp-summary{background:#fff;border-radius:8px;box-shadow:0 1px 8px rgba(0,0,0,.08);padding:16px 20px}
+.section-title{font-size:12px;font-weight:700;color:#1a2744;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #e4e9f2}
+.mp-grid{display:flex;gap:20px;flex-wrap:wrap}
+.mp-eolr-block{background:#f7f9fc;border-radius:8px;padding:12px 16px;min-width:280px}
+.mp-eolr-header{margin-bottom:10px}
+.mp-row{display:flex;gap:10px;flex-wrap:wrap}
+.mp-item{display:flex;flex-direction:column;align-items:center;background:#fff;border:1px solid #e4e9f2;border-radius:6px;padding:8px 14px;min-width:70px}
+.mp-item-label{font-size:10px;color:#888;font-weight:600;white-space:nowrap}
+.mp-item-val{font-size:18px;font-weight:700;color:#1a2744;margin-top:3px}
+.mp-item-val.missing{color:#e05252}
+.mp-source{font-size:10px;color:#aaa;margin-top:8px}
 
-/* ── States ──────────────────────────────────────────── */
-.loading{text-align:center;padding:60px;color:#888;font-size:14px}
-.error-box{background:#fff3f3;border:1px solid #ffcccc;border-radius:8px;padding:20px;margin:20px;color:#cc2222;font-size:13px}
+/* States */
+.loading-full{display:flex;align-items:center;justify-content:center;height:40vh;font-size:14px;color:#888}
+.error-box{background:#fff3f3;border:1px solid #ffcccc;border-radius:8px;padding:20px;color:#cc2222;font-size:13px}
 </style>
 </head>
 <body>
@@ -69,6 +84,7 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background
 <div class="page-header" id="page-header">
   <h1 id="page-title">IE 明細</h1>
   <div class="header-right">
+    <button class="btn-export" id="btn-export" onclick="exportExcel()" style="display:none">⬇ Excel</button>
     <a href="/ie" class="btn-link">← IE 列表</a>
     <span class="version">v1.0</span>
   </div>
@@ -82,11 +98,17 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background
   </div>
   <div class="info-section">
     <div class="info-label">EOLR</div>
-    <div class="info-value eolr-group" id="info-eolr">—</div>
+    <div class="info-value" id="info-eolr">—</div>
   </div>
-  <div class="info-section" style="flex:1;min-width:200px">
+  <div class="info-section" style="flex:1;min-width:220px">
     <div class="info-label">ART 列表</div>
     <div class="arts-wrap" id="info-arts">—</div>
+    <div class="art-add-wrap" id="art-add-area" style="display:none">
+      <input id="art-add-inp" class="art-add-inp" type="text" placeholder="新增 ART" maxlength="10"
+             onkeydown="if(event.key==='Enter')addArt()">
+      <button class="btn-art-add" onclick="addArt()">+ 新增</button>
+      <span class="art-msg" id="art-msg"></span>
+    </div>
   </div>
 </div>
 
@@ -102,12 +124,12 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background
 </div>
 
 <!-- ═══ CONTENT ═══ -->
-<div class="content" id="content">
-  <div class="loading" id="loading">載入中...</div>
+<div class="content" id="content" style="display:none">
 
-  <!-- Tab panels (hidden until loaded) -->
-  <div id="tab-panels" style="display:none">
+  <!-- Tab panels -->
+  <div id="tab-panels">
     <div class="tab-panel active" id="panel-cutting">
+      <div class="tab-save-bar"><button class="btn-tab-save" onclick="saveTab('cutting')">存檔 Cutting</button></div>
       <div class="placeholder-box">
         <div class="ph-icon">✂️</div>
         <div class="ph-title">Cutting 明細</div>
@@ -115,6 +137,7 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background
       </div>
     </div>
     <div class="tab-panel" id="panel-atom">
+      <div class="tab-save-bar"><button class="btn-tab-save" onclick="saveTab('atom')">存檔 ATOM-自動化</button></div>
       <div class="placeholder-box">
         <div class="ph-icon">🤖</div>
         <div class="ph-title">ATOM-自動化 明細</div>
@@ -122,6 +145,7 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background
       </div>
     </div>
     <div class="tab-panel" id="panel-stitch_a">
+      <div class="tab-save-bar"><button class="btn-tab-save" onclick="saveTab('stitch_a')">存檔 Stitching 支流</button></div>
       <div class="placeholder-box">
         <div class="ph-icon">🧵</div>
         <div class="ph-title">Stitching 支流 明細</div>
@@ -129,6 +153,7 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background
       </div>
     </div>
     <div class="tab-panel" id="panel-stitch_b">
+      <div class="tab-save-bar"><button class="btn-tab-save" onclick="saveTab('stitch_b')">存檔 Stitching 主流</button></div>
       <div class="placeholder-box">
         <div class="ph-icon">🧵</div>
         <div class="ph-title">Stitching 主流 明細</div>
@@ -136,6 +161,7 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background
       </div>
     </div>
     <div class="tab-panel" id="panel-assembly_1">
+      <div class="tab-save-bar"><button class="btn-tab-save" onclick="saveTab('assembly_1')">存檔 Assembly 1</button></div>
       <div class="placeholder-box">
         <div class="ph-icon">🔧</div>
         <div class="ph-title">Assembly 1 明細</div>
@@ -143,6 +169,7 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background
       </div>
     </div>
     <div class="tab-panel" id="panel-assembly_2">
+      <div class="tab-save-bar"><button class="btn-tab-save" onclick="saveTab('assembly_2')">存檔 Assembly 2</button></div>
       <div class="placeholder-box">
         <div class="ph-icon">🔧</div>
         <div class="ph-title">Assembly 2 明細</div>
@@ -150,139 +177,203 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background
       </div>
     </div>
     <div class="tab-panel" id="panel-sum_stock">
+      <div class="tab-save-bar"><button class="btn-tab-save" onclick="saveTab('sum_stock')">存檔 SUM_Stock</button></div>
       <div class="placeholder-box">
         <div class="ph-icon">📦</div>
         <div class="ph-title">SUM_Stock 明細</div>
         <div class="ph-sub">待 Jim 說明計算邏輯後填入</div>
       </div>
     </div>
+  </div>
 
-    <!-- MP Summary (from ob_epph) -->
-    <div class="mp-summary" id="mp-summary">
-      <div class="mp-summary-title">MP 彙總（來自 ob_epph）</div>
-      <div class="mp-grid" id="mp-grid">—</div>
-    </div>
+  <!-- MP Summary -->
+  <div class="mp-summary">
+    <div class="section-title">MP 彙總（唯讀 · 來自 ob_epph）</div>
+    <div class="mp-grid" id="mp-grid">—</div>
   </div>
 </div>
 
+<!-- Loading / Error -->
+<div class="loading-full" id="loading">載入中...</div>
+
 <script>
 // ════════════════════════════════════════════════════════
-// Tab switching
+// State
 // ════════════════════════════════════════════════════════
-function switchTab(btn) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
-}
+let modelData = null;   // full response from API
+let headerId  = null;   // from URL
 
-// ════════════════════════════════════════════════════════
-// Utils
-// ════════════════════════════════════════════════════════
-function esc(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function getHeaderId() {
+function getHeaderId(){
   const parts = window.location.pathname.split('/');
-  return parseInt(parts[parts.length - 1]) || null;
+  return parseInt(parts[parts.length-1]) || null;
 }
 
-function eolrBadge(eolr) {
-  const cls = eolr === 60 ? 'eolr-60' : eolr === 120 ? 'eolr-120' : 'eolr-other';
+// ════════════════════════════════════════════════════════
+// Tab
+// ════════════════════════════════════════════════════════
+function switchTab(btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+}
+
+function saveTab(tabKey){
+  // Placeholder — will wire to backend when Jim provides calculation logic
+  alert('存檔功能待計算邏輯確認後實裝（Tab: '+tabKey+')');
+}
+
+// ════════════════════════════════════════════════════════
+// Helpers
+// ════════════════════════════════════════════════════════
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function eolrBadge(eolr){
+  const cls = eolr===60?'eolr-60':eolr===120?'eolr-120':'eolr-other';
   return `<span class="eolr-badge ${cls}">${eolr}</span>`;
 }
 
-function fmtMP(v) {
-  if (v === null || v === undefined || parseFloat(v) === 0) {
-    return `<span class="mp-item-val missing">—</span>`;
-  }
+function fmtMP(v){
+  if(v===null||v===undefined||parseFloat(v)===0) return '<span class="mp-item-val missing">—</span>';
   return `<span class="mp-item-val">${parseFloat(v).toFixed(1)}</span>`;
 }
 
 // ════════════════════════════════════════════════════════
 // Load
 // ════════════════════════════════════════════════════════
-async function loadDetail() {
-  const id = getHeaderId();
-  if (!id) {
-    document.getElementById('loading').innerHTML =
-      '<div class="error-box">URL 格式錯誤：需要有效的 header_id</div>';
+async function loadDetail(){
+  headerId = getHeaderId();
+  if(!headerId){
+    document.getElementById('loading').innerHTML='<div class="error-box">URL 格式錯誤</div>';
     return;
   }
-  try {
-    const res  = await fetch('/api/ie/detail/' + id);
+  try{
+    const res = await fetch('/api/ie/detail/'+headerId);
     const data = await res.json();
-    if (!data.ok) {
-      document.getElementById('loading').innerHTML =
-        `<div class="error-box">錯誤：${esc(data.error)}</div>`;
+    if(!data.ok){
+      document.getElementById('loading').innerHTML=`<div class="error-box">錯誤：${esc(data.error)}</div>`;
       return;
     }
+    modelData = data;
     renderDetail(data);
-  } catch(e) {
-    document.getElementById('loading').innerHTML =
-      '<div class="error-box">伺服器離線，請確認 Flask 服務正在運行</div>';
+  }catch(e){
+    document.getElementById('loading').innerHTML='<div class="error-box">伺服器離線，請確認 Flask 服務正在運行</div>';
   }
 }
 
-function renderDetail(data) {
-  // Page title
-  const shortName = (data.model_name || '—').replace(/\s+Target Output.*$/i,'').trim();
-  document.getElementById('page-title').textContent = shortName + ' · IE 明細';
-  document.title = shortName + ' · IE 明細';
+function renderDetail(data){
+  const shortName = (data.model_name||'—').replace(/\s+Target Output.*$/i,'').trim();
+  document.getElementById('page-title').textContent = shortName+' · IE 明細';
+  document.title = shortName+' · IE 明細';
+  document.getElementById('info-model').textContent = data.model_name||'—';
+  document.getElementById('info-eolr').innerHTML = data.headers.map(h=>eolrBadge(h.eolr)).join(' ');
+  renderArts(data);
+  renderMPSummary(data);
 
-  // Info bar
-  document.getElementById('info-model').textContent = data.model_name || '—';
+  document.getElementById('loading').style.display     = 'none';
+  document.getElementById('info-bar').style.display    = 'flex';
+  document.getElementById('art-add-area').style.display= 'flex';
+  document.getElementById('tab-bar').style.display     = 'flex';
+  document.getElementById('content').style.display     = 'flex';
+  document.getElementById('btn-export').style.display  = 'inline-flex';
 
-  const eolrEl = document.getElementById('info-eolr');
-  eolrEl.innerHTML = data.headers.map(h => eolrBadge(h.eolr)).join(' ');
-
-  const allArts = [...new Set(data.headers.flatMap(h => h.arts || []))];
-  document.getElementById('info-arts').innerHTML =
-    allArts.map(a => `<span class="art-chip">${esc(a)}</span>`).join('') || '—';
-
-  // MP summary
-  const mpGrid = document.getElementById('mp-grid');
-  if (data.headers.length === 0) {
-    mpGrid.innerHTML = '<span style="color:#aaa;font-size:12px">無資料</span>';
-  } else {
-    mpGrid.innerHTML = data.headers.map(h => {
-      const e = h.epph || {};
-      return `<div class="mp-eolr-block">
-        <div class="mp-eolr-label">${eolrBadge(h.eolr)}</div>
-        <div class="mp-row">
-          <div class="mp-item">
-            <div class="mp-item-label">裁斷MP</div>
-            ${fmtMP(e.cutting)}
-          </div>
-          <div class="mp-item">
-            <div class="mp-item-label">針車MP</div>
-            ${fmtMP(e.stitching)}
-          </div>
-          <div class="mp-item">
-            <div class="mp-item-label">成型MP</div>
-            ${fmtMP(e.assembly)}
-          </div>
-          <div class="mp-item">
-            <div class="mp-item-label">庫存MP</div>
-            ${fmtMP(e.stock)}
-          </div>
-        </div>
-        <div class="mp-source">來源：${esc(e.source || 'N/A')}</div>
-      </div>`;
-    }).join('');
-  }
-
-  // Show UI
-  document.getElementById('loading').style.display   = 'none';
-  document.getElementById('info-bar').style.display  = 'flex';
-  document.getElementById('tab-bar').style.display   = 'flex';
-  document.getElementById('tab-panels').style.display = 'block';
-
-  // Fix sticky offset
   const ph = document.getElementById('page-header').getBoundingClientRect().height;
-  document.documentElement.style.setProperty('--ph-h', Math.round(ph) + 'px');
+  document.documentElement.style.setProperty('--ph-h', Math.round(ph)+'px');
+}
+
+// ════════════════════════════════════════════════════════
+// ART management
+// ════════════════════════════════════════════════════════
+function renderArts(data){
+  const allArts = [...new Set(data.headers.flatMap(h=>h.arts||[]))];
+  const allIds  = data.headers.map(h=>h.id);
+  const chips   = allArts.map(a=>`
+    <span class="art-chip">
+      ${esc(a)}
+      <button class="art-remove" title="移除 ${esc(a)}" onclick="removeArt('${esc(a)}')">×</button>
+    </span>`).join('');
+  document.getElementById('info-arts').innerHTML = chips || '<span style="color:#aaa;font-size:11px">—</span>';
+}
+
+async function addArt(){
+  const art = document.getElementById('art-add-inp').value.trim().toUpperCase();
+  const msg = document.getElementById('art-msg');
+  if(!art) return;
+  const allIds = modelData.headers.map(h=>h.id);
+  try{
+    const results = await Promise.all(allIds.map(hid=>
+      fetch('/api/ds03/add_art',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({art,header_id:hid})}).then(r=>r.json())
+    ));
+    const failed = results.find(r=>!r.ok&&!String(r.error||'').toLowerCase().includes('already'));
+    if(!failed){
+      document.getElementById('art-add-inp').value='';
+      allIds.forEach(hid=>{
+        const h = modelData.headers.find(x=>x.id===hid);
+        if(h&&!h.arts.includes(art)) h.arts.push(art);
+      });
+      renderArts(modelData);
+      msg.className='art-msg art-ok'; msg.textContent='已新增'; setTimeout(()=>msg.textContent='',1500);
+    }else{
+      msg.className='art-msg art-err'; msg.textContent=failed.error;
+    }
+  }catch(e){
+    msg.className='art-msg art-err'; msg.textContent='伺服器離線';
+  }
+}
+
+async function removeArt(art){
+  if(!confirm(`確定移除 ART「${art}」？`)) return;
+  const allIds = modelData.headers.map(h=>h.id);
+  try{
+    const results = await Promise.all(allIds.map(hid=>
+      fetch('/api/ie/remove_art',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({art,header_id:hid})}).then(r=>r.json())
+    ));
+    const headerDeleted = results.some(r=>r.deleted_header);
+    if(headerDeleted){
+      // If all headers were deleted, go back to list
+      alert('已移除最後一個 ART，鞋型記錄已刪除，返回列表');
+      window.location.href='/ie';
+      return;
+    }
+    allIds.forEach(hid=>{
+      const h = modelData.headers.find(x=>x.id===hid);
+      if(h) h.arts = h.arts.filter(a=>a!==art);
+    });
+    renderArts(modelData);
+  }catch(e){
+    alert('伺服器離線');
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// MP Summary
+// ════════════════════════════════════════════════════════
+function renderMPSummary(data){
+  const grid = document.getElementById('mp-grid');
+  if(!data.headers.length){ grid.innerHTML='<span style="color:#aaa;font-size:12px">無資料</span>'; return; }
+  grid.innerHTML = data.headers.map(h=>{
+    const e = h.epph||{};
+    return `<div class="mp-eolr-block">
+      <div class="mp-eolr-header">${eolrBadge(h.eolr)} <span style="font-size:11px;color:#888"> EOLR ${h.eolr}</span></div>
+      <div class="mp-row">
+        <div class="mp-item"><div class="mp-item-label">裁斷MP</div>${fmtMP(e.cutting)}</div>
+        <div class="mp-item"><div class="mp-item-label">針車MP</div>${fmtMP(e.stitching)}</div>
+        <div class="mp-item"><div class="mp-item-label">成型MP</div>${fmtMP(e.assembly)}</div>
+        <div class="mp-item"><div class="mp-item-label">庫存MP</div>${fmtMP(e.stock)}</div>
+      </div>
+      <div class="mp-source">來源：${esc(e.source||'N/A')}</div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════
+// Export Excel
+// ════════════════════════════════════════════════════════
+function exportExcel(){
+  if(!headerId) return;
+  window.location.href = '/api/ie/export/'+headerId;
 }
 
 // ── Init ──────────────────────────────────────────────

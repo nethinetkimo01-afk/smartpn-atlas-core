@@ -302,6 +302,29 @@ def add_art_to_header(art, header_id):
     finally:
         conn.close()
 
+def remove_art_from_header(art, header_id):
+    """Remove one ART from a header. Deletes the header if it becomes empty."""
+    conn = get_conn()
+    try:
+        conn.execute('DELETE FROM ob_articles WHERE art=? AND header_id=?', (art, header_id))
+        remaining = conn.execute(
+            'SELECT COUNT(*) FROM ob_articles WHERE header_id=?', (header_id,)
+        ).fetchone()[0]
+        deleted_header = False
+        if remaining == 0:
+            conn.execute('DELETE FROM ob_epph  WHERE header_id=?', (header_id,))
+            conn.execute('DELETE FROM ob_rows  WHERE header_id=?', (header_id,))
+            conn.execute('DELETE FROM ob_header WHERE id=?',       (header_id,))
+            deleted_header = True
+        conn.commit()
+        return {'ok': True, 'deleted_header': deleted_header}
+    except Exception as e:
+        conn.rollback()
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
 def get_ie_model_detail(header_id):
     """Return all headers sharing the same model_name as header_id, with arts, epph, and ob_rows."""
     conn = get_conn()

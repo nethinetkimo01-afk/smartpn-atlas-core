@@ -8,7 +8,6 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background:#f0f2f5;color:#1a1a2e;min-height:100vh}
 
-/* ── Sticky stack (offsets computed by JS) ────────────── */
 :root{--ph-h:40px;--tb-h:44px}
 
 .page-header{background:#1a2744;color:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3)}
@@ -21,75 +20,55 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background
 .search-inp:focus{border-color:#4a6cf7;box-shadow:0 0 0 2px rgba(74,108,247,.12)}
 .stats{font-size:11px;color:#888;margin-left:8px}
 
-/* Buttons */
-.btn{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border:none;border-radius:5px;cursor:pointer;font-size:12px;font-weight:500;transition:background .15s,color .15s;outline:none}
+.btn{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border:none;border-radius:5px;cursor:pointer;font-size:12px;font-weight:500;transition:background .15s;outline:none}
 .btn-refresh{background:#4a6cf7;color:#fff}.btn-refresh:hover{background:#3a5ce7}
 .btn-link{background:#5c6bc0;color:#fff;text-decoration:none;padding:5px 12px;border-radius:5px;font-size:12px;font-weight:500}.btn-link:hover{background:#3949ab}
 
-/* Language toggle */
 .lang-group{display:flex;gap:2px;background:#243356;border-radius:5px;padding:2px}
-.btn-lang{background:transparent;color:#8aaedd;border:none;border-radius:3px;padding:3px 9px;font-size:11px;font-weight:600;cursor:pointer;transition:background .12s,color .12s}
+.btn-lang{background:transparent;color:#8aaedd;border:none;border-radius:3px;padding:3px 9px;font-size:11px;font-weight:600;cursor:pointer;transition:background .12s}
 .btn-lang:hover{background:#3a5080;color:#fff}
 .btn-lang.active{background:#4a6cf7;color:#fff}
 
-/* ── Table ───────────────────────────────────────────── */
+/* Table */
 .table-wrap{overflow-x:auto;margin:14px 20px;border-radius:8px;box-shadow:0 1px 8px rgba(0,0,0,.1)}
 table{width:100%;border-collapse:collapse;background:#fff;font-size:12px}
 thead th{background:#1a2744;color:#fff;padding:8px 6px;text-align:left;font-weight:600;white-space:nowrap;font-size:11px;border-right:1px solid #243356;position:sticky;top:calc(var(--ph-h) + var(--tb-h));z-index:5}
 thead th:last-child{border-right:none}
 
-/* Row groups */
 .tr-first{border-top:2px solid #cdd8f0}
-.tr-first td,.tr-sub td{padding:6px 6px;border-bottom:1px solid #edf0f7;vertical-align:top}
+.tr-first td,.tr-sub td{padding:6px 6px;border-bottom:1px solid #edf0f7;vertical-align:middle}
 .tr-sub td{border-top:1px dashed #e4e9f2;background:#f9fbff}
 .tr-first:hover td,.tr-sub:hover td{background:#eef2ff}
 
-/* Model cell */
+/* Model */
 .model-cell{max-width:220px;word-break:break-word;font-size:11px;color:#333;line-height:1.4;border-right:1px solid #e4e9f2}
+.model-link{text-decoration:none;color:inherit;display:block}.model-link:hover .model-short{color:#4a6cf7;text-decoration:underline}
 .model-short{font-weight:700;color:#1a2744;font-size:12px}
 .model-detail{color:#888;font-size:10px;margin-top:2px}
 
-/* Model link */
-.model-link{text-decoration:none;color:inherit;display:block}.model-link:hover .model-short{color:#4a6cf7;text-decoration:underline}
-
-/* ART chips */
-.arts-cell{min-width:160px;border-right:1px solid #e4e9f2}
+/* ARTs */
+.arts-cell{min-width:160px;border-right:1px solid #e4e9f2;padding:6px}
 .art-chip{display:inline-block;background:#e8f0fe;color:#1a2744;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:600;margin:1px 2px 1px 0}
-.art-add-wrap{display:flex;gap:4px;margin-top:5px;align-items:center}
-.art-add-inp{border:1px solid #d0d5e0;border-radius:4px;padding:2px 6px;font-size:11px;width:76px;outline:none}
-.art-add-inp:focus{border-color:#4a6cf7}
-.btn-art-add{background:#4a6cf7;color:#fff;border:none;border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;font-weight:500;line-height:1.6}.btn-art-add:hover{background:#3a5ce7}
 
-/* EOLR badge */
+/* EOLR */
 .eolr-cell{text-align:center;width:52px;white-space:nowrap}
 .eolr-badge{display:inline-block;font-size:11px;font-weight:700;border-radius:4px;padding:1px 7px}
 .eolr-60{background:#fff3e0;color:#e65100}
 .eolr-120{background:#e8f5e9;color:#2e7d32}
 .eolr-other{background:#f3e5f5;color:#7b1fa2}
 
-/* MP inputs */
-.mp-cell{min-width:78px;text-align:center}
-.mp-inp{width:70px;border:1px solid #d0d5e0;border-radius:4px;padding:3px 6px;font-size:12px;text-align:center;background:#f8f9fc;outline:none}
-.mp-inp:focus{border-color:#4a6cf7;background:#fff;box-shadow:0 0 0 2px rgba(74,108,247,.12)}
-.mp-inp.missing{background:#fff0f0;border-color:#ffaaaa;color:#cc2222}
-.mp-inp.missing:focus{background:#fff;border-color:#cc2222}
-.mp-inp.changed{background:#fffde7;border-color:#ffc107}
-
-/* Save cell */
-.save-cell{text-align:center;width:66px}
-.btn-row-save{background:#1d9e6b;color:#fff;border:none;border-radius:4px;padding:3px 9px;font-size:11px;cursor:pointer;font-weight:500;white-space:nowrap}.btn-row-save:hover{background:#178059}
-.save-status{font-size:11px;margin-top:2px;min-height:14px}
-.save-ok{color:#1a7a40;font-weight:600}
-.save-err{color:#cc2222}
+/* MP read-only */
+.mp-cell{min-width:72px;text-align:center}
+.mp-val{font-size:12px;font-weight:600;color:#1a2744}
+.mp-dash{font-size:13px;color:#e05252;font-weight:700}
 
 /* States */
-.loading{text-align:center;padding:40px;color:#888;font-size:13px}
+.loading{text-align:center;padding:40px;color:#888}
 .empty{text-align:center;padding:30px;color:#aaa;font-size:12px}
 </style>
 </head>
 <body>
 
-<!-- ═══ PAGE HEADER ═══ -->
 <div class="page-header" id="page-header">
   <h1 id="page-title">IE 標準化界面 · MP 一覽</h1>
   <div class="header-right">
@@ -99,119 +78,51 @@ thead th:last-child{border-right:none}
       <button class="btn-lang"        data-lang="vi" onclick="setLang('vi')">VI</button>
     </div>
     <a href="/" class="btn-link" id="btn-back">← DS-03</a>
-    <span class="version">v1.2</span>
+    <span class="version">v1.3</span>
   </div>
 </div>
 
-<!-- ═══ TOOLBAR ═══ -->
 <div class="toolbar" id="toolbar">
   <input id="search" class="search-inp" type="text" placeholder="搜尋鞋型 / ART..." oninput="filterTable()">
   <button id="btn-reload" class="btn btn-refresh" onclick="loadData()">重新載入</button>
   <span id="stats" class="stats">—</span>
 </div>
 
-<!-- ═══ TABLE ═══ -->
 <div class="table-wrap">
-  <table id="ie-table">
+  <table>
     <thead>
       <tr>
         <th id="th-model" style="min-width:200px">鞋型</th>
-        <th id="th-arts"  style="min-width:160px">ART 列表</th>
+        <th id="th-arts"  style="min-width:150px">ART 列表</th>
         <th id="th-eolr"  style="width:52px;text-align:center">EOLR</th>
-        <th id="th-cut"   style="width:80px;text-align:center">裁斷MP</th>
-        <th id="th-stitch"style="width:80px;text-align:center">針車MP</th>
-        <th id="th-asm"   style="width:80px;text-align:center">成型MP</th>
-        <th id="th-sf"    style="width:80px;text-align:center">庫存</th>
-        <th id="th-save"  style="width:66px;text-align:center">存檔</th>
+        <th id="th-cut"   style="width:76px;text-align:center">裁斷MP</th>
+        <th id="th-stitch"style="width:76px;text-align:center">針車MP</th>
+        <th id="th-asm"   style="width:76px;text-align:center">成型MP</th>
+        <th id="th-sf"    style="width:76px;text-align:center">庫存</th>
       </tr>
     </thead>
     <tbody id="ie-tbody">
-      <tr><td colspan="8" class="loading">載入中...</td></tr>
+      <tr><td colspan="7" class="loading">載入中...</td></tr>
     </tbody>
   </table>
 </div>
 
 <script>
-// ════════════════════════════════════════════════════════
-// i18n
-// ════════════════════════════════════════════════════════
+// ── i18n ──────────────────────────────────────────────
 const LANGS = {
-  zh: {
-    title:      'IE 標準化界面 · MP 一覽',
-    col_model:  '鞋型',
-    col_arts:   'ART 列表',
-    col_eolr:   'EOLR',
-    col_cut:    '裁斷MP',
-    col_stitch: '針車MP',
-    col_asm:    '成型MP',
-    col_sf:     '庫存',
-    col_save:   '存檔',
-    search_ph:  '搜尋鞋型 / ART...',
-    btn_reload: '重新載入',
-    stats:      (n, m) => `共 ${n} 筆記錄 · ${m} 筆缺 MP`,
-    add_ph:     '新增 ART',
-    loading:    '載入中...',
-    offline:    '伺服器離線',
-    empty:      '無記錄',
-    save_ok:    '✓ 已存',
-    save_err:   '離線',
-    back:       '← DS-03',
-  },
-  en: {
-    title:      'IE Interface · MP Overview',
-    col_model:  'Model Name',
-    col_arts:   'ART List',
-    col_eolr:   'EOLR',
-    col_cut:    'Cutting MP',
-    col_stitch: 'Stitching MP',
-    col_asm:    'Assembly MP',
-    col_sf:     'Stockfitting',
-    col_save:   'Save',
-    search_ph:  'Search model / ART...',
-    btn_reload: 'Reload',
-    stats:      (n, m) => `${n} records · ${m} missing MP`,
-    add_ph:     'Add ART',
-    loading:    'Loading...',
-    offline:    'Server offline',
-    empty:      'No records',
-    save_ok:    '✓ Saved',
-    save_err:   'Offline',
-    back:       '← DS-03',
-  },
-  vi: {
-    title:      'Giao diện IE · Tổng quan MP',
-    col_model:  'Tên giày',
-    col_arts:   'Danh sách ART',
-    col_eolr:   'EOLR',
-    col_cut:    'MP Cắt',
-    col_stitch: 'MP May',
-    col_asm:    'MP Lắp ráp',
-    col_sf:     'Stockfitting',
-    col_save:   'Lưu',
-    search_ph:  'Tìm kiểu giày / ART...',
-    btn_reload: 'Tải lại',
-    stats:      (n, m) => `${n} bản ghi · ${m} thiếu MP`,
-    add_ph:     'Thêm ART',
-    loading:    'Đang tải...',
-    offline:    'Máy chủ offline',
-    empty:      'Không có dữ liệu',
-    save_ok:    '✓ Đã lưu',
-    save_err:   'Offline',
-    back:       '← DS-03',
-  },
+  zh:{title:'IE 標準化界面 · MP 一覽',col_model:'鞋型',col_arts:'ART 列表',col_eolr:'EOLR',col_cut:'裁斷MP',col_stitch:'針車MP',col_asm:'成型MP',col_sf:'庫存',search_ph:'搜尋鞋型 / ART...',btn_reload:'重新載入',stats:(n,m)=>`共 ${n} 筆記錄 · ${m} 筆缺 MP`,loading:'載入中...',offline:'伺服器離線',empty:'無記錄',back:'← DS-03'},
+  en:{title:'IE Interface · MP Overview',col_model:'Model Name',col_arts:'ART List',col_eolr:'EOLR',col_cut:'Cutting MP',col_stitch:'Stitching MP',col_asm:'Assembly MP',col_sf:'Stockfitting',search_ph:'Search model / ART...',btn_reload:'Reload',stats:(n,m)=>`${n} records · ${m} missing MP`,loading:'Loading...',offline:'Server offline',empty:'No records',back:'← DS-03'},
+  vi:{title:'Giao diện IE · Tổng quan MP',col_model:'Tên giày',col_arts:'Danh sách ART',col_eolr:'EOLR',col_cut:'MP Cắt',col_stitch:'MP May',col_asm:'MP Lắp ráp',col_sf:'Stockfitting',search_ph:'Tìm kiểu giày / ART...',btn_reload:'Tải lại',stats:(n,m)=>`${n} bản ghi · ${m} thiếu MP`,loading:'Đang tải...',offline:'Máy chủ offline',empty:'Không có dữ liệu',back:'← DS-03'},
 };
-
 let currentLang = localStorage.getItem('ie_lang') || 'zh';
-let allRecords  = [];
+let allRecords = [];
+function L(k){ return LANGS[currentLang][k]; }
 
-function L(key) { return LANGS[currentLang][key]; }
-
-function setLang(lang) {
+function setLang(lang){
   currentLang = lang;
   localStorage.setItem('ie_lang', lang);
   const d = LANGS[lang];
-  document.getElementById('page-title').textContent  = d.title;
-  document.title                                     = d.title;
+  document.getElementById('page-title').textContent  = d.title; document.title = d.title;
   document.getElementById('th-model').textContent   = d.col_model;
   document.getElementById('th-arts').textContent    = d.col_arts;
   document.getElementById('th-eolr').textContent    = d.col_eolr;
@@ -219,241 +130,107 @@ function setLang(lang) {
   document.getElementById('th-stitch').textContent  = d.col_stitch;
   document.getElementById('th-asm').textContent     = d.col_asm;
   document.getElementById('th-sf').textContent      = d.col_sf;
-  document.getElementById('th-save').textContent    = d.col_save;
   document.getElementById('search').placeholder     = d.search_ph;
   document.getElementById('btn-reload').textContent = d.btn_reload;
   document.getElementById('btn-back').textContent   = d.back;
-  document.querySelectorAll('.btn-lang').forEach(b =>
-    b.classList.toggle('active', b.dataset.lang === lang)
-  );
-  document.querySelectorAll('.art-add-inp').forEach(inp => {
-    inp.placeholder = d.add_ph;
-  });
-  document.querySelectorAll('.btn-row-save').forEach(btn => {
-    btn.textContent = d.col_save;
-  });
+  document.querySelectorAll('.btn-lang').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
   updateStats();
 }
 
-// ════════════════════════════════════════════════════════
-// Sticky header offset (measured after layout)
-// ════════════════════════════════════════════════════════
-function fixStickyOffsets() {
+function fixStickyOffsets(){
   const ph = document.getElementById('page-header').getBoundingClientRect().height;
   const tb = document.getElementById('toolbar').getBoundingClientRect().height;
-  document.documentElement.style.setProperty('--ph-h', Math.round(ph) + 'px');
-  document.documentElement.style.setProperty('--tb-h', Math.round(tb) + 'px');
+  document.documentElement.style.setProperty('--ph-h', Math.round(ph)+'px');
+  document.documentElement.style.setProperty('--tb-h', Math.round(tb)+'px');
 }
 
-// ════════════════════════════════════════════════════════
-// Helpers
-// ════════════════════════════════════════════════════════
-function esc(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+// ── Helpers ───────────────────────────────────────────
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-function fmtModel(name) {
-  if (!name) return '<span class="model-short" style="color:#aaa">—</span>';
-  const short  = name.replace(/\s+Target Output.*$/i,'').replace(/\s{2,}/g,' ').trim();
+function fmtModel(name){
+  if(!name) return '<span class="model-short" style="color:#aaa">—</span>';
+  const short = name.replace(/\s+Target Output.*$/i,'').replace(/\s{2,}/g,' ').trim();
   const detail = name.length > short.length ? name.slice(short.length).trim() : '';
-  return `<span class="model-short">${esc(short)}</span>` +
-         (detail ? `<div class="model-detail">${esc(detail.slice(0,60))}</div>` : '');
+  return `<span class="model-short">${esc(short)}</span>`+(detail?`<div class="model-detail">${esc(detail.slice(0,60))}</div>`:'');
 }
 
-function eolrBadge(eolr) {
-  const cls = eolr === 60 ? 'eolr-60' : eolr === 120 ? 'eolr-120' : 'eolr-other';
+function eolrBadge(eolr){
+  const cls = eolr===60?'eolr-60':eolr===120?'eolr-120':'eolr-other';
   return `<span class="eolr-badge ${cls}">${eolr}</span>`;
 }
 
-function isMissing(v) { return v === null || v === undefined || parseFloat(v) === 0; }
-function mpCls(v)     { return isMissing(v) ? ' missing' : ''; }
-function mpVal(v)     { return (v === null || v === undefined) ? '' : v; }
+function mpText(v){
+  if(v===null||v===undefined||parseFloat(v)===0) return '<span class="mp-dash">—</span>';
+  return `<span class="mp-val">${parseFloat(v).toFixed(1)}</span>`;
+}
 
-// ════════════════════════════════════════════════════════
-// Grouping: records by model_name → sub-rows by eolr
-// ════════════════════════════════════════════════════════
-function groupByModel(records) {
-  const map = {};
-  records.forEach(r => {
-    const key = r.model_name || '—';
-    if (!map[key]) map[key] = [];
-    map[key].push(r);
-  });
-  return Object.values(map).map(rows => {
-    rows.sort((a, b) => a.eolr - b.eolr);
-    const arts = [...new Set(rows.flatMap(r => r.arts || []))];
-    const ids  = rows.map(r => r.id);
-    return { model_name: rows[0].model_name, arts, ids, rows };
+function isMissing(v){ return v===null||v===undefined||parseFloat(v)===0; }
+
+// ── Grouping ──────────────────────────────────────────
+function groupByModel(records){
+  const map={};
+  records.forEach(r=>{ const k=r.model_name||'—'; if(!map[k])map[k]=[]; map[k].push(r); });
+  return Object.values(map).map(rows=>{
+    rows.sort((a,b)=>a.eolr-b.eolr);
+    const arts=[...new Set(rows.flatMap(r=>r.arts||[]))];
+    return {model_name:rows[0].model_name, arts, ids:rows.map(r=>r.id), rows};
   });
 }
 
-// ════════════════════════════════════════════════════════
-// Render
-// ════════════════════════════════════════════════════════
-function artAddHtml(idsArr) {
-  // Pass ids as a JS array literal in the onclick attribute
-  const idsLit = '[' + idsArr.join(',') + ']';
-  return `<div class="art-add-wrap">
-    <input class="art-add-inp" type="text" placeholder="${esc(L('add_ph'))}" maxlength="10"
-           onkeydown="if(event.key==='Enter')addArtToGroup(${idsLit},this)">
-    <button class="btn-art-add" onclick="addArtToGroup(${idsLit},this.previousElementSibling)">+</button>
-  </div>`;
-}
-
-function renderGroup(g) {
-  const n    = g.rows.length;
-  const chips = g.arts.map(a => `<span class="art-chip">${esc(a)}</span>`).join('');
-  let html   = '';
-
-  g.rows.forEach((r, i) => {
-    const cls = i === 0 ? 'tr-first' : 'tr-sub';
-    html += `<tr class="${cls}">`;
-
-    if (i === 0) {
-      // Model + ART cells span all sub-rows; model name links to detail page
+// ── Render ────────────────────────────────────────────
+function renderGroup(g){
+  const n = g.rows.length;
+  const chips = g.arts.map(a=>`<span class="art-chip">${esc(a)}</span>`).join('');
+  let html = '';
+  g.rows.forEach((r,i)=>{
+    html += `<tr class="${i===0?'tr-first':'tr-sub'}">`;
+    if(i===0){
       html += `<td class="model-cell" rowspan="${n}"><a href="/ie/${g.ids[0]}" class="model-link">${fmtModel(r.model_name)}</a></td>`;
-      html += `<td class="arts-cell" rowspan="${n}">${chips}${artAddHtml(g.ids)}</td>`;
+      html += `<td class="arts-cell" rowspan="${n}">${chips||'<span style="color:#aaa;font-size:11px">—</span>'}</td>`;
     }
-
     html += `<td class="eolr-cell">${eolrBadge(r.eolr)}</td>`;
-    html += `<td class="mp-cell"><input class="mp-inp${mpCls(r.cutting)}"   id="mp-c-${r.id}"  type="number" step="0.1" value="${mpVal(r.cutting)}"   oninput="markChanged(this)" placeholder="—"></td>`;
-    html += `<td class="mp-cell"><input class="mp-inp${mpCls(r.stitching)}" id="mp-s-${r.id}"  type="number" step="0.1" value="${mpVal(r.stitching)}" oninput="markChanged(this)" placeholder="—"></td>`;
-    html += `<td class="mp-cell"><input class="mp-inp${mpCls(r.assembly)}"  id="mp-a-${r.id}"  type="number" step="0.1" value="${mpVal(r.assembly)}"  oninput="markChanged(this)" placeholder="—"></td>`;
-    html += `<td class="mp-cell"><input class="mp-inp${mpCls(r.stock)}"     id="mp-sf-${r.id}" type="number" step="0.1" value="${mpVal(r.stock)}"     oninput="markChanged(this)" placeholder="—"></td>`;
-    html += `<td class="save-cell">
-      <button class="btn-row-save" onclick="saveRow(${r.id})">${esc(L('col_save'))}</button>
-      <div class="save-status" id="save-${r.id}"></div>
-    </td>`;
+    html += `<td class="mp-cell">${mpText(r.cutting)}</td>`;
+    html += `<td class="mp-cell">${mpText(r.stitching)}</td>`;
+    html += `<td class="mp-cell">${mpText(r.assembly)}</td>`;
+    html += `<td class="mp-cell">${mpText(r.stock)}</td>`;
     html += '</tr>';
   });
   return html;
 }
 
-function markChanged(inp) {
-  inp.classList.remove('missing');
-  inp.classList.add('changed');
+function updateStats(){
+  const missing = allRecords.filter(r=>isMissing(r.cutting)&&isMissing(r.stitching)&&isMissing(r.assembly)).length;
+  document.getElementById('stats').textContent = allRecords.length ? L('stats')(allRecords.length, missing) : '—';
 }
 
-function updateStats() {
-  const missing = allRecords.filter(r =>
-    isMissing(r.cutting) && isMissing(r.stitching) && isMissing(r.assembly)
-  ).length;
-  document.getElementById('stats').textContent =
-    allRecords.length ? L('stats')(allRecords.length, missing) : '—';
-}
-
-// ════════════════════════════════════════════════════════
-// Data
-// ════════════════════════════════════════════════════════
-async function loadData() {
-  document.getElementById('ie-tbody').innerHTML =
-    `<tr><td colspan="8" class="loading">${esc(L('loading'))}</td></tr>`;
-  try {
-    const res  = await fetch('/api/ie/list');
+// ── Data ──────────────────────────────────────────────
+async function loadData(){
+  document.getElementById('ie-tbody').innerHTML = `<tr><td colspan="7" class="loading">${esc(L('loading'))}</td></tr>`;
+  try{
+    const res = await fetch('/api/ie/list');
     const data = await res.json();
-    allRecords = data.ok ? (data.records || []) : [];
+    allRecords = data.ok ? (data.records||[]) : [];
     renderGroupedTable(groupByModel(allRecords));
     updateStats();
     fixStickyOffsets();
-  } catch(e) {
-    document.getElementById('ie-tbody').innerHTML =
-      `<tr><td colspan="8" class="empty">${esc(L('offline'))}</td></tr>`;
+  }catch(e){
+    document.getElementById('ie-tbody').innerHTML = `<tr><td colspan="7" class="empty">${esc(L('offline'))}</td></tr>`;
   }
 }
 
-function renderGroupedTable(groups) {
+function renderGroupedTable(groups){
   const tbody = document.getElementById('ie-tbody');
-  if (!groups.length) {
-    tbody.innerHTML = `<tr><td colspan="8" class="empty">${esc(L('empty'))}</td></tr>`;
-    return;
-  }
+  if(!groups.length){ tbody.innerHTML=`<tr><td colspan="7" class="empty">${esc(L('empty'))}</td></tr>`; return; }
   tbody.innerHTML = groups.map(renderGroup).join('');
 }
 
-function filterTable() {
+function filterTable(){
   const q = document.getElementById('search').value.toLowerCase();
-  if (!q) { renderGroupedTable(groupByModel(allRecords)); return; }
-  const matchedModels = new Set(
-    allRecords.filter(r =>
-      (r.model_name || '').toLowerCase().includes(q) ||
-      (r.arts || []).some(a => a.toLowerCase().includes(q))
-    ).map(r => r.model_name)
-  );
-  renderGroupedTable(groupByModel(
-    allRecords.filter(r => matchedModels.has(r.model_name))
-  ));
+  if(!q){ renderGroupedTable(groupByModel(allRecords)); return; }
+  const matched = new Set(allRecords.filter(r=>(r.model_name||'').toLowerCase().includes(q)||(r.arts||[]).some(a=>a.toLowerCase().includes(q))).map(r=>r.model_name));
+  renderGroupedTable(groupByModel(allRecords.filter(r=>matched.has(r.model_name))));
 }
 
-// ════════════════════════════════════════════════════════
-// Save
-// ════════════════════════════════════════════════════════
-async function saveRow(id) {
-  const c  = parseFloat(document.getElementById('mp-c-'  + id)?.value || 0) || 0;
-  const s  = parseFloat(document.getElementById('mp-s-'  + id)?.value || 0) || 0;
-  const a  = parseFloat(document.getElementById('mp-a-'  + id)?.value || 0) || 0;
-  const sf = parseFloat(document.getElementById('mp-sf-' + id)?.value || 0) || 0;
-  const el = document.getElementById('save-' + id);
-  try {
-    const res = await fetch('/api/ie/update_mp', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ header_id: id, cutting: c, stitching: s, assembly: a, stock: sf })
-    });
-    const r = await res.json();
-    if (r.ok) {
-      el.innerHTML = `<span class="save-ok">${esc(L('save_ok'))}</span>`;
-      ['mp-c-','mp-s-','mp-a-','mp-sf-'].forEach(pre => {
-        const inp = document.getElementById(pre + id);
-        if (inp) inp.classList.remove('missing', 'changed');
-      });
-      setTimeout(() => { el.innerHTML = ''; }, 2000);
-    } else {
-      el.innerHTML = `<span class="save-err">${esc(r.error)}</span>`;
-    }
-  } catch(e) {
-    el.innerHTML = `<span class="save-err">${esc(L('save_err'))}</span>`;
-  }
-}
-
-// ════════════════════════════════════════════════════════
-// Add ART (to all headers in group)
-// ════════════════════════════════════════════════════════
-async function addArtToGroup(headerIds, inp) {
-  const art = inp.value.trim().toUpperCase();
-  if (!art) return;
-  try {
-    const results = await Promise.all(headerIds.map(hid =>
-      fetch('/api/ds03/add_art', {
-        method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ art, header_id: hid })
-      }).then(r => r.json())
-    ));
-    const failed = results.find(r => !r.ok && !String(r.error||'').toLowerCase().includes('already'));
-    if (!failed) {
-      inp.value = '';
-      headerIds.forEach(hid => {
-        const rec = allRecords.find(x => x.id === hid);
-        if (rec && !rec.arts.includes(art)) rec.arts.push(art);
-      });
-      renderGroupedTable(groupByModel(allRecords));
-      updateStats();
-    } else {
-      alert('Error: ' + failed.error);
-    }
-  } catch(e) {
-    alert(L('offline'));
-  }
-}
-
-// Enter on MP input → save that row
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && e.target.classList.contains('mp-inp')) {
-    const id = e.target.id.split('-').pop();
-    if (id) saveRow(parseInt(id));
-  }
-});
-
-// ── Init ──────────────────────────────────────────────
 setLang(currentLang);
 fixStickyOffsets();
 loadData();

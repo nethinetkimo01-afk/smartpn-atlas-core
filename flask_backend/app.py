@@ -124,6 +124,118 @@ def ie_list():
 def ie_detail_api(header_id):
     return jsonify(db.get_ie_model_detail(header_id))
 
+@app.route('/api/ie/remove_art', methods=['POST'])
+def ie_remove_art():
+    data = request.get_json(force=True)
+    art = data.get('art', '').strip()
+    header_id = data.get('header_id')
+    if not art or not header_id:
+        return jsonify({'ok': False, 'error': 'art and header_id required'}), 400
+    return jsonify(db.remove_art_from_header(art, int(header_id)))
+
+
+@app.route('/api/ie/export/<int:header_id>')
+def ie_export(header_id):
+    if not HAS_XLSX:
+        return jsonify({'ok': False, 'error': 'openpyxl not installed'}), 500
+    result = db.get_ie_model_detail(header_id)
+    if not result['ok']:
+        return jsonify(result), 404
+    import io
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from flask import send_file
+
+    wb = openpyxl.Workbook()
+    wb.remove(wb.active)  # remove default sheet
+
+    hdr_font  = Font(bold=True, color='FFFFFF')
+    hdr_fill  = PatternFill('solid', fgColor='1A2744')
+    hdr_align = Alignment(horizontal='center', vertical='center')
+    thin      = Side(style='thin', color='C0C8D8')
+    hdr_bord  = Border(left=thin, right=thin, bottom=thin)
+
+    model_name = result['model_name'] or 'model'
+    all_arts   = list({a for h in result['headers'] for a in h.get('arts', [])})
+    all_eolrs  = [h['eolr'] for h in result['headers']]
+
+    TABS = [
+        ('cutting',    'Cutting'),
+        ('atom',       'ATOM-自動化'),
+        ('stitch_a',   'Stitching 支流'),
+        ('stitch_b',   'Stitching 主流'),
+        ('assembly_1', 'Assembly 1'),
+        ('assembly_2', 'Assembly 2'),
+        ('sum_stock',  'SUM_Stock'),
+    ]
+    OB_COLS = ['零件(越)', '零件(中)', '材料類型', '層數', '數量/雙',
+               '刀模數', 'CT(秒)', '允差(%)', 'ST(秒)',
+               '工序', '畫線', '削邊', '貼合', '塗邊', '熱壓']
+    OB_KEYS = ['partViet','partZh','matCat','layers','qtyPr',
+               'knives','ct','allowance','st','ops','marking','skiving',
+               'attaching','edgePaint','heatPress']
+
+    for tab_key, tab_name in TABS:
+        ws = wb.create_sheet(tab_name)
+        # Gather rows for this tab from all headers
+        combined_rows = []
+        for h in result['headers']:
+            for row in h.get('sheets', {}).get(tab_key, []):
+                combined_rows.append(row)
+
+        # Header row
+        col_headers = ['EOLR'] + OB_COLS if len(result['headers']) > 1 else OB_COLS
+        row_keys    = OB_KEYS
+        for ci, ch in enumerate(col_headers, 1):
+            cell = ws.cell(row=1, column=ci, value=ch)
+            cell.font      = hdr_font
+            cell.fill      = hdr_fill
+            cell.alignment = hdr_align
+            cell.border    = hdr_bord
+
+        if combined_rows:
+            for ri, row in enumerate(combined_rows, 2):
+                ci = 1
+                if len(result['headers']) > 1:
+                    ws.cell(row=ri, column=ci, value='').border = Border(left=thin, right=thin)
+                    ci += 1
+                for k in OB_KEYS:
+                    ws.cell(row=ri, column=ci, value=row.get(k, ''))
+                    ci += 1
+        else:
+            ws.cell(row=2, column=1, value='（尚無明細數據）')
+
+        ws.column_dimensions[ws.cell(1,1).column_letter].width = 12
+        for ci in range(2, len(col_headers)+1):
+            ws.column_dimensions[ws.cell(1,ci).column_letter].width = 14
+
+    # Summary sheet
+    ws_sum = wb.create_sheet('MP 彙總')
+    sum_headers = ['EOLR', 'ART 列表', '裁斷MP', '針車MP', '成型MP', '庫存MP', '來源']
+    for ci, ch in enumerate(sum_headers, 1):
+        cell = ws_sum.cell(row=1, column=ci, value=ch)
+        cell.font = hdr_font; cell.fill = hdr_fill; cell.alignment = hdr_align; cell.border = hdr_bord
+    for ri, h in enumerate(result['headers'], 2):
+        ep = h.get('epph', {})
+        ws_sum.cell(row=ri, column=1, value=h['eolr'])
+        ws_sum.cell(row=ri, column=2, value=', '.join(h.get('arts', [])))
+        ws_sum.cell(row=ri, column=3, value=ep.get('cutting') or None)
+        ws_sum.cell(row=ri, column=4, value=ep.get('stitching') or None)
+        ws_sum.cell(row=ri, column=5, value=ep.get('assembly') or None)
+        ws_sum.cell(row=ri, column=6, value=ep.get('stock') or None)
+        ws_sum.cell(row=ri, column=7, value=ep.get('source', ''))
+    for ci, w in enumerate([8, 30, 10, 10, 10, 10, 16], 1):
+        ws_sum.column_dimensions[ws_sum.cell(1,ci).column_letter].width = w
+
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    safe_name = model_name[:30].replace('/', '-').replace('\\', '-')
+    filename = f'IE_{safe_name}.xlsx'
+    return send_file(buf, as_attachment=True, download_name=filename,
+                     mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+
 @app.route('/api/ie/update_mp', methods=['POST'])
 def ie_update_mp():
     data = request.get_json(force=True)
