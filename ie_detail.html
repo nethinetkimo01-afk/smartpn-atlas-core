@@ -171,6 +171,10 @@ function isNumericStr(s){
   return !isNaN(parseFloat(s)) && isFinite(s);
 }
 
+function cleanModel(name){
+  return (name||'').replace(/\s+Target Output.*$/i,'').replace(/\s{2,}/g,' ').trim() || '—';
+}
+
 // ── Tab management ────────────────────────────────
 function buildTabBar(sheets){
   const bar = document.getElementById('tab-bar');
@@ -306,10 +310,10 @@ async function loadDetail(){
     modelData = detail;
 
     const h = detail.header;
-    const shortName = (h.model_name||'—').replace(/\s+Target Output.*$/i,'').trim();
+    const shortName = cleanModel(h.model_name);
     document.getElementById('page-title').textContent = shortName+' · IE 明細';
     document.title = shortName+' · IE 明細';
-    document.getElementById('info-model').textContent = h.model_name||'—';
+    document.getElementById('info-model').textContent = shortName;
     document.getElementById('info-eolr').innerHTML = eolrBadge(h.eolr);
     renderArts(detail);
     renderMPSummary(detail);
