@@ -59,3 +59,31 @@ SGL = Shared Governed Language（共同治理語言）
 | Standard Zero Zone | 場域定語，搭配 slogan 使用 |
 
 注意：Governed Shared Language 已作為 primary slogan 鎖定，SGL 作為縮寫時指向同一概念。
+
+## 9. GRANT Layer Definition (暫定 2026-06-10)
+
+Layer name: GRANT（暫定，非縮寫，用字義本身）
+
+**Definition:**
+GRANT is a manufacturing-side system layer that governs the authorization of source data — what data is released, to whom, in what precision, by the data owner's decision.
+
+GRANT 是製造端的系統層，治理 source data 的授權——什麼資料、釋放給誰、釋放到什麼精度，由資料擁有者決定。
+
+**Layer comparison:**
+
+| Layer | Manages |
+|-------|---------|
+| ERP | Enterprise resources |
+| PLM | Product lifecycle |
+| WMS | Warehouses |
+| GRANT | Data authorization |
+
+**Core sentences:**
+- 製造端缺一個 GRANT 層
+- 沒有 GRANT 層，supplier 不敢開放資料，Shared Language 無法 scale
+- SmartPN Atlas is the first GRANT system for footwear and apparel manufacturing
+- Access is not taken. It is granted.
+
+**Data qualities in GRANT:** timely（及時）、trusted（可信）、precise（精準）
+
+**Status:** 暫定。取代先前 MSDG / SGL / GATE 候選。正式定案前所有對外文件先不使用。

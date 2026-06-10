@@ -148,7 +148,7 @@ Last updated: 2026-06-10
 ### 待確認（需 Jim 決定）
 - [ ] Kate Nishimura email: READY TO SEND — 等 Jim 核准後送出
 - [ ] GTS transparent note: DRAFT — 待確認 contact name
-- [ ] GATE naming: 4 candidates pending Jim decision
+- [x] GRANT layer 暫定 (2026-06-10)，寫入 01_CONSTITUTION.md 第 9 章，取代 MSDG / SGL / GATE 候選
 - [ ] S02 LinkedIn post: DRAFT — 待 Jim review + 核准
 - [ ] 29_OUTREACH_WORK_PACKAGE.md: placeholder — 待 Jim 從 claude.ai 對話 2026-06-10 貼入完整內容
 
