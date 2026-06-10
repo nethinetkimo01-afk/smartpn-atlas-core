@@ -5,186 +5,190 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SmartPN Atlas — Demo</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif; background: #fff; color: #1A1A1A; display: flex; flex-direction: column; height: 100vh; overflow: hidden; font-size: 13px; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{font-family:-apple-system,'SF Pro Text','Helvetica Neue',Arial,sans-serif;background:#FFFFFF;color:#1D1D1F;display:flex;flex-direction:column;height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased;font-size:15px}
 
     /* ── Topbar ── */
-    .topbar { display: flex; align-items: center; gap: 16px; padding: 0 24px; height: 52px; border-bottom: 0.5px solid #E5E5E5; flex-shrink: 0; }
-    .brand { font-size: 15px; font-weight: 600; color: #54463A; letter-spacing: -0.3px; white-space: nowrap; margin-right: 8px; }
-    .search-wrap { display: flex; align-items: center; gap: 8px; background: #FAFAF8; border: 0.5px solid #E5E5E5; border-radius: 8px; padding: 7px 14px; flex: 1; max-width: 340px; }
-    .search-wrap svg { opacity: 0.4; flex-shrink: 0; }
-    .search-wrap input { border: none; background: transparent; font-size: 13px; color: #1A1A1A; outline: none; width: 100%; }
-    .topbar-spacer { flex: 1; }
-    .role-toggle { display: flex; background: #FAFAF8; border: 0.5px solid #E5E5E5; border-radius: 8px; padding: 3px; gap: 2px; }
-    .role-btn { font-size: 12px; padding: 5px 14px; border-radius: 6px; border: none; background: transparent; color: #888; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
-    .role-btn.active { background: #54463A; color: #fff; font-weight: 500; }
+    .topbar{display:flex;align-items:center;gap:16px;padding:0 24px;height:52px;border-bottom:0.5px solid #D2D2D7;flex-shrink:0;background:#FFFFFF}
+    .brand{font-size:17px;font-weight:600;color:#1D1D1F;letter-spacing:-0.3px;white-space:nowrap;margin-right:8px}
+    .search-wrap{display:flex;align-items:center;gap:8px;background:#F5F5F7;border-radius:8px;padding:7px 14px;flex:1;max-width:340px}
+    .search-wrap svg{opacity:0.35;flex-shrink:0}
+    .search-wrap input{border:none;background:transparent;font-size:14px;color:#1D1D1F;outline:none;width:100%}
+    .topbar-spacer{flex:1}
+    .role-toggle{display:flex;background:#F5F5F7;border-radius:8px;padding:3px;gap:2px}
+    .role-btn{font-size:12px;padding:5px 14px;border-radius:5px;border:none;background:transparent;color:#86868B;cursor:pointer;transition:all 0.15s;white-space:nowrap;font-family:inherit}
+    .role-btn.active{background:#FFFFFF;color:#1D1D1F;font-weight:500;box-shadow:0 0.5px 2px rgba(0,0,0,0.10)}
 
     /* ── Layout ── */
-    .layout { display: flex; flex: 1; overflow: hidden; }
+    .layout{display:flex;flex:1;overflow:hidden}
 
     /* ── Sidebar ── */
-    .sidebar { width: 210px; border-right: 0.5px solid #E5E5E5; display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; padding: 16px 0 24px; }
-    .sidebar-section { margin-bottom: 8px; }
-    .sidebar-label { font-size: 10px; font-weight: 600; color: #BBBBBB; letter-spacing: 0.08em; text-transform: uppercase; padding: 10px 20px 6px; }
-    .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 20px; font-size: 13px; color: #555; cursor: pointer; border-radius: 0; transition: background 0.1s, color 0.1s; border: none; background: none; width: 100%; text-align: left; }
-    .nav-item:hover { background: #FAFAF8; color: #1A1A1A; }
-    .nav-item.active { background: #F5F0EC; color: #54463A; font-weight: 500; }
-    .nav-item.active .nav-icon { opacity: 1; }
-    .nav-icon { width: 16px; height: 16px; opacity: 0.45; flex-shrink: 0; }
-    .nav-sub { font-size: 11px; color: #AAA; margin-left: auto; }
-    .sidebar-divider { height: 0.5px; background: #F0F0F0; margin: 8px 16px; }
-    .status-badges { padding: 16px 16px 0; display: flex; flex-direction: column; gap: 6px; }
-    .status-badge { font-size: 10px; padding: 4px 8px; border-radius: 4px; display: flex; align-items: center; gap: 5px; }
-    .sb-identity { background: #EAF3DE; color: #3B6D11; }
-    .sb-boundary { background: #FFF3E0; color: #8B5000; }
-    .sb-permission { background: #F0EEFA; color: #5B3F9E; }
+    .sidebar{width:220px;border-right:0.5px solid #D2D2D7;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;background:#FFFFFF}
+    .sidebar-label{font-size:17px;font-weight:600;color:#1D1D1F;padding:28px 20px 8px;letter-spacing:-0.2px}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:14px 20px;font-size:15px;font-weight:400;color:#1D1D1F;cursor:pointer;border:none;background:none;width:100%;text-align:left;border-top:0.5px solid #D2D2D7;transition:background 0.1s;font-family:inherit}
+    .nav-item:hover{background:#F5F5F7}
+    .nav-item.active{background:#F5F5F7;font-weight:500}
+    .nav-icon{width:15px;height:15px;opacity:0.35;flex-shrink:0}
+    .nav-item.active .nav-icon{opacity:0.6}
+    .nav-sub{font-size:13px;color:#86868B;margin-left:auto;margin-right:2px}
+    .nav-chev{font-size:16px;color:#D2D2D7;font-weight:300;flex-shrink:0;line-height:1}
+    .sidebar-divider{height:20px}
+    .status-badges{padding:16px 20px;border-top:0.5px solid #D2D2D7;margin-top:auto;display:flex;flex-direction:column;gap:6px}
+    .status-badge{font-size:11px;color:#86868B;display:flex;align-items:center;gap:5px;padding:2px 0}
+    .sb-identity{color:#86868B}
+    .sb-boundary{color:#86868B}
+    .sb-permission{color:#86868B}
 
     /* ── Main ── */
-    .main { flex: 1; overflow-y: auto; }
-
-    /* ── View ── */
-    .view { display: none; padding: 28px 32px; }
-    .view.active { display: block; }
+    .main{flex:1;overflow-y:auto;background:#FFFFFF}
+    .view{display:none;padding:32px 40px;max-width:960px}
+    .view.active{display:block}
 
     /* ── Page header ── */
-    .page-header { margin-bottom: 24px; }
-    .page-title { font-size: 20px; font-weight: 600; color: #1A1A1A; letter-spacing: -0.4px; }
-    .page-sub { font-size: 13px; color: #888; margin-top: 4px; }
+    .page-header{margin-bottom:0;padding-bottom:20px;border-bottom:0.5px solid #D2D2D7;margin-bottom:32px}
+    .page-title{font-size:28px;font-weight:600;color:#1D1D1F;letter-spacing:-0.6px}
+    .page-sub{font-size:15px;color:#86868B;margin-top:6px}
 
     /* ── Stats row ── */
-    .stats-row { display: flex; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
-    .stat-card { background: #FAFAF8; border: 0.5px solid #E5E5E5; border-radius: 12px; padding: 18px 22px; flex: 1; min-width: 140px; }
-    .stat-num { font-size: 28px; font-weight: 600; color: #1A1A1A; letter-spacing: -1px; }
-    .stat-label { font-size: 12px; color: #888; margin-top: 4px; }
-    .stat-delta { font-size: 11px; color: #3B6D11; margin-top: 6px; font-weight: 500; }
+    .stats-row{display:flex;gap:0;margin-bottom:32px;border-top:0.5px solid #D2D2D7;border-bottom:0.5px solid #D2D2D7}
+    .stat-card{flex:1;padding:20px 24px;border-right:0.5px solid #D2D2D7;background:#FFFFFF}
+    .stat-card:last-child{border-right:none}
+    .stat-num{font-size:28px;font-weight:600;color:#1D1D1F;letter-spacing:-1px}
+    .stat-label{font-size:13px;color:#86868B;margin-top:4px}
+    .stat-delta{font-size:12px;color:#86868B;margin-top:4px}
 
     /* ── Section title ── */
-    .section-title { font-size: 12px; font-weight: 600; color: #888; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px; }
+    .section-title{font-size:17px;font-weight:600;color:#1D1D1F;padding-bottom:12px;border-bottom:0.5px solid #D2D2D7;margin-top:32px;margin-bottom:0;letter-spacing:-0.2px}
 
     /* ── Table ── */
-    .table-wrap { border: 0.5px solid #E5E5E5; border-radius: 12px; overflow: hidden; }
-    table { width: 100%; border-collapse: collapse; }
-    thead th { font-size: 11px; font-weight: 500; color: #999; text-align: left; padding: 10px 16px; background: #FAFAF8; border-bottom: 0.5px solid #E5E5E5; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
-    tbody tr { border-bottom: 0.5px solid #F0F0F0; transition: background 0.1s; cursor: pointer; }
-    tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: #FAFAF8; }
-    tbody td { font-size: 13px; color: #1A1A1A; padding: 13px 16px; vertical-align: middle; }
-    .td-muted { color: #999; }
-    .td-link { color: #54463A; font-weight: 500; }
+    .table-wrap{margin-bottom:32px}
+    table{width:100%;border-collapse:collapse}
+    thead th{font-size:12px;font-weight:500;color:#86868B;text-align:left;padding:12px 16px 12px 0;border-bottom:0.5px solid #D2D2D7;text-transform:none;white-space:nowrap;letter-spacing:0}
+    thead th:first-child{padding-left:0}
+    tbody tr{border-bottom:0.5px solid #D2D2D7;cursor:pointer}
+    tbody tr:last-child{border-bottom:none}
+    tbody tr:hover{background:#F5F5F7}
+    tbody td{font-size:15px;color:#1D1D1F;padding:14px 16px 14px 0;vertical-align:middle}
+    tbody td:first-child{padding-left:0}
+    .td-muted{color:#86868B}
+    .td-link{color:#1D1D1F;font-weight:500}
 
-    /* ── Badges ── */
-    .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
-    .badge-private { background: #F5F5F5; color: #888; border: 0.5px solid #E0E0E0; }
-    .badge-open { background: #EAF3DE; color: #3B6D11; }
-    .badge-brand { background: #F0EEFA; color: #5B3F9E; }
-    .badge-supplier { background: #FFF3E0; color: #8B5000; }
-    .badge-shared { background: #F0F6FF; color: #1A5FB4; }
-    .badge-new { background: #FFEBE6; color: #B52A00; }
+    /* ── Badges — Apple text-only style ── */
+    .badge{display:inline-flex;align-items:center;font-size:13px;font-weight:500;padding:0;white-space:nowrap}
+    .badge-private{color:#86868B}
+    .badge-open{color:#1D7340}
+    .badge-brand{color:#1D1D1F}
+    .badge-supplier{color:#86868B}
+    .badge-shared{color:#0071E3}
+    .badge-new{color:#FF3B30}
 
     /* ── Search bar ── */
-    .search-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-    .search-bar-input { display: flex; align-items: center; gap: 8px; background: #FAFAF8; border: 0.5px solid #E5E5E5; border-radius: 8px; padding: 8px 14px; flex: 1; max-width: 360px; }
-    .search-bar-input input { border: none; background: transparent; font-size: 13px; outline: none; width: 100%; }
-    .filter-chip { font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 0.5px solid #E5E5E5; background: #fff; color: #555; cursor: pointer; }
-    .filter-chip.active { background: #54463A; color: #fff; border-color: #54463A; }
+    .search-bar{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+    .search-bar-input{display:flex;align-items:center;gap:8px;background:#F5F5F7;border-radius:8px;padding:8px 14px;flex:1;max-width:360px}
+    .search-bar-input input{border:none;background:transparent;font-size:14px;outline:none;width:100%;color:#1D1D1F}
+    .filter-chip{font-size:13px;padding:6px 14px;border-radius:20px;border:0.5px solid #D2D2D7;background:#FFFFFF;color:#1D1D1F;cursor:pointer;font-family:inherit;transition:all 0.12s}
+    .filter-chip.active{background:#1D1D1F;color:#FFFFFF;border-color:#1D1D1F}
 
     /* ── Form ── */
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 720px; }
-    .form-full { grid-column: 1 / -1; }
-    .form-group { display: flex; flex-direction: column; gap: 6px; }
-    .form-label { font-size: 11px; font-weight: 500; color: #888; letter-spacing: 0.04em; text-transform: uppercase; }
-    .form-input { border: 0.5px solid #E5E5E5; border-radius: 8px; padding: 9px 12px; font-size: 13px; color: #1A1A1A; background: #fff; outline: none; transition: border-color 0.15s; font-family: inherit; }
-    .form-input:focus { border-color: #54463A; }
-    .form-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 28px; }
-    .form-textarea { resize: vertical; min-height: 80px; }
-    .form-actions { display: flex; gap: 10px; margin-top: 28px; }
-    .btn-primary { background: #54463A; color: #fff; border: none; border-radius: 8px; padding: 9px 20px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
-    .btn-primary:hover { opacity: 0.85; }
-    .btn-secondary { background: #FAFAF8; color: #555; border: 0.5px solid #E5E5E5; border-radius: 8px; padding: 9px 20px; font-size: 13px; cursor: pointer; font-family: inherit; }
-    .form-section-title { font-size: 13px; font-weight: 600; color: #1A1A1A; margin: 28px 0 16px; padding-bottom: 10px; border-bottom: 0.5px solid #F0F0F0; }
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:640px}
+    .form-full{grid-column:1/-1}
+    .form-group{display:flex;flex-direction:column;gap:6px}
+    .form-label{font-size:12px;font-weight:500;color:#86868B;letter-spacing:0}
+    .form-input{border:none;border-bottom:0.5px solid #D2D2D7;border-radius:0;padding:10px 0;font-size:15px;color:#1D1D1F;background:#FFFFFF;outline:none;transition:border-bottom-color 0.15s;font-family:inherit}
+    .form-input:focus{border-bottom-color:#1D1D1F}
+    .form-input[readonly]{color:#86868B}
+    .form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2386868B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0 center;padding-right:20px}
+    .form-textarea{resize:vertical;min-height:80px;border:0.5px solid #D2D2D7;border-radius:0;padding:10px;font-size:15px;font-family:inherit;outline:none}
+    .form-textarea:focus{border-color:#1D1D1F}
+    .form-actions{display:flex;gap:12px;margin-top:32px;padding-top:20px;border-top:0.5px solid #D2D2D7}
+    .btn-primary{background:#1D1D1F;color:#FFFFFF;border:none;border-radius:20px;padding:10px 24px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity 0.15s}
+    .btn-primary:hover{opacity:0.8}
+    .btn-secondary{background:#FFFFFF;color:#1D1D1F;border:0.5px solid #D2D2D7;border-radius:20px;padding:10px 24px;font-size:14px;cursor:pointer;font-family:inherit}
+    .form-section-title{font-size:17px;font-weight:600;color:#1D1D1F;margin:32px 0 16px;padding-bottom:12px;border-bottom:0.5px solid #D2D2D7;letter-spacing:-0.2px}
 
     /* ── Permission matrix ── */
-    .perm-table th { font-size: 11px; }
-    .perm-table td { text-align: center; }
-    .perm-check { width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; }
-    .perm-yes { background: #EAF3DE; color: #3B6D11; }
-    .perm-no { background: #F5F5F5; color: #CCC; }
-    .perm-partial { background: #FFF3E0; color: #8B5000; }
-    .role-col { font-weight: 500; }
+    .perm-table td,.perm-table th{text-align:center}
+    .perm-table td:first-child,.perm-table th:first-child{text-align:left}
+    .perm-check{font-size:14px}
+    .perm-yes{color:#1D7340;font-weight:600}
+    .perm-no{color:#D2D2D7}
+    .perm-partial{color:#86868B}
+    .role-col{font-weight:500}
 
     /* ── Supplier profile ── */
-    .profile-header { display: flex; align-items: center; gap: 20px; padding: 20px 24px; background: #FAFAF8; border: 0.5px solid #E5E5E5; border-radius: 12px; margin-bottom: 24px; }
-    .profile-avatar { width: 52px; height: 52px; background: #54463A; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 18px; }
-    .profile-name { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; }
-    .profile-meta { font-size: 12px; color: #888; margin-top: 3px; }
-    .profile-badges { display: flex; gap: 8px; margin-top: 8px; }
-    .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-    .info-card { border: 0.5px solid #E5E5E5; border-radius: 10px; padding: 16px 18px; }
-    .info-card-label { font-size: 11px; color: #AAA; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
-    .info-card-val { font-size: 14px; font-weight: 500; color: #1A1A1A; }
+    .profile-header{display:flex;align-items:center;gap:20px;padding-bottom:20px;border-bottom:0.5px solid #D2D2D7;margin-bottom:24px}
+    .profile-avatar{width:52px;height:52px;background:#1D1D1F;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-weight:700;font-size:18px;flex-shrink:0}
+    .profile-name{font-size:20px;font-weight:600;letter-spacing:-0.4px}
+    .profile-meta{font-size:14px;color:#86868B;margin-top:3px}
+    .profile-badges{display:flex;gap:12px;margin-top:8px}
+    .info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;margin-bottom:32px}
+    .info-card{padding:16px 20px 16px 0;border-bottom:0.5px solid #D2D2D7}
+    .info-card-label{font-size:12px;color:#86868B;margin-bottom:4px}
+    .info-card-val{font-size:15px;font-weight:500;color:#1D1D1F}
 
     /* ── Change log ── */
-    .log-list { display: flex; flex-direction: column; gap: 0; border: 0.5px solid #E5E5E5; border-radius: 12px; overflow: hidden; }
-    .log-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 18px; border-bottom: 0.5px solid #F0F0F0; }
-    .log-item:last-child { border-bottom: none; }
-    .log-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
-    .log-dot-add { background: #3B6D11; }
-    .log-dot-edit { background: #1A5FB4; }
-    .log-dot-perm { background: #5B3F9E; }
-    .log-dot-del { background: #B52A00; }
-    .log-action { font-weight: 500; font-size: 13px; }
-    .log-detail { font-size: 12px; color: #888; margin-top: 2px; }
-    .log-time { font-size: 11px; color: #CCC; margin-left: auto; white-space: nowrap; flex-shrink: 0; }
+    .log-list{display:flex;flex-direction:column}
+    .log-item{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:0.5px solid #D2D2D7}
+    .log-item:last-child{border-bottom:none}
+    .log-dot{width:6px;height:6px;border-radius:50%;margin-top:7px;flex-shrink:0}
+    .log-dot-add{background:#1D7340}
+    .log-dot-edit{background:#0071E3}
+    .log-dot-perm{background:#86868B}
+    .log-dot-del{background:#FF3B30}
+    .log-action{font-weight:500;font-size:15px;color:#1D1D1F}
+    .log-detail{font-size:13px;color:#86868B;margin-top:2px}
+    .log-time{font-size:12px;color:#86868B;margin-left:auto;white-space:nowrap;flex-shrink:0}
 
     /* ── BOM ── */
-    .bom-tree { padding: 4px 0; }
-    .bom-node { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 8px; margin: 3px 0; }
-    .bom-node:hover { background: #FAFAF8; }
-    .bom-node-root { background: #F5F0EC; border: 0.5px solid #D9CFC6; border-radius: 10px; padding: 12px 16px; margin-bottom: 8px; }
-    .bom-indent-1 { margin-left: 24px; }
-    .bom-indent-2 { margin-left: 48px; }
-    .bom-connector { font-size: 12px; color: #CCC; margin-right: 2px; }
-    .bom-qty { font-size: 11px; color: #888; background: #F5F5F5; padding: 2px 8px; border-radius: 4px; margin-left: auto; }
-    .bom-name { font-size: 13px; }
+    .bom-tree{display:flex;flex-direction:column}
+    .bom-node{display:flex;align-items:center;gap:10px;padding:14px 0;border-bottom:0.5px solid #D2D2D7}
+    .bom-node:last-child{border-bottom:none}
+    .bom-node-root{font-weight:600;font-size:17px;color:#1D1D1F}
+    .bom-indent-1{padding-left:24px}
+    .bom-indent-2{padding-left:48px}
+    .bom-connector{font-size:12px;color:#D2D2D7}
+    .bom-qty{font-size:13px;color:#86868B;margin-left:auto}
+    .bom-name{font-size:15px;color:#1D1D1F}
 
     /* ── Compare ── */
-    .compare-grid { display: grid; grid-template-columns: 180px 1fr 1fr; gap: 0; border: 0.5px solid #E5E5E5; border-radius: 12px; overflow: hidden; }
-    .compare-col-header { padding: 14px 16px; background: #FAFAF8; font-weight: 600; font-size: 13px; border-bottom: 0.5px solid #E5E5E5; }
-    .compare-row-label { padding: 12px 16px; font-size: 12px; color: #888; background: #FAFAF8; border-right: 0.5px solid #E5E5E5; border-bottom: 0.5px solid #F0F0F0; text-transform: uppercase; letter-spacing: 0.03em; font-weight: 500; }
-    .compare-cell { padding: 12px 16px; font-size: 13px; border-bottom: 0.5px solid #F0F0F0; border-right: 0.5px solid #F0F0F0; }
-    .compare-cell:last-child { border-right: none; }
-    .compare-diff { background: #FFFBF0; }
-    .compare-match { color: #888; }
+    .compare-grid{display:grid;grid-template-columns:180px 1fr 1fr;gap:0;margin-bottom:32px}
+    .compare-col-header{padding:14px 16px 14px 0;font-weight:600;font-size:15px;border-bottom:0.5px solid #D2D2D7;color:#1D1D1F}
+    .compare-row-label{padding:14px 16px 14px 0;font-size:13px;color:#86868B;border-bottom:0.5px solid #D2D2D7;font-weight:500}
+    .compare-cell{padding:14px 16px 14px 0;font-size:15px;border-bottom:0.5px solid #D2D2D7;color:#1D1D1F}
+    .compare-diff{color:#1D1D1F}
+    .compare-match{color:#86868B}
 
     /* ── Library ── */
-    .lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
-    .lib-card { border: 0.5px solid #E5E5E5; border-radius: 12px; padding: 18px; cursor: pointer; transition: box-shadow 0.15s, border-color 0.15s; }
-    .lib-card:hover { border-color: #D9CFC6; box-shadow: 0 2px 12px rgba(84,70,58,0.08); }
-    .lib-card-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
-    .lib-card-sub { font-size: 12px; color: #888; margin-bottom: 12px; }
-    .lib-card-meta { display: flex; align-items: center; gap: 8px; }
+    .lib-grid{display:flex;flex-direction:column}
+    .lib-card{display:flex;align-items:center;padding:16px 0;border-bottom:0.5px solid #D2D2D7;cursor:pointer}
+    .lib-card:last-child{border-bottom:none}
+    .lib-card-info{flex:1}
+    .lib-card-name{font-size:15px;font-weight:500;color:#1D1D1F}
+    .lib-card-sub{font-size:13px;color:#86868B;margin-top:2px}
+    .lib-card-meta{display:flex;align-items:center;gap:10px;margin-top:4px}
+    .lib-chev{font-size:18px;color:#D2D2D7;margin-left:auto}
 
     /* ── Note box ── */
-    .note-box { font-size: 12px; color: #666; margin-top: 20px; padding: 10px 14px; background: #FAFAF8; border-radius: 8px; border-left: 2px solid #54463A; line-height: 1.6; }
+    .note-box{font-size:13px;color:#86868B;margin-top:16px;padding-top:14px;border-top:0.5px solid #D2D2D7;line-height:1.6}
 
     /* ── Empty state ── */
-    .empty-state { text-align: center; padding: 60px 24px; color: #CCC; }
-    .empty-state-icon { font-size: 36px; margin-bottom: 12px; }
-    .empty-state-text { font-size: 14px; color: #AAA; }
+    .empty-state{text-align:center;padding:60px 0;color:#86868B}
+    .empty-state-text{font-size:15px}
 
-    /* ── Role-gated ── */
-    .role-gate { background: #FAFAF8; border: 0.5px solid #E5E5E5; border-radius: 12px; padding: 40px; text-align: center; }
-    .role-gate-title { font-size: 15px; font-weight: 600; color: #1A1A1A; margin-bottom: 8px; }
-    .role-gate-sub { font-size: 13px; color: #888; }
+    /* ── Role gate ── */
+    .role-gate{padding:60px 0;text-align:center}
+    .role-gate-title{font-size:17px;font-weight:600;color:#1D1D1F;margin-bottom:8px}
+    .role-gate-sub{font-size:15px;color:#86868B}
 
-    /* ── Fade animation ── */
-    .fade-in { animation: fadeIn 0.2s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    /* ── Fade ── */
+    .fade-in{animation:fadeIn 0.18s ease}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
 
     /* ── Scrollbar ── */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #E5E5E5; border-radius: 3px; }
+    ::-webkit-scrollbar{width:6px;height:6px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:#D2D2D7;border-radius:3px}
   </style>
 </head>
 <body>
@@ -193,7 +197,7 @@
 <div class="topbar">
   <span class="brand">SmartPN Atlas</span>
   <div class="search-wrap">
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="#1A1A1A" stroke-width="1.2"/><path d="M9.5 9.5L12.5 12.5" stroke="#1A1A1A" stroke-width="1.2" stroke-linecap="round"/></svg>
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="#1D1D1F" stroke-width="1.2"/><path d="M9.5 9.5L12.5 12.5" stroke="#1D1D1F" stroke-width="1.2" stroke-linecap="round"/></svg>
     <input type="text" id="global-search" placeholder="Search materials, suppliers…" oninput="handleSearch(this.value)" />
   </div>
   <div class="topbar-spacer"></div>
@@ -209,56 +213,49 @@
 
   <!-- ── SIDEBAR ── -->
   <div class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-label">Company</div>
-      <button class="nav-item" onclick="showView('dashboard')">
-        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.5"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.5"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.5"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.5"/></svg>
-        Dashboard
-      </button>
-      <button class="nav-item active" onclick="showView('search')">
-        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-        Material Search
-      </button>
-      <button class="nav-item" onclick="showView('library')">
-        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 7h6M5 10h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-        My Library
-        <span class="nav-sub">12</span>
-      </button>
-      <button class="nav-item" onclick="showView('compare')">
-        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="6" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="3" width="6" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/></svg>
-        Compare
-      </button>
-      <button class="nav-item" onclick="showView('bom')">
-        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M8 2v3M4 8v3m4-3v3m4-3v3M2 5h12M2 13h4m4 0h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-        BOM Reference
-      </button>
-    </div>
+    <div class="sidebar-label">Company</div>
+    <button class="nav-item" onclick="showView('dashboard')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.7"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.7"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.7"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.7"/></svg>
+      Dashboard<span class="nav-chev">›</span>
+    </button>
+    <button class="nav-item active" onclick="showView('search')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Material Search<span class="nav-chev">›</span>
+    </button>
+    <button class="nav-item" onclick="showView('library')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 7h6M5 10h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      My Library<span class="nav-sub">12</span><span class="nav-chev">›</span>
+    </button>
+    <button class="nav-item" onclick="showView('compare')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="6" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="3" width="6" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/></svg>
+      Compare<span class="nav-chev">›</span>
+    </button>
+    <button class="nav-item" onclick="showView('bom')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M8 2v3M4 8v3m4-3v3m4-3v3M2 5h12M2 13h4m4 0h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      BOM Reference<span class="nav-chev">›</span>
+    </button>
 
-    <div class="sidebar-divider"></div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">SmartPN</div>
-      <button class="nav-item" onclick="showView('material')">
-        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-        原物料建立
-      </button>
-      <button class="nav-item" onclick="showView('secondary')">
-        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M3 13L8 3l5 10H3z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
-        二次加工建立
-      </button>
-      <button class="nav-item" onclick="showView('permission')">
-        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="4" y="7" width="8" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-        Permission
-      </button>
-      <button class="nav-item" onclick="showView('supplier')">
-        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 14c0-3 2.5-5 5.5-5s5.5 2 5.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-        Supplier Profile
-      </button>
-      <button class="nav-item" onclick="showView('changelog')">
-        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M3 4h10M3 8h7M3 12h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-        Change Log
-      </button>
-    </div>
+    <div class="sidebar-label" style="padding-top:24px">SmartPN</div>
+    <button class="nav-item" onclick="showView('material')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      原物料建立<span class="nav-chev">›</span>
+    </button>
+    <button class="nav-item" onclick="showView('secondary')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M3 13L8 3l5 10H3z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+      二次加工建立<span class="nav-chev">›</span>
+    </button>
+    <button class="nav-item" onclick="showView('permission')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="4" y="7" width="8" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Permission<span class="nav-chev">›</span>
+    </button>
+    <button class="nav-item" onclick="showView('supplier')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 14c0-3 2.5-5 5.5-5s5.5 2 5.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Supplier Profile<span class="nav-chev">›</span>
+    </button>
+    <button class="nav-item" onclick="showView('changelog')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M3 4h10M3 8h7M3 12h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Change Log<span class="nav-chev">›</span>
+    </button>
 
     <div style="flex:1"></div>
     <div class="status-badges">
@@ -299,38 +296,26 @@
           <div class="stat-delta">+28 this month</div>
         </div>
       </div>
-      <div class="section-title" style="margin-bottom:12px">Recent activity</div>
-      <div class="log-list">
+      <div class="section-title">Recent activity</div>
+      <div class="log-list" style="margin-top:0">
         <div class="log-item">
           <div class="log-dot log-dot-add"></div>
-          <div>
-            <div class="log-action">Supplier Formosa added 3 new raw materials</div>
-            <div class="log-detail">Nylon 6 · PA66-GF30 · PETG</div>
-          </div>
+          <div><div class="log-action">Supplier Formosa added 3 new raw materials</div><div class="log-detail">Nylon 6 · PA66-GF30 · PETG</div></div>
           <div class="log-time">2h ago</div>
         </div>
         <div class="log-item">
           <div class="log-dot log-dot-perm"></div>
-          <div>
-            <div class="log-action">Permission updated — STM-2024-09 set to OPEN</div>
-            <div class="log-detail">Supplier B · Triggered by SmartPN rule</div>
-          </div>
+          <div><div class="log-action">Permission updated — STM-2024-09 set to OPEN</div><div class="log-detail">Supplier B · Triggered by SmartPN rule</div></div>
           <div class="log-time">5h ago</div>
         </div>
         <div class="log-item">
           <div class="log-dot log-dot-edit"></div>
-          <div>
-            <div class="log-action">Secondary processing record updated</div>
-            <div class="log-detail">Electroplating spec rev 2.1 — Supplier A</div>
-          </div>
+          <div><div class="log-action">Secondary processing record updated</div><div class="log-detail">Electroplating spec rev 2.1 — Supplier A</div></div>
           <div class="log-time">Yesterday</div>
         </div>
         <div class="log-item">
           <div class="log-dot log-dot-add"></div>
-          <div>
-            <div class="log-action">New supplier onboarded — Global Poly Solutions</div>
-            <div class="log-detail">12 materials pre-loaded from legacy system</div>
-          </div>
+          <div><div class="log-action">New supplier onboarded — Global Poly Solutions</div><div class="log-detail">12 materials pre-loaded from legacy system</div></div>
           <div class="log-time">2 days ago</div>
         </div>
       </div>
@@ -344,7 +329,7 @@
       </div>
       <div class="search-bar">
         <div class="search-bar-input">
-          <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="#AAA" stroke-width="1.3"/><path d="M9.5 9.5L12.5 12.5" stroke="#AAA" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="#86868B" stroke-width="1.3"/><path d="M9.5 9.5L12.5 12.5" stroke="#86868B" stroke-width="1.3" stroke-linecap="round"/></svg>
           <input type="text" placeholder="Search by name, supplier, code…" id="material-search" oninput="filterMaterials(this.value)" />
         </div>
         <button class="filter-chip active" onclick="filterByType('all', this)">All</button>
@@ -377,14 +362,14 @@
         <div class="page-title">My Library</div>
         <div class="page-sub">Saved materials and custom lists</div>
       </div>
-      <div class="section-title">Saved items (12)</div>
-      <div class="lib-grid">
-        <div class="lib-card"><div class="lib-card-name">PA66-GF30 (Nylon)</div><div class="lib-card-sub">Formosa Plastics · Raw</div><div class="lib-card-meta"><span class="badge badge-open">OPEN</span><span style="font-size:11px;color:#AAA;margin-left:auto">Saved Jun 8</span></div></div>
-        <div class="lib-card"><div class="lib-card-name">Electroplating Spec A</div><div class="lib-card-sub">Supplier A · Secondary</div><div class="lib-card-meta"><span class="badge badge-private">PRIVATE</span><span style="font-size:11px;color:#AAA;margin-left:auto">Saved Jun 5</span></div></div>
-        <div class="lib-card"><div class="lib-card-name">PETG Sheet 1.5mm</div><div class="lib-card-sub">Supplier B · Raw</div><div class="lib-card-meta"><span class="badge badge-shared">SHARED</span><span style="font-size:11px;color:#AAA;margin-left:auto">Saved Jun 1</span></div></div>
-        <div class="lib-card"><div class="lib-card-name">STM-2024-09</div><div class="lib-card-sub">Supplier B · Raw</div><div class="lib-card-meta"><span class="badge badge-open">OPEN</span><span style="font-size:11px;color:#AAA;margin-left:auto">Saved May 28</span></div></div>
-        <div class="lib-card"><div class="lib-card-name">Powder Coat Black</div><div class="lib-card-sub">Supplier C · Secondary</div><div class="lib-card-meta"><span class="badge badge-private">PRIVATE</span><span style="font-size:11px;color:#AAA;margin-left:auto">Saved May 20</span></div></div>
-        <div class="lib-card"><div class="lib-card-name">ABS-HI Resin</div><div class="lib-card-sub">Global Poly · Raw</div><div class="lib-card-meta"><span class="badge badge-open">OPEN</span><span style="font-size:11px;color:#AAA;margin-left:auto">Saved May 15</span></div></div>
+      <div class="section-title" style="margin-top:0">Saved items (12)</div>
+      <div class="lib-grid" style="margin-top:0">
+        <div class="lib-card"><div class="lib-card-info"><div class="lib-card-name">PA66-GF30 (Nylon)</div><div class="lib-card-sub">Formosa Plastics · Raw</div><div class="lib-card-meta"><span class="badge badge-open">OPEN</span><span style="font-size:12px;color:#86868B">Saved Jun 8</span></div></div><span class="lib-chev">›</span></div>
+        <div class="lib-card"><div class="lib-card-info"><div class="lib-card-name">Electroplating Spec A</div><div class="lib-card-sub">Supplier A · Secondary</div><div class="lib-card-meta"><span class="badge badge-private">PRIVATE</span><span style="font-size:12px;color:#86868B">Saved Jun 5</span></div></div><span class="lib-chev">›</span></div>
+        <div class="lib-card"><div class="lib-card-info"><div class="lib-card-name">PETG Sheet 1.5mm</div><div class="lib-card-sub">Supplier B · Raw</div><div class="lib-card-meta"><span class="badge badge-shared">SHARED</span><span style="font-size:12px;color:#86868B">Saved Jun 1</span></div></div><span class="lib-chev">›</span></div>
+        <div class="lib-card"><div class="lib-card-info"><div class="lib-card-name">STM-2024-09</div><div class="lib-card-sub">Supplier B · Raw</div><div class="lib-card-meta"><span class="badge badge-open">OPEN</span><span style="font-size:12px;color:#86868B">Saved May 28</span></div></div><span class="lib-chev">›</span></div>
+        <div class="lib-card"><div class="lib-card-info"><div class="lib-card-name">Powder Coat Black</div><div class="lib-card-sub">Supplier C · Secondary</div><div class="lib-card-meta"><span class="badge badge-private">PRIVATE</span><span style="font-size:12px;color:#86868B">Saved May 20</span></div></div><span class="lib-chev">›</span></div>
+        <div class="lib-card"><div class="lib-card-info"><div class="lib-card-name">ABS-HI Resin</div><div class="lib-card-sub">Global Poly · Raw</div><div class="lib-card-meta"><span class="badge badge-open">OPEN</span><span style="font-size:12px;color:#86868B">Saved May 15</span></div></div><span class="lib-chev">›</span></div>
       </div>
     </div>
 
@@ -395,8 +380,8 @@
         <div class="page-sub">Side-by-side comparison</div>
       </div>
       <div class="compare-grid">
-        <div class="compare-col-header" style="background:#fff;border-right:0.5px solid #E5E5E5"></div>
-        <div class="compare-col-header" style="border-right:0.5px solid #E5E5E5">PA66-GF30 · Formosa</div>
+        <div class="compare-col-header" style="color:#86868B;font-weight:400;font-size:13px"></div>
+        <div class="compare-col-header">PA66-GF30 · Formosa</div>
         <div class="compare-col-header">PA66-GF30 · Supplier B</div>
         <div class="compare-row-label">SmartPN Code</div>
         <div class="compare-cell">SPN-001-PA66GF30-FOR</div>
@@ -409,21 +394,21 @@
         <div class="compare-cell compare-match">PA66</div>
         <div class="compare-row-label">Glass fill %</div>
         <div class="compare-cell compare-match">30%</div>
-        <div class="compare-cell compare-diff" style="color:#B52A00">33%</div>
+        <div class="compare-cell" style="color:#FF3B30">33%</div>
         <div class="compare-row-label">Tensile strength</div>
         <div class="compare-cell">185 MPa</div>
-        <div class="compare-cell compare-diff" style="color:#3B6D11">196 MPa</div>
+        <div class="compare-cell" style="color:#1D7340">196 MPa</div>
         <div class="compare-row-label">Permission</div>
         <div class="compare-cell"><span class="badge badge-open">OPEN</span></div>
         <div class="compare-cell"><span class="badge badge-private">PRIVATE</span></div>
         <div class="compare-row-label">Price / kg</div>
         <div class="compare-cell">USD 4.20</div>
-        <div class="compare-cell compare-diff" style="color:#3B6D11">USD 3.85</div>
+        <div class="compare-cell" style="color:#1D7340">USD 3.85</div>
         <div class="compare-row-label">Updated</div>
         <div class="compare-cell">Jun 7, 2026</div>
-        <div class="compare-cell compare-diff">Jun 2, 2026</div>
+        <div class="compare-cell compare-match">Jun 2, 2026</div>
       </div>
-      <div class="note-box" style="margin-top:16px">Highlighted cells indicate differences. Yellow = numeric difference; green = favourable; red = unfavourable. Data sourced from supplier-maintained records.</div>
+      <div class="note-box">Highlighted values indicate differences. Green = favourable. Red = unfavourable. Data sourced from supplier-maintained records.</div>
     </div>
 
     <!-- ════ BOM REFERENCE ════ -->
@@ -432,47 +417,46 @@
         <div class="page-title">BOM Reference</div>
         <div class="page-sub">Factory substitution flow · read-only reference</div>
       </div>
-      <div class="section-title">Example product: Laptop chassis assembly</div>
-      <div class="bom-tree">
+      <div class="section-title" style="margin-top:0">Laptop chassis assembly</div>
+      <div class="bom-tree" style="margin-top:0">
         <div class="bom-node bom-node-root">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" fill="#54463A" opacity="0.15"/><path d="M5 8h6M8 5v6" stroke="#54463A" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span style="font-weight:600">Laptop Chassis A1</span>
+          <span>Laptop Chassis A1</span>
           <span class="bom-qty">1 unit</span>
         </div>
         <div class="bom-node bom-indent-1">
           <span class="bom-connector">├─</span>
           <span class="bom-name">Top cover — Magnesium alloy</span>
-          <span class="badge badge-shared" style="margin-left:8px">SHARED</span>
+          <span class="badge badge-shared" style="margin-left:10px">SHARED</span>
           <span class="bom-qty">1 pc</span>
         </div>
         <div class="bom-node bom-indent-2">
           <span class="bom-connector">└─</span>
-          <span class="bom-name td-muted">→ Anodising (Secondary)</span>
-          <span class="badge badge-private" style="margin-left:8px">PRIVATE</span>
+          <span class="bom-name" style="color:#86868B">→ Anodising (Secondary)</span>
+          <span class="badge badge-private" style="margin-left:10px">PRIVATE</span>
           <span class="bom-qty">per surface</span>
         </div>
         <div class="bom-node bom-indent-1">
           <span class="bom-connector">├─</span>
           <span class="bom-name">Bottom cover — PA66-GF30</span>
-          <span class="badge badge-open" style="margin-left:8px">OPEN</span>
+          <span class="badge badge-open" style="margin-left:10px">OPEN</span>
           <span class="bom-qty">1 pc</span>
         </div>
         <div class="bom-node bom-indent-2">
           <span class="bom-connector">└─</span>
-          <span class="bom-name td-muted">→ Powder coat — Black</span>
-          <span class="badge badge-private" style="margin-left:8px">PRIVATE</span>
+          <span class="bom-name" style="color:#86868B">→ Powder coat — Black</span>
+          <span class="badge badge-private" style="margin-left:10px">PRIVATE</span>
           <span class="bom-qty">per surface</span>
         </div>
         <div class="bom-node bom-indent-1">
           <span class="bom-connector">├─</span>
           <span class="bom-name">Hinge bracket — SUS304</span>
-          <span class="badge badge-shared" style="margin-left:8px">SHARED</span>
+          <span class="badge badge-shared" style="margin-left:10px">SHARED</span>
           <span class="bom-qty">2 pc</span>
         </div>
         <div class="bom-node bom-indent-1">
           <span class="bom-connector">└─</span>
           <span class="bom-name">Keyboard bezel — PETG 1.5mm</span>
-          <span class="badge badge-open" style="margin-left:8px">OPEN</span>
+          <span class="badge badge-open" style="margin-left:10px">OPEN</span>
           <span class="bom-qty">1 pc</span>
         </div>
       </div>
@@ -520,11 +504,11 @@
           <div class="profile-badges">
             <span class="badge badge-open">Verified</span>
             <span class="badge badge-shared">SmartPN Active</span>
-            <span class="badge badge-supplier">Tier 1</span>
+            <span class="badge" style="color:#86868B">Tier 1</span>
           </div>
         </div>
       </div>
-      <div class="info-grid" style="margin-bottom:24px">
+      <div class="info-grid">
         <div class="info-card"><div class="info-card-label">Total Materials</div><div class="info-card-val">247</div></div>
         <div class="info-card"><div class="info-card-label">OPEN materials</div><div class="info-card-val">89</div></div>
         <div class="info-card"><div class="info-card-label">Last updated</div><div class="info-card-val">Jun 9, 2026</div></div>
@@ -532,8 +516,8 @@
         <div class="info-card"><div class="info-card-label">Maintained by</div><div class="info-card-val">Supplier</div></div>
         <div class="info-card"><div class="info-card-label">Onboarding</div><div class="info-card-val">Complete</div></div>
       </div>
-      <div class="section-title">Recent materials from this supplier</div>
-      <div class="table-wrap">
+      <div class="section-title" style="margin-top:0">Recent materials from this supplier</div>
+      <div class="table-wrap" style="margin-top:0">
         <table>
           <thead><tr><th>SmartPN Code</th><th>Name</th><th>Type</th><th>Permission</th><th>Updated</th></tr></thead>
           <tbody>
@@ -592,8 +576,8 @@
   }
 
   function typeBadge(t) {
-    if (t === 'secondary') return '<span class="badge badge-supplier">Secondary</span>';
-    return '<span class="badge" style="background:#F5F5F5;color:#888;border:0.5px solid #E0E0E0">Raw</span>';
+    if (t === 'secondary') return '<span class="badge" style="color:#86868B">Secondary</span>';
+    return '<span class="badge" style="color:#86868B">Raw</span>';
   }
 
   function getVisibleMaterials(role, typeFilter, search) {
@@ -615,13 +599,13 @@
     const tbody = document.getElementById('material-table-body');
     if (!tbody) return;
     if (rows.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#CCC;font-size:13px">No materials visible with current permissions.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#86868B;font-size:15px">No materials visible with current permissions.</td></tr>';
     } else {
       tbody.innerHTML = rows.map(r => `
         <tr class="fade-in">
           <td class="td-link">${r.code}</td>
           <td>${r.name}</td>
-          <td>${r.supplier}</td>
+          <td class="td-muted">${r.supplier}</td>
           <td>${typeBadge(r.type)}</td>
           <td class="${r.maintainedBy === 'Supplier' ? '' : 'td-muted'}">${r.maintainedBy}</td>
           <td class="td-muted">${r.updated}</td>
@@ -638,7 +622,8 @@
 
   function filterMaterials(val) { renderMaterials(); }
   function handleSearch(val) {
-    document.getElementById('material-search') && (document.getElementById('material-search').value = val);
+    const el = document.getElementById('material-search');
+    if (el) el.value = val;
     renderMaterials();
   }
 
@@ -657,10 +642,10 @@
       return;
     }
     el.innerHTML = `
-      <div class="form-section-title">Basic Info</div>
+      <div class="form-section-title" style="margin-top:0">Basic Info</div>
       <div class="form-grid">
         <div class="form-group"><div class="form-label">Material Name</div><input class="form-input" type="text" placeholder="e.g. PA66-GF30 Nylon" /></div>
-        <div class="form-group"><div class="form-label">SmartPN Code (auto)</div><input class="form-input" type="text" value="SPN-XXX-AUTO" readonly style="color:#AAA" /></div>
+        <div class="form-group"><div class="form-label">SmartPN Code (auto)</div><input class="form-input" type="text" value="SPN-XXX-AUTO" readonly /></div>
         <div class="form-group"><div class="form-label">Supplier</div><select class="form-input form-select"><option>Formosa Plastics</option><option>Supplier A</option><option>Supplier B</option><option>Supplier C</option></select></div>
         <div class="form-group"><div class="form-label">Material Category</div><select class="form-input form-select"><option>Polymer</option><option>Metal</option><option>Composite</option><option>Other</option></select></div>
         <div class="form-group form-full"><div class="form-label">Description</div><textarea class="form-input form-textarea" placeholder="Describe material properties, applications…"></textarea></div>
@@ -692,10 +677,10 @@
       return;
     }
     el.innerHTML = `
-      <div class="form-section-title">Processing Info</div>
+      <div class="form-section-title" style="margin-top:0">Processing Info</div>
       <div class="form-grid">
         <div class="form-group"><div class="form-label">Processing Name</div><input class="form-input" type="text" placeholder="e.g. Electroplating Spec A" /></div>
-        <div class="form-group"><div class="form-label">SmartPN Code (auto)</div><input class="form-input" type="text" value="SPN-XXX-SEC" readonly style="color:#AAA" /></div>
+        <div class="form-group"><div class="form-label">SmartPN Code (auto)</div><input class="form-input" type="text" value="SPN-XXX-SEC" readonly /></div>
         <div class="form-group"><div class="form-label">Processing Type</div><select class="form-input form-select"><option>Electroplating</option><option>Anodising</option><option>Powder Coat</option><option>Heat Treatment</option><option>CNC Machining</option><option>Other</option></select></div>
         <div class="form-group"><div class="form-label">Supplier</div><select class="form-input form-select"><option>Supplier A</option><option>Formosa Plastics</option><option>Supplier B</option><option>Supplier C</option></select></div>
         <div class="form-group form-full"><div class="form-label">Process Description</div><textarea class="form-input form-textarea" placeholder="Describe the processing method, standards…"></textarea></div>
@@ -722,13 +707,13 @@
     const el = document.getElementById('permission-content');
     const brandOnly = role === 'brand';
     el.innerHTML = `
-      <div class="section-title" style="margin-bottom:12px">Permission matrix</div>
-      <div class="table-wrap" style="margin-bottom:24px">
+      <div class="section-title" style="margin-top:0">Permission matrix</div>
+      <div class="table-wrap" style="margin-top:0;margin-bottom:32px">
         <table class="perm-table">
-          <thead><tr><th>Role</th><th>View own materials</th><th>View SHARED</th><th>View OPEN</th><th>Edit records</th><th>Change permission</th><th>Export</th></tr></thead>
+          <thead><tr><th>Role</th><th>View own</th><th>View SHARED</th><th>View OPEN</th><th>Edit</th><th>Change perm</th><th>Export</th></tr></thead>
           <tbody>
             <tr>
-              <td class="role-col"><span class="badge badge-brand">Brand</span></td>
+              <td class="role-col">Brand</td>
               <td><span class="perm-check perm-yes">✓</span></td>
               <td><span class="perm-check perm-yes">✓</span></td>
               <td><span class="perm-check perm-yes">✓</span></td>
@@ -737,7 +722,7 @@
               <td><span class="perm-check perm-yes">✓</span></td>
             </tr>
             <tr>
-              <td class="role-col"><span class="badge badge-supplier">Supplier</span></td>
+              <td class="role-col">Supplier</td>
               <td><span class="perm-check perm-yes">✓</span></td>
               <td><span class="perm-check perm-partial">~</span></td>
               <td><span class="perm-check perm-yes">✓</span></td>
@@ -746,7 +731,7 @@
               <td><span class="perm-check perm-partial">~</span></td>
             </tr>
             <tr>
-              <td class="role-col"><span class="badge badge-private">External</span></td>
+              <td class="role-col">External</td>
               <td><span class="perm-check perm-no">✕</span></td>
               <td><span class="perm-check perm-no">✕</span></td>
               <td><span class="perm-check perm-yes">✓</span></td>
@@ -757,19 +742,19 @@
           </tbody>
         </table>
       </div>
-      <div class="section-title" style="margin-bottom:12px">Permission rules — active (${brandOnly ? 'editable' : 'read-only'})</div>
-      <div class="table-wrap">
+      <div class="section-title">Active rules (${brandOnly ? 'editable' : 'read-only'})</div>
+      <div class="table-wrap" style="margin-top:0">
         <table>
           <thead><tr><th>Rule</th><th>Condition</th><th>Result</th><th>Scope</th>${brandOnly ? '<th></th>' : ''}</tr></thead>
           <tbody>
-            <tr><td>Rule 1</td><td>Supplier sets OPEN</td><td>Visible to all External</td><td>Global</td>${brandOnly ? '<td style="color:#54463A;cursor:pointer;font-weight:500">Edit</td>' : ''}</tr>
-            <tr><td>Rule 2</td><td>Brand sets SHARED with Supplier X</td><td>Supplier X can view + edit</td><td>Per-pair</td>${brandOnly ? '<td style="color:#54463A;cursor:pointer;font-weight:500">Edit</td>' : ''}</tr>
-            <tr><td>Rule 3</td><td>PRIVATE material</td><td>Owner only</td><td>Global</td>${brandOnly ? '<td style="color:#54463A;cursor:pointer;font-weight:500">Edit</td>' : ''}</tr>
-            <tr><td>Rule 21</td><td>Quarterly review complete</td><td>Bulk upgrade PRIVATE → SHARED</td><td>Batch</td>${brandOnly ? '<td style="color:#54463A;cursor:pointer;font-weight:500">Edit</td>' : ''}</tr>
+            <tr><td>Rule 1</td><td>Supplier sets OPEN</td><td>Visible to all External</td><td class="td-muted">Global</td>${brandOnly ? '<td style="color:#0071E3;cursor:pointer;font-size:13px">Edit ›</td>' : ''}</tr>
+            <tr><td>Rule 2</td><td>Brand sets SHARED with Supplier X</td><td>Supplier X can view + edit</td><td class="td-muted">Per-pair</td>${brandOnly ? '<td style="color:#0071E3;cursor:pointer;font-size:13px">Edit ›</td>' : ''}</tr>
+            <tr><td>Rule 3</td><td>PRIVATE material</td><td>Owner only</td><td class="td-muted">Global</td>${brandOnly ? '<td style="color:#0071E3;cursor:pointer;font-size:13px">Edit ›</td>' : ''}</tr>
+            <tr><td>Rule 21</td><td>Quarterly review complete</td><td>Bulk upgrade PRIVATE → SHARED</td><td class="td-muted">Batch</td>${brandOnly ? '<td style="color:#0071E3;cursor:pointer;font-size:13px">Edit ›</td>' : ''}</tr>
           </tbody>
         </table>
       </div>
-      <div class="note-box" style="margin-top:20px">✦ &nbsp;<strong>Shared ≠ fully open.</strong> A SHARED material is visible only to the explicitly named counterparty. OPEN materials are visible to all authenticated external parties. PRIVATE materials are owner-only.</div>`;
+      <div class="note-box"><strong>Shared ≠ fully open.</strong> A SHARED material is visible only to the explicitly named counterparty. OPEN materials are visible to all authenticated external parties. PRIVATE materials are owner-only.</div>`;
   }
 
   /* ── Navigation ── */
