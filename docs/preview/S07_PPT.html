@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>S07 — Zero Communication Gap · SmartPN Atlas</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;background:#fff;color:#1A1A1A;display:flex;flex-direction:column;min-height:100vh;font-size:13px}
+a{color:#54463A;text-decoration:none}
+
+.slide-header{padding:36px 56px 0}
+.title-row{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.title-bar{width:3px;height:28px;background:#54463A;border-radius:2px;flex-shrink:0}
+.slide-title{font-size:22px;font-weight:600;color:#1A1A1A;letter-spacing:-.5px;line-height:1.25}
+.slide-formal{font-size:12px;color:#AAA;margin-bottom:28px;padding-left:17px;font-style:italic;line-height:1.5}
+
+.split{display:flex;gap:0;padding:0 56px;flex:1}
+.pane{flex:1;padding-right:24px}
+.pane+.pane{padding-right:0;padding-left:24px;border-left:.5px solid #E5E5E5}
+
+.pane-hdr{padding:8px 14px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:6px;margin-bottom:14px}
+.pane-hdr.cur{background:#B71C1C;color:#fff}
+.pane-hdr.aft{background:#1B5E20;color:#fff}
+.pane-hdr.aft u{text-decoration:underline}
+
+.tw{border:.5px solid #E5E5E5;border-radius:10px;overflow:hidden;margin-bottom:14px;font-size:11px}
+table{width:100%;border-collapse:collapse}
+thead th{background:#FAFAF8;padding:7px 12px;text-align:left;font-size:9px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:.04em;border-bottom:.5px solid #E5E5E5;white-space:nowrap}
+tbody td{padding:9px 12px;border-bottom:.5px solid #F0F0F0;color:#1A1A1A;vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+.red{color:#B71C1C;font-weight:600}
+.grn{color:#1B5E20;font-weight:600}
+.mut{color:#999}
+.hl{background:#FFF8E6}
+.fa-row{background:#FFFDE7}
+.fb-row{background:#F3F8FF}
+.ctr{text-align:center}
+
+.badge{display:inline-block;font-size:9px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.b-priv{background:#F5F5F5;color:#888;border:.5px solid #E0E0E0}
+.b-open{background:#EAF3DE;color:#2E7D32}
+.b-shared{background:#F0F6FF;color:#1A5FB4}
+.b-new{background:#FFEBE6;color:#B52A00}
+.b-ok{background:#EAF3DE;color:#1B5E20}
+.b-warn{background:#FFF3E0;color:#8B5000}
+
+.note{font-size:10px;color:#888;padding:0 0 10px;font-style:italic}
+
+.script-area{margin:20px 56px 0;padding:14px 18px;background:#FAFAF8;border-left:2.5px solid #54463A;border-radius:0 8px 8px 0;font-size:11px;color:#555;line-height:1.75}
+.script-lbl{font-size:9px;font-weight:700;color:#54463A;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+
+.scenario-tag{text-align:right;padding:14px 56px 22px;font-size:8px;color:#CCC;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-top:auto}
+</style>
+</head>
+<body>
+
+<div class="slide-header">
+  <div class="title-row">
+    <div class="title-bar"></div>
+    <div class="slide-title">S07 — Zero Communication Gap</div>
+  </div>
+  <div class="slide-formal">Local IDs preserved. SmartPN Atlas ID removes identity ambiguity across all parties.</div>
+</div>
+
+<div class="split">
+  <div class="pane">
+    <div class="pane-hdr cur">CURRENT — Confirmation Required</div>
+    <div class="tw"><table><thead><tr><th>Role</th><th>Local ID</th><th>Material</th><th>Result</th></tr></thead><tbody><tr><td>Brand design</td><td>BR-MAT-7781</td><td>Black recycled RPET mesh</td><td>Sends design reference</td></tr><tr><td>Factory</td><td>FAC-M-2039</td><td>Black RPET mesh</td><td><span class="red">Needs to confirm</span></td></tr><tr><td>Supplier</td><td>SUP-A-991</td><td>Recycled polyester mesh black</td><td><span class="red">Needs to confirm</span></td></tr></tbody></table></div><p class="note">Scenario B: Factory A→B transfer also requires re-confirmation of equivalent material.</p>
+  </div>
+  <div class="pane">
+    <div class="pane-hdr aft">AFTER SMARTPN ATLAS — <u>0 Communication Gap</u></div>
+    <div class="tw"><table><thead><tr><th>Role</th><th>Local ID</th><th>SmartPN Atlas ID</th><th>Result</th></tr></thead><tbody><tr><td>Brand design</td><td>BR-MAT-7781</td><td><span class="grn">SPA-MAT-0001</span></td><td><span class="grn">Same shared reference</span></td></tr><tr><td>Factory</td><td>FAC-M-2039</td><td><span class="grn">SPA-MAT-0001</span></td><td><span class="grn">Same shared reference</span></td></tr><tr><td>Supplier</td><td>SUP-A-991</td><td><span class="grn">SPA-MAT-0001</span></td><td><span class="grn">Same shared reference</span></td></tr></tbody></table></div><p class="note">Factory A→B transfer: both use SPA-COMP-0101 — zero re-confirmation needed.</p>
+  </div>
+</div>
+
+<div class="script-area">
+  <div class="script-lbl">Jim's presentation script</div>
+  Brand sends BR-MAT-7781. Factory receives FAC-M-2039. Supplier records SUP-A-991. Three names, same material. Every handoff requires a confirmation call.
+  When Factory A transfers a product to Factory B — Factory B must re-confirm every material. Time lost. Mistakes happen.
+  <br><br>After SmartPN Atlas: all three local IDs map to SPA-MAT-0001. No confirmation needed. Factory A to Factory B — same SPA-COMP-0101.
+  This does not mean people never communicate. It means material identity gap is eliminated.
+</div>
+
+<div class="scenario-tag">SCENARIO 07 / SMARTPN ATLAS</div>
+</body>
+</html>
