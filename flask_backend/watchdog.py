@@ -2,11 +2,17 @@
 """Watchdog: every 30s checks port 5000; restarts app.py if down."""
 import socket, subprocess, time, os, sys, datetime
 
-APP_PY  = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'app.py')
+APP_PY   = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'app.py')
 BOOT_LOG = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'flask_boot.log')
-PORT    = 5000
+PORT     = 5000
 INTERVAL = 30
-_proc   = None
+_proc    = None
+
+# Hardcoded to avoid Windows Store Python (python.exe stub) hijacking sys.executable.
+# If this path ever changes, update here.
+PYTHON = r'C:\Users\user\AppData\Local\Python\pythoncore-3.14-64\python.exe'
+if not os.path.isfile(PYTHON):
+    PYTHON = sys.executable  # fallback
 
 
 def log(msg):
@@ -27,7 +33,7 @@ def start_flask():
     log('Starting Flask app.py ...')
     boot_fh = open(BOOT_LOG, 'a')
     _proc = subprocess.Popen(
-        [sys.executable, APP_PY],
+        [PYTHON, APP_PY],
         cwd=os.path.dirname(APP_PY),
         stdout=boot_fh,
         stderr=boot_fh,
