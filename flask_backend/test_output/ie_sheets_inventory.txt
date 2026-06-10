@@ -1,211 +1,255 @@
-Total xlsx/xlsm files: 154
-Unique sheet names: 206
+Total xlsx files: 294
+Unique sheet names: 250
 
-sheet名稱 | 出現次數 | 佔總文件% | 是否為標準sheet
-----------------------------------------------------------------------
-SUM.C2B | 121 | 79% | 常見
-Assembly 2 | 113 | 73% | 常見
- 打粗 | 92 | 60% | 常見
-电脑针车 | 83 | 54% | 常見
-Cutting | 80 | 52% | 常見
-  同材共裁 | 79 | 51% | 常見
-水洗  | 74 | 48% | 常見
-自动化 | 71 | 46% | 常見
-Sub.Stitching(支流) | 69 | 45% | 常見
-Assembly 1 | 66 | 43% | 常見
-Stitching（主流） | 66 | 43% | 常見
-SUM_Stock | 65 | 42% | 常見
-折边 | 49 | 32% | 否
-Assembly 1  | 49 | 32% | 否
-贴大底 | 47 | 31% | 否
-电脑针车  | 47 | 31% | 否
-  同材共裁  | 46 | 30% | 否
-水洗 | 46 | 30% | 否
-照射 | 45 | 29% | 否
-SUM_Stock  | 43 | 28% | 否
-ATOM | 42 | 27% | 否
-Stitching | 41 | 27% | 否
-SUM | 40 | 26% | 否
-照射(成型UV) | 38 | 25% | 否
- Cutting | 38 | 25% | 否
-Assembly.1 | 37 | 24% | 否
-Assembly.2 | 36 | 23% | 否
-EMMA | 34 | 22% | 否
-CS | 29 | 19% | 否
-SUM.C2B  | 28 | 18% | 否
-AC | 25 | 16% | 否
-Sub.Stitching(支流) (SOP) | 24 | 16% | 否
-Stitching（主流 | 21 | 14% | 否
-Cutting (CHAT) | 21 | 14% | 否
-Cutting (AC) | 21 | 14% | 否
-电脑针车   | 20 | 13% | 否
-Sub-Stiching | 19 | 12% | 否
-Cutting  | 19 | 12% | 否
-Sheet1 | 17 | 11% | 否
-Sub.Stitching  | 17 | 11% | 否
-ATOM  | 16 | 10% | 否
-%CS | 15 | 10% | 否
-Stitching（支流） | 15 | 10% | 否
-成型面照射 | 14 | 9% | 否
-SUM  | 14 | 9% | 否
-  同材共裁   | 14 | 9% | 否
-贴大底   | 13 | 8% | 否
-打粗 | 13 | 8% | 否
-自动裁 | 13 | 8% | 否
-SUM_Stock   | 12 | 8% | 否
-Cutting (da thật) | 12 | 8% | 否
-组底面照射  | 11 | 7% | 否
- 打粗  | 11 | 7% | 否
-AC_IH1650 | 11 | 7% | 否
- Cutting (TC) | 11 | 7% | 否
-%AC | 10 | 6% | 否
-自动化  | 10 | 6% | 否
-Stitching (支流) | 10 | 6% | 否
-Stitching (主流) | 10 | 6% | 否
-折边 (da thật) | 10 | 6% | 否
-照射  | 9 | 6% | 否
-照射_Gò | 9 | 6% | 否
-SUM.C2B_IH1651 | 9 | 6% | 否
-Cutting_IH1651 | 9 | 6% | 否
-贴大底  | 8 | 5% | 否
-Stitching  | 8 | 5% | 否
-贴大底 2 | 8 | 5% | 否
-Chi tiết | 7 | 5% | 否
-Cutting (TC) | 7 | 5% | 否
-ATOM-自动化 | 7 | 5% | 否
-SUM . | 6 | 4% | 否
-自动化 (màu tối) | 5 | 3% | 否
-Stitching（主流) | 5 | 3% | 否
-ATOM_LASER. | 5 | 3% | 否
-Cutting_KJ4380 | 5 | 3% | 否
-AC_KJ4380-81-82 | 5 | 3% | 否
-自动裁_KJ4380 | 5 | 3% | 否
-折边 tính lại 28.11 | 5 | 3% | 否
-Sub_Stitching | 5 | 3% | 否
-Sub Stitching（支流) | 5 | 3% | 否
-Assembly.1 (2) | 5 | 3% | 否
-Cutting TC | 4 | 3% | 否
-Sub Stitching（支流 | 4 | 3% | 否
-Kaizen | 4 | 3% | 否
- 打粗 (OK) | 4 | 3% | 否
-折边 tính lại 21.11 | 4 | 3% | 否
-鞋头 鞋羽 | 4 | 3% | 否
-贴大底 1  | 4 | 3% | 否
-Assembly.3 | 4 | 3% | 否
-贴大底 1 | 4 | 3% | 否
-ATOM - LASER | 3 | 2% | 否
-Cutting (BC) | 3 | 2% | 否
-贴鞋垫 | 3 | 2% | 否
-Cutting_TC | 3 | 2% | 否
-Cutting_EMMA | 3 | 2% | 否
-自动裁_KH9684 | 3 | 2% | 否
-自动裁_KH9682-83 | 3 | 2% | 否
-贴大底  (Tính lại) | 3 | 2% | 否
-Sub.Stitching(支流)1 | 3 | 2% | 否
-Sub.Stitching(支流)2 | 3 | 2% | 否
-Stitching（支流） (2) | 3 | 2% | 否
-Sub.Stiching | 3 | 2% | 否
-So sánh | 3 | 2% | 否
-SUM.C2B 67-68 | 3 | 2% | 否
-Cutting (67-68) | 3 | 2% | 否
-电脑针车 (2 màu chỉ) | 3 | 2% | 否
-Cutting (T8) | 3 | 2% | 否
-ATOM_LASER | 3 | 2% | 否
-Sheet2 | 2 | 1% | 否
-电脑针车(Before) | 2 | 1% | 否
-Assembly 3 | 2 | 1% | 否
-贴中底板 | 2 | 1% | 否
-Assembly 2  | 2 | 1% | 否
-TC | 2 | 1% | 否
-Cutting Chặt | 2 | 1% | 否
-SUM.C2B TC | 2 | 1% | 否
-SUM.C2B (BC) | 2 | 1% | 否
-电脑针车 (2) | 2 | 1% | 否
-Cutting_KH9682-83 | 2 | 1% | 否
-SUM.C2B (TC) | 2 | 1% | 否
- 电脑针车 | 2 | 1% | 否
- Cutting TC | 2 | 1% | 否
-贴胶中底中片 | 2 | 1% | 否
-GCN | 2 | 1% | 否
-SUM.C2B (2 màu chỉ) | 2 | 1% | 否
-AC. | 2 | 1% | 否
-Atom&Laser | 2 | 1% | 否
- Cutting 4313 | 2 | 1% | 否
-电脑针车_IG9016 | 1 | 1% | 否
-自动化 (màu tối) (2) | 1 | 1% | 否
-Cutting 0746 | 1 | 1% | 否
-Cutting (2) | 1 | 1% | 否
-Sub.Stitching(支流)  | 1 | 1% | 否
-SUM_Stock (2) | 1 | 1% | 否
- 打粗 (2) | 1 | 1% | 否
-水洗 (2) | 1 | 1% | 否
-组底面照射  (2) | 1 | 1% | 否
-贴大底 (2) | 1 | 1% | 否
-成型面照射 (2) | 1 | 1% | 否
-组底面照射   | 1 | 1% | 否
-成型面照射  | 1 | 1% | 否
-Cutting BC | 1 | 1% | 否
-Cutting  (2) | 1 | 1% | 否
-(%AC) | 1 | 1% | 否
- %CS | 1 | 1% | 否
-Cutting TC  | 1 | 1% | 否
-Sub-Stitching | 1 | 1% | 否
-Assembly | 1 | 1% | 否
-SUM.C2B  (TC) | 1 | 1% | 否
-Cutting  (TC) | 1 | 1% | 否
-Cutting  (BC05) | 1 | 1% | 否
-Assembly (防水) | 1 | 1% | 否
-自动裁. | 1 | 1% | 否
-Sheet1 (2) | 1 | 1% | 否
-Cutting_KJ4387 | 1 | 1% | 否
-自动裁 _KJ4387 | 1 | 1% | 否
-SUM.C2B_KK4436-37 | 1 | 1% | 否
-SUM.C2B_KK4435 | 1 | 1% | 否
-Cutting_KK4435-36-37 | 1 | 1% | 否
-SUM.C2B_KJ4381-82 | 1 | 1% | 否
-Cutting_KJ4381-82 | 1 | 1% | 否
-ATOM_KK4437 | 1 | 1% | 否
- 同材共裁 | 1 | 1% | 否
-cutting BC | 1 | 1% | 否
-SUM.C2B BC  | 1 | 1% | 否
-Cutting (BC05) | 1 | 1% | 否
- LASER (GV6890) | 1 | 1% | 否
-Cutting  (GV6896) | 1 | 1% | 否
-折边. | 1 | 1% | 否
-电脑针车.   | 1 | 1% | 否
-电脑针车  (so sánh) | 1 | 1% | 否
-电脑针车 (After) | 1 | 1% | 否
-  同材共裁 (EMMA) | 1 | 1% | 否
-折边 (gấp biên máy ) | 1 | 1% | 否
-Sub-Stiching  | 1 | 1% | 否
-贴大底 (1) | 1 | 1% | 否
-  同材共裁  (EMMA) | 1 | 1% | 否
-电脑针车 thay đổi 19032026 | 1 | 1% | 否
- Cutting BC | 1 | 1% | 否
-自动化(TC)  | 1 | 1% | 否
- Cutting (KI4569) | 1 | 1% | 否
- Cutting (60) | 1 | 1% | 否
- Cutting (KI4570) | 1 | 1% | 否
-  同材共裁  (EMMA) (2) | 1 | 1% | 否
-%CS OZGAIA | 1 | 1% | 否
-ATOM.1 | 1 | 1% | 否
-Cutting. | 1 | 1% | 否
-照射 (Gò) | 1 | 1% | 否
-Cutting (Chặt) | 1 | 1% | 否
-同材共裁  | 1 | 1% | 否
-同材共裁_ | 1 | 1% | 否
-SUM.C2B chặt | 1 | 1% | 否
-Cutting KJ7542 | 1 | 1% | 否
-Cutting_KJ7541 | 1 | 1% | 否
-%CS CAMPUS 00s GOLF | 1 | 1% | 否
-折边  | 1 | 1% | 否
- Cutting (BC) | 1 | 1% | 否
-Assembly .2  | 1 | 1% | 否
-Assembly .2 | 1 | 1% | 否
-电脑针车  (2) | 1 | 1% | 否
-电脑针车  JQ9312 2 MÀU | 1 | 1% | 否
-SUM.C2B KH8402 | 1 | 1% | 否
-Stitching（支流) | 1 | 1% | 否
-Assembly.1  | 1 | 1% | 否
-Assembly.2  | 1 | 1% | 否
- Cutting  | 1 | 1% | 否
+sheet名稱 | 出現次數 | 佔總文件%
+------------------------------------------------------------
+SUM.C2B | 223 | 76%
+Assembly 2 | 220 | 75%
+ 打粗 | 165 | 56%
+电脑针车 | 159 | 54%
+自动化 | 144 | 49%
+Sub.Stitching(支流) | 142 | 48%
+Cutting | 141 | 48%
+Stitching（主流） | 139 | 47%
+水洗  | 132 | 45%
+  同材共裁 | 132 | 45%
+SUM_Stock | 130 | 44%
+Assembly 1 | 128 | 44%
+折边 | 110 | 37%
+Assembly 1  | 94 | 32%
+水洗 | 93 | 32%
+照射 | 90 | 31%
+  同材共裁  | 88 | 30%
+贴大底 | 88 | 30%
+电脑针车  | 80 | 27%
+ Cutting | 78 | 27%
+SUM_Stock  | 76 | 26%
+照射(成型UV) | 76 | 26%
+SUM | 74 | 25%
+Assembly.1 | 69 | 23%
+Assembly.2 | 68 | 23%
+Stitching | 63 | 21%
+EMMA | 63 | 21%
+SUM.C2B  | 61 | 21%
+ATOM | 58 | 20%
+Sub.Stitching(支流) (SOP) | 51 | 17%
+电脑针车   | 47 | 16%
+CS | 39 | 13%
+SUM  | 39 | 13%
+AC | 38 | 13%
+Cutting  | 38 | 13%
+Sub-Stiching | 37 | 13%
+ATOM  | 37 | 13%
+Stitching（主流 | 33 | 11%
+Cutting (CHAT) | 33 | 11%
+Cutting (AC) | 33 | 11%
+  同材共裁   | 32 | 11%
+打粗 | 32 | 11%
+Stitching (主流) | 30 | 10%
+自动化  | 29 | 10%
+Stitching (支流) | 28 | 10%
+%CS | 26 | 9%
+Stitching（支流） | 26 | 9%
+成型面照射 | 26 | 9%
+ 打粗  | 25 | 9%
+贴大底   | 23 | 8%
+Sheet1 | 22 | 7%
+组底面照射  | 20 | 7%
+SUM_Stock   | 20 | 7%
+ Cutting (TC) | 18 | 6%
+ATOM-自动化 | 17 | 6%
+Sub.Stitching  | 17 | 6%
+贴大底  | 16 | 5%
+Chi tiết | 16 | 5%
+照射_Gò | 14 | 5%
+%AC | 14 | 5%
+折边 (da thật) | 14 | 5%
+贴大底 2 | 14 | 5%
+自动裁 | 14 | 5%
+照射  | 13 | 4%
+SUM . | 12 | 4%
+折边 tính lại 28.11 | 12 | 4%
+Cutting (da thật) | 12 | 4%
+ATOM_LASER. | 11 | 4%
+Cutting (TC) | 11 | 4%
+Sub Stitching（支流) | 11 | 4%
+Assembly.1 (2) | 11 | 4%
+Stitching  | 11 | 4%
+AC_IH1650 | 11 | 4%
+贴大底 1 | 10 | 3%
+折边 tính lại 21.11 | 10 | 3%
+自动化 (màu tối) | 9 | 3%
+Stitching（主流) | 9 | 3%
+Assembly.3 | 9 | 3%
+Sub Stitching（支流 | 9 | 3%
+SUM.C2B_IH1651 | 9 | 3%
+Cutting_IH1651 | 9 | 3%
+Sub.Stiching | 8 | 3%
+贴鞋垫 | 6 | 2%
+ATOM_LASER | 6 | 2%
+Kaizen | 6 | 2%
+贴大底  (Tính lại) | 6 | 2%
+电脑针车 (2) | 6 | 2%
+Sub.Stitching(支流)1 | 5 | 2%
+Sub.Stitching(支流)2 | 5 | 2%
+Cutting (T8) | 5 | 2%
+Cutting Chặt | 5 | 2%
+Cutting (Chặt) | 5 | 2%
+Cutting TC | 5 | 2%
+Cutting_KJ4380 | 5 | 2%
+AC_KJ4380-81-82 | 5 | 2%
+自动裁_KJ4380 | 5 | 2%
+Sub_Stitching | 5 | 2%
+%CS OZGAIA | 4 | 1%
+贴胶中底中片 | 4 | 1%
+Stitching（支流） (2) | 4 | 1%
+So sánh | 4 | 1%
+SUM.C2B 67-68 | 4 | 1%
+Cutting (67-68) | 4 | 1%
+电脑针车 (2 màu chỉ) | 4 | 1%
+SUM.C2B (TC) | 4 | 1%
+Cutting 0746 | 4 | 1%
+ Cutting TC | 4 | 1%
+GCN | 4 | 1%
+ 打粗 (OK) | 4 | 1%
+鞋头 鞋羽 | 4 | 1%
+贴大底 1  | 4 | 1%
+Cutting 6045 | 3 | 1%
+自动化6045 | 3 | 1%
+电脑针车  (2) | 3 | 1%
+电脑针车  JQ9312 2 MÀU | 3 | 1%
+折边. | 3 | 1%
+电脑针车.   | 3 | 1%
+电脑针车  (so sánh) | 3 | 1%
+自动化(TC)  | 3 | 1%
+SUM.C2B (BC) | 3 | 1%
+SUM.C2B chặt | 3 | 1%
+ Cutting (KI4569) | 3 | 1%
+ Cutting (60) | 3 | 1%
+ Cutting (KI4570) | 3 | 1%
+ 电脑针车 | 3 | 1%
+ATOM - LASER | 3 | 1%
+Cutting (BC) | 3 | 1%
+Cutting_TC | 3 | 1%
+Cutting_EMMA | 3 | 1%
+自动裁_KH9684 | 3 | 1%
+自动裁_KH9682-83 | 3 | 1%
+自动化 (màu tối) (2) | 2 | 1%
+Cutting 6045,47,49 | 2 | 1%
+自动化6045,47,49 | 2 | 1%
+%CS CAMPUS 00s GOLF | 2 | 1%
+Cutting_KJ7543 | 2 | 1%
+Cutting_KJ7544 | 2 | 1%
+LASER | 2 | 1%
+Cutting (2) | 2 | 1%
+SUM.C2B 1944 | 2 | 1%
+Cutting IF1944 | 2 | 1%
+SUM.C2B BC  | 2 | 1%
+Cutting (BC05) | 2 | 1%
+SUM.C2B  (TC) | 2 | 1%
+Cutting  (TC) | 2 | 1%
+Cutting  (BC05) | 2 | 1%
+Assembly (防水) | 2 | 1%
+ Cutting_TC | 2 | 1%
+自动化_TC | 2 | 1%
+Stiching | 2 | 1%
+贴大底.1 | 2 | 1%
+贴大底.2 | 2 | 1%
+折边  | 2 | 1%
+电脑针车_IG9016 | 2 | 1%
+SUM.C2B EMMA | 2 | 1%
+Cutting EMMA | 2 | 1%
+同材共裁_EMMA | 2 | 1%
+同材共裁 Chặt | 2 | 1%
+Cutting TC  | 2 | 1%
+  同材共裁  (EMMA) | 2 | 1%
+  同材共裁  (EMMA) (2) | 2 | 1%
+Assembly.1  | 2 | 1%
+Assembly.2  | 2 | 1%
+  同材共裁 (EMMA) | 2 | 1%
+折边 (gấp biên máy ) | 2 | 1%
+Cutting KJ7542 | 2 | 1%
+Cutting_KJ7541 | 2 | 1%
+ Cutting BC | 2 | 1%
+ Cutting (BC) | 2 | 1%
+组底面照射   | 2 | 1%
+成型面照射  | 2 | 1%
+Sheet2 | 2 | 1%
+电脑针车(Before) | 2 | 1%
+Assembly 3 | 2 | 1%
+贴中底板 | 2 | 1%
+Assembly 2  | 2 | 1%
+TC | 2 | 1%
+SUM.C2B TC | 2 | 1%
+Cutting_KH9682-83 | 2 | 1%
+SUM.C2B (2 màu chỉ) | 2 | 1%
+AC. | 2 | 1%
+Atom&Laser | 2 | 1%
+ Cutting 4313 | 2 | 1%
+Assembly 1  (2) | 1 | 0%
+Assembly 2 (2) | 1 | 0%
+Cutting_KJ7511 | 1 | 0%
+Cutting (tc) | 1 | 0%
+SUM.C2B 1944 BC | 1 | 0%
+SUM.C2B 1944 BC chặt | 1 | 0%
+Cutting IF1944 BC | 1 | 0%
+Stitching（主流)  | 1 | 0%
+Cutting  (BC) | 1 | 0%
+自动化BC | 1 | 0%
+Sum | 1 | 0%
+ Cutting (Chặt) | 1 | 0%
+Sub-Stiching (支流) | 1 | 0%
+Sub-Stiching (支流)2 | 1 | 0%
+ Cutting.. | 1 | 0%
+ Cutting (BC05) | 1 | 0%
+Sub Stitching (支流)1 | 1 | 0%
+Sub Stitching (支流)2 | 1 | 0%
+Cutting IF1944 (BC) | 1 | 0%
+Cutting 6047,49 | 1 | 0%
+自动化6047,49 | 1 | 0%
+ Cutting (LC) | 1 | 0%
+Cutting (EMMA) | 1 | 0%
+Cutting_KJ7543 (2) | 1 | 0%
+折边 thử máy | 1 | 0%
+水洗   | 1 | 0%
+Sub.Stitching(支流)  | 1 | 0%
+SUM_Stock (2) | 1 | 0%
+ 打粗 (2) | 1 | 0%
+水洗 (2) | 1 | 0%
+组底面照射  (2) | 1 | 0%
+贴大底 (2) | 1 | 0%
+成型面照射 (2) | 1 | 0%
+Cutting BC | 1 | 0%
+Cutting  (2) | 1 | 0%
+(%AC) | 1 | 0%
+ %CS | 1 | 0%
+Sub-Stitching | 1 | 0%
+Assembly | 1 | 0%
+自动裁. | 1 | 0%
+Sheet1 (2) | 1 | 0%
+Cutting_KJ4387 | 1 | 0%
+自动裁 _KJ4387 | 1 | 0%
+SUM.C2B_KK4436-37 | 1 | 0%
+SUM.C2B_KK4435 | 1 | 0%
+Cutting_KK4435-36-37 | 1 | 0%
+SUM.C2B_KJ4381-82 | 1 | 0%
+Cutting_KJ4381-82 | 1 | 0%
+ATOM_KK4437 | 1 | 0%
+ 同材共裁 | 1 | 0%
+cutting BC | 1 | 0%
+ LASER (GV6890) | 1 | 0%
+Cutting  (GV6896) | 1 | 0%
+电脑针车 (After) | 1 | 0%
+Sub-Stiching  | 1 | 0%
+贴大底 (1) | 1 | 0%
+电脑针车 thay đổi 19032026 | 1 | 0%
+ATOM.1 | 1 | 0%
+Cutting. | 1 | 0%
+照射 (Gò) | 1 | 0%
+同材共裁  | 1 | 0%
+同材共裁_ | 1 | 0%
+Assembly .2  | 1 | 0%
+Assembly .2 | 1 | 0%
+SUM.C2B KH8402 | 1 | 0%
+Stitching（支流) | 1 | 0%
+ Cutting  | 1 | 0%

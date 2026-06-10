@@ -108,7 +108,19 @@ CREATE TABLE IF NOT EXISTS ds02_fob (
     updated_at      TEXT
 );
 
+-- DS-03: IE raw sheet data (full cell dump from source xlsx)
+CREATE TABLE IF NOT EXISTS ie_sheet_data (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    header_id   INTEGER NOT NULL REFERENCES ob_header(id) ON DELETE CASCADE,
+    sheet_name  TEXT NOT NULL,
+    row         INTEGER NOT NULL,
+    col         INTEGER NOT NULL,
+    value       TEXT,
+    formula     TEXT
+);
+
 -- Indexes
+CREATE INDEX IF NOT EXISTS idx_ie_sheet_data_hdr  ON ie_sheet_data(header_id, sheet_name);
 CREATE INDEX IF NOT EXISTS idx_ob_articles_art    ON ob_articles(art);
 CREATE INDEX IF NOT EXISTS idx_ob_articles_header ON ob_articles(header_id);
 CREATE INDEX IF NOT EXISTS idx_ob_epph_header     ON ob_epph(header_id);

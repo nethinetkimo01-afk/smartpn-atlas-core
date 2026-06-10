@@ -1,0 +1,130 @@
+[13:51:03] === Nightly Run 20260609_135103 force=True no_push=True ===
+[13:51:03] START [data_system]
+[13:51:03] [data_system] Task 0: Check handoff file versions
+[13:51:03] [ACTION REQUIRED] Project files updated - Jim must re-upload to DATA SYSTEM Project:
+[13:51:03]   - D:\smartpn-atlas-core\00_HANDOFF\24_DATA_SYSTEM.md
+[13:51:03]   - D:\smartpn-atlas-core\00_HANDOFF\07_RULES.md
+[13:51:03] [data_system] Task 1: Full IE scan (all folders, abbreviated ART)
+[13:51:04] [data_system] IE dup skip: 120双 SS24 -OZGAIA W_IG6045-47-49 人造皮+网布.xlsx
+[13:51:04] [data_system] IE dup skip: 120双_FW25_GHOST SPRINT W_HQ7638.xlsx
+[13:51:04] [data_system] IE dup skip: 120双_FW25_GHOST SPRINT W_KJ0644-45-46.xlsx
+[13:51:04] [data_system] IE dup skip: 120双_FW26_GHOST SPRINT W_HQ3330.xlsx
+[13:51:04] [data_system] IE dup skip: 120双_FW26_GHOST SPRINT W__KI4569-70.xlsx
+[13:51:04] [data_system] IE dup skip: 120双 SS24 -OZGAIA W_IG6045-47-49 人造皮+网布.xlsx
+[13:51:04] [data_system] IE dup skip: 120双 FW25_SL 72 RS - JI1282-JS0746.xlsx
+[13:51:04] [data_system] IE dup skip: 120双 FW26_SL 72 RS-KJ1674-73-72.xlsx
+[13:51:04] [data_system] IE dup skip: 120双_SS25 TOKYO W_KJ7541-42_ Da thật (真皮) - 3 dây TT + đai gót da lộn, xỏ dây nhiều màu.xlsx
+[13:51:04] [data_system] IE dup skip: 120双 FW25_SL 72 RS - JI1282-JS0746.xlsx
+[13:51:04] [data_system] IE dup skip: 120双 FW26_SL 72 RS-KH9651-52-53.xlsx
+[13:51:04] [data_system] IE dup skip: 120双 FW26_SL 72 RS-KH9658-57-56..xlsx
+[13:51:04] [data_system] IE dup skip: 120双 FW26_SL 72 RS-KJ1674-73-72.xlsx
+[13:51:04] [data_system] IE dup skip: 120双 SS25_SL 72 ADITEX-HP5123-24.xlsx
+[13:51:04] [data_system] IE dup skip: 120双 FW25_SL 72 RS - JI1282-JS0746.xlsx
+[13:51:04] [data_system] IE dup skip: 120双 FW26 GHOST SPRINT BALLET_KZ7290-91_DA LỘN.xlsx
+[13:51:04] [data_system] IE dup skip: 120双 FW26 ORGN ULTRA TECH KZ6381-82.xlsx
+[13:51:04] [data_system] IE dup skip: 120双 FW26_SL 72 RS J - KJ0690.xlsx
+[13:51:04] [data_system] IE dup skip: 120双 FW26_SL 72 RS-KH9658-57-56..xlsx
+[13:51:04] [data_system] IE dup skip: 120双 SS26_SL 72 RS-KJ1666-67.xlsx
+[13:51:04] [data_system] IE dup skip: 120双 W RETROCROSS 25_KJ5770_Da Thật. Nguyên liệu mới.xlsx
+[13:51:04] [data_system] IE dup skip: 120双_FW25_GHOST SPRINT W_HQ7638.xlsx
+[13:51:04] [data_system] IE dup skip: 120双_FW25_GHOST SPRINT W_HQ9304-05, KI4563-64, LA4019.xlsx
+[13:51:04] [data_system] IE dup skip: 120双_FW25_GHOST SPRINT W_KJ0644-45-46.xlsx
+[13:51:04] [data_system] IE dup skip: 120双_FW25_GHOST SPRINT W_LA7682-83.xlsx
+[13:51:04] [data_system] IE dup skip: 120双_FW25_GHOST SPRINT_JQ6439_Da thật.xlsx
+[13:51:04] [data_system] IE dup skip: 120双_FW26 GHOST SPRINT BALLET_HQ7636-37 da giả.xlsx
+[13:51:04] [data_system] IE dup skip: 120双_FW26 HANDBALL SPEZIAL_KI5241-42-KI5244-KI5245_Da thật.xlsx
+[13:51:04] [data_system] IE dup skip: 120双_FW26 HANDBALL SPEZIAL_KK3028-27-KK3021-KK3030-33-KK3018-19-KK3037-KK3015-KK3025-26-27-KK3017-KK3041-KK3035-KH6397-LA3255-KI5303.xlsx
+[13:51:04] [data_system] IE dup skip: 120双_FW26 TOKYO W_KJ7539_Da Lộn (反毛皮) 3 dây TT dập khuy.xlsx
+[13:51:04] [data_system] IE dup skip: 120双_FW26 TOKYO W_KK2621 toàn bộ vải jean  3 dây TT dập khuy ok.xlsx
+[13:51:04] [data_system] IE dup skip: 120双_FW26_GHOST SPRINT W_HQ3330.xlsx
+[13:51:04] [data_system] IE dup skip: 120双_FW26_GHOST SPRINT W_KI4567-68.xlsx
+[13:51:04] [data_system] IE dup skip: 120双_FW26_GHOST SPRINT W__KI4569-70.xlsx
+[13:51:04] [data_system] IE dup skip: 120双_FW26_GHOST SPRINT_KI4571-72_Da thật.xlsx
+[13:51:04] [data_system] IE dup skip: 120双_SS24 SAMBA _IH6000-01.xlsx
+[13:51:04] [data_system] IE dup skip: 120双_SS25 TOKYO W_JQ0597-98-93-94, JR2080-81-82, JQ2116-KH8934-35, IH6639 , IH6640 , IH6623, KJ0368, KK2765-66_ Da thật (真皮).xlsx
+[13:51:04] [data_system] IE dup skip: 120双_SS25 TOKYO W_KJ7541-42_ Da thật (真皮) - 3 dây TT + đai gót da lộn, xỏ dây nhiều màu.xlsx
+[13:51:04] [data_system] IE dup skip: 120双_SS25 TOKYO W_KJ7551-52_ Da thật (真皮).xlsx
+[13:51:04] [data_system] IE dup skip: 60双 FW26- S2G VENT_KI8401-KI8402-KI8403-KI1393-KI1392-KI8398.xlsx
+[13:51:04] [data_system] IE dup skip: 60双 FW26-JR CODECHAOS BOA_KI5746-KI5747..xlsx
+[13:51:04] [data_system] IE dup skip: 60双 SS24-S2G 24 -Da thật + Da giả ( ko có nắp mũi, đế có đinh)- IF0292_After 30.09.2023.xlsx
+[13:51:04] [data_system] IE dup skip: 60双 SS26 ADIPOWER 26 SL JP8395-97_牛面皮+人造皮 Kaizen lean 1.xlsx
+[13:51:04] [data_system] IE dup skip: 60双 SS26 TAEKWONDO MEI ELITE W_KK2523.xlsx
+[13:51:04] [data_system] IE dup skip: 60双 SS26 TAEKWONDO MEI ELITE W_KK2573,72.xlsx
+[13:51:04] [data_system] IE dup skip: 60双 SS26 TAEKWONDO MEI ELITE W_KK2575-76.xlsx
+[13:51:04] [data_system] IE dup skip: 60双 SS26 WADIPOWER 26 SL BOA JS4140, JP8386_人造皮.xlsx
+[13:51:04] [data_system] IE dup skip: 60双 SS26-S2G 26 BOA_JR1887- JQ3463-KK2868-KK2869-KK2866- KK2867.xlsx
+[13:51:04] [data_system] IE dup skip: 60双 _FW26_CODECHAOS 27_KI1388- KI5750-KI1389_Da giả 人造皮.xlsx
+[13:51:04] [data_system] IE dup skip: 60双_FW26_GHOST MOTO LOW W_KI4565-66.xlsx
+[13:51:04] [data_system] IE files found: 243 across 2 folder(s)
+[13:51:05] [data_system] IE import: 0 new  442 skipped  0 errors
+[13:51:05] [data_system] Task 2: Build comparison_table.xlsx
+[13:51:05] [data_system] xlsx error: no such column: h.art
+[13:51:05] [data_system] Task 3: MP allocation analysis
+[13:51:05] [data_system] mp_allocation_analysis.txt written
+[13:51:05] [data_system] Task 4: Auto-compare result_table non-MP fields
+[13:51:21] [data_system] compare_result: ✗ 差異 LEAN不符=134 ART缺=14 編制多=14 OCS=0
+[13:51:21] [data_system] Task 6: Scan IE folders for unimported files (top-up pass)
+[13:51:21] [data_system] IE dup skip: 120双 SS24 -OZGAIA W_IG6045-47-49 人造皮+网布.xlsx
+[13:51:21] [data_system] IE dup skip: 120双_FW25_GHOST SPRINT W_HQ7638.xlsx
+[13:51:21] [data_system] IE dup skip: 120双_FW25_GHOST SPRINT W_KJ0644-45-46.xlsx
+[13:51:21] [data_system] IE dup skip: 120双_FW26_GHOST SPRINT W_HQ3330.xlsx
+[13:51:21] [data_system] IE dup skip: 120双_FW26_GHOST SPRINT W__KI4569-70.xlsx
+[13:51:21] [data_system] IE dup skip: 120双 SS24 -OZGAIA W_IG6045-47-49 人造皮+网布.xlsx
+[13:51:21] [data_system] IE dup skip: 120双 FW25_SL 72 RS - JI1282-JS0746.xlsx
+[13:51:21] [data_system] IE dup skip: 120双 FW26_SL 72 RS-KJ1674-73-72.xlsx
+[13:51:21] [data_system] IE dup skip: 120双_SS25 TOKYO W_KJ7541-42_ Da thật (真皮) - 3 dây TT + đai gót da lộn, xỏ dây nhiều màu.xlsx
+[13:51:21] [data_system] IE dup skip: 120双 FW25_SL 72 RS - JI1282-JS0746.xlsx
+[13:51:21] [data_system] IE dup skip: 120双 FW26_SL 72 RS-KH9651-52-53.xlsx
+[13:51:21] [data_system] IE dup skip: 120双 FW26_SL 72 RS-KH9658-57-56..xlsx
+[13:51:21] [data_system] IE dup skip: 120双 FW26_SL 72 RS-KJ1674-73-72.xlsx
+[13:51:21] [data_system] IE dup skip: 120双 SS25_SL 72 ADITEX-HP5123-24.xlsx
+[13:51:21] [data_system] IE dup skip: 120双 FW25_SL 72 RS - JI1282-JS0746.xlsx
+[13:51:21] [data_system] IE dup skip: 120双 FW26 GHOST SPRINT BALLET_KZ7290-91_DA LỘN.xlsx
+[13:51:21] [data_system] IE dup skip: 120双 FW26 ORGN ULTRA TECH KZ6381-82.xlsx
+[13:51:21] [data_system] IE dup skip: 120双 FW26_SL 72 RS J - KJ0690.xlsx
+[13:51:21] [data_system] IE dup skip: 120双 FW26_SL 72 RS-KH9658-57-56..xlsx
+[13:51:21] [data_system] IE dup skip: 120双 SS26_SL 72 RS-KJ1666-67.xlsx
+[13:51:21] [data_system] IE dup skip: 120双 W RETROCROSS 25_KJ5770_Da Thật. Nguyên liệu mới.xlsx
+[13:51:21] [data_system] IE dup skip: 120双_FW25_GHOST SPRINT W_HQ7638.xlsx
+[13:51:21] [data_system] IE dup skip: 120双_FW25_GHOST SPRINT W_HQ9304-05, KI4563-64, LA4019.xlsx
+[13:51:21] [data_system] IE dup skip: 120双_FW25_GHOST SPRINT W_KJ0644-45-46.xlsx
+[13:51:21] [data_system] IE dup skip: 120双_FW25_GHOST SPRINT W_LA7682-83.xlsx
+[13:51:21] [data_system] IE dup skip: 120双_FW25_GHOST SPRINT_JQ6439_Da thật.xlsx
+[13:51:21] [data_system] IE dup skip: 120双_FW26 GHOST SPRINT BALLET_HQ7636-37 da giả.xlsx
+[13:51:21] [data_system] IE dup skip: 120双_FW26 HANDBALL SPEZIAL_KI5241-42-KI5244-KI5245_Da thật.xlsx
+[13:51:21] [data_system] IE dup skip: 120双_FW26 HANDBALL SPEZIAL_KK3028-27-KK3021-KK3030-33-KK3018-19-KK3037-KK3015-KK3025-26-27-KK3017-KK3041-KK3035-KH6397-LA3255-KI5303.xlsx
+[13:51:21] [data_system] IE dup skip: 120双_FW26 TOKYO W_KJ7539_Da Lộn (反毛皮) 3 dây TT dập khuy.xlsx
+[13:51:21] [data_system] IE dup skip: 120双_FW26 TOKYO W_KK2621 toàn bộ vải jean  3 dây TT dập khuy ok.xlsx
+[13:51:21] [data_system] IE dup skip: 120双_FW26_GHOST SPRINT W_HQ3330.xlsx
+[13:51:21] [data_system] IE dup skip: 120双_FW26_GHOST SPRINT W_KI4567-68.xlsx
+[13:51:21] [data_system] IE dup skip: 120双_FW26_GHOST SPRINT W__KI4569-70.xlsx
+[13:51:21] [data_system] IE dup skip: 120双_FW26_GHOST SPRINT_KI4571-72_Da thật.xlsx
+[13:51:21] [data_system] IE dup skip: 120双_SS24 SAMBA _IH6000-01.xlsx
+[13:51:21] [data_system] IE dup skip: 120双_SS25 TOKYO W_JQ0597-98-93-94, JR2080-81-82, JQ2116-KH8934-35, IH6639 , IH6640 , IH6623, KJ0368, KK2765-66_ Da thật (真皮).xlsx
+[13:51:21] [data_system] IE dup skip: 120双_SS25 TOKYO W_KJ7541-42_ Da thật (真皮) - 3 dây TT + đai gót da lộn, xỏ dây nhiều màu.xlsx
+[13:51:21] [data_system] IE dup skip: 120双_SS25 TOKYO W_KJ7551-52_ Da thật (真皮).xlsx
+[13:51:21] [data_system] IE dup skip: 60双 FW26- S2G VENT_KI8401-KI8402-KI8403-KI1393-KI1392-KI8398.xlsx
+[13:51:21] [data_system] IE dup skip: 60双 FW26-JR CODECHAOS BOA_KI5746-KI5747..xlsx
+[13:51:21] [data_system] IE dup skip: 60双 SS24-S2G 24 -Da thật + Da giả ( ko có nắp mũi, đế có đinh)- IF0292_After 30.09.2023.xlsx
+[13:51:21] [data_system] IE dup skip: 60双 SS26 ADIPOWER 26 SL JP8395-97_牛面皮+人造皮 Kaizen lean 1.xlsx
+[13:51:21] [data_system] IE dup skip: 60双 SS26 TAEKWONDO MEI ELITE W_KK2523.xlsx
+[13:51:21] [data_system] IE dup skip: 60双 SS26 TAEKWONDO MEI ELITE W_KK2573,72.xlsx
+[13:51:21] [data_system] IE dup skip: 60双 SS26 TAEKWONDO MEI ELITE W_KK2575-76.xlsx
+[13:51:21] [data_system] IE dup skip: 60双 SS26 WADIPOWER 26 SL BOA JS4140, JP8386_人造皮.xlsx
+[13:51:21] [data_system] IE dup skip: 60双 SS26-S2G 26 BOA_JR1887- JQ3463-KK2868-KK2869-KK2866- KK2867.xlsx
+[13:51:21] [data_system] IE dup skip: 60双 _FW26_CODECHAOS 27_KI1388- KI5750-KI1389_Da giả 人造皮.xlsx
+[13:51:21] [data_system] IE dup skip: 60双_FW26_GHOST MOTO LOW W_KI4565-66.xlsx
+[13:51:21] [data_system] IE files found: 243 across 2 folder(s)
+[13:51:22] [data_system] Task 6: 0 new  442 skipped  0 errors
+[13:51:22] [data_system] Task 7: Rebuild auto_bianche + bianche_diff + update 24_DATA_SYSTEM.md
+[13:52:21] [data_system] auto_bianche.xlsx rebuilt (CSA + 製令明細)
+[13:52:40] [data_system] bianche_diff done: 人為差異=32 筆
+[13:52:40] [data_system] Task 8: IE sheet name inventory
+[13:59:36] [data_system] Task 8: 294 files, 250 unique sheet names → D:\smartpn-atlas-core\flask_backend\test_output\ie_sheets_inventory.txt
+[13:59:36] [data_system] 24_DATA_SYSTEM.md ## 最新執行結果 已更新
+[13:59:36] DONE  [data_system]
+[13:59:36] 
+[13:59:36] === Summary ===
+[13:59:36]   OK   data_system
+[13:59:36] Total: 1 OK, 0 failed
+[13:59:36] === Done. Log: D:\smartpn-atlas-core\nightly\logs\20260609_135103.txt ===

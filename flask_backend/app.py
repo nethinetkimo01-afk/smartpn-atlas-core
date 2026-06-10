@@ -124,6 +124,17 @@ def ie_list():
 def ie_detail_api(header_id):
     return jsonify(db.get_ie_model_detail(header_id))
 
+@app.route('/api/ie/<int:header_id>/sheets', methods=['GET'])
+def ie_sheet_names(header_id):
+    return jsonify(db.get_ie_sheet_names(header_id))
+
+@app.route('/api/ie/<int:header_id>/sheet', methods=['GET'])
+def ie_sheet_grid(header_id):
+    sheet_name = request.args.get('name', '')
+    if not sheet_name:
+        return jsonify({'ok': False, 'error': 'name param required'}), 400
+    return jsonify(db.get_ie_sheet_grid(header_id, sheet_name))
+
 @app.route('/api/ie/remove_art', methods=['POST'])
 def ie_remove_art():
     data = request.get_json(force=True)

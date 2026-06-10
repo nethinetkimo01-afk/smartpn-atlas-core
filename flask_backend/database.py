@@ -259,6 +259,60 @@ def list_ie_records():
         conn.close()
 
 
+def get_ie_sheet_names(header_id):
+    """Return ordered list of sheet names stored for this header."""
+    conn = get_conn()
+    try:
+        rows = conn.execute(
+            'SELECT DISTINCT sheet_name FROM ie_sheet_data WHERE header_id=? ORDER BY MIN(id)',
+            (header_id,)
+        ).fetchall()
+        return {'ok': True, 'sheets': [r['sheet_name'] for r in rows]}
+    finally:
+        conn.close()
+
+
+def get_ie_sheet_grid(header_id, sheet_name):
+    """Return all cells for one sheet as a 2-D dict {row: {col: {value, formula}}}."""
+    conn = get_conn()
+    try:
+        rows = conn.execute(
+            'SELECT row, col, value, formula FROM ie_sheet_data WHERE header_id=? AND sheet_name=? ORDER BY row, col',
+            (header_id, sheet_name)
+        ).fetchall()
+        grid = {}
+        for r in rows:
+            rk = r['row']
+            if rk not in grid:
+                grid[rk] = {}
+            grid[rk][r['col']] = {'v': r['value'], 'f': r['formula']}
+        max_row = max(grid.keys()) if grid else 0
+        max_col = max((max(cols.keys()) for cols in grid.values()), default=0)
+        return {'ok': True, 'sheet_name': sheet_name, 'max_row': max_row, 'max_col': max_col, 'grid': grid}
+    finally:
+        conn.close()
+
+
+def save_ie_sheet_data(header_id, sheet_rows):
+    """Replace all ie_sheet_data for header_id with new rows.
+    sheet_rows: list of (sheet_name, row, col, value, formula)
+    """
+    conn = get_conn()
+    try:
+        conn.execute('DELETE FROM ie_sheet_data WHERE header_id=?', (header_id,))
+        conn.executemany(
+            'INSERT INTO ie_sheet_data (header_id, sheet_name, row, col, value, formula) VALUES (?,?,?,?,?,?)',
+            [(header_id,) + tuple(r) for r in sheet_rows]
+        )
+        conn.commit()
+        return {'ok': True, 'rows_written': len(sheet_rows)}
+    except Exception as e:
+        conn.rollback()
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
 def update_ie_mp(header_id, cutting, stitching, assembly, stock):
     """Update ob_epph values for a header (creates row if missing)."""
     conn = get_conn()
