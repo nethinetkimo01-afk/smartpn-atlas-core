@@ -86,7 +86,9 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background
   <div class="header-right">
     <button class="btn-export" id="btn-export" onclick="exportExcel()" style="display:none">⬇ Excel</button>
     <a href="/ie" class="btn-link">← IE 列表</a>
-    <span class="version">v1.1</span>
+    <div id="status-dot" title="伺服器狀態" style="width:8px;height:8px;border-radius:50%;background:#aaa;display:inline-block;flex-shrink:0;cursor:default"></div>
+    <button id="btn-reconnect" onclick="reconnect()" style="display:none;background:#ef4444;color:#fff;border:none;border-radius:4px;padding:3px 9px;font-size:11px;cursor:pointer;font-weight:500">重新連線</button>
+    <span class="version">v1.2</span>
   </div>
 </div>
 
@@ -406,7 +408,46 @@ function renderMPSummary(data){
 // ── Export ────────────────────────────────────────
 function exportExcel(){ if(headerId) window.location.href='/api/ie/export/'+headerId; }
 
+// ── Health check / status dot ─────────────────────
+let _healthTimer = null;
+
+async function _doFetch(){
+  const ctrl = new AbortController();
+  const tid = setTimeout(()=>ctrl.abort(), 5000);
+  try{
+    const r = await fetch('/api/health', {signal: ctrl.signal});
+    clearTimeout(tid);
+    const d = await r.json();
+    return !!d.ok;
+  }catch(e){ clearTimeout(tid); return false; }
+}
+
+async function checkHealth(){
+  let ok = await _doFetch();
+  if(!ok){
+    await new Promise(r=>setTimeout(r, 2000));
+    ok = await _doFetch();
+  }
+  const dot = document.getElementById('status-dot');
+  const btn = document.getElementById('btn-reconnect');
+  dot.style.background = ok ? '#22c55e' : '#ef4444';
+  dot.title = ok ? '伺服器正常' : '伺服器離線';
+  if(btn) btn.style.display = ok ? 'none' : 'inline-block';
+  if(_healthTimer) clearTimeout(_healthTimer);
+  _healthTimer = setTimeout(checkHealth, 30000);
+}
+
+async function reconnect(){
+  const dot = document.getElementById('status-dot');
+  const btn = document.getElementById('btn-reconnect');
+  dot.style.background = '#f59e0b';
+  dot.title = '連線中...';
+  if(btn) btn.style.display = 'none';
+  await checkHealth();
+}
+
 loadDetail();
+checkHealth();
 </script>
 </body>
 </html>
