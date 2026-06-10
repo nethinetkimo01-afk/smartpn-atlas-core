@@ -386,47 +386,36 @@ def remove_art_from_header(art, header_id):
 
 
 def get_ie_model_detail(header_id):
-    """Return all headers sharing the same model_name as header_id, with arts, epph, and ob_rows."""
+    """Return single header with arts, epph, and ie_sheet_data sheet name list."""
     conn = get_conn()
     try:
-        base = conn.execute('SELECT model_name FROM ob_header WHERE id=?', (header_id,)).fetchone()
-        if not base:
+        h = conn.execute('SELECT * FROM ob_header WHERE id=?', (header_id,)).fetchone()
+        if not h:
             return {'ok': False, 'error': 'Header not found'}
-        model_name = base['model_name']
-        headers = conn.execute(
-            'SELECT * FROM ob_header WHERE model_name=? ORDER BY eolr, id', (model_name,)
+        arts = [r['art'] for r in conn.execute(
+            'SELECT art FROM ob_articles WHERE header_id=? ORDER BY id', (header_id,)
+        ).fetchall()]
+        ep = conn.execute('SELECT * FROM ob_epph WHERE header_id=?', (header_id,)).fetchone()
+        sheet_rows = conn.execute(
+            'SELECT sheet_name FROM ie_sheet_data WHERE header_id=? GROUP BY sheet_name ORDER BY MIN(id)',
+            (header_id,)
         ).fetchall()
-        result = []
-        for h in headers:
-            hid = h['id']
-            arts = [r['art'] for r in conn.execute(
-                'SELECT art FROM ob_articles WHERE header_id=? ORDER BY id', (hid,)
-            ).fetchall()]
-            ep = conn.execute('SELECT * FROM ob_epph WHERE header_id=?', (hid,)).fetchone()
-            sheets = {}
-            for r in conn.execute(
-                'SELECT * FROM ob_rows WHERE header_id=? ORDER BY sheet_key, row_order', (hid,)
-            ).fetchall():
-                k = r['sheet_key']
-                if k not in sheets:
-                    sheets[k] = []
-                sheets[k].append({
-                    'partViet': r['part_viet'], 'partZh': r['part_zh'], 'matCat': r['mat_cat'],
-                    'layers': r['layers'], 'qtyPr': r['qty_pr'], 'knives': r['knives'],
-                    'ct': r['ct'], 'allowance': r['allowance'], 'st': r['st'], 'ops': r['ops'],
-                    'marking': r['marking'], 'skiving': r['skiving'], 'attaching': r['attaching'],
-                    'edgePaint': r['edge_paint'], 'heatPress': r['heat_press'],
-                })
-            result.append({
-                'id':     hid,
-                'eolr':   h['eolr'],
-                'run':    h['run'],
-                'season': h['season'] or '',
-                'arts':   arts,
-                'epph':   dict(ep) if ep else {},
-                'sheets': sheets,
-            })
-        return {'ok': True, 'model_name': model_name, 'headers': result}
+        sheets = [r['sheet_name'] for r in sheet_rows]
+        return {
+            'ok': True,
+            'header': {
+                'id':         h['id'],
+                'model_name': h['model_name'] or '',
+                'season':     h['season'] or '',
+                'eolr':       h['eolr'],
+                'run':        h['run'],
+                'material':   h['material'] or '',
+                'category':   h['category'] or '',
+                'arts':       arts,
+                'epph':       dict(ep) if ep else {},
+                'sheets':     sheets,
+            }
+        }
     finally:
         conn.close()
 

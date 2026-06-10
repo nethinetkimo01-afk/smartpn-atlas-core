@@ -296,12 +296,8 @@ async function loadDetail(){
     return;
   }
   try{
-    const [detailRes, sheetsRes] = await Promise.all([
-      fetch('/api/ie/detail/'+headerId),
-      fetch('/api/ie/'+headerId+'/sheets'),
-    ]);
-    const detail = await detailRes.json();
-    const sheetsData = await sheetsRes.json();
+    const res = await fetch('/api/ie/detail/'+headerId);
+    const detail = await res.json();
 
     if(!detail.ok){
       document.getElementById('loading').innerHTML=`<div class="error-box">錯誤：${esc(detail.error)}</div>`;
@@ -309,19 +305,19 @@ async function loadDetail(){
     }
     modelData = detail;
 
-    const shortName = (detail.model_name||'—').replace(/\s+Target Output.*$/i,'').trim();
+    const h = detail.header;
+    const shortName = (h.model_name||'—').replace(/\s+Target Output.*$/i,'').trim();
     document.getElementById('page-title').textContent = shortName+' · IE 明細';
     document.title = shortName+' · IE 明細';
-    document.getElementById('info-model').textContent = detail.model_name||'—';
-    document.getElementById('info-eolr').innerHTML = detail.headers.map(h=>eolrBadge(h.eolr)).join(' ');
+    document.getElementById('info-model').textContent = h.model_name||'—';
+    document.getElementById('info-eolr').innerHTML = eolrBadge(h.eolr);
     renderArts(detail);
     renderMPSummary(detail);
 
-    const sheets = (sheetsData.ok && sheetsData.sheets) ? sheetsData.sheets : [];
+    const sheets = h.sheets || [];
     buildTabBar(sheets);
 
     if(!sheets.length){
-      // No sheet data — show MP tab as default
       document.getElementById('grid-panel').style.display='none';
       document.getElementById('mp-grid').closest('.mp-summary').style.display='block';
     }
@@ -341,7 +337,7 @@ async function loadDetail(){
 
 // ── ART management ────────────────────────────────
 function renderArts(data){
-  const allArts = [...new Set(data.headers.flatMap(h=>h.arts||[]))];
+  const allArts = data.header.arts || [];
   const chips = allArts.map(a=>`
     <span class="art-chip">${esc(a)}<button class="art-remove" title="移除 ${esc(a)}" onclick="removeArt('${esc(a)}')">×</button></span>`).join('');
   document.getElementById('info-arts').innerHTML = chips||'<span style="color:#aaa;font-size:11px">—</span>';
@@ -351,37 +347,32 @@ async function addArt(){
   const art = document.getElementById('art-add-inp').value.trim().toUpperCase();
   const msg = document.getElementById('art-msg');
   if(!art) return;
-  const allIds = modelData.headers.map(h=>h.id);
+  const hid = modelData.header.id;
   try{
-    const results = await Promise.all(allIds.map(hid=>
-      fetch('/api/ds03/add_art',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({art,header_id:hid})}).then(r=>r.json())
-    ));
-    const failed = results.find(r=>!r.ok&&!String(r.error||'').toLowerCase().includes('already'));
-    if(!failed){
+    const r = await fetch('/api/ds03/add_art',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({art, header_id:hid})}).then(x=>x.json());
+    if(r.ok || String(r.error||'').toLowerCase().includes('already')){
       document.getElementById('art-add-inp').value='';
-      allIds.forEach(hid=>{ const h=modelData.headers.find(x=>x.id===hid); if(h&&!h.arts.includes(art)) h.arts.push(art); });
+      if(!modelData.header.arts.includes(art)) modelData.header.arts.push(art);
       renderArts(modelData);
       msg.className='art-msg art-ok'; msg.textContent='已新增'; setTimeout(()=>msg.textContent='',1500);
     }else{
-      msg.className='art-msg art-err'; msg.textContent=failed.error;
+      msg.className='art-msg art-err'; msg.textContent=r.error;
     }
   }catch(e){ msg.className='art-msg art-err'; msg.textContent='伺服器離線'; }
 }
 
 async function removeArt(art){
   if(!confirm(`確定移除 ART「${art}」？`)) return;
-  const allIds = modelData.headers.map(h=>h.id);
+  const hid = modelData.header.id;
   try{
-    const results = await Promise.all(allIds.map(hid=>
-      fetch('/api/ie/remove_art',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({art,header_id:hid})}).then(r=>r.json())
-    ));
-    if(results.some(r=>r.deleted_header)){
+    const r = await fetch('/api/ie/remove_art',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({art, header_id:hid})}).then(x=>x.json());
+    if(r.deleted_header){
       alert('已移除最後一個 ART，鞋型記錄已刪除，返回列表');
       window.location.href='/ie'; return;
     }
-    allIds.forEach(hid=>{ const h=modelData.headers.find(x=>x.id===hid); if(h) h.arts=h.arts.filter(a=>a!==art); });
+    modelData.header.arts = modelData.header.arts.filter(a=>a!==art);
     renderArts(modelData);
   }catch(e){ alert('伺服器離線'); }
 }
@@ -389,20 +380,19 @@ async function removeArt(art){
 // ── MP Summary ────────────────────────────────────
 function renderMPSummary(data){
   const grid = document.getElementById('mp-grid');
-  if(!data.headers.length){ grid.innerHTML='<span style="color:#aaa;font-size:12px">無資料</span>'; return; }
-  grid.innerHTML = data.headers.map(h=>{
-    const e=h.epph||{};
-    return `<div class="mp-eolr-block">
-      <div class="mp-eolr-header">${eolrBadge(h.eolr)}</div>
-      <div class="mp-row">
-        <div class="mp-item"><div class="mp-item-label">裁斷MP</div>${fmtMP(e.cutting)}</div>
-        <div class="mp-item"><div class="mp-item-label">針車MP</div>${fmtMP(e.stitching)}</div>
-        <div class="mp-item"><div class="mp-item-label">成型MP</div>${fmtMP(e.assembly)}</div>
-        <div class="mp-item"><div class="mp-item-label">庫存MP</div>${fmtMP(e.stock)}</div>
-      </div>
-      <div class="mp-source">來源：${esc(e.source||'N/A')}</div>
-    </div>`;
-  }).join('');
+  const h = data.header;
+  if(!h){ grid.innerHTML='<span style="color:#aaa;font-size:12px">無資料</span>'; return; }
+  const e = h.epph||{};
+  grid.innerHTML = `<div class="mp-eolr-block">
+    <div class="mp-eolr-header">${eolrBadge(h.eolr)}</div>
+    <div class="mp-row">
+      <div class="mp-item"><div class="mp-item-label">裁斷MP</div>${fmtMP(e.cutting)}</div>
+      <div class="mp-item"><div class="mp-item-label">針車MP</div>${fmtMP(e.stitching)}</div>
+      <div class="mp-item"><div class="mp-item-label">成型MP</div>${fmtMP(e.assembly)}</div>
+      <div class="mp-item"><div class="mp-item-label">庫存MP</div>${fmtMP(e.stock)}</div>
+    </div>
+    <div class="mp-source">來源：${esc(e.source||'N/A')}</div>
+  </div>`;
 }
 
 // ── Export ────────────────────────────────────────
