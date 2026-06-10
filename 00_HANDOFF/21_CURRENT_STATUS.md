@@ -136,6 +136,24 @@ File: 00_HANDOFF/24_DATA_SYSTEM.md (v1.5)
 ---
 
 ## SmartPN Atlas Project
+
+Last updated: 2026-06-10
+
+### 完成（2026-06-10）
+- [x] S01–S17 PPT HTML：DONE（docs/preview/S01_PPT.html ~ S17_PPT.html，共 17 個靜態投影片）
+- [x] SMARTPN_DEMO.html：移除 Demo mode badge + sb-scenario CSS，scenario 內容清除
+- [x] Outreach work package: DONE（29_OUTREACH_WORK_PACKAGE.md）
+- [x] 00_ENTRY_POINT.md Layer 3：加入 29 號文件索引
+
+### 待確認（需 Jim 決定）
+- [ ] Kate Nishimura email: READY TO SEND — 等 Jim 核准後送出
+- [ ] GTS transparent note: DRAFT — 待確認 contact name
+- [ ] GATE naming: 4 candidates pending Jim decision
+- [ ] S02 LinkedIn post: DRAFT — 待 Jim review + 核准
+- [ ] 29_OUTREACH_WORK_PACKAGE.md: placeholder — 待 Jim 從 claude.ai 對話 2026-06-10 貼入完整內容
+
+---
+
 ## Partner Outreach Strategy
 File: 00_HANDOFF/25_PARTNER_OUTREACH_STRATEGY.md (v1.0)
 Status: Confirmed 2026-06-06

@@ -37,6 +37,7 @@ This is the ONLY source of truth. All sessions read from here. All sessions writ
 26_S01_DEMO_LOGIC.md — S01 demo logic, PPT animation, table structure
 27_SMARTPN_LAYER_DEFINITION.md — SmartPN layer definition, MSDG positioning, industry stack (placeholder — Jim 尚未提供)
 28_DEMO_MENU_STRUCTURE.md — Phase 1 Demo SaaS sidebar (18 items) + Formal Demo B sidebar (7 items), source file paths, version comparison
+29_OUTREACH_WORK_PACKAGE.md — intelligence reports, Kate final, GTS note, GATE analysis, S02 LinkedIn draft
 ### Layer 4 — Demo Screens (Read When Working on Demo)
 docs/preview/S01_DEMO.html through S17_DEMO.html — interactive demo screens for all 17 scenarios
 ### Layer 5 — New Projects (Add as Needed)
