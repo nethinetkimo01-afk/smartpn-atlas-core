@@ -95,6 +95,63 @@ D:\SmartPN_Atlas_Workspace\
 
 ---
 
+## Navigation Flow (CONFIRMED by Jim 2026-06-10)
+
+```
+Material card (with image)
+  → Material Detail (SPU + SKU page)
+      → click Supplier name → Company Profile page
+      → click "Find Same Material"
+          → carries current SPU + SKU conditions into search
+          → Identical:   same SPU + same SKU  (S10 logic)
+          → Alternative: same SPU + different SKU
+          → customer can modify conditions and re-search
+```
+
+Key concepts:
+- Each material card displays a product image placeholder (Apple-style: centered image, #F5F5F7 rounded background)
+- Detail page is split into SPU block (material identity) + SKU block (variant selector, Apple picker style)
+- Supplier name on detail page is a clickable link → Company Profile
+- Find Same Material button passes spuCode + skuKey as filter conditions into search
+- Search results under FSM mode show two labeled sections: Identical / Alternative
+- Filter conditions are editable (user can clear or modify before re-searching)
+
+---
+
+## Permission Design (CONFIRMED by Jim 2026-06-10)
+
+### 1. Product permission: SPU-level authorization
+
+- Permission is set at SPU level (authorization atom, per `02_GOVERNANCE.json`)
+- SKU inherits permission from its parent SPU
+- Permission levels: OPEN / SHARED / PRIVATE
+
+### 2. Custom Field Groups (NEW — GRANT layer in action)
+
+Supplier can create named field groups, then grant groups to specific accounts:
+
+| Step | Action |
+|------|--------|
+| 1 | Supplier creates a named group, e.g. `關務欄位` (Customs fields) |
+| 2 | Supplier checks (✓) which fields belong to this group (e.g. composition, HS code, country of origin) |
+| 3 | Supplier grants the group by name to a specific account |
+| Result | That account can view exactly those fields — nothing else |
+
+Example:
+- Group `Customs` → fields: composition, HS code, origin → shared with Account X
+- Group `Finance` → fields: price, MOQ, lead time → shared with Account Y
+- Group `Technical` → fields: tensile strength, density, standard → shared with Account Z
+
+### 3. GRANT layer connection
+
+> This is the GRANT layer in action: the data owner defines what to group, and grants groups to the right people.
+
+- Data owner = Supplier (not platform, not brand)
+- Authorization atom = Field Group, within SPU permission boundary
+- Access is not taken. It is granted.
+
+---
+
 ## Next Steps
 
 - [ ] Confirm which version is the current official demo for GTS presentation
