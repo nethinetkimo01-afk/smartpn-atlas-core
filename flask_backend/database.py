@@ -272,12 +272,87 @@ def get_ie_sheet_names(header_id):
         conn.close()
 
 
+def get_ie_matrix():
+    """Return ART×Sheet matrix data for /ie/matrix page."""
+    conn = get_conn()
+    try:
+        # Sheet types ordered
+        type_rows = conn.execute(
+            'SELECT type_key, display_name, sort_order FROM sheet_types ORDER BY sort_order'
+        ).fetchall()
+        if not type_rows:
+            return {'ok': True, 'types': [], 'rows': [], 'stats': {}}
+
+        # Headers with data + their arts
+        h_rows = conn.execute(
+            '''SELECT DISTINCT a.header_id, a.art, h.model_name, h.eolr
+               FROM ie_sheet_data sd
+               JOIN ob_articles a ON a.header_id=sd.header_id
+               JOIN ob_header h ON h.id=a.header_id
+               ORDER BY a.art'''
+        ).fetchall()
+
+        # art_sheet_status
+        status_rows = conn.execute(
+            'SELECT header_id, art, sheet_type, status FROM art_sheet_status'
+        ).fetchall()
+        status_map = {}
+        for sr in status_rows:
+            status_map[(sr['header_id'], sr['art'], sr['sheet_type'])] = sr['status']
+
+        # manual cell counts
+        manual_map = {}
+        mc_rows = conn.execute(
+            '''SELECT sd.header_id, snm.type_key, COUNT(*) as cnt
+               FROM ie_sheet_data sd
+               JOIN sheet_name_map snm ON snm.raw_name=sd.sheet_name
+               WHERE snm.type_key IS NOT NULL AND sd.cell_type='manual'
+               GROUP BY sd.header_id, snm.type_key'''
+        ).fetchall()
+        for mr in mc_rows:
+            manual_map[(mr['header_id'], mr['type_key'])] = mr['cnt']
+
+        types = [{'key': t['type_key'], 'display': t['display_name']} for t in type_rows]
+
+        matrix_rows = []
+        for hr in h_rows:
+            hid = hr['header_id']
+            art = hr['art']
+            cells = []
+            for t in type_rows:
+                tk = t['type_key']
+                st = status_map.get((hid, art, tk))
+                mc = manual_map.get((hid, tk), 0)
+                cells.append({'status': st or 'na', 'manual_cnt': mc})
+            matrix_rows.append({
+                'header_id': hid,
+                'art': art,
+                'model': (hr['model_name'] or '')[:40],
+                'eolr': hr['eolr'],
+                'cells': cells,
+            })
+
+        # Stats
+        total = len(matrix_rows)
+        missing = sum(1 for r in matrix_rows for c in r['cells'] if c['status'] == 'missing')
+        has_data = sum(1 for r in matrix_rows for c in r['cells'] if c['status'] == 'has_data')
+
+        return {
+            'ok': True,
+            'types': types,
+            'rows': matrix_rows,
+            'stats': {'total_arts': total, 'missing': missing, 'has_data': has_data},
+        }
+    finally:
+        conn.close()
+
+
 def get_ie_sheet_grid(header_id, sheet_name):
-    """Return all cells for one sheet as a 2-D dict {row: {col: {value, formula}}}."""
+    """Return all cells for one sheet as a 2-D dict {row: {col: {value, formula, cell_type}}}."""
     conn = get_conn()
     try:
         rows = conn.execute(
-            'SELECT row, col, value, formula FROM ie_sheet_data WHERE header_id=? AND sheet_name=? ORDER BY row, col',
+            'SELECT row, col, value, formula, cell_type FROM ie_sheet_data WHERE header_id=? AND sheet_name=? ORDER BY row, col',
             (header_id, sheet_name)
         ).fetchall()
         grid = {}
@@ -285,7 +360,7 @@ def get_ie_sheet_grid(header_id, sheet_name):
             rk = r['row']
             if rk not in grid:
                 grid[rk] = {}
-            grid[rk][r['col']] = {'v': r['value'], 'f': r['formula']}
+            grid[rk][r['col']] = {'v': r['value'], 'f': r['formula'], 't': r['cell_type']}
         max_row = max(grid.keys()) if grid else 0
         max_col = max((max(cols.keys()) for cols in grid.values()), default=0)
         return {'ok': True, 'sheet_name': sheet_name, 'max_row': max_row, 'max_col': max_col, 'grid': grid}

@@ -116,11 +116,43 @@ CREATE TABLE IF NOT EXISTS ie_sheet_data (
     row         INTEGER NOT NULL,
     col         INTEGER NOT NULL,
     value       TEXT,
-    formula     TEXT
+    formula     TEXT,
+    cell_type   TEXT   -- 'formula' | 'manual' | 'empty'
+);
+
+-- IE sheet type catalogue
+CREATE TABLE IF NOT EXISTS sheet_types (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    type_key     TEXT NOT NULL UNIQUE,
+    display_name TEXT NOT NULL,
+    sort_order   INTEGER DEFAULT 99
+);
+
+-- IE sheet name → type mapping (raw Excel name → type_key)
+CREATE TABLE IF NOT EXISTS sheet_name_map (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    raw_name   TEXT NOT NULL UNIQUE,
+    normalized TEXT NOT NULL,
+    type_key   TEXT,
+    FOREIGN KEY(type_key) REFERENCES sheet_types(type_key)
+);
+
+-- ART × sheet-type status matrix
+CREATE TABLE IF NOT EXISTS art_sheet_status (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    header_id  INTEGER NOT NULL REFERENCES ob_header(id) ON DELETE CASCADE,
+    art        TEXT NOT NULL,
+    sheet_type TEXT NOT NULL,
+    status     TEXT NOT NULL DEFAULT 'has_data',  -- 'has_data' | 'missing' | 'na'
+    UNIQUE(header_id, sheet_type)
 );
 
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_ie_sheet_data_hdr  ON ie_sheet_data(header_id, sheet_name);
+CREATE INDEX IF NOT EXISTS idx_ie_sheet_data_type ON ie_sheet_data(cell_type);
+CREATE INDEX IF NOT EXISTS idx_sheet_name_map_raw ON sheet_name_map(raw_name);
+CREATE INDEX IF NOT EXISTS idx_art_sheet_status_hdr ON art_sheet_status(header_id);
+CREATE INDEX IF NOT EXISTS idx_art_sheet_status_art ON art_sheet_status(art);
 CREATE INDEX IF NOT EXISTS idx_ob_articles_art    ON ob_articles(art);
 CREATE INDEX IF NOT EXISTS idx_ob_articles_header ON ob_articles(header_id);
 CREATE INDEX IF NOT EXISTS idx_ob_epph_header     ON ob_epph(header_id);

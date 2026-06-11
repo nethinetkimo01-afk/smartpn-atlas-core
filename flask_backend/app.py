@@ -114,6 +114,10 @@ def ie_interface():
 def ie_detail(header_id):
     return send_from_directory('..', 'ie_detail.html')
 
+@app.route('/ie/matrix')
+def ie_matrix_page():
+    return send_from_directory('..', 'ie_matrix.html')
+
 # ── IE Interface API ─────────────────────────────────────────────────────────
 
 @app.route('/api/ie/list', methods=['GET'])
@@ -246,6 +250,10 @@ def ie_export(header_id):
     return send_file(buf, as_attachment=True, download_name=filename,
                      mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
+
+@app.route('/api/ie/matrix', methods=['GET'])
+def ie_matrix_api():
+    return jsonify(db.get_ie_matrix())
 
 @app.route('/api/ie/update_mp', methods=['POST'])
 def ie_update_mp():
