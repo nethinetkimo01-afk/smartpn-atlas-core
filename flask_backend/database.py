@@ -281,7 +281,18 @@ def get_ie_matrix():
             'SELECT type_key, display_name, sort_order FROM sheet_types ORDER BY sort_order'
         ).fetchall()
         if not type_rows:
-            return {'ok': True, 'types': [], 'rows': [], 'stats': {}}
+            return {'ok': True, 'types': [], 'rows': [], 'no_data_arts': [], 'stats': {}}
+
+        # ARTs whose header has NO ie_sheet_data at all
+        no_ie_rows = conn.execute(
+            '''SELECT a.art, h.model_name, h.eolr, h.id as header_id
+               FROM ob_header h
+               JOIN ob_articles a ON a.header_id=h.id
+               WHERE h.id NOT IN (SELECT DISTINCT header_id FROM ie_sheet_data)
+               ORDER BY a.art'''
+        ).fetchall()
+        no_data_arts = [{'art': r['art'], 'model': (r['model_name'] or '')[:40],
+                          'eolr': r['eolr'], 'header_id': r['header_id']} for r in no_ie_rows]
 
         # Headers with data + their arts
         h_rows = conn.execute(
@@ -300,18 +311,6 @@ def get_ie_matrix():
         for sr in status_rows:
             status_map[(sr['header_id'], sr['art'], sr['sheet_type'])] = sr['status']
 
-        # manual cell counts
-        manual_map = {}
-        mc_rows = conn.execute(
-            '''SELECT sd.header_id, snm.type_key, COUNT(*) as cnt
-               FROM ie_sheet_data sd
-               JOIN sheet_name_map snm ON snm.raw_name=sd.sheet_name
-               WHERE snm.type_key IS NOT NULL AND sd.cell_type='manual'
-               GROUP BY sd.header_id, snm.type_key'''
-        ).fetchall()
-        for mr in mc_rows:
-            manual_map[(mr['header_id'], mr['type_key'])] = mr['cnt']
-
         types = [{'key': t['type_key'], 'display': t['display_name']} for t in type_rows]
 
         matrix_rows = []
@@ -322,8 +321,7 @@ def get_ie_matrix():
             for t in type_rows:
                 tk = t['type_key']
                 st = status_map.get((hid, art, tk))
-                mc = manual_map.get((hid, tk), 0)
-                cells.append({'status': st or 'na', 'manual_cnt': mc})
+                cells.append({'status': st or 'na'})
             matrix_rows.append({
                 'header_id': hid,
                 'art': art,
@@ -333,15 +331,23 @@ def get_ie_matrix():
             })
 
         # Stats
-        total = len(matrix_rows)
-        missing = sum(1 for r in matrix_rows for c in r['cells'] if c['status'] == 'missing')
-        has_data = sum(1 for r in matrix_rows for c in r['cells'] if c['status'] == 'has_data')
+        total_arts = conn.execute('SELECT COUNT(*) FROM ob_articles').fetchone()[0]
+        gaps = sum(1 for r in matrix_rows for c in r['cells'] if c['status'] == 'missing')
+        has_cnt = sum(1 for r in matrix_rows for c in r['cells'] if c['status'] == 'has_data')
+        completion = round(has_cnt / (has_cnt + gaps) * 100, 1) if (has_cnt + gaps) > 0 else 0
 
         return {
             'ok': True,
             'types': types,
             'rows': matrix_rows,
-            'stats': {'total_arts': total, 'missing': missing, 'has_data': has_data},
+            'no_data_arts': no_data_arts,
+            'stats': {
+                'total_arts': total_arts,
+                'no_ie_count': len(no_data_arts),
+                'gaps': gaps,
+                'has_data': has_cnt,
+                'completion_pct': completion,
+            },
         }
     finally:
         conn.close()
