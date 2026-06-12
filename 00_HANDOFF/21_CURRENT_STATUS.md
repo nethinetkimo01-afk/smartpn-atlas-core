@@ -137,13 +137,30 @@ File: 00_HANDOFF/24_DATA_SYSTEM.md (v1.5)
 
 ## SmartPN Atlas Project
 
-Last updated: 2026-06-10
+Last updated: 2026-06-12
 
 ### 完成（2026-06-10）
 - [x] S01–S17 PPT HTML：DONE（docs/preview/S01_PPT.html ~ S17_PPT.html，共 17 個靜態投影片）
-- [x] SMARTPN_DEMO.html：移除 Demo mode badge + sb-scenario CSS，scenario 內容清除
 - [x] Outreach work package: DONE（29_OUTREACH_WORK_PACKAGE.md）
 - [x] 00_ENTRY_POINT.md Layer 3：加入 29 號文件索引
+
+### 完成（2026-06-12）
+- [x] 31_DEMO_INTERFACE_SPEC_v1.md：Jim 確認版（8問答覆）入庫，取代 30 號草稿。唯一 Demo 開發依據。
+- [x] SMARTPN_DEMO.html v2：完整重建 Brand/Factory 端購物網 UI
+  - 頂部導覽（購物網式）：搜尋 / My Favorites / My Library / My Account / Settings
+  - 三層頁面：搜尋網格 → SPU 主頁（含評論區）→ SKU 頁（規格選擇、Find Same Material）
+  - 搜尋條件含：單價 / LT / DPP-ready 篩選
+  - 材料卡片含 DPP-ready 標示
+  - Compare：Apple 比較頁排版（3 欄、最優值高亮）
+  - 12 筆 mock 材料 / 3 家 supplier
+- [x] SMARTPN_DEMO_SUPPLIER.html v2：完整重建 Supplier 端
+  - 選單只有兩項：公司建立 / SmartPN 建立
+  - 公司建立：母/子公司 + 關務/稅務/材料訊息
+  - 原物料建立：4 步驟精靈（SPU → SKU → 權限 → 確認）
+  - 二次加工：Input/Output/Ratio 表單
+  - 權限管理：欄位資料夾 + 打勾 + 授權給「公司 · 單位 · 姓名」
+  - 單價管理：報價層級三選（SPU / SPU+SKU / SPU+SKU+備註）
+  - 新材料預設全 PRIVATE
 
 ### 待確認（需 Jim 決定）
 - [ ] Kate Nishimura email: READY TO SEND — 等 Jim 核准後送出
