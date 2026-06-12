@@ -256,6 +256,10 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
   <div class="filter-sep"></div>
   <span class="filter-label">Max LT (days)</span>
   <input type="number" class="price-input" id="lt-max" placeholder="Any" style="width:50px" oninput="applyFilters()">
+  <div class="filter-sep"></div>
+  <span class="filter-label">Sort</span>
+  <button class="fc" id="sort-lt" onclick="toggleSort('lt',this)">LT ↕</button>
+  <button class="fc" id="sort-price" onclick="toggleSort('price',this)">Price ↕</button>
 </div>
 
 <!-- ══ PAGES ══ -->
@@ -515,6 +519,7 @@ let fsmContext = null;
 let currentMat = null;
 let currentSku = null;
 let prevPage = 'search';
+let sortMode = null; // 'lt-asc','lt-desc','price-asc','price-desc'
 let companyReturnPage = null;
 let companyReturnMat = null;
 
@@ -581,12 +586,33 @@ function applyFilters() {
   renderGrid();
 }
 
+function toggleSort(field, el) {
+  const asc = field + '-asc', desc = field + '-desc';
+  const other = field === 'lt' ? 'sort-price' : 'sort-lt';
+  document.getElementById(other).classList.remove('active');
+  document.getElementById(other).textContent = field === 'lt' ? 'Price ↕' : 'LT ↕';
+  if (sortMode === asc) {
+    sortMode = desc;
+    el.classList.add('active');
+    el.textContent = (field === 'lt' ? 'LT' : 'Price') + ' ↓';
+  } else if (sortMode === desc) {
+    sortMode = null;
+    el.classList.remove('active');
+    el.textContent = (field === 'lt' ? 'LT' : 'Price') + ' ↕';
+  } else {
+    sortMode = asc;
+    el.classList.add('active');
+    el.textContent = (field === 'lt' ? 'LT' : 'Price') + ' ↑';
+  }
+  applyFilters();
+}
+
 function getFiltered() {
   const q = (document.getElementById('nav-search-input').value || '').toLowerCase();
   const priceMin = parseFloat(document.getElementById('price-min').value) || 0;
   const priceMax = parseFloat(document.getElementById('price-max').value) || Infinity;
   const ltMax = parseFloat(document.getElementById('lt-max').value) || Infinity;
-  return MATERIALS.filter(m => {
+  let result = MATERIALS.filter(m => {
     if (typeFilter !== 'all' && m.type !== typeFilter) return false;
     if (dppFilter && !m.dpp) return false;
     if (m.price !== null && (m.price < priceMin || m.price > priceMax)) return false;
@@ -594,6 +620,15 @@ function getFiltered() {
     if (q && !m.name.toLowerCase().includes(q) && !SUPPLIERS[m.sup].name.toLowerCase().includes(q) && !m.id.toLowerCase().includes(q)) return false;
     return true;
   });
+  if (sortMode) {
+    const [field, dir] = sortMode.split('-');
+    result.sort((a, b) => {
+      const va = field === 'lt' ? a.lt : (a.price ?? Infinity);
+      const vb = field === 'lt' ? b.lt : (b.price ?? Infinity);
+      return dir === 'asc' ? va - vb : vb - va;
+    });
+  }
+  return result;
 }
 
 /* ═══════════════════════
@@ -654,9 +689,22 @@ function renderGrid(mats, fsm) {
   wrap.innerHTML = `<div class="mat-grid">${list.map(cardHtml).join('')}</div>`;
 }
 
+function avgStars(reviews) {
+  if (!reviews || !reviews.length) return null;
+  const sum = reviews.reduce((s, r) => s + r.stars, 0);
+  return Math.round(sum / reviews.length * 2) / 2; // half-star precision
+}
+
+function starsHtml(avg) {
+  if (avg === null) return '';
+  const full = Math.floor(avg), half = avg % 1 >= 0.5 ? 1 : 0, empty = 5 - full - half;
+  return `<div class="review-stars" style="font-size:11px;margin-top:4px;letter-spacing:0.5px">${'★'.repeat(full)}${'½'.repeat(half)}${'☆'.repeat(empty)} <span style="color:#86868B;font-weight:400">${avg.toFixed(1)}</span></div>`;
+}
+
 function cardHtml(m) {
   const sup = SUPPLIERS[m.sup];
   const priceStr = m.price !== null ? `<span class="mc-price-val">USD ${m.price.toFixed(2)}</span>` : `<span style="color:#86868B">—</span>`;
+  const stars = starsHtml(avgStars(m.reviews));
   return `
   <div class="mat-card" onclick="openSpu('${m.id}')">
     <div class="mc-img">
@@ -666,6 +714,7 @@ function cardHtml(m) {
     </div>
     <div class="mc-name">${m.name}</div>
     <button class="mc-supplier-link" onclick="event.stopPropagation();openCompanyFromCard('${m.sup}')">${sup.name}</button>
+    ${stars}
     <div class="mc-price-row">
       <span>Price / kg ${priceStr}</span>
       <span>LT <span class="mc-price-val">${m.lt}d</span></span>
