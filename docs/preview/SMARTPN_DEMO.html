@@ -1,1093 +1,915 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SmartPN Atlas — Demo</title>
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%}
-    body{font-family:-apple-system,'SF Pro Text','Helvetica Neue',Arial,sans-serif;background:#FFFFFF;color:#1D1D1F;display:flex;flex-direction:column;height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased;font-size:15px}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartPN Atlas — Material Search</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',Arial,sans-serif;background:#FFFFFF;color:#1D1D1F;-webkit-font-smoothing:antialiased;font-size:15px}
 
-    /* ── Topbar ── */
-    .topbar{display:flex;align-items:center;gap:16px;padding:0 24px;height:52px;border-bottom:0.5px solid #D2D2D7;flex-shrink:0;background:#FFFFFF}
-    .brand{font-size:17px;font-weight:600;color:#1D1D1F;letter-spacing:-0.3px;white-space:nowrap;margin-right:8px}
-    .search-wrap{display:flex;align-items:center;gap:8px;background:#F5F5F7;border-radius:8px;padding:7px 14px;flex:1;max-width:340px}
-    .search-wrap svg{opacity:0.35;flex-shrink:0}
-    .search-wrap input{border:none;background:transparent;font-size:14px;color:#1D1D1F;outline:none;width:100%}
-    .topbar-spacer{flex:1}
-    .role-toggle{display:flex;background:#F5F5F7;border-radius:8px;padding:3px;gap:2px}
-    .role-btn{font-size:12px;padding:5px 14px;border-radius:5px;border:none;background:transparent;color:#86868B;cursor:pointer;transition:all 0.15s;white-space:nowrap;font-family:inherit}
-    .role-btn.active{background:#FFFFFF;color:#1D1D1F;font-weight:500;box-shadow:0 0.5px 2px rgba(0,0,0,0.10)}
+/* ── Top Navigation Bar (Apple Store style, dark) ── */
+.topnav{position:sticky;top:0;z-index:100;background:rgba(22,22,23,0.95);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:0.5px solid rgba(255,255,255,0.08);height:48px;display:flex;align-items:center;padding:0 24px;gap:20px}
+.nav-brand{font-size:15px;font-weight:600;color:#FFFFFF;letter-spacing:-0.2px;white-space:nowrap;flex-shrink:0}
+.nav-search-wrap{flex:1;max-width:400px;margin:0 auto;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.10);border-radius:8px;padding:7px 14px;cursor:text}
+.nav-search-wrap svg{opacity:0.55;flex-shrink:0}
+.nav-search-wrap input{border:none;background:transparent;font-size:14px;color:#FFFFFF;outline:none;width:100%;font-family:inherit}
+.nav-search-wrap input::placeholder{color:rgba(255,255,255,0.4)}
+.nav-spacer{flex:1}
+.nav-actions{display:flex;align-items:center;gap:4px}
+.nav-btn{display:flex;align-items:center;gap:6px;background:none;border:none;color:rgba(255,255,255,0.75);font-size:12px;padding:6px 10px;border-radius:6px;cursor:pointer;font-family:inherit;transition:color 0.12s;white-space:nowrap}
+.nav-btn:hover{color:#FFFFFF;background:rgba(255,255,255,0.08)}
+.nav-btn svg{opacity:0.75;flex-shrink:0}
+.nav-btn.active-nav{color:#FFFFFF}
+.nav-count{background:#0071E3;color:#FFFFFF;font-size:10px;font-weight:600;border-radius:8px;padding:1px 5px;min-width:16px;text-align:center}
 
-    /* ── Layout ── */
-    .layout{display:flex;flex:1;overflow:hidden}
+/* ── Filter bar ── */
+.filter-bar{display:flex;align-items:center;gap:8px;padding:14px 24px 12px;border-bottom:0.5px solid #D2D2D7;flex-wrap:wrap;background:#FFFFFF;position:sticky;top:48px;z-index:90}
+.fc{font-size:13px;padding:6px 16px;border-radius:20px;border:0.5px solid #D2D2D7;background:#FFFFFF;color:#1D1D1F;cursor:pointer;font-family:inherit;transition:all 0.12s;white-space:nowrap}
+.fc.active{background:#1D1D1F;color:#FFFFFF;border-color:#1D1D1F}
+.fc.dpp{color:#1D7340;border-color:#1D7340}
+.fc.dpp.active{background:#1D7340;color:#FFFFFF}
+.filter-sep{width:0.5px;height:20px;background:#D2D2D7;flex-shrink:0}
+.filter-label{font-size:12px;color:#86868B;white-space:nowrap}
+.price-range-wrap{display:flex;align-items:center;gap:6px}
+.price-input{width:60px;border:0.5px solid #D2D2D7;border-radius:6px;padding:5px 8px;font-size:12px;color:#1D1D1F;text-align:center;outline:none;font-family:inherit}
+.price-input:focus{border-color:#1D1D1F}
 
-    /* ── Sidebar ── */
-    .sidebar{width:220px;border-right:0.5px solid #D2D2D7;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;background:#FFFFFF}
-    .sidebar-label{font-size:17px;font-weight:600;color:#1D1D1F;padding:28px 20px 8px;letter-spacing:-0.2px}
-    .nav-item{display:flex;align-items:center;gap:10px;padding:14px 20px;font-size:15px;font-weight:400;color:#1D1D1F;cursor:pointer;border:none;background:none;width:100%;text-align:left;border-top:0.5px solid #D2D2D7;transition:background 0.1s;font-family:inherit}
-    .nav-item:hover{background:#F5F5F7}
-    .nav-item.active{background:#F5F5F7;font-weight:500}
-    .nav-icon{width:15px;height:15px;opacity:0.35;flex-shrink:0}
-    .nav-item.active .nav-icon{opacity:0.6}
-    .nav-sub{font-size:13px;color:#86868B;margin-left:auto;margin-right:2px}
-    .nav-chev{font-size:16px;color:#D2D2D7;font-weight:300;flex-shrink:0;line-height:1}
-    .status-badges{padding:16px 20px;border-top:0.5px solid #D2D2D7;margin-top:auto;display:flex;flex-direction:column;gap:6px}
-    .status-badge{font-size:11px;color:#86868B;display:flex;align-items:center;gap:5px;padding:2px 0}
+/* ── Page container ── */
+.page{display:none;padding:32px 40px;max-width:1080px;margin:0 auto}
+.page.active{display:block}
+.page.full-w{max-width:none;padding:0}
 
-    /* ── Main ── */
-    .main{flex:1;overflow-y:auto;background:#FFFFFF}
-    .view{display:none;padding:32px 40px;max-width:1040px}
-    .view.active{display:block}
+/* ── Section header ── */
+.section-title{font-size:17px;font-weight:600;color:#1D1D1F;padding-bottom:12px;border-bottom:0.5px solid #D2D2D7;margin-bottom:24px;letter-spacing:-0.2px}
+.result-count{font-size:13px;color:#86868B;margin-bottom:20px}
 
-    /* ── Page header ── */
-    .page-header{padding-bottom:20px;border-bottom:0.5px solid #D2D2D7;margin-bottom:32px}
-    .page-title{font-size:28px;font-weight:600;color:#1D1D1F;letter-spacing:-0.6px}
-    .page-sub{font-size:15px;color:#86868B;margin-top:6px}
+/* ── Material grid ── */
+.mat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#D2D2D7}
+.mat-card{background:#FFFFFF;padding:28px 20px 24px;text-align:center;cursor:pointer;transition:background 0.12s;position:relative}
+.mat-card:hover{background:#F5F5F7}
+.mc-img{width:100%;aspect-ratio:4/3;background:#F5F5F7;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;overflow:hidden;position:relative}
+.mc-img svg{opacity:0.18}
+.dpp-badge{position:absolute;top:10px;left:10px;font-size:10px;font-weight:600;color:#1D7340;background:#FFFFFF;border:0.5px solid #1D7340;border-radius:8px;padding:3px 8px;letter-spacing:0.03em}
+.secondary-tag{position:absolute;top:10px;right:10px;font-size:10px;font-weight:500;color:#86868B;background:#F5F5F7;border-radius:8px;padding:3px 8px;letter-spacing:0.04em;text-transform:uppercase}
+.mc-name{font-size:17px;font-weight:600;color:#1D1D1F;letter-spacing:-0.3px;margin-bottom:4px;line-height:1.3}
+.mc-supplier-link{font-size:13px;color:#0071E3;cursor:pointer;border:none;background:none;padding:0;font-family:inherit;margin-bottom:10px;display:inline-block}
+.mc-supplier-link:hover{text-decoration:underline}
+.mc-price-row{display:flex;justify-content:center;gap:16px;font-size:13px;color:#86868B;margin-bottom:10px}
+.mc-price-val{color:#1D1D1F;font-weight:500}
+.mc-perm{font-size:12px;font-weight:500;margin-top:4px}
+.mc-perm.open{color:#1D7340}
+.mc-perm.shared{color:#0071E3}
+.mc-perm.priv{color:#86868B}
+.no-results{grid-column:1/-1;text-align:center;padding:80px 0;color:#86868B;font-size:15px;background:#FFFFFF}
 
-    /* ── Stats ── */
-    .stats-row{display:flex;gap:0;margin-bottom:32px;border-top:0.5px solid #D2D2D7;border-bottom:0.5px solid #D2D2D7}
-    .stat-card{flex:1;padding:20px 24px;border-right:0.5px solid #D2D2D7;background:#FFFFFF}
-    .stat-card:last-child{border-right:none}
-    .stat-num{font-size:28px;font-weight:600;color:#1D1D1F;letter-spacing:-1px}
-    .stat-label{font-size:13px;color:#86868B;margin-top:4px}
-    .stat-delta{font-size:12px;color:#86868B;margin-top:4px}
+/* FSM banner */
+.fsm-banner{background:#F0F7FF;border:0.5px solid #BDD7F7;border-radius:10px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.fsm-banner-label{font-size:12px;color:#0071E3;font-weight:500;white-space:nowrap}
+.fsm-tag{font-size:12px;background:#FFFFFF;border:0.5px solid #BDD7F7;border-radius:14px;padding:4px 12px;color:#1D1D1F}
+.fsm-clear{font-size:12px;color:#86868B;cursor:pointer;margin-left:auto;text-decoration:underline}
+.fsm-section-hdr{display:flex;align-items:center;gap:12px;padding:20px 0 10px;background:#FFFFFF}
+.fsm-section-label{font-size:11px;font-weight:600;color:#1D1D1F;text-transform:uppercase;letter-spacing:0.07em}
+.fsm-section-count{font-size:11px;color:#86868B;background:#F5F5F7;padding:2px 10px;border-radius:10px}
+.fsm-line{flex:1;height:0.5px;background:#D2D2D7}
+.fsm-ident .mat-card::after{content:'Identical';position:absolute;top:10px;right:10px;font-size:10px;font-weight:600;color:#1D7340;background:#F0FFF4;border-radius:8px;padding:3px 8px}
+.fsm-alt .mat-card::after{content:'Alternative';position:absolute;top:10px;right:10px;font-size:10px;font-weight:600;color:#0071E3;background:#F0F7FF;border-radius:8px;padding:3px 8px}
 
-    /* ── Section title ── */
-    .section-title{font-size:17px;font-weight:600;color:#1D1D1F;padding-bottom:12px;border-bottom:0.5px solid #D2D2D7;margin-top:32px;letter-spacing:-0.2px}
+/* ── SPU Detail (product homepage, no SKU yet) ── */
+.detail-back{font-size:13px;color:#0071E3;cursor:pointer;margin-bottom:28px;display:inline-flex;align-items:center;gap:4px;border:none;background:none;padding:0;font-family:inherit}
+.detail-back:hover{text-decoration:underline}
+.spu-hero{display:grid;grid-template-columns:1fr 1fr;gap:56px;padding-bottom:40px;border-bottom:0.5px solid #D2D2D7;align-items:start}
+.spu-img{background:#F5F5F7;border-radius:16px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.spu-img svg{opacity:0.15}
+.spu-dpp-badge{position:absolute;bottom:16px;left:16px;font-size:11px;font-weight:600;color:#FFFFFF;background:#1D7340;border-radius:8px;padding:4px 10px}
+.spu-info{padding-top:8px}
+.spu-type-tag{font-size:11px;color:#86868B;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px}
+.spu-title{font-size:32px;font-weight:600;color:#1D1D1F;letter-spacing:-0.7px;margin-bottom:6px;line-height:1.15}
+.spu-code{font-size:13px;color:#86868B;margin-bottom:4px}
+.spu-perm{font-size:14px;font-weight:500;margin-bottom:14px}
+.spu-perm.open{color:#1D7340}
+.spu-perm.shared{color:#0071E3}
+.spu-perm.priv{color:#86868B}
+.supplier-link{color:#0071E3;cursor:pointer;border:none;background:none;padding:0;font-family:inherit;font-size:15px}
+.supplier-link:hover{text-decoration:underline}
+.spu-maintained{font-size:13px;color:#86868B;margin-top:4px;margin-bottom:20px}
+.spu-price-block{display:flex;gap:32px;padding:16px 0;border-top:0.5px solid #D2D2D7;border-bottom:0.5px solid #D2D2D7;margin-bottom:20px}
+.spu-price-item{}
+.spu-price-label{font-size:12px;color:#86868B;margin-bottom:4px}
+.spu-price-val{font-size:20px;font-weight:600;color:#1D1D1F;letter-spacing:-0.4px}
+.spu-price-sub{font-size:12px;color:#86868B;margin-top:2px}
+.view-specs-btn{background:#1D1D1F;color:#FFFFFF;border:none;border-radius:20px;padding:10px 28px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity 0.15s}
+.view-specs-btn:hover{opacity:0.8}
+.fav-btn{background:#FFFFFF;color:#1D1D1F;border:0.5px solid #D2D2D7;border-radius:20px;padding:10px 20px;font-size:14px;cursor:pointer;font-family:inherit;margin-left:10px}
 
-    /* ── Table ── */
-    .table-wrap{margin-bottom:32px}
-    table{width:100%;border-collapse:collapse}
-    thead th{font-size:12px;font-weight:500;color:#86868B;text-align:left;padding:12px 16px 12px 0;border-bottom:0.5px solid #D2D2D7;white-space:nowrap}
-    thead th:first-child{padding-left:0}
-    tbody tr{border-bottom:0.5px solid #D2D2D7;cursor:pointer}
-    tbody tr:last-child{border-bottom:none}
-    tbody tr:hover{background:#F5F5F7}
-    tbody td{font-size:15px;color:#1D1D1F;padding:14px 16px 14px 0;vertical-align:middle}
-    tbody td:first-child{padding-left:0}
-    .td-muted{color:#86868B}
-    .td-link{color:#1D1D1F;font-weight:500}
+/* Spec table on SPU page */
+.spec-section-title{font-size:17px;font-weight:600;color:#1D1D1F;padding:28px 0 14px;border-bottom:0.5px solid #D2D2D7;letter-spacing:-0.2px}
+.spec-row{display:flex;align-items:center;padding:14px 0;border-bottom:0.5px solid #D2D2D7}
+.spec-label{font-size:15px;color:#86868B;flex:1}
+.spec-val{font-size:15px;color:#1D1D1F;margin-right:16px}
+.spec-plus{font-size:17px;color:#D2D2D7;flex-shrink:0;font-weight:300}
 
-    /* ── Badge ── */
-    .badge{display:inline-flex;align-items:center;font-size:13px;font-weight:500;padding:0;white-space:nowrap}
-    .badge-private{color:#86868B}
-    .badge-open{color:#1D7340}
-    .badge-brand{color:#1D1D1F}
-    .badge-supplier{color:#86868B}
-    .badge-shared{color:#0071E3}
-    .badge-new{color:#FF3B30}
-    .badge-approved{color:#1D7340}
+/* Reviews */
+.review-list{display:flex;flex-direction:column;gap:0}
+.review-item{padding:20px 0;border-bottom:0.5px solid #D2D2D7}
+.review-item:last-child{border-bottom:none}
+.review-header{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.review-avatar{width:36px;height:36px;border-radius:50%;background:#F5F5F7;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#1D1D1F;flex-shrink:0}
+.review-name{font-size:14px;font-weight:500;color:#1D1D1F}
+.review-date{font-size:12px;color:#86868B;margin-left:auto}
+.review-stars{font-size:12px;color:#F5A623;letter-spacing:1px}
+.review-perm{font-size:11px;color:#86868B;background:#F5F5F7;border-radius:6px;padding:2px 8px;margin-left:8px}
+.review-text{font-size:14px;color:#1D1D1F;line-height:1.6}
 
-    /* ── Buttons ── */
-    .btn-primary{background:#1D1D1F;color:#FFFFFF;border:none;border-radius:20px;padding:10px 24px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity 0.15s}
-    .btn-primary:hover{opacity:0.8}
-    .btn-secondary{background:#FFFFFF;color:#1D1D1F;border:0.5px solid #D2D2D7;border-radius:20px;padding:10px 24px;font-size:14px;cursor:pointer;font-family:inherit}
-    .btn-cta{background:#0071E3;color:#FFFFFF;border:none;border-radius:20px;padding:12px 32px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity 0.15s;min-width:200px}
-    .btn-cta:hover{opacity:0.85}
-    .btn-fsm{background:#FFFFFF;color:#0071E3;border:1px solid #0071E3;border-radius:20px;padding:11px 28px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.15s}
-    .btn-fsm:hover{background:#F0F7FF}
+/* ── SKU Detail page (SPU+SKU, add to library) ── */
+.sku-picker-section{margin-top:20px;margin-bottom:20px}
+.sku-picker-label{font-size:13px;color:#86868B;margin-bottom:8px}
+.sku-options{display:flex;flex-wrap:wrap;gap:8px}
+.sku-opt{font-size:13px;padding:7px 16px;border-radius:8px;border:1px solid #D2D2D7;background:#FFFFFF;color:#1D1D1F;cursor:pointer;font-family:inherit;transition:all 0.12s}
+.sku-opt:hover{border-color:#86868B}
+.sku-opt.selected{border:2px solid #1D1D1F;font-weight:500;padding:6px 15px}
+.detail-cta-area{margin-top:24px;padding-top:20px;border-top:0.5px solid #D2D2D7}
+.btn-add{background:#0071E3;color:#FFFFFF;border:none;border-radius:20px;padding:12px 32px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;min-width:220px}
+.btn-add:hover{opacity:0.88}
+.btn-fsm{background:#FFFFFF;color:#0071E3;border:1px solid #0071E3;border-radius:20px;padding:11px 24px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;margin-left:12px}
+.btn-fsm:hover{background:#F0F7FF}
+.btn-compare{background:#FFFFFF;color:#1D1D1F;border:0.5px solid #D2D2D7;border-radius:20px;padding:11px 24px;font-size:14px;cursor:pointer;font-family:inherit;margin-left:12px}
+.cta-note{font-size:12px;color:#86868B;margin-top:10px}
 
-    /* ══════════════════════════════════════════
-       APPLE STORE — MATERIAL SEARCH
-    ══════════════════════════════════════════ */
+/* ── Company Profile ── */
+.company-hero{display:flex;align-items:center;gap:24px;padding-bottom:24px;border-bottom:0.5px solid #D2D2D7;margin-bottom:28px}
+.company-avatar{width:64px;height:64px;background:#1D1D1F;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-weight:700;font-size:20px;flex-shrink:0;letter-spacing:-0.5px}
+.company-name{font-size:24px;font-weight:600;letter-spacing:-0.5px}
+.company-meta{font-size:14px;color:#86868B;margin-top:4px}
+.company-desc{font-size:15px;color:#1D1D1F;line-height:1.6;margin-top:8px}
+.cert-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.cert-chip{font-size:12px;color:#1D1D1F;border:0.5px solid #D2D2D7;border-radius:6px;padding:5px 12px;background:#F5F5F7}
+.dpp-chip{background:#F0FFF4;color:#1D7340;border-color:#1D7340}
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-bottom:28px}
+.info-card{padding:16px 0;border-bottom:0.5px solid #D2D2D7;padding-right:16px}
+.info-card-label{font-size:12px;color:#86868B;margin-bottom:4px}
+.info-card-val{font-size:15px;font-weight:500;color:#1D1D1F}
 
-    .ms-filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:24px;flex-wrap:wrap}
-    .ms-search{display:flex;align-items:center;gap:8px;background:#F5F5F7;border-radius:8px;padding:8px 14px;min-width:220px;margin-left:auto}
-    .ms-search input{border:none;background:transparent;font-size:14px;outline:none;width:100%;color:#1D1D1F;font-family:inherit}
-    .ms-chip{font-size:13px;padding:7px 16px;border-radius:20px;border:0.5px solid #D2D2D7;background:#FFFFFF;color:#1D1D1F;cursor:pointer;font-family:inherit;transition:all 0.12s;white-space:nowrap}
-    .ms-chip.active{background:#1D1D1F;color:#FFFFFF;border-color:#1D1D1F}
+/* ── Compare (Apple style) ── */
+.compare-page-header{text-align:center;padding:40px 0 28px;border-bottom:0.5px solid #D2D2D7;margin-bottom:0}
+.compare-page-title{font-size:32px;font-weight:600;letter-spacing:-0.7px;color:#1D1D1F}
+.compare-page-sub{font-size:15px;color:#86868B;margin-top:8px}
+.compare-wrapper{overflow-x:auto}
+.compare-table{width:100%;border-collapse:collapse}
+.compare-table th{font-size:17px;font-weight:600;color:#1D1D1F;padding:24px 20px;border-bottom:0.5px solid #D2D2D7;text-align:center;vertical-align:top;min-width:200px}
+.compare-table th:first-child{text-align:left;color:#86868B;font-weight:400;font-size:13px;min-width:180px}
+.compare-table th .compare-img{width:80px;height:80px;background:#F5F5F7;border-radius:12px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center}
+.compare-table th .compare-img svg{opacity:0.15}
+.compare-table th .compare-supplier{font-size:13px;color:#86868B;font-weight:400;margin-top:4px}
+.compare-table td{font-size:14px;color:#1D1D1F;padding:14px 20px;border-bottom:0.5px solid #D2D2D7;text-align:center;vertical-align:middle}
+.compare-table td:first-child{text-align:left;font-size:13px;color:#86868B;font-weight:500}
+.compare-table tbody tr:hover{background:#F5F5F7}
+.compare-better{color:#1D7340;font-weight:500}
+.compare-worse{color:#FF3B30}
+.compare-same{color:#86868B}
+.compare-add-row td{border-bottom:none;padding-top:20px}
+.btn-compare-add{background:#1D1D1F;color:#FFFFFF;border:none;border-radius:20px;padding:9px 22px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit}
 
-    /* FSM active filter banner */
-    .fsm-banner{background:#F0F7FF;border:0.5px solid #BDD7F7;border-radius:10px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-    .fsm-banner-label{font-size:12px;color:#0071E3;font-weight:500}
-    .fsm-condition-tag{font-size:12px;background:#FFFFFF;border:0.5px solid #BDD7F7;border-radius:14px;padding:4px 12px;color:#1D1D1F}
-    .fsm-clear{font-size:12px;color:#86868B;cursor:pointer;margin-left:auto;text-decoration:underline}
-    .fsm-clear:hover{color:#1D1D1F}
+/* ── My Favorites / My Library ── */
+.lib-grid{display:flex;flex-direction:column}
+.lib-card{display:flex;align-items:center;padding:16px 0;border-bottom:0.5px solid #D2D2D7;cursor:pointer;gap:14px}
+.lib-card:last-child{border-bottom:none}
+.lib-img{width:48px;height:48px;background:#F5F5F7;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lib-img svg{opacity:0.2}
+.lib-info{flex:1}
+.lib-name{font-size:15px;font-weight:500;color:#1D1D1F}
+.lib-sub{font-size:13px;color:#86868B;margin-top:2px}
+.lib-meta{display:flex;align-items:center;gap:10px;margin-top:4px}
+.lib-chev{font-size:18px;color:#D2D2D7;flex-shrink:0}
+.badge{display:inline-flex;align-items:center;font-size:12px;font-weight:500;padding:1px 0;white-space:nowrap}
+.b-open{color:#1D7340}
+.b-shared{color:#0071E3}
+.b-priv{color:#86868B}
+.b-dpp{color:#1D7340;background:#F0FFF4;border:0.5px solid #1D7340;border-radius:6px;padding:2px 8px;font-size:11px}
 
-    /* Material grid */
-    .material-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-bottom:24px}
-    .material-card{background:#FFFFFF;padding:28px 20px 24px;text-align:center;cursor:pointer;transition:background 0.12s;position:relative}
-    .material-card:hover{background:#F5F5F7}
+/* ── Account / Settings ── */
+.account-hero{display:flex;align-items:center;gap:20px;padding-bottom:24px;border-bottom:0.5px solid #D2D2D7;margin-bottom:28px}
+.account-avatar{width:56px;height:56px;background:#1D1D1F;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-weight:700;font-size:18px;flex-shrink:0}
+.account-name{font-size:22px;font-weight:600;letter-spacing:-0.4px}
+.account-org{font-size:14px;color:#86868B;margin-top:3px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:0.5px solid #D2D2D7}
+.settings-row:last-child{border-bottom:none}
+.settings-label{font-size:15px;color:#1D1D1F}
+.settings-val{font-size:15px;color:#86868B}
+.toggle{width:36px;height:22px;background:#34C759;border-radius:11px;position:relative;cursor:pointer;flex-shrink:0}
+.toggle::after{content:'';position:absolute;top:3px;left:17px;width:16px;height:16px;border-radius:50%;background:#FFFFFF;transition:left 0.15s}
+.toggle.off{background:#D2D2D7}
+.toggle.off::after{left:3px}
 
-    /* Product image placeholder */
-    .mc-img{width:100%;aspect-ratio:4/3;background:#F5F5F7;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;overflow:hidden}
-    .mc-img svg{opacity:0.2}
+/* ── Fade ── */
+.fade-in{animation:fadeIn 0.15s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
 
-    .mc-name{font-size:17px;font-weight:600;color:#1D1D1F;letter-spacing:-0.3px;margin-bottom:6px;line-height:1.3}
-    .mc-code{font-size:12px;color:#86868B;margin-bottom:3px;letter-spacing:0.01em}
-    .mc-supplier{font-size:13px;color:#86868B;margin-bottom:12px}
-    .mc-perm{font-size:13px;font-weight:500}
-    .mc-perm.open{color:#1D7340}
-    .mc-perm.shared{color:#0071E3}
-    .mc-perm.priv{color:#86868B}
-    .mc-type{font-size:11px;color:#D2D2D7;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px}
-    .ms-count{font-size:13px;color:#86868B;padding-top:12px;border-top:0.5px solid #D2D2D7}
-    .no-results{text-align:center;padding:60px 0;color:#86868B;font-size:15px}
-
-    /* FSM result sections */
-    .fsm-section-header{display:flex;align-items:center;gap:12px;padding:16px 0 10px;margin-bottom:0}
-    .fsm-section-label{font-size:13px;font-weight:600;color:#1D1D1F;text-transform:uppercase;letter-spacing:0.05em}
-    .fsm-section-count{font-size:12px;color:#86868B;background:#F5F5F7;padding:2px 10px;border-radius:10px}
-    .fsm-section-divider{flex:1;height:0.5px;background:#D2D2D7}
-    .fsm-identical .material-card::after{content:'Identical';position:absolute;top:10px;right:10px;font-size:10px;font-weight:600;color:#1D7340;background:#F0FFF4;border-radius:8px;padding:3px 8px;letter-spacing:0.04em}
-    .fsm-alternative .material-card::after{content:'Alternative';position:absolute;top:10px;right:10px;font-size:10px;font-weight:600;color:#0071E3;background:#F0F7FF;border-radius:8px;padding:3px 8px;letter-spacing:0.04em}
-
-    /* ══════════════════════════════════════════
-       APPLE STORE — MATERIAL DETAIL (SPU + SKU)
-    ══════════════════════════════════════════ */
-
-    .detail-back{font-size:13px;color:#0071E3;cursor:pointer;margin-bottom:32px;display:inline-flex;align-items:center;gap:4px}
-    .detail-back:hover{text-decoration:underline}
-
-    /* Hero */
-    .detail-hero{display:grid;grid-template-columns:1fr 1fr;gap:56px;margin-bottom:0;padding-bottom:40px;border-bottom:0.5px solid #D2D2D7;align-items:start}
-    .detail-img-wrap{background:#F5F5F7;border-radius:16px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;overflow:hidden}
-    .detail-img-wrap svg{opacity:0.15}
-    .detail-info{padding-top:8px}
-    .detail-type-tag{font-size:11px;color:#86868B;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px}
-    .detail-title{font-size:32px;font-weight:600;color:#1D1D1F;letter-spacing:-0.7px;margin-bottom:8px;line-height:1.15}
-    .detail-code{font-size:13px;color:#86868B;margin-bottom:4px}
-    .detail-perm{font-size:14px;font-weight:500;margin-bottom:16px}
-    .detail-perm.open{color:#1D7340}
-    .detail-perm.shared{color:#0071E3}
-    .detail-perm.priv{color:#86868B}
-    .supplier-link{font-size:15px;color:#0071E3;cursor:pointer;text-decoration:none;border:none;background:none;padding:0;font-family:inherit}
-    .supplier-link:hover{text-decoration:underline}
-    .detail-maintained{font-size:13px;color:#86868B;margin-top:4px}
-
-    /* SPU / SKU labels */
-    .spu-label{font-size:11px;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:0.07em;margin-top:24px;margin-bottom:6px}
-    .spu-value{font-size:15px;color:#1D1D1F;font-weight:500}
-
-    /* SKU picker (Apple-style variant selector) */
-    .sku-picker-section{margin-top:20px}
-    .sku-picker-title{font-size:13px;color:#86868B;margin-bottom:8px}
-    .sku-options{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px}
-    .sku-option{font-size:13px;padding:7px 16px;border-radius:8px;border:1px solid #D2D2D7;background:#FFFFFF;color:#1D1D1F;cursor:pointer;font-family:inherit;transition:all 0.12s;text-align:center}
-    .sku-option:hover{border-color:#86868B}
-    .sku-option.selected{border:2px solid #1D1D1F;font-weight:500;padding:6px 15px}
-    .sku-option.other-supplier{border-style:dashed;color:#86868B}
-    .sku-option-note{font-size:11px;color:#86868B;margin-top:4px}
-
-    /* Detail CTA area */
-    .detail-cta-area{display:flex;flex-direction:column;gap:12px;align-items:flex-start;margin-top:24px;padding-top:20px;border-top:0.5px solid #D2D2D7}
-    .detail-cta-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-    .detail-cta-note{font-size:12px;color:#86868B;margin-top:4px}
-
-    /* Spec sections */
-    .spec-section{margin-bottom:0}
-    .spec-section-title{font-size:17px;font-weight:600;color:#1D1D1F;padding:28px 0 14px;border-bottom:0.5px solid #D2D2D7;letter-spacing:-0.2px}
-    .spec-row{display:flex;align-items:center;padding:14px 0;border-bottom:0.5px solid #D2D2D7}
-    .spec-row:last-child{border-bottom:none}
-    .spec-label{font-size:15px;color:#86868B;flex:1}
-    .spec-value{font-size:15px;color:#1D1D1F;text-align:right;margin-right:16px}
-    .spec-value.perm-open{color:#1D7340;font-weight:500}
-    .spec-value.perm-shared{color:#0071E3;font-weight:500}
-    .spec-plus{font-size:17px;color:#D2D2D7;flex-shrink:0;line-height:1;font-weight:300}
-
-    /* ── Company Profile ── */
-    .company-back{font-size:13px;color:#0071E3;cursor:pointer;margin-bottom:28px;display:inline-flex;align-items:center;gap:4px}
-    .company-back:hover{text-decoration:underline}
-    .company-hero{display:flex;align-items:center;gap:24px;padding-bottom:28px;border-bottom:0.5px solid #D2D2D7;margin-bottom:32px}
-    .company-avatar{width:64px;height:64px;background:#1D1D1F;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-weight:700;font-size:20px;flex-shrink:0;letter-spacing:-0.5px}
-    .company-name{font-size:24px;font-weight:600;letter-spacing:-0.5px}
-    .company-meta{font-size:14px;color:#86868B;margin-top:4px}
-    .company-desc{font-size:15px;color:#1D1D1F;line-height:1.6;margin-top:8px}
-    .cert-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
-    .cert-chip{font-size:12px;color:#1D1D1F;border:0.5px solid #D2D2D7;border-radius:6px;padding:5px 12px;background:#F5F5F7}
-
-    /* ── Form ── */
-    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:640px}
-    .form-full{grid-column:1/-1}
-    .form-group{display:flex;flex-direction:column;gap:6px}
-    .form-label{font-size:12px;font-weight:500;color:#86868B}
-    .form-input{border:none;border-bottom:0.5px solid #D2D2D7;border-radius:0;padding:10px 0;font-size:15px;color:#1D1D1F;background:#FFFFFF;outline:none;transition:border-bottom-color 0.15s;font-family:inherit}
-    .form-input:focus{border-bottom-color:#1D1D1F}
-    .form-input[readonly]{color:#86868B}
-    .form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2386868B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0 center;padding-right:20px}
-    .form-textarea{resize:vertical;min-height:80px;border:0.5px solid #D2D2D7;padding:10px;font-size:15px;font-family:inherit;outline:none;border-radius:0}
-    .form-textarea:focus{border-color:#1D1D1F}
-    .form-actions{display:flex;gap:12px;margin-top:32px;padding-top:20px;border-top:0.5px solid #D2D2D7}
-    .form-section-title{font-size:17px;font-weight:600;color:#1D1D1F;margin:32px 0 16px;padding-bottom:12px;border-bottom:0.5px solid #D2D2D7;letter-spacing:-0.2px}
-
-    /* ── Permission matrix ── */
-    .perm-table td,.perm-table th{text-align:center}
-    .perm-table td:first-child,.perm-table th:first-child{text-align:left}
-    .perm-check{font-size:14px}
-    .perm-yes{color:#1D7340;font-weight:600}
-    .perm-no{color:#D2D2D7}
-    .perm-partial{color:#86868B}
-    .role-col{font-weight:500}
-
-    /* ── Supplier profile sidebar widget ── */
-    .profile-header{display:flex;align-items:center;gap:20px;padding-bottom:20px;border-bottom:0.5px solid #D2D2D7;margin-bottom:24px}
-    .profile-avatar{width:52px;height:52px;background:#1D1D1F;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-weight:700;font-size:18px;flex-shrink:0}
-    .profile-name{font-size:20px;font-weight:600;letter-spacing:-0.4px}
-    .profile-meta{font-size:14px;color:#86868B;margin-top:3px}
-    .profile-badges{display:flex;gap:12px;margin-top:8px}
-    .info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;margin-bottom:32px}
-    .info-card{padding:16px 20px 16px 0;border-bottom:0.5px solid #D2D2D7}
-    .info-card-label{font-size:12px;color:#86868B;margin-bottom:4px}
-    .info-card-val{font-size:15px;font-weight:500;color:#1D1D1F}
-
-    /* ── Change log ── */
-    .log-list{display:flex;flex-direction:column}
-    .log-item{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:0.5px solid #D2D2D7}
-    .log-item:last-child{border-bottom:none}
-    .log-dot{width:6px;height:6px;border-radius:50%;margin-top:7px;flex-shrink:0}
-    .log-dot-add{background:#1D7340}
-    .log-dot-edit{background:#0071E3}
-    .log-dot-perm{background:#86868B}
-    .log-dot-del{background:#FF3B30}
-    .log-action{font-weight:500;font-size:15px;color:#1D1D1F}
-    .log-detail{font-size:13px;color:#86868B;margin-top:2px}
-    .log-time{font-size:12px;color:#86868B;margin-left:auto;white-space:nowrap;flex-shrink:0}
-
-    /* ── BOM ── */
-    .bom-tree{display:flex;flex-direction:column}
-    .bom-node{display:flex;align-items:center;gap:10px;padding:14px 0;border-bottom:0.5px solid #D2D2D7}
-    .bom-node:last-child{border-bottom:none}
-    .bom-node-root{font-weight:600;font-size:17px;color:#1D1D1F}
-    .bom-indent-1{padding-left:24px}
-    .bom-indent-2{padding-left:48px}
-    .bom-connector{font-size:12px;color:#D2D2D7}
-    .bom-qty{font-size:13px;color:#86868B;margin-left:auto}
-    .bom-name{font-size:15px;color:#1D1D1F}
-
-    /* ── Compare ── */
-    .compare-grid{display:grid;grid-template-columns:180px 1fr 1fr;gap:0;margin-bottom:32px}
-    .compare-col-header{padding:14px 16px 14px 0;font-weight:600;font-size:15px;border-bottom:0.5px solid #D2D2D7;color:#1D1D1F}
-    .compare-row-label{padding:14px 16px 14px 0;font-size:13px;color:#86868B;border-bottom:0.5px solid #D2D2D7;font-weight:500}
-    .compare-cell{padding:14px 16px 14px 0;font-size:15px;border-bottom:0.5px solid #D2D2D7;color:#1D1D1F}
-    .compare-match{color:#86868B}
-
-    /* ── Library ── */
-    .lib-grid{display:flex;flex-direction:column}
-    .lib-card{display:flex;align-items:center;padding:16px 0;border-bottom:0.5px solid #D2D2D7;cursor:pointer}
-    .lib-card:last-child{border-bottom:none}
-    .lib-card-info{flex:1}
-    .lib-card-name{font-size:15px;font-weight:500;color:#1D1D1F}
-    .lib-card-sub{font-size:13px;color:#86868B;margin-top:2px}
-    .lib-card-meta{display:flex;align-items:center;gap:10px;margin-top:4px}
-    .lib-chev{font-size:18px;color:#D2D2D7;margin-left:auto}
-
-    /* ── Note box ── */
-    .note-box{font-size:13px;color:#86868B;margin-top:16px;padding-top:14px;border-top:0.5px solid #D2D2D7;line-height:1.6}
-
-    /* ── Role gate ── */
-    .role-gate{padding:60px 0;text-align:center}
-    .role-gate-title{font-size:17px;font-weight:600;color:#1D1D1F;margin-bottom:8px}
-    .role-gate-sub{font-size:15px;color:#86868B}
-
-    /* ── Fade ── */
-    .fade-in{animation:fadeIn 0.18s ease}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
-
-    ::-webkit-scrollbar{width:6px;height:6px}
-    ::-webkit-scrollbar-track{background:transparent}
-    ::-webkit-scrollbar-thumb{background:#D2D2D7;border-radius:3px}
-  </style>
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#D2D2D7;border-radius:3px}
+</style>
 </head>
 <body>
 
-<!-- ══ TOPBAR ══ -->
-<div class="topbar">
-  <span class="brand">SmartPN Atlas</span>
-  <div class="search-wrap">
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="#1D1D1F" stroke-width="1.2"/><path d="M9.5 9.5L12.5 12.5" stroke="#1D1D1F" stroke-width="1.2" stroke-linecap="round"/></svg>
-    <input type="text" id="global-search" placeholder="Search materials, suppliers…" oninput="handleSearch(this.value)" />
+<!-- ══ TOP NAVIGATION ══ -->
+<nav class="topnav">
+  <span class="nav-brand">SmartPN Atlas</span>
+  <div class="nav-search-wrap" onclick="document.getElementById('nav-search-input').focus()">
+    <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="#FFF" stroke-width="1.2"/><path d="M9.5 9.5L12.5 12.5" stroke="#FFF" stroke-width="1.2" stroke-linecap="round"/></svg>
+    <input type="text" id="nav-search-input" placeholder="Search materials, suppliers, codes…" oninput="handleNavSearch(this.value)"/>
   </div>
-  <div class="topbar-spacer"></div>
-  <div class="role-toggle">
-    <button class="role-btn active" onclick="setRole('brand', this)">Brand view</button>
-    <button class="role-btn" onclick="setRole('supplier', this)">Supplier view</button>
-    <button class="role-btn" onclick="setRole('external', this)">External view</button>
+  <div class="nav-spacer"></div>
+  <div class="nav-actions">
+    <button class="nav-btn" onclick="showPage('favorites')">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 13.5S2 9.5 2 5.5A3.5 3.5 0 018 3a3.5 3.5 0 016 2c0 4-6 8.5-6 8.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+      My Favorites
+    </button>
+    <button class="nav-btn" onclick="showPage('library')">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 7h6M5 10h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      My Library <span class="nav-count">12</span>
+    </button>
+    <button class="nav-btn" onclick="showPage('account')">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 14c0-3 2.5-5 5.5-5s5.5 2 5.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      My Account
+    </button>
+    <button class="nav-btn" onclick="showPage('settings')">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.9 2.9l1.4 1.4M11.7 11.7l1.4 1.4M11.7 4.3l-1.4 1.4M4.3 11.7l-1.4 1.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Settings
+    </button>
+  </div>
+</nav>
+
+<!-- ══ FILTER BAR ══ -->
+<div class="filter-bar" id="filter-bar">
+  <button class="fc active" onclick="setTypeFilter('all',this)">All</button>
+  <button class="fc" onclick="setTypeFilter('raw',this)">Raw Material</button>
+  <button class="fc" onclick="setTypeFilter('secondary',this)">Secondary</button>
+  <button class="fc dpp" onclick="toggleDppFilter(this)" id="dpp-fc">DPP-ready</button>
+  <div class="filter-sep"></div>
+  <span class="filter-label">Price / kg</span>
+  <div class="price-range-wrap">
+    <input type="number" class="price-input" id="price-min" placeholder="Min" oninput="applyFilters()">
+    <span style="font-size:12px;color:#86868B">–</span>
+    <input type="number" class="price-input" id="price-max" placeholder="Max" oninput="applyFilters()">
+  </div>
+  <div class="filter-sep"></div>
+  <span class="filter-label">Max LT (days)</span>
+  <input type="number" class="price-input" id="lt-max" placeholder="Any" style="width:50px" oninput="applyFilters()">
+</div>
+
+<!-- ══ PAGES ══ -->
+
+<!-- ── SEARCH ── -->
+<div class="page active" id="page-search" style="max-width:none;padding:0">
+  <div style="max-width:1080px;margin:0 auto;padding:24px 40px 8px">
+    <div id="fsm-banner-area"></div>
+    <div class="result-count" id="result-count"></div>
+  </div>
+  <div id="mat-grid-wrap" style="max-width:1080px;margin:0 auto;padding:0 40px 40px"></div>
+</div>
+
+<!-- ── SPU DETAIL (Product Homepage) ── -->
+<div class="page fade-in" id="page-spu">
+  <button class="detail-back" onclick="backToSearch()">‹ Material Search</button>
+  <div class="spu-hero" id="spu-hero"></div>
+  <div id="spu-spec-body"></div>
+  <div id="spu-reviews-body"></div>
+</div>
+
+<!-- ── SKU DETAIL (Product + Spec page) ── -->
+<div class="page fade-in" id="page-sku">
+  <button class="detail-back" id="sku-back-btn" onclick="backToSpu()">‹ Back</button>
+  <div class="spu-hero" id="sku-hero"></div>
+  <div id="sku-spec-body"></div>
+</div>
+
+<!-- ── COMPANY PROFILE ── -->
+<div class="page fade-in" id="page-company">
+  <button class="detail-back" id="company-back-btn" onclick="backFromCompany()">‹ Back</button>
+  <div id="company-content"></div>
+</div>
+
+<!-- ── MY FAVORITES ── -->
+<div class="page fade-in" id="page-favorites">
+  <div class="section-title">My Favorites</div>
+  <div class="lib-grid">
+    <div class="lib-card" onclick="openMaterial('SPN-001')"><div class="lib-img"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#1D1D1F" stroke-width="1.2"/></svg></div><div class="lib-info"><div class="lib-name">PA66-GF30 Nylon</div><div class="lib-sub">Formosa Plastics · Raw</div><div class="lib-meta"><span class="badge b-open">OPEN</span><span class="b-dpp">DPP-ready</span></div></div><span class="lib-chev">›</span></div>
+    <div class="lib-card" onclick="openMaterial('SPN-004')"><div class="lib-img"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="#1D1D1F" stroke-width="1.2"/></svg></div><div class="lib-info"><div class="lib-name">PETG Sheet 1.5mm</div><div class="lib-sub">Formosa Plastics · Raw</div><div class="lib-meta"><span class="badge b-shared">SHARED</span><span class="b-dpp">DPP-ready</span></div></div><span class="lib-chev">›</span></div>
+    <div class="lib-card" onclick="openMaterial('SPN-007')"><div class="lib-img"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><polygon points="12,4 20,20 4,20" stroke="#1D1D1F" stroke-width="1.2" fill="none"/></svg></div><div class="lib-info"><div class="lib-name">SUS304 Hinge Bracket</div><div class="lib-sub">Shinkong Fiber · Raw</div><div class="lib-meta"><span class="badge b-open">OPEN</span></div></div><span class="lib-chev">›</span></div>
   </div>
 </div>
 
-<div class="layout">
-  <!-- ── SIDEBAR ── -->
-  <div class="sidebar">
-    <div class="sidebar-label">Company</div>
-    <button class="nav-item" onclick="showView('dashboard')">
-      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.7"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.7"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.7"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.7"/></svg>
-      Dashboard<span class="nav-chev">›</span>
-    </button>
-    <button class="nav-item active" onclick="showView('search')">
-      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Material Search<span class="nav-chev">›</span>
-    </button>
-    <button class="nav-item" onclick="showView('library')">
-      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 7h6M5 10h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      My Library<span class="nav-sub">12</span><span class="nav-chev">›</span>
-    </button>
-    <button class="nav-item" onclick="showView('compare')">
-      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="6" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="3" width="6" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/></svg>
-      Compare<span class="nav-chev">›</span>
-    </button>
-    <button class="nav-item" onclick="showView('bom')">
-      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M8 2v3M4 8v3m4-3v3m4-3v3M2 5h12M2 13h4m4 0h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      BOM Reference<span class="nav-chev">›</span>
-    </button>
-    <div class="sidebar-label" style="padding-top:24px">SmartPN</div>
-    <button class="nav-item" onclick="showView('material')">
-      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      原物料建立<span class="nav-chev">›</span>
-    </button>
-    <button class="nav-item" onclick="showView('secondary')">
-      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M3 13L8 3l5 10H3z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
-      二次加工建立<span class="nav-chev">›</span>
-    </button>
-    <button class="nav-item" onclick="showView('permission')">
-      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="4" y="7" width="8" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Permission<span class="nav-chev">›</span>
-    </button>
-    <button class="nav-item" onclick="showView('supplier')">
-      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 14c0-3 2.5-5 5.5-5s5.5 2 5.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Supplier Profile<span class="nav-chev">›</span>
-    </button>
-    <button class="nav-item" onclick="showView('changelog')">
-      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M3 4h10M3 8h7M3 12h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      Change Log<span class="nav-chev">›</span>
-    </button>
-    <div style="flex:1"></div>
-    <div class="status-badges">
-      <div class="status-badge">● Supplier-maintained</div>
-      <div class="status-badge">◆ No BOM storage</div>
-      <div class="status-badge">▲ Shared ≠ Open</div>
+<!-- ── MY LIBRARY ── -->
+<div class="page fade-in" id="page-library">
+  <div class="section-title">My Library <span style="font-size:13px;color:#86868B;font-weight:400">(12 materials)</span></div>
+  <div class="lib-grid" id="library-list"></div>
+</div>
+
+<!-- ── COMPARE ── -->
+<div class="page fade-in full-w" id="page-compare" style="padding:0">
+  <div style="max-width:1080px;margin:0 auto;padding:0 40px">
+    <div class="compare-page-header">
+      <div class="compare-page-title">Compare Materials</div>
+      <div class="compare-page-sub">PA66-GF Nylon — 3 variants, side by side</div>
     </div>
   </div>
+  <div class="compare-wrapper" style="max-width:1080px;margin:0 auto;padding:0 40px 40px">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>
+            <div class="compare-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#1D1D1F" stroke-width="1.2"/></svg></div>
+            PA66-GF30<br><span class="compare-supplier">Formosa Plastics</span>
+          </th>
+          <th>
+            <div class="compare-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#1D1D1F" stroke-width="1.2"/></svg></div>
+            PA66-GF33<br><span class="compare-supplier">Shinkong Fiber</span>
+          </th>
+          <th>
+            <div class="compare-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#1D1D1F" stroke-width="1.2"/></svg></div>
+            PA66-GF40<br><span class="compare-supplier">NexPlast Vietnam</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>SmartPN ID</td><td style="font-size:12px;color:#86868B">SPN-001</td><td style="font-size:12px;color:#86868B">SPN-002</td><td style="font-size:12px;color:#86868B">SPN-003</td></tr>
+        <tr><td>Type</td><td class="compare-same">Raw · Pellet</td><td class="compare-same">Raw · Pellet</td><td class="compare-same">Raw · Pellet</td></tr>
+        <tr><td>Glass fill</td><td>30%</td><td>33%</td><td class="compare-better">40%</td></tr>
+        <tr><td>Tensile strength</td><td>185 MPa</td><td class="compare-better">196 MPa</td><td class="compare-better">210 MPa</td></tr>
+        <tr><td>Price / kg</td><td>USD 4.20</td><td class="compare-better">USD 3.85</td><td class="compare-better">USD 3.60</td></tr>
+        <tr><td>Lead time</td><td class="compare-better">14 days</td><td>21 days</td><td class="compare-worse">28 days</td></tr>
+        <tr><td>DPP-ready</td><td><span class="b-dpp">✓ DPP-ready</span></td><td><span class="b-dpp">✓ DPP-ready</span></td><td style="color:#86868B">—</td></tr>
+        <tr><td>Permission</td><td><span class="badge b-open">OPEN</span></td><td><span class="badge b-shared">SHARED</span></td><td><span class="badge b-open">OPEN</span></td></tr>
+        <tr><td>Updated</td><td>Jun 10, 2026</td><td>Jun 8, 2026</td><td>Jun 5, 2026</td></tr>
+        <tr class="compare-add-row"><td></td><td><button class="btn-compare-add">Add to Library</button></td><td><button class="btn-compare-add">Add to Library</button></td><td><button class="btn-compare-add">Add to Library</button></td></tr>
+      </tbody>
+    </table>
+    <div style="font-size:12px;color:#86868B;padding:16px 0 0">Highlighted values indicate the best in each row. Data sourced from supplier-maintained records.</div>
+  </div>
+</div>
 
-  <!-- ── MAIN ── -->
-  <div class="main">
-
-    <!-- ════ DASHBOARD ════ -->
-    <div class="view fade-in" id="view-dashboard">
-      <div class="page-header"><div class="page-title">Dashboard</div><div class="page-sub">Overview · June 2026</div></div>
-      <div class="stats-row">
-        <div class="stat-card"><div class="stat-num">1,284</div><div class="stat-label">Total Materials</div><div class="stat-delta">+47 this month</div></div>
-        <div class="stat-card"><div class="stat-num">38</div><div class="stat-label">Active Suppliers</div><div class="stat-delta">+3 this month</div></div>
-        <div class="stat-card"><div class="stat-num">62%</div><div class="stat-label">Supplier-maintained</div><div class="stat-delta">↑ from 41%</div></div>
-        <div class="stat-card"><div class="stat-num">204</div><div class="stat-label">OPEN permissions</div><div class="stat-delta">+28 this month</div></div>
-      </div>
-      <div class="section-title" style="margin-top:0">Recent activity</div>
-      <div class="log-list" style="margin-top:0">
-        <div class="log-item"><div class="log-dot log-dot-add"></div><div><div class="log-action">Supplier Formosa added 3 new raw materials</div><div class="log-detail">Nylon 6 · PA66-GF30 · PETG</div></div><div class="log-time">2h ago</div></div>
-        <div class="log-item"><div class="log-dot log-dot-perm"></div><div><div class="log-action">Permission updated — STM-2024-09 set to OPEN</div><div class="log-detail">Supplier B · Triggered by SmartPN rule</div></div><div class="log-time">5h ago</div></div>
-        <div class="log-item"><div class="log-dot log-dot-edit"></div><div><div class="log-action">Secondary processing record updated</div><div class="log-detail">Electroplating spec rev 2.1 — Supplier A</div></div><div class="log-time">Yesterday</div></div>
-        <div class="log-item"><div class="log-dot log-dot-add"></div><div><div class="log-action">New supplier onboarded — Global Poly Solutions</div><div class="log-detail">12 materials pre-loaded from legacy system</div></div><div class="log-time">2 days ago</div></div>
-      </div>
+<!-- ── MY ACCOUNT ── -->
+<div class="page fade-in" id="page-account">
+  <div class="account-hero">
+    <div class="account-avatar">JL</div>
+    <div>
+      <div class="account-name">James Liu</div>
+      <div class="account-org">NexBrand Co. · R&D Procurement · james.liu@nexbrand.com</div>
     </div>
+  </div>
+  <div class="section-title">Access &amp; Permissions</div>
+  <div class="settings-row"><span class="settings-label">OPEN materials</span><span class="settings-val">All — 1,284 items</span></div>
+  <div class="settings-row"><span class="settings-label">Granted by Formosa Plastics</span><span class="settings-val">Customs folder · Finance folder</span></div>
+  <div class="settings-row"><span class="settings-label">Granted by Shinkong Fiber</span><span class="settings-val">Technical folder</span></div>
+  <div class="settings-row"><span class="settings-label">Pending requests</span><span class="settings-val" style="color:#F5A623">2 requests pending</span></div>
+</div>
 
-    <!-- ════ MATERIAL SEARCH ════ -->
-    <div class="view active fade-in" id="view-search">
-      <div class="page-header">
-        <div class="page-title">Material Search</div>
-        <div class="page-sub" id="search-role-sub">Brand view — full data access</div>
-      </div>
-      <div class="ms-filter-bar">
-        <button class="ms-chip active" onclick="filterByType('all',this)">All</button>
-        <button class="ms-chip" onclick="filterByType('raw',this)">Raw material</button>
-        <button class="ms-chip" onclick="filterByType('secondary',this)">Secondary</button>
-        <button class="ms-chip" onclick="filterByType('open',this)">OPEN only</button>
-        <div class="ms-search">
-          <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="#86868B" stroke-width="1.3"/><path d="M9.5 9.5L12.5 12.5" stroke="#86868B" stroke-width="1.3" stroke-linecap="round"/></svg>
-          <input type="text" id="material-search" placeholder="Name, supplier, code…" oninput="filterMaterials()" />
-        </div>
-      </div>
-      <div id="fsm-banner-area"></div>
-      <div id="material-grid-area"></div>
-      <div class="ms-count" id="material-note"></div>
-    </div>
-
-    <!-- ════ MATERIAL DETAIL (SPU + SKU) ════ -->
-    <div class="view fade-in" id="view-detail">
-      <div class="detail-back" onclick="backFromDetail()">‹ Material Search</div>
-      <div class="detail-hero" id="detail-hero"></div>
-      <div id="detail-spec-body"></div>
-      <div style="text-align:center;padding:32px 0 24px;border-top:0.5px solid #D2D2D7;margin-top:8px">
-        <button class="btn-cta" id="detail-add-btn" onclick="detailAddToLibrary()">Add to My Library</button>
-        <div style="margin-top:16px;font-size:14px;color:#0071E3;cursor:pointer" onclick="showView('compare')">Compare</div>
-        <div style="margin-top:10px;font-size:12px;color:#86868B" id="detail-footer-note"></div>
-      </div>
-    </div>
-
-    <!-- ════ COMPANY PROFILE ════ -->
-    <div class="view fade-in" id="view-company">
-      <div class="company-back" id="company-back-btn" onclick="backFromCompany()">‹ Back</div>
-      <div id="company-content"></div>
-    </div>
-
-    <!-- ════ MY LIBRARY ════ -->
-    <div class="view fade-in" id="view-library">
-      <div class="page-header"><div class="page-title">My Library</div><div class="page-sub">Saved materials and custom lists</div></div>
-      <div class="section-title" style="margin-top:0">Saved items (12)</div>
-      <div class="lib-grid" style="margin-top:0">
-        <div class="lib-card"><div class="lib-card-info"><div class="lib-card-name">PA66-GF30 (Nylon)</div><div class="lib-card-sub">Formosa Plastics · Raw</div><div class="lib-card-meta"><span class="badge badge-open">OPEN</span><span style="font-size:12px;color:#86868B">Saved Jun 8</span></div></div><span class="lib-chev">›</span></div>
-        <div class="lib-card"><div class="lib-card-info"><div class="lib-card-name">Electroplating Spec A</div><div class="lib-card-sub">Supplier A · Secondary</div><div class="lib-card-meta"><span class="badge badge-private">PRIVATE</span><span style="font-size:12px;color:#86868B">Saved Jun 5</span></div></div><span class="lib-chev">›</span></div>
-        <div class="lib-card"><div class="lib-card-info"><div class="lib-card-name">PETG Sheet 1.5mm</div><div class="lib-card-sub">Formosa Plastics · Raw</div><div class="lib-card-meta"><span class="badge badge-shared">SHARED</span><span style="font-size:12px;color:#86868B">Saved Jun 1</span></div></div><span class="lib-chev">›</span></div>
-        <div class="lib-card"><div class="lib-card-info"><div class="lib-card-name">STM-2024-09</div><div class="lib-card-sub">Supplier B · Raw</div><div class="lib-card-meta"><span class="badge badge-open">OPEN</span><span style="font-size:12px;color:#86868B">Saved May 28</span></div></div><span class="lib-chev">›</span></div>
-        <div class="lib-card"><div class="lib-card-info"><div class="lib-card-name">Powder Coat Black</div><div class="lib-card-sub">Supplier C · Secondary</div><div class="lib-card-meta"><span class="badge badge-private">PRIVATE</span><span style="font-size:12px;color:#86868B">Saved May 20</span></div></div><span class="lib-chev">›</span></div>
-        <div class="lib-card"><div class="lib-card-info"><div class="lib-card-name">ABS-HI Resin</div><div class="lib-card-sub">Global Poly · Raw</div><div class="lib-card-meta"><span class="badge badge-open">OPEN</span><span style="font-size:12px;color:#86868B">Saved May 15</span></div></div><span class="lib-chev">›</span></div>
-      </div>
-    </div>
-
-    <!-- ════ COMPARE ════ -->
-    <div class="view fade-in" id="view-compare">
-      <div class="page-header"><div class="page-title">Compare Materials</div><div class="page-sub">Side-by-side comparison</div></div>
-      <div class="compare-grid">
-        <div class="compare-col-header" style="color:#86868B;font-weight:400;font-size:13px"></div>
-        <div class="compare-col-header">PA66-GF30 · Formosa</div>
-        <div class="compare-col-header">PA66-GF30 · Supplier B</div>
-        <div class="compare-row-label">SmartPN Code</div><div class="compare-cell">SPN-001-PA66GF30-FOR</div><div class="compare-cell">SPN-002-PA66GF30-B</div>
-        <div class="compare-row-label">Type</div><div class="compare-cell compare-match">Raw material</div><div class="compare-cell compare-match">Raw material</div>
-        <div class="compare-row-label">Glass fill %</div><div class="compare-cell compare-match">30%</div><div class="compare-cell" style="color:#FF3B30">33%</div>
-        <div class="compare-row-label">Tensile strength</div><div class="compare-cell">185 MPa</div><div class="compare-cell" style="color:#1D7340">196 MPa</div>
-        <div class="compare-row-label">Permission</div><div class="compare-cell"><span class="badge badge-open">OPEN</span></div><div class="compare-cell"><span class="badge badge-private">PRIVATE</span></div>
-        <div class="compare-row-label">Price / kg</div><div class="compare-cell">USD 4.20</div><div class="compare-cell" style="color:#1D7340">USD 3.85</div>
-        <div class="compare-row-label">Updated</div><div class="compare-cell">Jun 7, 2026</div><div class="compare-cell compare-match">Jun 2, 2026</div>
-      </div>
-      <div class="note-box">Highlighted values indicate differences. Data sourced from supplier-maintained records.</div>
-    </div>
-
-    <!-- ════ BOM REFERENCE ════ -->
-    <div class="view fade-in" id="view-bom">
-      <div class="page-header"><div class="page-title">BOM Reference</div><div class="page-sub">Factory substitution flow · read-only reference</div></div>
-      <div class="section-title" style="margin-top:0">Laptop chassis assembly</div>
-      <div class="bom-tree" style="margin-top:0">
-        <div class="bom-node bom-node-root"><span>Laptop Chassis A1</span><span class="bom-qty">1 unit</span></div>
-        <div class="bom-node bom-indent-1"><span class="bom-connector">├─</span><span class="bom-name">Top cover — Magnesium alloy</span><span class="badge badge-shared" style="margin-left:10px">SHARED</span><span class="bom-qty">1 pc</span></div>
-        <div class="bom-node bom-indent-2"><span class="bom-connector">└─</span><span class="bom-name" style="color:#86868B">→ Anodising (Secondary)</span><span class="badge badge-private" style="margin-left:10px">PRIVATE</span><span class="bom-qty">per surface</span></div>
-        <div class="bom-node bom-indent-1"><span class="bom-connector">├─</span><span class="bom-name">Bottom cover — PA66-GF30</span><span class="badge badge-open" style="margin-left:10px">OPEN</span><span class="bom-qty">1 pc</span></div>
-        <div class="bom-node bom-indent-2"><span class="bom-connector">└─</span><span class="bom-name" style="color:#86868B">→ Powder coat — Black</span><span class="badge badge-private" style="margin-left:10px">PRIVATE</span><span class="bom-qty">per surface</span></div>
-        <div class="bom-node bom-indent-1"><span class="bom-connector">├─</span><span class="bom-name">Hinge bracket — SUS304</span><span class="badge badge-shared" style="margin-left:10px">SHARED</span><span class="bom-qty">2 pc</span></div>
-        <div class="bom-node bom-indent-1"><span class="bom-connector">└─</span><span class="bom-name">Keyboard bezel — PETG 1.5mm</span><span class="badge badge-open" style="margin-left:10px">OPEN</span><span class="bom-qty">1 pc</span></div>
-      </div>
-      <div class="note-box">SmartPN Atlas stores BOM references only — no full BOM storage.</div>
-    </div>
-
-    <!-- ════ 原物料建立 ════ -->
-    <div class="view fade-in" id="view-material">
-      <div class="page-header"><div class="page-title">原物料建立</div><div class="page-sub">Raw Material Creation — SmartPN record</div></div>
-      <div id="material-form-content"></div>
-    </div>
-
-    <!-- ════ 二次加工建立 ════ -->
-    <div class="view fade-in" id="view-secondary">
-      <div class="page-header"><div class="page-title">二次加工建立</div><div class="page-sub">Secondary Processing Creation — SmartPN record</div></div>
-      <div id="secondary-form-content"></div>
-    </div>
-
-    <!-- ════ PERMISSION ════ -->
-    <div class="view fade-in" id="view-permission">
-      <div class="page-header"><div class="page-title">Permission Control</div><div class="page-sub">Multi-layer access · Shared ≠ fully open</div></div>
-      <div id="permission-content"></div>
-    </div>
-
-    <!-- ════ SUPPLIER PROFILE ════ -->
-    <div class="view fade-in" id="view-supplier">
-      <div class="page-header"><div class="page-title">Supplier Profile</div><div class="page-sub">Supplier A — Formosa Plastics</div></div>
-      <div class="profile-header">
-        <div class="profile-avatar">FP</div>
-        <div>
-          <div class="profile-name">Formosa Plastics Corporation</div>
-          <div class="profile-meta">Taipei, Taiwan · Polymer & Raw Materials</div>
-          <div class="profile-badges"><span class="badge badge-open">Verified</span><span class="badge badge-shared">SmartPN Active</span><span class="badge" style="color:#86868B">Tier 1</span></div>
-        </div>
-      </div>
-      <div class="info-grid">
-        <div class="info-card"><div class="info-card-label">Total Materials</div><div class="info-card-val">247</div></div>
-        <div class="info-card"><div class="info-card-label">OPEN materials</div><div class="info-card-val">89</div></div>
-        <div class="info-card"><div class="info-card-label">Last updated</div><div class="info-card-val">Jun 9, 2026</div></div>
-        <div class="info-card"><div class="info-card-label">Relationship</div><div class="info-card-val">Since 2019</div></div>
-        <div class="info-card"><div class="info-card-label">Maintained by</div><div class="info-card-val">Supplier</div></div>
-        <div class="info-card"><div class="info-card-label">Onboarding</div><div class="info-card-val">Complete</div></div>
-      </div>
-    </div>
-
-    <!-- ════ CHANGE LOG ════ -->
-    <div class="view fade-in" id="view-changelog">
-      <div class="page-header"><div class="page-title">Change Log</div><div class="page-sub">Audit trail · All changes</div></div>
-      <div class="log-list">
-        <div class="log-item"><div class="log-dot log-dot-add"></div><div><div class="log-action">PA66-GF30 added by Formosa Plastics</div><div class="log-detail">SPN-001-PA66GF30-FOR · Permission: OPEN</div></div><div class="log-time">Jun 9, 10:42</div></div>
-        <div class="log-item"><div class="log-dot log-dot-perm"></div><div><div class="log-action">Permission changed: PRIVATE → OPEN</div><div class="log-detail">STM-2024-09 · Supplier B</div></div><div class="log-time">Jun 9, 09:15</div></div>
-        <div class="log-item"><div class="log-dot log-dot-edit"></div><div><div class="log-action">Secondary processing spec updated</div><div class="log-detail">Electroplating Rev 2.1 · Supplier A</div></div><div class="log-time">Jun 8, 16:30</div></div>
-        <div class="log-item"><div class="log-dot log-dot-add"></div><div><div class="log-action">New supplier onboarded: Global Poly Solutions</div><div class="log-detail">12 materials imported</div></div><div class="log-time">Jun 7, 11:00</div></div>
-      </div>
-    </div>
-
-  </div><!-- /main -->
-</div><!-- /layout -->
+<!-- ── SETTINGS ── -->
+<div class="page fade-in" id="page-settings">
+  <div class="section-title">Settings</div>
+  <div class="settings-row"><span class="settings-label">Language</span><span class="settings-val">English</span></div>
+  <div class="settings-row"><span class="settings-label">Default search results</span><span class="settings-val">All (OPEN + my access)</span></div>
+  <div class="settings-row"><span class="settings-label">DPP-ready filter</span><div class="toggle"></div></div>
+  <div class="settings-row"><span class="settings-label">Email on permission changes</span><div class="toggle"></div></div>
+  <div class="settings-row"><span class="settings-label">Show LT in search results</span><div class="toggle"></div></div>
+</div>
 
 <script>
-/* ═══════════════════════════════════════════
-   DATA
-═══════════════════════════════════════════ */
+/* ═══════════════════════
+   MOCK DATA
+═══════════════════════ */
+const SUPPLIERS = {
+  FP: { id:'FP', name:'Formosa Plastics', short:'FP', location:'Taipei, Taiwan', category:'Polymer & Raw Materials', desc:'Founded 1954. One of Asia\'s largest integrated polymer producers. All materials independently verified. ISO 9001 / ISO 14001 certified.', certs:['ISO 9001','ISO 14001','GRS-certified','DPP-ready'], materials:247, open:89, dpp:true },
+  SK: { id:'SK', name:'Shinkong Fiber', short:'SK', location:'Taipei, Taiwan', category:'Advanced Fibers & Composites', desc:'Specialized in high-performance engineering fibers and polymer composites. Serving aerospace, automotive, and electronics sectors for 30+ years.', certs:['ISO 9001','OEKO-TEX','DPP-ready'], materials:138, open:52, dpp:true },
+  NX: { id:'NX', name:'NexPlast Vietnam', short:'NX', location:'Ho Chi Minh City, Vietnam', category:'Commodity Polymers', desc:'Regional polymer distributor and toll processor. Competitive pricing with 28-day lead times. REACH compliant.', certs:['ISO 9001','REACH'], materials:64, open:40, dpp:false },
+};
 
-let currentRole = 'brand';
-let currentView = 'search';
-let currentTypeFilter = 'all';
-let fsmContext = null;    // { fromCode, spuCode, skuKey } — set when "Find Same Material" clicked
-let prevDetailCode = null;  // track which detail page we came from, for company back button
-let currentDetailCode = null;
-
-const allMaterials = [
-  { code:'SPN-001-PA66GF30-FOR', name:'PA66-GF30 Nylon', supplier:'Formosa Plastics', type:'raw',
-    spuCode:'PA66-GF', skuKey:'30GF-NAT',
-    skuDims:{ 'Glass Filler':'30%', 'Color':'Natural', 'Form':'Pellet' },
-    maintainedBy:'Supplier', updated:'Jun 9', perm:'OPEN', imgType:'polymer' },
-
-  { code:'SPN-002-PA66GF30-B',  name:'PA66-GF33 (Variant B)', supplier:'Supplier B', type:'raw',
-    spuCode:'PA66-GF', skuKey:'33GF-BLK',
-    skuDims:{ 'Glass Filler':'33%', 'Color':'Black', 'Form':'Pellet' },
-    maintainedBy:'Brand', updated:'Jun 2', perm:'PRIVATE', imgType:'polymer' },
-
-  { code:'SPN-003-PA66GF40-C',  name:'PA66-GF40 (High Fill)', supplier:'Supplier C', type:'raw',
-    spuCode:'PA66-GF', skuKey:'40GF-BLK',
-    skuDims:{ 'Glass Filler':'40%', 'Color':'Black', 'Form':'Pellet' },
-    maintainedBy:'Supplier', updated:'Jun 1', perm:'OPEN', imgType:'polymer' },
-
-  { code:'SPN-042-PETG-FOR',    name:'PETG Sheet 1.5mm', supplier:'Formosa Plastics', type:'raw',
-    spuCode:'PETG-SHEET', skuKey:'1.5mm-CLR',
-    skuDims:{ 'Thickness':'1.5mm', 'Color':'Clear', 'Form':'Sheet' },
-    maintainedBy:'Supplier', updated:'Jun 7', perm:'SHARED', imgType:'sheet' },
-
-  { code:'SPN-043-PETG-2MM-B',  name:'PETG Sheet 2.0mm', supplier:'Supplier B', type:'raw',
-    spuCode:'PETG-SHEET', skuKey:'2.0mm-CLR',
-    skuDims:{ 'Thickness':'2.0mm', 'Color':'Clear', 'Form':'Sheet' },
-    maintainedBy:'Supplier', updated:'May 28', perm:'OPEN', imgType:'sheet' },
-
-  { code:'SPN-103-ABS-FOR',     name:'ABS-HI Resin', supplier:'Global Poly', type:'raw',
-    spuCode:'ABS-HI', skuKey:'NAT-PELLET',
-    skuDims:{ 'Grade':'High Impact', 'Color':'Natural', 'Form':'Pellet' },
-    maintainedBy:'Supplier', updated:'Jun 5', perm:'OPEN', imgType:'polymer' },
-
-  { code:'STM-2024-09',         name:'SUS304 Hinge Bracket', supplier:'Supplier B', type:'raw',
-    spuCode:'SUS304-STAMP', skuKey:'2B-STD',
-    skuDims:{ 'Surface':'2B Finish', 'Form':'Stamped' },
-    maintainedBy:'Supplier', updated:'Jun 9', perm:'OPEN', imgType:'metal' },
-
-  { code:'SPN-074-PP-NEW',      name:'PP Homopolymer', supplier:'Supplier C', type:'raw',
-    spuCode:'PP-HM', skuKey:'NAT-PELLET',
-    skuDims:{ 'Grade':'Homopolymer', 'Color':'Natural', 'Form':'Pellet' },
-    maintainedBy:'Supplier', updated:'Jun 3', perm:'SHARED', imgType:'polymer' },
-
-  { code:'SPN-208-ELEC-A',      name:'Electroplating Spec A', supplier:'Supplier A', type:'secondary',
-    spuCode:'ELEC-PROC', skuKey:'10-25UM',
-    skuDims:{ 'Layer':'10–25 μm', 'Base':'Al 6061' },
-    maintainedBy:'Supplier', updated:'Jun 8', perm:'PRIVATE', imgType:'process' },
-
-  { code:'SPN-190-ANOD-A',      name:'Anodising Black 20μm', supplier:'Supplier A', type:'secondary',
-    spuCode:'ANOD-PROC', skuKey:'BLK-20UM',
-    skuDims:{ 'Color':'Black', 'Layer':'20 μm', 'Base':'Al 6061/7075' },
-    maintainedBy:'Supplier', updated:'Jun 1', perm:'PRIVATE', imgType:'process' },
-
-  { code:'SPN-055-MG-TW',       name:'Magnesium Alloy AZ31B', supplier:'Taiwan Metal', type:'raw',
-    spuCode:'MG-AZ31B', skuKey:'SHEET-NAT',
-    skuDims:{ 'Grade':'AZ31B', 'Form':'Sheet', 'Color':'Natural' },
-    maintainedBy:'Supplier', updated:'May 30', perm:'OPEN', imgType:'metal' },
+const MATERIALS = [
+  { id:'SPN-001', name:'PA66-GF30 Nylon', sup:'FP', type:'raw', spuCode:'PA66-GF', skuKey:'30GF-NAT', imgShape:'circle',
+    price:4.20, lt:14, perm:'OPEN', dpp:true, updated:'Jun 10',
+    spuFields:{ Category:'Engineering Polymer', 'Base resin':'Polyamide 66', 'Filler type':'Glass fiber', Standard:'ISO 527' },
+    skuVariants:[
+      { key:'30GF-NAT', label:'30% GF · Natural', price:4.20, lt:14, fields:{ 'Glass filler':'30%','Color':'Natural','Form':'Pellet','Tensile strength':'185 MPa','Melt flow index':'14 g/10min' } },
+      { key:'30GF-BLK', label:'30% GF · Black',   price:4.35, lt:14, fields:{ 'Glass filler':'30%','Color':'Black','Form':'Pellet','Tensile strength':'185 MPa','Melt flow index':'14 g/10min' } },
+      { key:'33GF-NAT', label:'33% GF · Natural',  price:4.55, lt:18, fields:{ 'Glass filler':'33%','Color':'Natural','Form':'Pellet','Tensile strength':'192 MPa','Melt flow index':'12 g/10min' } },
+    ],
+    reviews:[
+      { initials:'RL', name:'Rachel L.', org:'NexBrand Procurement', date:'May 28', stars:5, text:'Consistent quality across 4 production batches. DPP documentation arrived within 48h of request.', perm:'SHARED' },
+      { initials:'KM', name:'K. Matsuda', org:'Apex Factory', date:'May 12', stars:4, text:'Good mechanical properties, slightly above quote on LT this cycle. Communication with supplier is excellent.', perm:'SHARED' },
+    ]
+  },
+  { id:'SPN-002', name:'PA66-GF33 Variant', sup:'SK', type:'raw', spuCode:'PA66-GF', skuKey:'33GF-BLK', imgShape:'circle',
+    price:3.85, lt:21, perm:'SHARED', dpp:true, updated:'Jun 8',
+    spuFields:{ Category:'Engineering Polymer', 'Base resin':'Polyamide 66', 'Filler type':'Glass fiber', Standard:'ISO 527' },
+    skuVariants:[
+      { key:'33GF-BLK', label:'33% GF · Black', price:3.85, lt:21, fields:{ 'Glass filler':'33%','Color':'Black','Form':'Pellet','Tensile strength':'196 MPa','Melt flow index':'11 g/10min' } },
+    ],
+    reviews:[
+      { initials:'JL', name:'James Liu', org:'NexBrand R&D', date:'Jun 2', stars:5, text:'Best tensile strength in this SPU family at the price. DPP report comprehensive.', perm:'SHARED' },
+    ]
+  },
+  { id:'SPN-003', name:'PA66-GF40 High Fill', sup:'NX', type:'raw', spuCode:'PA66-GF', skuKey:'40GF-BLK', imgShape:'circle',
+    price:3.60, lt:28, perm:'OPEN', dpp:false, updated:'Jun 5',
+    spuFields:{ Category:'Engineering Polymer', 'Base resin':'Polyamide 66', 'Filler type':'Glass fiber', Standard:'ISO 527' },
+    skuVariants:[
+      { key:'40GF-BLK', label:'40% GF · Black', price:3.60, lt:28, fields:{ 'Glass filler':'40%','Color':'Black','Form':'Pellet','Tensile strength':'210 MPa','Melt flow index':'9 g/10min' } },
+    ],
+    reviews:[]
+  },
+  { id:'SPN-004', name:'PETG Sheet 1.5mm', sup:'FP', type:'raw', spuCode:'PETG-SHEET', skuKey:'1.5mm-CLR', imgShape:'rect',
+    price:5.50, lt:10, perm:'SHARED', dpp:true, updated:'Jun 9',
+    spuFields:{ Category:'Engineering Polymer', 'Base resin':'Polyethylene terephthalate glycol', 'Form':'Sheet', Standard:'ASTM D6103' },
+    skuVariants:[
+      { key:'1.5mm-CLR', label:'1.5mm · Clear', price:5.50, lt:10, fields:{ Thickness:'1.5mm',Color:'Clear',Form:'Sheet','Tensile strength':'52 MPa','Light transmission':'>90%' } },
+      { key:'2.0mm-CLR', label:'2.0mm · Clear', price:6.10, lt:10, fields:{ Thickness:'2.0mm',Color:'Clear',Form:'Sheet','Tensile strength':'52 MPa','Light transmission':'>90%' } },
+      { key:'2.0mm-FRO', label:'2.0mm · Frosted', price:6.20, lt:12, fields:{ Thickness:'2.0mm',Color:'Frosted',Form:'Sheet','Tensile strength':'52 MPa','Light transmission':'60-70%' } },
+    ],
+    reviews:[
+      { initials:'AW', name:'A. Wong', org:'ProductionTech', date:'Jun 1', stars:5, text:'Perfect surface finish. DPP data included recycled content %, very useful for our brand reporting.', perm:'SHARED' },
+    ]
+  },
+  { id:'SPN-005', name:'PETG Sheet 2.0mm', sup:'SK', type:'raw', spuCode:'PETG-SHEET', skuKey:'2.0mm-CLR', imgShape:'rect',
+    price:5.20, lt:14, perm:'OPEN', dpp:false, updated:'May 28',
+    spuFields:{ Category:'Engineering Polymer', 'Base resin':'Polyethylene terephthalate glycol', 'Form':'Sheet', Standard:'ASTM D6103' },
+    skuVariants:[
+      { key:'2.0mm-CLR', label:'2.0mm · Clear', price:5.20, lt:14, fields:{ Thickness:'2.0mm',Color:'Clear',Form:'Sheet','Tensile strength':'50 MPa' } },
+    ],
+    reviews:[]
+  },
+  { id:'SPN-006', name:'ABS-HI Resin', sup:'FP', type:'raw', spuCode:'ABS-HI', skuKey:'NAT-PELLET', imgShape:'circle',
+    price:3.10, lt:7, perm:'OPEN', dpp:true, updated:'Jun 7',
+    spuFields:{ Category:'Engineering Polymer', 'Base resin':'Acrylonitrile Butadiene Styrene', Grade:'High Impact', Standard:'ISO 180' },
+    skuVariants:[
+      { key:'NAT-PELLET', label:'Natural · Pellet', price:3.10, lt:7, fields:{ Color:'Natural',Form:'Pellet',Grade:'High Impact','Izod impact':'250 J/m' } },
+      { key:'BLK-PELLET', label:'Black · Pellet',   price:3.15, lt:7, fields:{ Color:'Black',Form:'Pellet',Grade:'High Impact','Izod impact':'250 J/m' } },
+    ],
+    reviews:[
+      { initials:'TK', name:'T. Kim', org:'GlobalBrand Factory', date:'May 30', stars:4, text:'Good impact resistance. Shortest LT in our approved list.', perm:'OPEN' },
+    ]
+  },
+  { id:'SPN-007', name:'SUS304 Hinge Bracket', sup:'SK', type:'raw', spuCode:'SUS304-STAMP', skuKey:'2B-STD', imgShape:'diamond',
+    price:8.40, lt:21, perm:'OPEN', dpp:false, updated:'Jun 9',
+    spuFields:{ Category:'Metal Component', Material:'Stainless Steel 304', 'Process':'Stamping', Standard:'ASTM A240' },
+    skuVariants:[
+      { key:'2B-STD', label:'2B Finish · Standard', price:8.40, lt:21, fields:{ Surface:'2B Finish',Form:'Stamped','Thickness':'1.2mm','Hardness':'HRB 80' } },
+      { key:'BA-STD', label:'BA Finish · Standard', price:9.20, lt:25, fields:{ Surface:'BA Finish',Form:'Stamped','Thickness':'1.2mm','Hardness':'HRB 80' } },
+    ],
+    reviews:[]
+  },
+  { id:'SPN-008', name:'PP Homopolymer', sup:'NX', type:'raw', spuCode:'PP-HM', skuKey:'NAT-PELLET', imgShape:'circle',
+    price:2.20, lt:14, perm:'SHARED', dpp:false, updated:'Jun 3',
+    spuFields:{ Category:'Commodity Polymer', 'Base resin':'Polypropylene', Grade:'Homopolymer', Standard:'ISO 1183' },
+    skuVariants:[
+      { key:'NAT-PELLET', label:'Natural · Pellet', price:2.20, lt:14, fields:{ Color:'Natural',Form:'Pellet','MFI':'12 g/10min','Density':'0.905 g/cm³' } },
+    ],
+    reviews:[]
+  },
+  { id:'SPN-009', name:'POM Copolymer', sup:'NX', type:'raw', spuCode:'POM-CO', skuKey:'NAT-PELLET', imgShape:'circle',
+    price:3.80, lt:21, perm:'OPEN', dpp:false, updated:'Jun 1',
+    spuFields:{ Category:'Engineering Polymer', 'Base resin':'Polyoxymethylene', Grade:'Copolymer', Standard:'ISO 527' },
+    skuVariants:[
+      { key:'NAT-PELLET', label:'Natural · Pellet', price:3.80, lt:21, fields:{ Color:'Natural',Form:'Pellet','Tensile strength':'62 MPa','Flexural modulus':'2.7 GPa' } },
+    ],
+    reviews:[]
+  },
+  { id:'SPN-010', name:'Electroplating Chrome', sup:'FP', type:'secondary', spuCode:'ELEC-PROC', skuKey:'10-25UM', imgShape:'wave',
+    price:null, lt:14, perm:'OPEN', dpp:true, updated:'Jun 8',
+    spuFields:{ Category:'Secondary Process', 'Process type':'Electroplating', 'Coating':'Chrome', Application:'ABS / Polymer substrates' },
+    skuVariants:[
+      { key:'10-25UM', label:'10–25 µm Chrome', price:null, lt:14, fields:{ 'Coating thickness':'10–25 µm','Base material':'ABS',Adhesion:'Cross-cut ≥ 4B','Surface':'High gloss' } },
+    ],
+    reviews:[
+      { initials:'RL', name:'Rachel L.', org:'NexBrand', date:'May 20', stars:5, text:'Best-in-class adhesion on ABS. DPP data includes REACH substance declaration.', perm:'SHARED' },
+    ]
+  },
+  { id:'SPN-011', name:'Powder Coat Black', sup:'NX', type:'secondary', spuCode:'PC-PROC', skuKey:'BLK-STD', imgShape:'wave',
+    price:null, lt:10, perm:'OPEN', dpp:false, updated:'Jun 6',
+    spuFields:{ Category:'Secondary Process', 'Process type':'Powder Coating', Color:'Black (RAL 9005)', Application:'Metal substrates' },
+    skuVariants:[
+      { key:'BLK-STD', label:'Black Matt · 60–80 µm', price:null, lt:10, fields:{ Color:'Black RAL 9005','Finish':'Matt','Thickness':'60–80 µm',Adhesion:'Cross-cut 4B' } },
+    ],
+    reviews:[]
+  },
+  { id:'SPN-012', name:'Anodising Type II', sup:'SK', type:'secondary', spuCode:'ANOD-PROC', skuKey:'CLR-T2', imgShape:'wave',
+    price:null, lt:12, perm:'SHARED', dpp:true, updated:'Jun 7',
+    spuFields:{ Category:'Secondary Process', 'Process type':'Anodising', Standard:'MIL-A-8625 Type II', Application:'Aluminium alloy' },
+    skuVariants:[
+      { key:'CLR-T2', label:'Clear · Type II', price:null, lt:12, fields:{ Color:'Clear','Coating thickness':'5–25 µm',Hardness:'HV 350','Sealing':'Hot DI water' } },
+      { key:'BLK-T2', label:'Black · Type II', price:null, lt:14, fields:{ Color:'Black dyed','Coating thickness':'5–25 µm',Hardness:'HV 350','Sealing':'Hot DI water' } },
+    ],
+    reviews:[
+      { initials:'JL', name:'James Liu', org:'NexBrand', date:'Jun 3', stars:5, text:'Excellent consistency. DPP report includes water usage and chemical inventory.', perm:'SHARED' },
+    ]
+  },
 ];
 
-const materialDetails = {
-  'SPN-001-PA66GF30-FOR': {
-    specs:[['Base Polymer','PA66'],['Glass Filler','30%'],['Tensile Strength','185 MPa'],['Density','1.38 g/cm³'],['HDT','250°C'],['Color','Natural'],['Standard','ISO 527-2, RoHS']],
-    commercial:[['Price / kg','USD 4.20'],['MOQ','500 kg'],['Lead Time','4 weeks'],['Packaging','25 kg / bag']],
-    permission:[['Level','OPEN'],['Shared with','All authenticated parties'],['Updated','Jun 9, 2026']]
-  },
-  'SPN-002-PA66GF30-B': {
-    specs:[['Base Polymer','PA66'],['Glass Filler','33%'],['Tensile Strength','196 MPa'],['Density','1.41 g/cm³'],['HDT','255°C'],['Color','Black'],['Standard','ISO 527-2']],
-    commercial:[['Price / kg','USD 3.85'],['MOQ','500 kg'],['Lead Time','5 weeks'],['Packaging','25 kg / bag']],
-    permission:[['Level','PRIVATE'],['Shared with','—'],['Updated','Jun 2, 2026']]
-  },
-  'SPN-003-PA66GF40-C': {
-    specs:[['Base Polymer','PA66'],['Glass Filler','40%'],['Tensile Strength','210 MPa'],['Density','1.45 g/cm³'],['HDT','260°C'],['Color','Black'],['Standard','ISO 527-2']],
-    commercial:[['Price / kg','USD 4.80'],['MOQ','500 kg'],['Lead Time','5 weeks'],['Packaging','25 kg / bag']],
-    permission:[['Level','OPEN'],['Shared with','All authenticated parties'],['Updated','Jun 1, 2026']]
-  },
-  'SPN-042-PETG-FOR': {
-    specs:[['Base Polymer','PETG'],['Thickness','1.5mm'],['Tensile Strength','50 MPa'],['Density','1.27 g/cm³'],['HDT','75°C'],['Color','Clear'],['Standard','ISO 1628-5']],
-    commercial:[['Price / kg','USD 1.95'],['MOQ','1,000 kg'],['Lead Time','3 weeks'],['Packaging','25 kg / bag']],
-    permission:[['Level','SHARED'],['Shared with','Brand Co.'],['Updated','Jun 7, 2026']]
-  },
-  'SPN-043-PETG-2MM-B': {
-    specs:[['Base Polymer','PETG'],['Thickness','2.0mm'],['Tensile Strength','50 MPa'],['Density','1.27 g/cm³'],['HDT','75°C'],['Color','Clear'],['Standard','ISO 1628-5']],
-    commercial:[['Price / kg','USD 2.10'],['MOQ','800 kg'],['Lead Time','3 weeks'],['Packaging','25 kg / bag']],
-    permission:[['Level','OPEN'],['Shared with','All authenticated parties'],['Updated','May 28, 2026']]
-  },
-  'SPN-103-ABS-FOR': {
-    specs:[['Base Polymer','ABS'],['Grade','High Impact'],['Tensile Strength','42 MPa'],['Density','1.05 g/cm³'],['HDT','88°C'],['Color','Natural'],['Standard','ISO 180, UL94 HB']],
-    commercial:[['Price / kg','USD 1.80'],['MOQ','500 kg'],['Lead Time','4 weeks'],['Packaging','25 kg / bag']],
-    permission:[['Level','OPEN'],['Shared with','All authenticated parties'],['Updated','Jun 5, 2026']]
-  },
-  'STM-2024-09': {
-    specs:[['Material','SUS304'],['Form','Stamped Bracket'],['Tensile Strength','520 MPa'],['Hardness','HRB 80'],['Surface','2B Finish'],['Standard','ASTM A240']],
-    commercial:[['Price / pc','USD 0.42'],['MOQ','5,000 pcs'],['Lead Time','3 weeks'],['Packaging','500 pcs / box']],
-    permission:[['Level','OPEN'],['Shared with','All authenticated parties'],['Updated','Jun 9, 2026']]
-  },
-  'SPN-074-PP-NEW': {
-    specs:[['Base Polymer','PP Homopolymer'],['Grade','Homopolymer'],['Tensile Strength','35 MPa'],['Density','0.90 g/cm³'],['HDT','100°C'],['Color','Natural'],['Standard','ISO 1873-2']],
-    commercial:[['Price / kg','USD 1.10'],['MOQ','2,000 kg'],['Lead Time','3 weeks'],['Packaging','25 kg / bag']],
-    permission:[['Level','SHARED'],['Shared with','Brand Co. · Nordic OEM'],['Updated','Jun 3, 2026']]
-  },
-  'SPN-208-ELEC-A': {
-    specs:[['Process','Electroplating'],['Layer Thickness','10–25 μm'],['Finish','Ra 0.8 μm'],['Tolerance','±0.05mm'],['Base Material','Al 6061'],['Standard','ASTM B633']],
-    commercial:[['Price / m²','USD 12.50'],['MOQ','100 m²'],['Lead Time','2 weeks'],['Pricing','Per batch']],
-    permission:[['Level','PRIVATE'],['Shared with','—'],['Updated','Jun 8, 2026']]
-  },
-  'SPN-190-ANOD-A': {
-    specs:[['Process','Anodising'],['Color','Black'],['Layer Thickness','20 μm'],['Hardness','300 HV'],['Base Material','Al 6061 / 7075'],['Standard','ISO 7599']],
-    commercial:[['Price / m²','USD 18.00'],['MOQ','20 m²'],['Lead Time','1 week'],['Pricing','Per batch']],
-    permission:[['Level','PRIVATE'],['Shared with','—'],['Updated','Jun 1, 2026']]
-  },
-  'SPN-055-MG-TW': {
-    specs:[['Material','Magnesium Alloy'],['Grade','AZ31B'],['Tensile Strength','260 MPa'],['Density','1.77 g/cm³'],['Form','Sheet'],['Standard','ASTM B90']],
-    commercial:[['Price / kg','USD 8.50'],['MOQ','200 kg'],['Lead Time','5 weeks'],['Packaging','Per sheet']],
-    permission:[['Level','OPEN'],['Shared with','All authenticated parties'],['Updated','May 30, 2026']]
-  }
-};
+/* ═══════════════════════
+   STATE
+═══════════════════════ */
+let currentPage = 'search';
+let typeFilter = 'all';
+let dppFilter = false;
+let fsmContext = null;
+let currentMat = null;
+let currentSku = null;
+let prevPage = 'search';
+let companyReturnPage = null;
+let companyReturnMat = null;
 
-const suppliers = {
-  'Formosa Plastics': {
-    abbr:'FP', country:'Taiwan', tier:'Tier 1', since:'2019',
-    description:'Asia\'s leading polymer manufacturer specializing in PA, PETG, ABS, and PP resins. SmartPN-active since 2019 with fully supplier-maintained records.',
-    certifications:['ISO 9001:2015','REACH Compliant','RoHS Compliant','FSC Chain of Custody'],
-    materials:['SPN-001-PA66GF30-FOR','SPN-042-PETG-FOR','SPN-103-ABS-FOR']
-  },
-  'Supplier B': {
-    abbr:'SB', country:'Vietnam', tier:'Tier 1', since:'2022',
-    description:'Vietnamese manufacturer specializing in metal stampings and engineering plastics. Serves multiple global footwear and electronics brands.',
-    certifications:['ISO 9001:2015','IATF 16949','OEKO-TEX'],
-    materials:['SPN-002-PA66GF30-B','STM-2024-09','SPN-043-PETG-2MM-B']
-  },
-  'Supplier A': {
-    abbr:'SA', country:'Taiwan', tier:'Tier 1', since:'2021',
-    description:'Surface treatment specialist providing anodising, electroplating, and powder coat services for aluminium and steel substrates.',
-    certifications:['ISO 9001:2015','ISO 14001:2015','REACH'],
-    materials:['SPN-208-ELEC-A','SPN-190-ANOD-A']
-  },
-  'Supplier C': {
-    abbr:'SC', country:'Vietnam', tier:'Tier 2', since:'2023',
-    description:'Growing Southeast Asian supplier with polymer compounding and surface treatment capabilities.',
-    certifications:['ISO 9001:2015'],
-    materials:['SPN-003-PA66GF40-C','SPN-074-PP-NEW']
-  },
-  'Global Poly': {
-    abbr:'GP', country:'China', tier:'Tier 2', since:'2024',
-    description:'Polymer resin distributor covering ABS, HDPE, and PP grades. Onboarded via SmartPN quick-start program.',
-    certifications:['ISO 9001:2015','REACH Compliant'],
-    materials:['SPN-103-ABS-FOR']
-  },
-  'Taiwan Metal': {
-    abbr:'TM', country:'Taiwan', tier:'Tier 1', since:'2020',
-    description:'Specialty metal materials supplier providing magnesium and aluminium alloys for electronics and footwear hardware.',
-    certifications:['ISO 9001:2015','ASTM Certified','RoHS'],
-    materials:['SPN-055-MG-TW']
-  }
-};
-
-/* ═══════════════════════════════════════════
-   IMAGE PLACEHOLDERS (SVG per type)
-═══════════════════════════════════════════ */
-const imgSVG = {
-  polymer:`<svg width="80" height="80" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="20" stroke="#1D1D1F" stroke-width="3"/><circle cx="40" cy="40" r="8" fill="#1D1D1F"/><circle cx="18" cy="28" r="5" fill="#1D1D1F"/><circle cx="62" cy="28" r="5" fill="#1D1D1F"/><circle cx="18" cy="52" r="5" fill="#1D1D1F"/><circle cx="62" cy="52" r="5" fill="#1D1D1F"/><line x1="22" y1="31" x2="32" y2="37" stroke="#1D1D1F" stroke-width="2"/><line x1="58" y1="31" x2="48" y2="37" stroke="#1D1D1F" stroke-width="2"/><line x1="22" y1="49" x2="32" y2="43" stroke="#1D1D1F" stroke-width="2"/><line x1="58" y1="49" x2="48" y2="43" stroke="#1D1D1F" stroke-width="2"/></svg>`,
-  sheet:`<svg width="80" height="80" viewBox="0 0 80 80" fill="none"><rect x="14" y="20" width="52" height="40" rx="4" stroke="#1D1D1F" stroke-width="3"/><line x1="14" y1="32" x2="66" y2="32" stroke="#1D1D1F" stroke-width="1.5"/><line x1="14" y1="44" x2="66" y2="44" stroke="#1D1D1F" stroke-width="1.5"/><line x1="14" y1="56" x2="66" y2="56" stroke="#1D1D1F" stroke-width="1.5"/></svg>`,
-  metal:`<svg width="80" height="80" viewBox="0 0 80 80" fill="none"><rect x="20" y="24" width="40" height="32" rx="4" stroke="#1D1D1F" stroke-width="3"/><path d="M26 36h28M26 44h20" stroke="#1D1D1F" stroke-width="2" stroke-linecap="round"/><circle cx="54" cy="44" r="4" stroke="#1D1D1F" stroke-width="2"/></svg>`,
-  process:`<svg width="80" height="80" viewBox="0 0 80 80" fill="none"><rect x="18" y="28" width="44" height="24" rx="12" stroke="#1D1D1F" stroke-width="3"/><path d="M32 40h16" stroke="#1D1D1F" stroke-width="2.5" stroke-linecap="round"/><path d="M42 34l6 6-6 6" stroke="#1D1D1F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
-};
-
-/* ═══════════════════════════════════════════
-   HELPERS
-═══════════════════════════════════════════ */
-function permClass(p){ return p==='OPEN'?'open':p==='SHARED'?'shared':'priv' }
-
-function getVisibleMaterials(role, typeFilter, search) {
-  let rows = allMaterials;
-  if (role === 'external') rows = rows.filter(r => r.perm === 'OPEN');
-  if (typeFilter === 'raw') rows = rows.filter(r => r.type === 'raw');
-  if (typeFilter === 'secondary') rows = rows.filter(r => r.type === 'secondary');
-  if (typeFilter === 'open') rows = rows.filter(r => r.perm === 'OPEN');
-  if (search) {
-    const q = search.toLowerCase();
-    rows = rows.filter(r => r.name.toLowerCase().includes(q) || r.code.toLowerCase().includes(q) || r.supplier.toLowerCase().includes(q));
-  }
-  return rows;
+/* ═══════════════════════
+   NAVIGATION
+═══════════════════════ */
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const fb = document.getElementById('filter-bar');
+  fb.style.display = (id === 'search') ? '' : 'none';
+  currentPage = id;
+  window.scrollTo(0, 0);
 }
 
-function cardHTML(m, extraClass) {
-  const img = imgSVG[m.imgType] || imgSVG.polymer;
-  return `<div class="material-card${extraClass?' '+extraClass:''}" onclick="showDetail('${m.code}')">
-    <div class="mc-img">${img}</div>
-    <div class="mc-type">${m.type==='secondary'?'Secondary Processing':'Raw Material'}</div>
-    <div class="mc-name">${m.name}</div>
-    <div class="mc-code">${m.code}</div>
-    <div class="mc-supplier">${m.supplier}</div>
-    <div class="mc-perm ${permClass(m.perm)}">${m.perm}</div>
-  </div>`;
-}
-
-/* ═══════════════════════════════════════════
-   RENDER SEARCH
-═══════════════════════════════════════════ */
-function renderMaterials() {
-  const search = (document.getElementById('material-search')||{}).value || '';
-  const bannerArea = document.getElementById('fsm-banner-area');
-  const gridArea   = document.getElementById('material-grid-area');
-  const note       = document.getElementById('material-note');
-  if (!gridArea) return;
-
-  if (fsmContext) {
-    const { spuCode, skuKey, fromName } = fsmContext;
-    bannerArea.innerHTML = `<div class="fsm-banner">
-      <span class="fsm-banner-label">Find Same Material</span>
-      <span class="fsm-condition-tag">SPU: ${spuCode}</span>
-      <span class="fsm-condition-tag">SKU: ${skuKey}</span>
-      <span class="fsm-clear" onclick="clearFSM()">Clear filter ×</span>
-    </div>`;
-
-    const identical  = allMaterials.filter(r => r.spuCode === spuCode && r.skuKey === skuKey && r.code !== fsmContext.fromCode);
-    const alternative = allMaterials.filter(r => r.spuCode === spuCode && r.skuKey !== skuKey && r.code !== fsmContext.fromCode);
-    const identVis   = currentRole==='external' ? identical.filter(r=>r.perm==='OPEN') : identical;
-    const altVis     = currentRole==='external' ? alternative.filter(r=>r.perm==='OPEN') : alternative;
-
-    let html = '';
-    if (identVis.length) {
-      html += `<div class="fsm-section-header"><span class="fsm-section-label">Identical</span><span class="fsm-section-count">${identVis.length}</span><span class="fsm-section-divider"></span></div>`;
-      html += `<div class="material-grid fsm-identical">${identVis.map(r=>cardHTML(r)).join('')}</div>`;
-    }
-    if (altVis.length) {
-      html += `<div class="fsm-section-header" style="margin-top:16px"><span class="fsm-section-label">Alternative</span><span class="fsm-section-count">${altVis.length}</span><span class="fsm-section-divider"></span></div>`;
-      html += `<div class="material-grid fsm-alternative">${altVis.map(r=>cardHTML(r)).join('')}</div>`;
-    }
-    if (!identVis.length && !altVis.length) {
-      html = '<div class="no-results">No matching materials found in current permission scope.</div>';
-    }
-    gridArea.innerHTML = html;
-    if (note) note.textContent = `${identVis.length} identical · ${altVis.length} alternative`;
-  } else {
-    bannerArea.innerHTML = '';
-    const rows = getVisibleMaterials(currentRole, currentTypeFilter, search);
-    if (!rows.length) {
-      gridArea.innerHTML = '<div class="no-results" style="grid-column:1/-1">No materials visible with current permissions.</div>';
-    } else {
-      gridArea.innerHTML = `<div class="material-grid">${rows.map(r=>cardHTML(r)).join('')}</div>`;
-    }
-    if (note) {
-      if (currentRole==='external') note.textContent = `${rows.length} OPEN materials visible.`;
-      else note.textContent = `${rows.length} materials`;
-    }
-  }
-}
-
-function clearFSM() { fsmContext = null; renderMaterials(); }
-function filterMaterials() { renderMaterials(); }
-function handleSearch(val) { const el=document.getElementById('material-search'); if(el) el.value=val; renderMaterials(); }
-
-function filterByType(type, btn) {
-  currentTypeFilter = type;
-  document.querySelectorAll('.ms-chip').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderMaterials();
-}
-
-/* ═══════════════════════════════════════════
-   DETAIL PAGE (SPU + SKU)
-═══════════════════════════════════════════ */
-function showDetail(code) {
-  currentDetailCode = code;
-  const m = allMaterials.find(x=>x.code===code);
-  const d = materialDetails[code];
-  if (!m) return;
-
-  _activateView('detail');
-
-  /* ── Hero (left: image, right: info + SKU picker) ── */
-  const img = imgSVG[m.imgType]||imgSVG.polymer;
-  const permC = permClass(m.perm);
-
-  // SKU picker: find siblings (same SPU)
-  const siblings = allMaterials.filter(r => r.spuCode === m.spuCode);
-  const pickerDims = {};
-  siblings.forEach(s => {
-    Object.keys(s.skuDims).forEach(dimKey => {
-      if (!pickerDims[dimKey]) pickerDims[dimKey] = [];
-      if (!pickerDims[dimKey].find(o=>o.val===s.skuDims[dimKey])) {
-        pickerDims[dimKey].push({ val:s.skuDims[dimKey], code:s.code, selected: s.skuDims[dimKey]===m.skuDims[dimKey] });
-      }
-    });
-  });
-
-  let pickerHTML = '';
-  Object.keys(pickerDims).forEach(dimKey => {
-    const opts = pickerDims[dimKey];
-    if (opts.length <= 1) return; // only show dims with actual choice
-    pickerHTML += `<div class="sku-picker-section">
-      <div class="sku-picker-title">${dimKey}</div>
-      <div class="sku-options">
-        ${opts.map(o=>`<button class="sku-option${o.selected?' selected':''}" onclick="showDetail('${o.code}')">${o.val}</button>`).join('')}
-      </div>
-    </div>`;
-  });
-
-  document.getElementById('detail-hero').innerHTML = `
-    <div class="detail-img-wrap">${img}</div>
-    <div class="detail-info">
-      <div class="detail-type-tag">${m.type==='secondary'?'Secondary Processing':'Raw Material'} · ${m.spuCode}</div>
-      <div class="detail-title">${m.name}</div>
-      <div class="detail-code">${m.code}</div>
-      <div class="detail-perm ${permC}">${m.perm}</div>
-      <div style="font-size:14px;color:#86868B;margin-bottom:4px">Supplier</div>
-      <button class="supplier-link" onclick="showCompany('${m.supplier}')">${m.supplier} ›</button>
-      <div class="detail-maintained">Maintained by ${m.maintainedBy} · Updated ${m.updated}</div>
-      <div class="spu-label">SPU</div>
-      <div class="spu-value">${m.spuCode}</div>
-      <div class="spu-label" style="margin-top:12px">SKU</div>
-      <div class="spu-value">${Object.entries(m.skuDims).map(([k,v])=>`<span style="margin-right:12px">${k}: <strong>${v}</strong></span>`).join('')}</div>
-      ${pickerHTML}
-      <div class="detail-cta-area">
-        <div class="detail-cta-row">
-          <button class="btn-cta" id="detail-add-btn" onclick="detailAddToLibrary()">Add to My Library</button>
-          <button class="btn-fsm" onclick="findSameMaterial('${code}')">Find Same Material</button>
-        </div>
-        <div class="detail-cta-note" id="detail-footer-note">Data sourced from SmartPN Atlas · Maintained by ${m.maintainedBy}</div>
-      </div>
-    </div>`;
-
-  /* ── Spec body ── */
-  function specSection(title, rows) {
-    return `<div class="spec-section">
-      <div class="spec-section-title">${title}</div>
-      ${rows.map(([label,val])=>{
-        const isPerm = label==='Level';
-        const vc = isPerm?(val==='OPEN'?'spec-value perm-open':val==='SHARED'?'spec-value perm-shared':'spec-value'):'spec-value';
-        return `<div class="spec-row"><span class="spec-label">${label}</span><span class="${vc}">${val}</span><span class="spec-plus">+</span></div>`;
-      }).join('')}
-    </div>`;
-  }
-
-  if (d) {
-    document.getElementById('detail-spec-body').innerHTML =
-      specSection('Specifications', d.specs) +
-      specSection('Commercial', d.commercial) +
-      specSection('Permission', d.permission);
-  } else {
-    document.getElementById('detail-spec-body').innerHTML = '<div class="note-box">Detailed specs not available.</div>';
-  }
-}
-
-function detailAddToLibrary() {
-  const btn = document.getElementById('detail-add-btn');
-  if (!btn) return;
-  btn.textContent = '✓ Added';
-  btn.style.background = '#1D7340';
-  btn.disabled = true;
-  setTimeout(()=>{ btn.textContent='Add to My Library'; btn.style.background=''; btn.disabled=false; }, 2200);
-}
-
-/* ═══════════════════════════════════════════
-   FIND SAME MATERIAL
-═══════════════════════════════════════════ */
-function findSameMaterial(code) {
-  const m = allMaterials.find(x=>x.code===code);
-  if (!m) return;
-  fsmContext = { fromCode:code, fromName:m.name, spuCode:m.spuCode, skuKey:m.skuKey };
-  showView('search');
-}
-
-function backFromDetail() {
+function backToSearch() {
   fsmContext = null;
-  showView('search');
+  renderGrid();
+  showPage('search');
 }
 
-/* ═══════════════════════════════════════════
-   COMPANY PROFILE
-═══════════════════════════════════════════ */
-function showCompany(supplierName) {
-  const s = suppliers[supplierName];
-  if (!s) return;
-  const fromCode = currentDetailCode;
-  _activateView('company');
-
-  const matRows = allMaterials.filter(r=>r.supplier===supplierName);
-  const matTableRows = matRows.map(r=>`<tr onclick="showDetail('${r.code}')">
-    <td class="td-link">${r.code}</td>
-    <td>${r.name}</td>
-    <td class="td-muted">${r.type==='secondary'?'Secondary':'Raw'}</td>
-    <td><span class="badge badge-${permClass(r.perm)}">${r.perm}</span></td>
-    <td class="td-muted">${r.updated}</td>
-  </tr>`).join('');
-
-  document.getElementById('company-content').innerHTML = `
-    <div class="company-hero">
-      <div class="company-avatar">${s.abbr}</div>
-      <div>
-        <div class="company-name">${supplierName}</div>
-        <div class="company-meta">${s.country} · ${s.tier} Supplier · SmartPN since ${s.since}</div>
-        <div class="company-desc">${s.description}</div>
-        <div class="cert-list">${s.certifications.map(c=>`<span class="cert-chip">${c}</span>`).join('')}</div>
-      </div>
-    </div>
-    <div class="section-title" style="margin-top:0">Materials (${matRows.length})</div>
-    <div class="table-wrap" style="margin-top:0">
-      <table>
-        <thead><tr><th>SmartPN Code</th><th>Name</th><th>Type</th><th>Permission</th><th>Updated</th></tr></thead>
-        <tbody>${matTableRows}</tbody>
-      </table>
-    </div>`;
-
-  // Back button label
-  const backBtn = document.getElementById('company-back-btn');
-  if (backBtn) {
-    backBtn._fromCode = fromCode;
-    backBtn.textContent = '‹ Back to Material';
-  }
+function backToSpu() {
+  if (!currentMat) { showPage('search'); return; }
+  renderSpuPage(currentMat);
+  showPage('spu');
 }
 
 function backFromCompany() {
-  const backBtn = document.getElementById('company-back-btn');
-  const code = backBtn && backBtn._fromCode;
-  if (code) showDetail(code);
-  else showView('search');
+  if (companyReturnPage === 'spu' && companyReturnMat) {
+    renderSpuPage(companyReturnMat);
+    showPage('spu');
+  } else if (companyReturnPage === 'sku' && companyReturnMat) {
+    renderSkuPage(companyReturnMat, currentSku);
+    showPage('sku');
+  } else {
+    showPage('search');
+  }
 }
 
-/* ═══════════════════════════════════════════
-   NAVIGATION
-═══════════════════════════════════════════ */
-function _activateView(id) {
-  currentView = id;
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  const v = document.getElementById('view-'+id);
-  if (v){ v.classList.add('active'); v.classList.remove('fade-in'); void v.offsetWidth; v.classList.add('fade-in'); }
-  // Sidebar highlight: detail/company/company → keep search highlighted
-  const sidebarId = (id==='detail'||id==='company') ? 'search' : id;
-  document.querySelectorAll('.nav-item').forEach(n=>{
-    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+sidebarId+"'")) n.classList.add('active');
+/* ═══════════════════════
+   FILTERS
+═══════════════════════ */
+function setTypeFilter(t, el) {
+  typeFilter = t;
+  document.querySelectorAll('.fc').forEach(b => { if (!b.id) b.classList.remove('active'); });
+  el.classList.add('active');
+  applyFilters();
+}
+
+function toggleDppFilter(el) {
+  dppFilter = !dppFilter;
+  el.classList.toggle('active', dppFilter);
+  applyFilters();
+}
+
+function handleNavSearch(v) {
+  if (currentPage !== 'search') showPage('search');
+  applyFilters();
+}
+
+function applyFilters() {
+  fsmContext = null;
+  document.getElementById('fsm-banner-area').innerHTML = '';
+  renderGrid();
+}
+
+function getFiltered() {
+  const q = (document.getElementById('nav-search-input').value || '').toLowerCase();
+  const priceMin = parseFloat(document.getElementById('price-min').value) || 0;
+  const priceMax = parseFloat(document.getElementById('price-max').value) || Infinity;
+  const ltMax = parseFloat(document.getElementById('lt-max').value) || Infinity;
+  return MATERIALS.filter(m => {
+    if (typeFilter !== 'all' && m.type !== typeFilter) return false;
+    if (dppFilter && !m.dpp) return false;
+    if (m.price !== null && (m.price < priceMin || m.price > priceMax)) return false;
+    if (m.lt > ltMax) return false;
+    if (q && !m.name.toLowerCase().includes(q) && !SUPPLIERS[m.sup].name.toLowerCase().includes(q) && !m.id.toLowerCase().includes(q)) return false;
+    return true;
   });
 }
 
-function showView(id) {
-  _activateView(id);
-  if (id==='search') renderMaterials();
-  if (id==='material') buildMaterialForm(currentRole);
-  if (id==='secondary') buildSecondaryForm(currentRole);
-  if (id==='permission') buildPermission(currentRole);
+/* ═══════════════════════
+   RENDER GRID
+═══════════════════════ */
+function imgSVG(shape) {
+  const svgs = {
+    circle: `<svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="14" stroke="#1D1D1F" stroke-width="1.2"/><circle cx="20" cy="20" r="7" stroke="#1D1D1F" stroke-width="0.8" stroke-dasharray="3 2"/></svg>`,
+    rect:   `<svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect x="8" y="10" width="24" height="20" rx="3" stroke="#1D1D1F" stroke-width="1.2"/><line x1="8" y1="17" x2="32" y2="17" stroke="#1D1D1F" stroke-width="0.8"/></svg>`,
+    diamond:`<svg width="40" height="40" viewBox="0 0 40 40" fill="none"><path d="M20 8L32 20L20 32L8 20Z" stroke="#1D1D1F" stroke-width="1.2"/></svg>`,
+    wave:   `<svg width="40" height="40" viewBox="0 0 40 40" fill="none"><path d="M8 20 Q14 12 20 20 Q26 28 32 20" stroke="#1D1D1F" stroke-width="1.4" stroke-linecap="round" fill="none"/><path d="M8 26 Q14 18 20 26 Q26 34 32 26" stroke="#1D1D1F" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.4"/></svg>`,
+  };
+  return svgs[shape] || svgs.circle;
 }
 
-/* ═══════════════════════════════════════════
-   ROLE TOGGLE
-═══════════════════════════════════════════ */
-function setRole(role, btn) {
-  currentRole = role;
-  document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  const subs = { brand:'Brand view — full data access', supplier:'Supplier view — your materials + shared', external:'External view — OPEN materials only' };
-  const s = document.getElementById('search-role-sub');
-  if (s) s.textContent = subs[role];
-  if (currentView==='search'||currentView==='detail') renderMaterials();
-  if (currentView==='material') buildMaterialForm(role);
-  if (currentView==='secondary') buildSecondaryForm(role);
-  if (currentView==='permission') buildPermission(role);
+function permLabel(p) {
+  if (p === 'OPEN') return '<span class="mc-perm open">OPEN</span>';
+  if (p === 'SHARED') return '<span class="mc-perm shared">SHARED</span>';
+  return '<span class="mc-perm priv">PRIVATE</span>';
 }
 
-/* ═══════════════════════════════════════════
-   FORMS
-═══════════════════════════════════════════ */
-function buildMaterialForm(role) {
-  const el = document.getElementById('material-form-content');
-  if (role === 'external') {
-    el.innerHTML = `<div class="role-gate"><div class="role-gate-title">Access restricted</div><div class="role-gate-sub">Raw material creation requires Brand or Supplier view.</div></div>`;
+function renderGrid(mats, fsm) {
+  const list = mats || getFiltered();
+  const wrap = document.getElementById('mat-grid-wrap');
+  const countEl = document.getElementById('result-count');
+
+  if (fsm) {
+    const identBanner = fsmContext ? `
+      <div class="fsm-banner">
+        <span class="fsm-banner-label">Find Same Material</span>
+        <span class="fsm-tag">SPU: ${fsmContext.spuCode}</span>
+        <span class="fsm-tag">SKU: ${fsmContext.skuKey}</span>
+        <span class="fsm-clear" onclick="clearFsm()">Clear</span>
+      </div>` : '';
+    document.getElementById('fsm-banner-area').innerHTML = identBanner;
+
+    const identical = list.filter(m => m.spuCode === fsmContext.spuCode && m.skuKey === fsmContext.skuKey && m.id !== fsmContext.fromId);
+    const alt = list.filter(m => m.spuCode === fsmContext.spuCode && m.skuKey !== fsmContext.skuKey && m.id !== fsmContext.fromId);
+
+    let html = '';
+    if (identical.length) {
+      html += `<div class="fsm-section-hdr"><span class="fsm-section-label">Identical</span><span class="fsm-section-count">${identical.length}</span><span class="fsm-line"></span></div>`;
+      html += `<div class="mat-grid fsm-ident">${identical.map(cardHtml).join('')}</div>`;
+    }
+    if (alt.length) {
+      html += `<div class="fsm-section-hdr"><span class="fsm-section-label">Alternative</span><span class="fsm-section-count">${alt.length}</span><span class="fsm-line"></span></div>`;
+      html += `<div class="mat-grid fsm-alt">${alt.map(cardHtml).join('')}</div>`;
+    }
+    if (!identical.length && !alt.length) html = '<div class="mat-grid"><div class="no-results">No matching materials found.</div></div>';
+    countEl.textContent = `${identical.length + alt.length} results`;
+    wrap.innerHTML = html;
     return;
   }
-  el.innerHTML = `
-    <div class="form-section-title" style="margin-top:0">Basic Info</div>
-    <div class="form-grid">
-      <div class="form-group"><div class="form-label">Material Name</div><input class="form-input" type="text" placeholder="e.g. PA66-GF30 Nylon" /></div>
-      <div class="form-group"><div class="form-label">SmartPN Code (auto)</div><input class="form-input" type="text" value="SPN-XXX-AUTO" readonly /></div>
-      <div class="form-group"><div class="form-label">SPU Code</div><input class="form-input" type="text" placeholder="e.g. PA66-GF" /></div>
-      <div class="form-group"><div class="form-label">Supplier</div><select class="form-input form-select"><option>Formosa Plastics</option><option>Supplier A</option><option>Supplier B</option></select></div>
-      <div class="form-group form-full"><div class="form-label">Description</div><textarea class="form-input form-textarea" placeholder="Describe material properties…"></textarea></div>
-    </div>
-    <div class="form-section-title">Technical Specs (SKU Dimensions)</div>
-    <div class="form-grid">
-      <div class="form-group"><div class="form-label">Base Material</div><input class="form-input" type="text" placeholder="e.g. PA66" /></div>
-      <div class="form-group"><div class="form-label">Filler / Additive</div><input class="form-input" type="text" placeholder="e.g. 30% Glass Fiber" /></div>
-      <div class="form-group"><div class="form-label">Tensile Strength (MPa)</div><input class="form-input" type="number" placeholder="185" /></div>
-      <div class="form-group"><div class="form-label">Density (g/cm³)</div><input class="form-input" type="number" placeholder="1.38" /></div>
-      <div class="form-group"><div class="form-label">Color</div><input class="form-input" type="text" placeholder="Natural / Black" /></div>
-      <div class="form-group"><div class="form-label">Form</div><input class="form-input" type="text" placeholder="Pellet / Sheet" /></div>
-    </div>
-    <div class="form-section-title">Permission</div>
-    <div class="form-grid">
-      <div class="form-group"><div class="form-label">Permission Level</div><select class="form-input form-select"><option>PRIVATE</option><option>SHARED</option><option>OPEN</option></select></div>
-      <div class="form-group"><div class="form-label">Shared with</div><select class="form-input form-select"><option>— Select brand —</option><option>Brand Co.</option></select></div>
-    </div>
-    <div class="form-actions"><button class="btn-primary">Create SmartPN Record</button><button class="btn-secondary">Save Draft</button></div>`;
+
+  document.getElementById('fsm-banner-area').innerHTML = '';
+  countEl.textContent = `${list.length} material${list.length !== 1 ? 's' : ''}`;
+  if (!list.length) { wrap.innerHTML = '<div class="mat-grid"><div class="no-results">No materials match your filters.</div></div>'; return; }
+  wrap.innerHTML = `<div class="mat-grid">${list.map(cardHtml).join('')}</div>`;
 }
 
-function buildSecondaryForm(role) {
-  const el = document.getElementById('secondary-form-content');
-  if (role === 'external') {
-    el.innerHTML = `<div class="role-gate"><div class="role-gate-title">Access restricted</div><div class="role-gate-sub">Secondary processing creation requires Brand or Supplier view.</div></div>`;
-    return;
+function cardHtml(m) {
+  const sup = SUPPLIERS[m.sup];
+  const priceStr = m.price !== null ? `<span class="mc-price-val">USD ${m.price.toFixed(2)}</span>` : `<span style="color:#86868B">—</span>`;
+  return `
+  <div class="mat-card" onclick="openSpu('${m.id}')">
+    <div class="mc-img">
+      ${imgSVG(m.imgShape)}
+      ${m.dpp ? '<div class="dpp-badge">DPP-ready</div>' : ''}
+      ${m.type === 'secondary' ? '<div class="secondary-tag">Secondary</div>' : ''}
+    </div>
+    <div class="mc-name">${m.name}</div>
+    <button class="mc-supplier-link" onclick="event.stopPropagation();openCompanyFromCard('${m.sup}')">${sup.name}</button>
+    <div class="mc-price-row">
+      <span>Price / kg ${priceStr}</span>
+      <span>LT <span class="mc-price-val">${m.lt}d</span></span>
+    </div>
+    ${permLabel(m.perm)}
+  </div>`;
+}
+
+function clearFsm() {
+  fsmContext = null;
+  document.getElementById('fsm-banner-area').innerHTML = '';
+  renderGrid();
+}
+
+/* ═══════════════════════
+   SPU PAGE
+═══════════════════════ */
+function openSpu(id) {
+  prevPage = currentPage;
+  currentMat = MATERIALS.find(m => m.id === id);
+  if (!currentMat) return;
+  currentSku = currentMat.skuVariants[0];
+  renderSpuPage(currentMat);
+  showPage('spu');
+}
+
+function openMaterial(id) { openSpu(id); }
+
+function renderSpuPage(m) {
+  const sup = SUPPLIERS[m.sup];
+  const priceStr = m.price !== null ? `USD ${m.price.toFixed(2)} / kg` : '—';
+  document.getElementById('spu-hero').innerHTML = `
+    <div class="spu-img">
+      ${imgSVG(m.imgShape)}
+      ${m.dpp ? '<div class="spu-dpp-badge">DPP-ready</div>' : ''}
+    </div>
+    <div class="spu-info">
+      <div class="spu-type-tag">${m.type === 'secondary' ? 'Secondary Process' : 'Raw Material'}</div>
+      <div class="spu-title">${m.name}</div>
+      <div class="spu-code">${m.id} · SPU: ${m.spuCode}</div>
+      <div class="spu-perm ${m.perm.toLowerCase()}">${m.perm}</div>
+      <div>Maintained by <button class="supplier-link" onclick="openCompanyFromSpu('${m.sup}')">${sup.name}</button></div>
+      <div class="spu-maintained">${sup.location}</div>
+      <div class="spu-price-block">
+        <div class="spu-price-item"><div class="spu-price-label">Price / kg</div><div class="spu-price-val">${priceStr}</div><div class="spu-price-sub">Base SKU · excl. duties</div></div>
+        <div class="spu-price-item"><div class="spu-price-label">Lead time</div><div class="spu-price-val">${m.lt} days</div><div class="spu-price-sub">Standard order</div></div>
+        ${m.dpp ? '<div class="spu-price-item"><div class="spu-price-label">DPP data</div><div class="spu-price-val" style="color:#1D7340;font-size:16px">Available</div><div class="spu-price-sub">Compliance docs on request</div></div>' : ''}
+      </div>
+      <button class="view-specs-btn" onclick="openSkuFromSpu()">View Specs &amp; Select Variant</button>
+      <button class="fav-btn" onclick="alert('Added to My Favorites')">♡ Favorite</button>
+    </div>`;
+
+  // SPU fields
+  let specHtml = `<div class="spec-section-title">Material Overview</div>`;
+  for (const [k, v] of Object.entries(m.spuFields)) {
+    specHtml += `<div class="spec-row"><span class="spec-label">${k}</span><span class="spec-val">${v}</span><span class="spec-plus">+</span></div>`;
   }
-  el.innerHTML = `
-    <div class="form-section-title" style="margin-top:0">Processing Info</div>
-    <div class="form-grid">
-      <div class="form-group"><div class="form-label">Processing Name</div><input class="form-input" type="text" placeholder="e.g. Electroplating Spec A" /></div>
-      <div class="form-group"><div class="form-label">SmartPN Code (auto)</div><input class="form-input" type="text" value="SPN-XXX-SEC" readonly /></div>
-      <div class="form-group"><div class="form-label">Processing Type</div><select class="form-input form-select"><option>Electroplating</option><option>Anodising</option><option>Powder Coat</option><option>Heat Treatment</option></select></div>
-      <div class="form-group"><div class="form-label">Supplier</div><select class="form-input form-select"><option>Supplier A</option><option>Formosa Plastics</option></select></div>
-    </div>
-    <div class="form-section-title">Specs</div>
-    <div class="form-grid">
-      <div class="form-group"><div class="form-label">Surface Finish</div><input class="form-input" type="text" placeholder="e.g. Ra 0.8μm" /></div>
-      <div class="form-group"><div class="form-label">Tolerance</div><input class="form-input" type="text" placeholder="e.g. ±0.05mm" /></div>
-      <div class="form-group"><div class="form-label">Base Material</div><input class="form-input" type="text" placeholder="e.g. Aluminium alloy" /></div>
-      <div class="form-group"><div class="form-label">Standard</div><input class="form-input" type="text" placeholder="e.g. ASTM B633" /></div>
-    </div>
-    <div class="form-section-title">Permission</div>
-    <div class="form-grid">
-      <div class="form-group"><div class="form-label">Permission Level</div><select class="form-input form-select"><option>PRIVATE</option><option>SHARED</option><option>OPEN</option></select></div>
-      <div class="form-group"><div class="form-label">Linked Raw Material</div><select class="form-input form-select"><option>— Select material —</option><option>SPN-001-PA66GF30-FOR</option></select></div>
-    </div>
-    <div class="form-actions"><button class="btn-primary">Create SmartPN Record</button><button class="btn-secondary">Save Draft</button></div>`;
+  document.getElementById('spu-spec-body').innerHTML = specHtml;
+
+  // Reviews
+  let revHtml = `<div class="spec-section-title" style="margin-top:28px">Reviews <span style="font-size:13px;color:#86868B;font-weight:400">(${m.reviews.length})</span></div>`;
+  if (m.reviews.length) {
+    revHtml += `<div class="review-list">` + m.reviews.map(r => `
+      <div class="review-item">
+        <div class="review-header">
+          <div class="review-avatar">${r.initials}</div>
+          <div>
+            <div class="review-name">${r.name} <span class="review-perm">${r.perm}</span></div>
+            <div style="font-size:12px;color:#86868B">${r.org}</div>
+          </div>
+          <div class="review-date">${r.date}</div>
+        </div>
+        <div class="review-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</div>
+        <div class="review-text" style="margin-top:8px">${r.text}</div>
+      </div>`).join('') + `</div>`;
+  } else {
+    revHtml += `<div style="padding:20px 0;color:#86868B;font-size:14px">No reviews yet for this material.</div>`;
+  }
+  document.getElementById('spu-reviews-body').innerHTML = revHtml;
 }
 
-function buildPermission(role) {
-  const el = document.getElementById('permission-content');
-  const brandOnly = role==='brand';
-  el.innerHTML = `
-    <div class="section-title" style="margin-top:0">Permission matrix</div>
-    <div class="table-wrap" style="margin-top:0">
-      <table class="perm-table">
-        <thead><tr><th>Role</th><th>View own</th><th>View SHARED</th><th>View OPEN</th><th>Edit</th><th>Change perm</th><th>Export</th></tr></thead>
-        <tbody>
-          <tr><td class="role-col">Brand</td><td><span class="perm-check perm-yes">✓</span></td><td><span class="perm-check perm-yes">✓</span></td><td><span class="perm-check perm-yes">✓</span></td><td><span class="perm-check perm-yes">✓</span></td><td><span class="perm-check perm-partial">~</span></td><td><span class="perm-check perm-yes">✓</span></td></tr>
-          <tr><td class="role-col">Supplier</td><td><span class="perm-check perm-yes">✓</span></td><td><span class="perm-check perm-partial">~</span></td><td><span class="perm-check perm-yes">✓</span></td><td><span class="perm-check perm-yes">✓</span></td><td><span class="perm-check perm-yes">✓</span></td><td><span class="perm-check perm-partial">~</span></td></tr>
-          <tr><td class="role-col">External</td><td><span class="perm-check perm-no">✕</span></td><td><span class="perm-check perm-no">✕</span></td><td><span class="perm-check perm-yes">✓</span></td><td><span class="perm-check perm-no">✕</span></td><td><span class="perm-check perm-no">✕</span></td><td><span class="perm-check perm-no">✕</span></td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="section-title">Active rules</div>
-    <div class="table-wrap" style="margin-top:0">
-      <table>
-        <thead><tr><th>Rule</th><th>Condition</th><th>Result</th><th>Scope</th>${brandOnly?'<th></th>':''}</tr></thead>
-        <tbody>
-          <tr><td>Rule 1</td><td>Supplier sets OPEN</td><td>Visible to all External</td><td class="td-muted">Global</td>${brandOnly?'<td style="color:#0071E3;font-size:13px;cursor:pointer">Edit ›</td>':''}</tr>
-          <tr><td>Rule 2</td><td>Brand sets SHARED with Supplier X</td><td>Supplier X can view + edit</td><td class="td-muted">Per-pair</td>${brandOnly?'<td style="color:#0071E3;font-size:13px;cursor:pointer">Edit ›</td>':''}</tr>
-          <tr><td>Rule 3</td><td>PRIVATE material</td><td>Owner only</td><td class="td-muted">Global</td>${brandOnly?'<td style="color:#0071E3;font-size:13px;cursor:pointer">Edit ›</td>':''}</tr>
-          <tr><td>Rule S10</td><td>Find Same Material query</td><td>Identical: same SPU+SKU / Alternative: same SPU, diff SKU</td><td class="td-muted">Search</td>${brandOnly?'<td style="color:#86868B;font-size:13px">Auto</td>':''}</tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="note-box"><strong>Shared ≠ fully open.</strong> SHARED = visible only to the explicitly named counterparty. OPEN = all authenticated parties. Rule S10 governs Find Same Material search results split.</div>`;
+function openSkuFromSpu() {
+  renderSkuPage(currentMat, currentSku);
+  showPage('sku');
 }
 
-/* ── Init ── */
-renderMaterials();
-buildPermission('brand');
+/* ═══════════════════════
+   SKU PAGE
+═══════════════════════ */
+function renderSkuPage(m, sku) {
+  currentMat = m;
+  currentSku = sku;
+  const sup = SUPPLIERS[m.sup];
+  const priceStr = sku.price !== null ? `USD ${sku.price.toFixed(2)} / kg` : '—';
+
+  document.getElementById('sku-back-btn').textContent = '‹ ' + m.name;
+  document.getElementById('sku-hero').innerHTML = `
+    <div class="spu-img">
+      ${imgSVG(m.imgShape)}
+      ${m.dpp ? '<div class="spu-dpp-badge">DPP-ready</div>' : ''}
+    </div>
+    <div class="spu-info">
+      <div class="spu-type-tag">${m.type === 'secondary' ? 'Secondary Process' : 'Raw Material'} · Variant</div>
+      <div class="spu-title">${m.name}</div>
+      <div class="spu-code">${m.id} · SKU: ${sku.key}</div>
+      <div class="spu-perm ${m.perm.toLowerCase()}">${m.perm}</div>
+      <div>Maintained by <button class="supplier-link" onclick="openCompanyFromSku('${m.sup}')">${sup.name}</button></div>
+      <div class="spu-maintained">Updated ${m.updated}</div>
+
+      <div class="sku-picker-section">
+        <div class="sku-picker-label">Select Variant</div>
+        <div class="sku-options" id="sku-opts-wrap">
+          ${m.skuVariants.map(v => `<button class="sku-opt ${v.key === sku.key ? 'selected' : ''}" onclick="selectSku('${m.id}','${v.key}')">${v.label}</button>`).join('')}
+        </div>
+      </div>
+
+      <div class="spu-price-block">
+        <div class="spu-price-item"><div class="spu-price-label">Price / kg</div><div class="spu-price-val">${priceStr}</div></div>
+        <div class="spu-price-item"><div class="spu-price-label">Lead time</div><div class="spu-price-val">${sku.lt} days</div></div>
+      </div>
+
+      <div class="detail-cta-area">
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+          <button class="btn-add" onclick="alert('Added to My Library')">Add to My Library</button>
+          <button class="btn-fsm" onclick="findSameMaterial('${m.id}','${m.spuCode}','${sku.key}')">Find Same Material</button>
+          <button class="btn-compare" onclick="showPage('compare')">Compare</button>
+        </div>
+        <div class="cta-note">Adding to Library saves this variant (SPU + SKU) for quick access.</div>
+      </div>
+    </div>`;
+
+  // SKU spec fields
+  let specHtml = `<div class="spec-section-title">Specifications — ${sku.label}</div>`;
+  for (const [k, v] of Object.entries(sku.fields)) {
+    specHtml += `<div class="spec-row"><span class="spec-label">${k}</span><span class="spec-val">${v}</span><span class="spec-plus">+</span></div>`;
+  }
+  document.getElementById('sku-spec-body').innerHTML = specHtml;
+}
+
+function selectSku(matId, skuKey) {
+  currentMat = MATERIALS.find(m => m.id === matId);
+  currentSku = currentMat.skuVariants.find(v => v.key === skuKey);
+  renderSkuPage(currentMat, currentSku);
+}
+
+/* ═══════════════════════
+   FIND SAME MATERIAL
+═══════════════════════ */
+function findSameMaterial(fromId, spuCode, skuKey) {
+  fsmContext = { fromId, spuCode, skuKey };
+  const fsm = MATERIALS.filter(m => m.spuCode === spuCode && m.id !== fromId);
+  showPage('search');
+  setTimeout(() => renderGrid(fsm, true), 50);
+}
+
+/* ═══════════════════════
+   COMPANY PROFILE
+═══════════════════════ */
+function openCompanyFromCard(supId) {
+  companyReturnPage = 'search';
+  companyReturnMat = null;
+  renderCompanyPage(supId);
+  showPage('company');
+}
+
+function openCompanyFromSpu(supId) {
+  companyReturnPage = 'spu';
+  companyReturnMat = currentMat;
+  renderCompanyPage(supId);
+  showPage('company');
+}
+
+function openCompanyFromSku(supId) {
+  companyReturnPage = 'sku';
+  companyReturnMat = currentMat;
+  renderCompanyPage(supId);
+  showPage('company');
+}
+
+function renderCompanyPage(supId) {
+  const s = SUPPLIERS[supId];
+  const mats = MATERIALS.filter(m => m.sup === supId);
+  const html = `
+    <div class="company-hero">
+      <div class="company-avatar">${s.short}</div>
+      <div>
+        <div class="company-name">${s.name}</div>
+        <div class="company-meta">${s.location} · ${s.category}</div>
+        <div class="company-desc">${s.desc}</div>
+        <div class="cert-list">
+          ${s.certs.map(c => c === 'DPP-ready' ? `<span class="cert-chip dpp-chip">✓ DPP-ready</span>` : `<span class="cert-chip">${c}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="info-grid">
+      <div class="info-card"><div class="info-card-label">Total Materials</div><div class="info-card-val">${s.materials}</div></div>
+      <div class="info-card"><div class="info-card-label">OPEN Materials</div><div class="info-card-val">${s.open}</div></div>
+      <div class="info-card"><div class="info-card-label">DPP Data</div><div class="info-card-val" style="color:${s.dpp?'#1D7340':'#86868B'}">${s.dpp?'Available':'Not available'}</div></div>
+    </div>
+    <div class="section-title">Materials from ${s.name} (${mats.length} in Demo)</div>
+    <div class="lib-grid">
+      ${mats.map(m => `
+      <div class="lib-card" onclick="openSpu('${m.id}')">
+        <div class="lib-img">${imgSVG(m.imgShape)}</div>
+        <div class="lib-info">
+          <div class="lib-name">${m.name}</div>
+          <div class="lib-sub">${m.type === 'secondary' ? 'Secondary Process' : 'Raw Material'} · ${m.id}</div>
+          <div class="lib-meta">
+            <span class="badge b-${m.perm.toLowerCase()}">${m.perm}</span>
+            ${m.dpp ? '<span class="b-dpp">DPP-ready</span>' : ''}
+            ${m.price !== null ? `<span style="font-size:12px;color:#86868B">USD ${m.price.toFixed(2)}/kg · ${m.lt}d</span>` : `<span style="font-size:12px;color:#86868B">LT ${m.lt}d</span>`}
+          </div>
+        </div>
+        <span class="lib-chev">›</span>
+      </div>`).join('')}
+    </div>`;
+  document.getElementById('company-content').innerHTML = html;
+}
+
+/* ═══════════════════════
+   LIBRARY
+═══════════════════════ */
+function renderLibrary() {
+  const libMats = MATERIALS.slice(0, 12);
+  document.getElementById('library-list').innerHTML = libMats.map(m => `
+    <div class="lib-card" onclick="openSpu('${m.id}')">
+      <div class="lib-img">${imgSVG(m.imgShape)}</div>
+      <div class="lib-info">
+        <div class="lib-name">${m.name}</div>
+        <div class="lib-sub">${SUPPLIERS[m.sup].name} · ${m.type === 'secondary' ? 'Secondary' : 'Raw'}</div>
+        <div class="lib-meta">
+          <span class="badge b-${m.perm.toLowerCase()}">${m.perm}</span>
+          ${m.dpp ? '<span class="b-dpp">DPP-ready</span>' : ''}
+        </div>
+      </div>
+      <span class="lib-chev">›</span>
+    </div>`).join('');
+}
+
+/* ═══════════════════════
+   INIT
+═══════════════════════ */
+renderGrid();
+renderLibrary();
 </script>
 </body>
 </html>
