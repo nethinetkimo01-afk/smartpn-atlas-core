@@ -1,6 +1,6 @@
 # Current Status
 
-Last updated: 2026-06-08
+Last updated: 2026-06-12
 
 ---
 
@@ -146,6 +146,7 @@ Last updated: 2026-06-12
 
 ### 完成（2026-06-12）
 - [x] 31_DEMO_INTERFACE_SPEC_v1.md：Jim 確認版（8問答覆）入庫，取代 30 號草稿。唯一 Demo 開發依據。
+- [x] 33_DEMO_SPEC_v1_2_ADDENDUM.md：v1.2 增補確認版入庫。Boss BI 8 KPIs、誰看過我的材料隱私分級、角色測試項目全部採納。
 - [x] SMARTPN_DEMO.html v2：完整重建 Brand/Factory 端購物網 UI
   - 頂部導覽（購物網式）：搜尋 / My Favorites / My Library / My Account / Settings
   - 三層頁面：搜尋網格 → SPU 主頁（含評論區）→ SKU 頁（規格選擇、Find Same Material）
@@ -153,13 +154,22 @@ Last updated: 2026-06-12
   - 材料卡片含 DPP-ready 標示
   - Compare：Apple 比較頁排版（3 欄、最優值高亮）
   - 12 筆 mock 材料 / 3 家 supplier
-- [x] SMARTPN_DEMO_SUPPLIER.html v2：完整重建 Supplier 端
-  - 選單只有兩項：公司建立 / SmartPN 建立
+- [x] SMARTPN_DEMO.html v2.1（Brand）— 新增：
+  - 材料卡片顯示供應商星等摘要（★ 平均分 from reviews）
+  - 搜尋結果 LT ↑↓ / Price ↑↓ 排序切換按鈕
+- [x] SMARTPN_DEMO_SUPPLIER.html v3：完整重建 Supplier 端（含 v1.2 增補全功能）
+  - 選單三組：公司建立 / SmartPN 建立 / Boss BI
   - 公司建立：母/子公司 + 關務/稅務/材料訊息
   - 原物料建立：4 步驟精靈（SPU → SKU → 權限 → 確認）
   - 二次加工：Input/Output/Ratio 表單
   - 權限管理：欄位資料夾 + 打勾 + 授權給「公司 · 單位 · 姓名」
-  - 單價管理：報價層級三選（SPU / SPU+SKU / SPU+SKU+備註）
+  - 單價管理：報價層級三選 + 有效期提醒（紅/黃/綠分級）
+  - 誰看過我的材料：公司名+次數 ↔ 行業/地區模糊切換，永不顯示個人資料
+  - 資料完整度：各材料進度條 + 缺漏欄位標籤 + DPP-ready 標示
+  - Boss BI 經營儀表板：8 KPI 全部 CSS 圖表（Apple 風格，mock 數據）
+    1. 總營業額（YoY/MoM 箭頭）2. 產品銷售佔比（橫條圖）3. 各公司營收佔比（母/子）
+    4. 利潤比（毛利率橫條）5. 現金流明細表（含入帳預計日期）6. 應收帳款帳齡 30/60/90天
+    7. 客戶集中度前三大 8. 報價成交率（環狀 CSS 圖）
   - 新材料預設全 PRIVATE
 
 ### 待確認（需 Jim 決定）
