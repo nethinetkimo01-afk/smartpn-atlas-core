@@ -1,1 +1,2 @@
 flask_backend/*.log
+flask_backend/data/*.db
