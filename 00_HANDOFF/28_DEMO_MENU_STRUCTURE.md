@@ -157,3 +157,11 @@ Example:
 - [ ] Confirm which version is the current official demo for GTS presentation
 - [ ] S01 Demo software: confirm it uses Formal Demo B layout or Phase 1 layout
 - [ ] S02–S17: each scenario maps to which menu items in Phase 1 version
+
+---
+
+## Permission Design Summary (CONFIRMED by Jim 2026-06-10)
+
+1. Product permission: set by SPU (authorization atom). SKU inherits from SPU.
+2. Custom Field Groups: Supplier creates named groups (e.g. 關務欄位, 財務欄位), checks which fields belong, grants BY GROUP NAME to specific accounts.
+3. GRANT layer in action: data owner defines groups, grants groups to the right people.
