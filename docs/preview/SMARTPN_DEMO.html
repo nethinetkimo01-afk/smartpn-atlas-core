@@ -208,6 +208,52 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:#D2D2D7;border-radius:3px}
+
+/* ── Homepage ── */
+.home-hero{background:linear-gradient(135deg,#1D1D1F 0%,#2C2C2E 60%,#3A3A3C 100%);padding:64px 48px;position:relative;overflow:hidden}
+.home-hero::after{content:'';position:absolute;top:-60px;right:-80px;width:400px;height:400px;background:radial-gradient(circle,rgba(0,113,227,0.15) 0%,transparent 70%);pointer-events:none}
+.home-hero-tag{font-size:11px;font-weight:600;color:#0071E3;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px}
+.home-hero-title{font-size:40px;font-weight:700;color:#FFFFFF;letter-spacing:-1.2px;line-height:1.15;margin-bottom:16px;max-width:520px}
+.home-hero-sub{font-size:15px;color:rgba(255,255,255,0.6);line-height:1.6;max-width:440px;margin-bottom:28px}
+.home-hero-cta{display:inline-flex;align-items:center;gap:8px;background:#0071E3;color:#FFFFFF;border:none;border-radius:20px;padding:12px 24px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity 0.15s}
+.home-hero-cta:hover{opacity:0.85}
+.home-section{padding:40px 48px 0}
+.home-section-header{display:flex;align-items:baseline;gap:16px;margin-bottom:20px}
+.home-section-title{font-size:22px;font-weight:700;color:#1D1D1F;letter-spacing:-0.5px}
+.home-see-all{font-size:13px;color:#0071E3;border:none;background:none;cursor:pointer;font-family:inherit;padding:0}
+.featured-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding-bottom:48px;border-bottom:0.5px solid #D2D2D7}
+.featured-card{background:#FFFFFF;border:0.5px solid #E5E5EA;border-radius:14px;overflow:hidden;cursor:pointer;transition:transform 0.12s,box-shadow 0.12s}
+.featured-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.08)}
+.featured-card-img{width:100%;height:140px;object-fit:cover;background:#F5F5F7;display:block}
+.featured-card-body{padding:14px 14px 16px}
+.featured-card-name{font-size:14px;font-weight:600;color:#1D1D1F;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.featured-card-sup{font-size:12px;color:#86868B;margin-bottom:6px}
+.featured-card-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+
+/* ── Search two-column layout ── */
+.search-layout{display:flex;align-items:flex-start;min-height:100vh}
+.cat-sidebar{width:188px;flex-shrink:0;padding:20px 12px;border-right:0.5px solid #D2D2D7;position:sticky;top:96px;max-height:calc(100vh - 96px);overflow-y:auto}
+.cat-sidebar-title{font-size:11px;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:0.07em;padding:0 8px;margin-bottom:8px}
+.cat-btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:9px 10px;border:none;background:none;color:#1D1D1F;font-size:14px;cursor:pointer;border-radius:8px;font-family:inherit;transition:background 0.1s;text-align:left}
+.cat-btn:hover{background:#F5F5F7}
+.cat-btn.active{background:#F0F7FF;color:#0071E3;font-weight:500}
+.cat-count{font-size:12px;color:#86868B;background:#F5F5F7;border-radius:10px;padding:1px 7px;flex-shrink:0}
+.cat-btn.active .cat-count{background:#D6E8FC;color:#0071E3}
+.cat-sep{height:0.5px;background:#E5E5EA;margin:8px 4px}
+.search-main{flex:1;min-width:0;padding:24px 40px 40px}
+
+/* ── Material card image ── */
+.mc-img-photo{width:100%;height:140px;object-fit:cover;display:block;background:#F5F5F7}
+.mat-card .mc-img{padding:0;height:140px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+
+/* ── FSM Modal ── */
+.fsm-modal{position:fixed;inset:0;z-index:500;display:flex;align-items:flex-end;justify-content:flex-end}
+.fsm-modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.35)}
+.fsm-modal-panel{position:relative;background:#FFFFFF;width:540px;height:100vh;overflow-y:auto;box-shadow:-4px 0 24px rgba(0,0,0,0.12);display:flex;flex-direction:column}
+.fsm-modal-header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:0.5px solid #D2D2D7;position:sticky;top:0;background:#FFFFFF;z-index:1}
+.fsm-modal-title{font-size:17px;font-weight:600;color:#1D1D1F;flex:1}
+.fsm-modal-close{width:28px;height:28px;border-radius:50%;border:none;background:#F5F5F7;color:#1D1D1F;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+.fsm-modal-body{padding:20px 24px;flex:1}
 </style>
 </head>
 <body>
@@ -264,13 +310,49 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 
 <!-- ══ PAGES ══ -->
 
-<!-- ── SEARCH ── -->
-<div class="page active" id="page-search" style="max-width:none;padding:0">
-  <div style="max-width:1080px;margin:0 auto;padding:24px 40px 8px">
-    <div id="fsm-banner-area"></div>
-    <div class="result-count" id="result-count"></div>
+<!-- ── HOMEPAGE ── -->
+<div class="page active fade-in" id="page-home" style="max-width:none;padding:0">
+  <div class="home-hero">
+    <div class="home-hero-tag">DPP-READY MATERIALS · 2026 SEASON</div>
+    <div class="home-hero-title">Material Intelligence<br>for the Modern Supply Chain</div>
+    <div class="home-hero-sub">Verified materials with full Digital Product Passport data. Search, compare, and source with confidence.</div>
+    <button class="home-hero-cta" onclick="showPage('search');applyFilters()">Browse All Materials →</button>
   </div>
-  <div id="mat-grid-wrap" style="max-width:1080px;margin:0 auto;padding:0 40px 40px"></div>
+  <div class="home-section">
+    <div class="home-section-header">
+      <div class="home-section-title">最新上架</div>
+      <button class="home-see-all" onclick="showPage('search');applyFilters()">全部查看 →</button>
+    </div>
+    <div class="featured-grid" id="home-latest"></div>
+  </div>
+  <div class="home-section">
+    <div class="home-section-header">
+      <div class="home-section-title">最多人使用</div>
+      <button class="home-see-all" onclick="showPage('search');applyFilters()">全部查看 →</button>
+    </div>
+    <div class="featured-grid" id="home-popular"></div>
+  </div>
+</div>
+
+<!-- ── SEARCH ── -->
+<div class="page" id="page-search" style="max-width:none;padding:0">
+  <div class="search-layout">
+    <div class="cat-sidebar">
+      <div class="cat-sidebar-title">材料分類</div>
+      <button class="cat-btn active" id="cat-all" onclick="toggleCat(null,this)">All <span class="cat-count" id="cnt-all">16</span></button>
+      <div class="cat-sep"></div>
+      <button class="cat-btn" id="cat-皮料" onclick="toggleCat('皮料',this)">皮料 <span class="cat-count" id="cnt-皮料">2</span></button>
+      <button class="cat-btn" id="cat-人造皮" onclick="toggleCat('人造皮',this)">人造皮 <span class="cat-count" id="cnt-人造皮">2</span></button>
+      <button class="cat-btn" id="cat-紡織" onclick="toggleCat('紡織',this)">紡織 <span class="cat-count" id="cnt-紡織">2</span></button>
+      <button class="cat-btn" id="cat-薄膜" onclick="toggleCat('薄膜',this)">薄膜 <span class="cat-count" id="cnt-薄膜">4</span></button>
+      <button class="cat-btn" id="cat-二次加工" onclick="toggleCat('二次加工',this)">二次加工 <span class="cat-count" id="cnt-二次加工">3</span></button>
+    </div>
+    <div class="search-main">
+      <div id="fsm-banner-area"></div>
+      <div class="result-count" id="result-count"></div>
+      <div id="mat-grid-wrap"></div>
+    </div>
+  </div>
 </div>
 
 <!-- ── SPU DETAIL (Product Homepage) ── -->
@@ -380,6 +462,21 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
   <div class="settings-row"><span class="settings-label">Show LT in search results</span><div class="toggle"></div></div>
 </div>
 
+<!-- ══ FSM MODAL ══ -->
+<div class="fsm-modal" id="fsm-modal" style="display:none">
+  <div class="fsm-modal-backdrop" onclick="closeFsmModal()"></div>
+  <div class="fsm-modal-panel">
+    <div class="fsm-modal-header">
+      <div>
+        <div class="fsm-modal-title">Find Same Material</div>
+        <div id="fsm-modal-context" style="font-size:12px;color:#86868B;margin-top:2px"></div>
+      </div>
+      <button class="fsm-modal-close" onclick="closeFsmModal()">✕</button>
+    </div>
+    <div class="fsm-modal-body" id="fsm-modal-body"></div>
+  </div>
+</div>
+
 <script>
 /* ═══════════════════════
    MOCK DATA
@@ -388,10 +485,12 @@ const SUPPLIERS = {
   FP: { id:'FP', name:'Formosa Plastics', short:'FP', location:'Taipei, Taiwan', category:'Polymer & Raw Materials', desc:'Founded 1954. One of Asia\'s largest integrated polymer producers. All materials independently verified. ISO 9001 / ISO 14001 certified.', certs:['ISO 9001','ISO 14001','GRS-certified','DPP-ready'], materials:247, open:89, dpp:true },
   SK: { id:'SK', name:'Shinkong Fiber', short:'SK', location:'Taipei, Taiwan', category:'Advanced Fibers & Composites', desc:'Specialized in high-performance engineering fibers and polymer composites. Serving aerospace, automotive, and electronics sectors for 30+ years.', certs:['ISO 9001','OEKO-TEX','DPP-ready'], materials:138, open:52, dpp:true },
   NX: { id:'NX', name:'NexPlast Vietnam', short:'NX', location:'Ho Chi Minh City, Vietnam', category:'Commodity Polymers', desc:'Regional polymer distributor and toll processor. Competitive pricing with 28-day lead times. REACH compliant.', certs:['ISO 9001','REACH'], materials:64, open:40, dpp:false },
+  HF: { id:'HF', name:'Hua Fong Leather', short:'HF', location:'Guangzhou, China', category:'Leather & Synthetic Materials', desc:'Leading tannery serving global footwear and accessories brands. GRS-certified recycled content. REACH and Prop 65 compliant. Full DPP data on request.', certs:['ISO 9001','GRS-certified','REACH','DPP-ready'], materials:183, open:95, dpp:true },
 };
 
 const MATERIALS = [
-  { id:'SPN-001', name:'PA66-GF30 Nylon', sup:'FP', type:'raw', spuCode:'PA66-GF', skuKey:'30GF-NAT', imgShape:'circle',
+  { id:'SPN-001', name:'PA66-GF30 Nylon', sup:'FP', type:'raw', spuCode:'PA66-GF', skuKey:'30GF-NAT', imgShape:'circle', cat:null, views:89,
+    photo:'https://picsum.photos/seed/nylon-pellet/400/280',
     price:4.20, lt:14, perm:'OPEN', dpp:true, updated:'Jun 10',
     spuFields:{ Category:'Engineering Polymer', 'Base resin':'Polyamide 66', 'Filler type':'Glass fiber', Standard:'ISO 527' },
     skuVariants:[
@@ -404,7 +503,8 @@ const MATERIALS = [
       { initials:'KM', name:'K. Matsuda', org:'Apex Factory', date:'May 12', stars:4, text:'Good mechanical properties, slightly above quote on LT this cycle. Communication with supplier is excellent.', perm:'SHARED' },
     ]
   },
-  { id:'SPN-002', name:'PA66-GF33 Variant', sup:'SK', type:'raw', spuCode:'PA66-GF', skuKey:'33GF-BLK', imgShape:'circle',
+  { id:'SPN-002', name:'PA66-GF33 Variant', sup:'SK', type:'raw', spuCode:'PA66-GF', skuKey:'33GF-BLK', imgShape:'circle', cat:null, views:62,
+    photo:'https://picsum.photos/seed/fiber-composite/400/280',
     price:3.85, lt:21, perm:'SHARED', dpp:true, updated:'Jun 8',
     spuFields:{ Category:'Engineering Polymer', 'Base resin':'Polyamide 66', 'Filler type':'Glass fiber', Standard:'ISO 527' },
     skuVariants:[
@@ -414,7 +514,8 @@ const MATERIALS = [
       { initials:'JL', name:'James Liu', org:'NexBrand R&D', date:'Jun 2', stars:5, text:'Best tensile strength in this SPU family at the price. DPP report comprehensive.', perm:'SHARED' },
     ]
   },
-  { id:'SPN-003', name:'PA66-GF40 High Fill', sup:'NX', type:'raw', spuCode:'PA66-GF', skuKey:'40GF-BLK', imgShape:'circle',
+  { id:'SPN-003', name:'PA66-GF40 High Fill', sup:'NX', type:'raw', spuCode:'PA66-GF', skuKey:'40GF-BLK', imgShape:'circle', cat:null, views:44,
+    photo:'https://picsum.photos/seed/polymer-black/400/280',
     price:3.60, lt:28, perm:'OPEN', dpp:false, updated:'Jun 5',
     spuFields:{ Category:'Engineering Polymer', 'Base resin':'Polyamide 66', 'Filler type':'Glass fiber', Standard:'ISO 527' },
     skuVariants:[
@@ -422,7 +523,8 @@ const MATERIALS = [
     ],
     reviews:[]
   },
-  { id:'SPN-004', name:'PETG Sheet 1.5mm', sup:'FP', type:'raw', spuCode:'PETG-SHEET', skuKey:'1.5mm-CLR', imgShape:'rect',
+  { id:'SPN-004', name:'PETG Sheet 1.5mm', sup:'FP', type:'raw', spuCode:'PETG-SHEET', skuKey:'1.5mm-CLR', imgShape:'rect', cat:'薄膜', views:133,
+    photo:'https://picsum.photos/seed/petg-sheet/400/280',
     price:5.50, lt:10, perm:'SHARED', dpp:true, updated:'Jun 9',
     spuFields:{ Category:'Engineering Polymer', 'Base resin':'Polyethylene terephthalate glycol', 'Form':'Sheet', Standard:'ASTM D6103' },
     skuVariants:[
@@ -434,7 +536,8 @@ const MATERIALS = [
       { initials:'AW', name:'A. Wong', org:'ProductionTech', date:'Jun 1', stars:5, text:'Perfect surface finish. DPP data included recycled content %, very useful for our brand reporting.', perm:'SHARED' },
     ]
   },
-  { id:'SPN-005', name:'PETG Sheet 2.0mm', sup:'SK', type:'raw', spuCode:'PETG-SHEET', skuKey:'2.0mm-CLR', imgShape:'rect',
+  { id:'SPN-005', name:'PETG Sheet 2.0mm', sup:'SK', type:'raw', spuCode:'PETG-SHEET', skuKey:'2.0mm-CLR', imgShape:'rect', cat:'薄膜', views:78,
+    photo:'https://picsum.photos/seed/clear-plastic/400/280',
     price:5.20, lt:14, perm:'OPEN', dpp:false, updated:'May 28',
     spuFields:{ Category:'Engineering Polymer', 'Base resin':'Polyethylene terephthalate glycol', 'Form':'Sheet', Standard:'ASTM D6103' },
     skuVariants:[
@@ -442,7 +545,8 @@ const MATERIALS = [
     ],
     reviews:[]
   },
-  { id:'SPN-006', name:'ABS-HI Resin', sup:'FP', type:'raw', spuCode:'ABS-HI', skuKey:'NAT-PELLET', imgShape:'circle',
+  { id:'SPN-006', name:'ABS-HI Resin', sup:'FP', type:'raw', spuCode:'ABS-HI', skuKey:'NAT-PELLET', imgShape:'circle', cat:null, views:55,
+    photo:'https://picsum.photos/seed/abs-resin/400/280',
     price:3.10, lt:7, perm:'OPEN', dpp:true, updated:'Jun 7',
     spuFields:{ Category:'Engineering Polymer', 'Base resin':'Acrylonitrile Butadiene Styrene', Grade:'High Impact', Standard:'ISO 180' },
     skuVariants:[
@@ -453,7 +557,8 @@ const MATERIALS = [
       { initials:'TK', name:'T. Kim', org:'GlobalBrand Factory', date:'May 30', stars:4, text:'Good impact resistance. Shortest LT in our approved list.', perm:'OPEN' },
     ]
   },
-  { id:'SPN-007', name:'SUS304 Hinge Bracket', sup:'SK', type:'raw', spuCode:'SUS304-STAMP', skuKey:'2B-STD', imgShape:'diamond',
+  { id:'SPN-007', name:'SUS304 Hinge Bracket', sup:'SK', type:'raw', spuCode:'SUS304-STAMP', skuKey:'2B-STD', imgShape:'diamond', cat:null, views:31,
+    photo:'https://picsum.photos/seed/stainless-metal/400/280',
     price:8.40, lt:21, perm:'OPEN', dpp:false, updated:'Jun 9',
     spuFields:{ Category:'Metal Component', Material:'Stainless Steel 304', 'Process':'Stamping', Standard:'ASTM A240' },
     skuVariants:[
@@ -462,7 +567,8 @@ const MATERIALS = [
     ],
     reviews:[]
   },
-  { id:'SPN-008', name:'PP Homopolymer', sup:'NX', type:'raw', spuCode:'PP-HM', skuKey:'NAT-PELLET', imgShape:'circle',
+  { id:'SPN-008', name:'PP Homopolymer', sup:'NX', type:'raw', spuCode:'PP-HM', skuKey:'NAT-PELLET', imgShape:'circle', cat:null, views:27,
+    photo:'https://picsum.photos/seed/white-granule/400/280',
     price:2.20, lt:14, perm:'SHARED', dpp:false, updated:'Jun 3',
     spuFields:{ Category:'Commodity Polymer', 'Base resin':'Polypropylene', Grade:'Homopolymer', Standard:'ISO 1183' },
     skuVariants:[
@@ -470,7 +576,8 @@ const MATERIALS = [
     ],
     reviews:[]
   },
-  { id:'SPN-009', name:'POM Copolymer', sup:'NX', type:'raw', spuCode:'POM-CO', skuKey:'NAT-PELLET', imgShape:'circle',
+  { id:'SPN-009', name:'POM Copolymer', sup:'NX', type:'raw', spuCode:'POM-CO', skuKey:'NAT-PELLET', imgShape:'circle', cat:'薄膜', views:19,
+    photo:'https://picsum.photos/seed/polymer-pellet/400/280',
     price:3.80, lt:21, perm:'OPEN', dpp:false, updated:'Jun 1',
     spuFields:{ Category:'Engineering Polymer', 'Base resin':'Polyoxymethylene', Grade:'Copolymer', Standard:'ISO 527' },
     skuVariants:[
@@ -478,7 +585,8 @@ const MATERIALS = [
     ],
     reviews:[]
   },
-  { id:'SPN-010', name:'Electroplating Chrome', sup:'FP', type:'secondary', spuCode:'ELEC-PROC', skuKey:'10-25UM', imgShape:'wave',
+  { id:'SPN-010', name:'Electroplating Chrome', sup:'FP', type:'secondary', spuCode:'ELEC-PROC', skuKey:'10-25UM', imgShape:'wave', cat:'二次加工', views:76,
+    photo:'https://picsum.photos/seed/chrome-surface/400/280',
     price:null, lt:14, perm:'OPEN', dpp:true, updated:'Jun 8',
     spuFields:{ Category:'Secondary Process', 'Process type':'Electroplating', 'Coating':'Chrome', Application:'ABS / Polymer substrates' },
     skuVariants:[
@@ -488,7 +596,8 @@ const MATERIALS = [
       { initials:'RL', name:'Rachel L.', org:'NexBrand', date:'May 20', stars:5, text:'Best-in-class adhesion on ABS. DPP data includes REACH substance declaration.', perm:'SHARED' },
     ]
   },
-  { id:'SPN-011', name:'Powder Coat Black', sup:'NX', type:'secondary', spuCode:'PC-PROC', skuKey:'BLK-STD', imgShape:'wave',
+  { id:'SPN-011', name:'Powder Coat Black', sup:'NX', type:'secondary', spuCode:'PC-PROC', skuKey:'BLK-STD', imgShape:'wave', cat:'二次加工', views:48,
+    photo:'https://picsum.photos/seed/black-coating/400/280',
     price:null, lt:10, perm:'OPEN', dpp:false, updated:'Jun 6',
     spuFields:{ Category:'Secondary Process', 'Process type':'Powder Coating', Color:'Black (RAL 9005)', Application:'Metal substrates' },
     skuVariants:[
@@ -496,7 +605,8 @@ const MATERIALS = [
     ],
     reviews:[]
   },
-  { id:'SPN-012', name:'Anodising Type II', sup:'SK', type:'secondary', spuCode:'ANOD-PROC', skuKey:'CLR-T2', imgShape:'wave',
+  { id:'SPN-012', name:'Anodising Type II', sup:'SK', type:'secondary', spuCode:'ANOD-PROC', skuKey:'CLR-T2', imgShape:'wave', cat:'二次加工', views:61,
+    photo:'https://picsum.photos/seed/aluminum-surface/400/280',
     price:null, lt:12, perm:'SHARED', dpp:true, updated:'Jun 7',
     spuFields:{ Category:'Secondary Process', 'Process type':'Anodising', Standard:'MIL-A-8625 Type II', Application:'Aluminium alloy' },
     skuVariants:[
@@ -507,18 +617,67 @@ const MATERIALS = [
       { initials:'JL', name:'James Liu', org:'NexBrand', date:'Jun 3', stars:5, text:'Excellent consistency. DPP report includes water usage and chemical inventory.', perm:'SHARED' },
     ]
   },
+  { id:'SPN-013', name:'Full Grain Bovine Leather', sup:'HF', type:'raw', spuCode:'BVL-GRAIN', skuKey:'1.2mm-NAT', imgShape:'wave', cat:'皮料', views:142,
+    photo:'https://picsum.photos/seed/bovine-leather/400/280',
+    price:8.80, lt:21, perm:'OPEN', dpp:true, updated:'Jun 11',
+    spuFields:{ Category:'Leather', Origin:'Brazil', Tannage:'Chrome-free vegetable', Standard:'IUF 450' },
+    skuVariants:[
+      { key:'1.2mm-NAT', label:'1.2mm · Natural Tan', price:8.80, lt:21, fields:{ Thickness:'1.2mm',Color:'Natural Tan',Finish:'Full grain','Tensile strength':'≥200 N/cm²','Tear strength':'≥60 N/cm' } },
+      { key:'1.4mm-BLK', label:'1.4mm · Black', price:9.20, lt:21, fields:{ Thickness:'1.4mm',Color:'Black',Finish:'Full grain','Tensile strength':'≥200 N/cm²','Tear strength':'≥65 N/cm' } },
+    ],
+    reviews:[
+      { initials:'RL', name:'Rachel L.', org:'NexBrand Footwear', date:'Jun 5', stars:5, text:'Supplest full grain we have sourced this season. DPP includes full tannery chain of custody.', perm:'SHARED' },
+    ]
+  },
+  { id:'SPN-014', name:'PU Synthetic Leather 1.2mm', sup:'NX', type:'raw', spuCode:'PU-SL', skuKey:'1.2mm-BLK', imgShape:'rect', cat:'人造皮', views:118,
+    photo:'https://picsum.photos/seed/pu-synthetic/400/280',
+    price:3.40, lt:14, perm:'OPEN', dpp:true, updated:'Jun 10',
+    spuFields:{ Category:'Synthetic Leather', Base:'Woven polyester', Coating:'PU top coat', Standard:'QB/T 2729' },
+    skuVariants:[
+      { key:'1.2mm-BLK', label:'1.2mm · Black Matt', price:3.40, lt:14, fields:{ Thickness:'1.2mm',Color:'Black',Finish:'Matt','Peel strength':'≥30 N/cm','Abrasion':'20,000 cycles' } },
+      { key:'1.2mm-WHT', label:'1.2mm · White Gloss', price:3.55, lt:14, fields:{ Thickness:'1.2mm',Color:'White',Finish:'High gloss','Peel strength':'≥30 N/cm','Abrasion':'20,000 cycles' } },
+    ],
+    reviews:[
+      { initials:'TK', name:'T. Kim', org:'GlobalBrand Factory', date:'Jun 8', stars:4, text:'Consistent peel strength batch to batch. Good price point for volume orders.', perm:'OPEN' },
+    ]
+  },
+  { id:'SPN-015', name:'Recycled Polyester Mesh', sup:'SK', type:'raw', spuCode:'RPET-MESH', skuKey:'150D-BLK', imgShape:'wave', cat:'紡織', views:203,
+    photo:'https://picsum.photos/seed/mesh-textile/400/280',
+    price:2.80, lt:28, perm:'OPEN', dpp:true, updated:'Jun 12',
+    spuFields:{ Category:'Textile', Fiber:'Recycled PET', Construction:'Plain weave 150D', Standard:'ISO 105-B02', 'GRS Content':'≥50% post-consumer' },
+    skuVariants:[
+      { key:'150D-BLK', label:'150D · Black', price:2.80, lt:28, fields:{ Denier:'150D',Color:'Black',Weave:'Plain',Width:'150 cm','Tenacity':'≥4.5 cN/dtex','GRS recycled':'52%' } },
+      { key:'300D-BLK', label:'300D · Black', price:3.20, lt:28, fields:{ Denier:'300D',Color:'Black',Weave:'Plain',Width:'150 cm','Tenacity':'≥4.8 cN/dtex','GRS recycled':'52%' } },
+    ],
+    reviews:[
+      { initials:'JL', name:'James Liu', org:'NexBrand R&D', date:'Jun 9', stars:5, text:'Best recycled content documentation in this category. DPP data is comprehensive and audit-ready.', perm:'SHARED' },
+    ]
+  },
+  { id:'SPN-016', name:'TPU Film 0.3mm', sup:'FP', type:'raw', spuCode:'TPU-FILM', skuKey:'0.3mm-CLR', imgShape:'rect', cat:'薄膜', views:87,
+    photo:'https://picsum.photos/seed/tpu-film/400/280',
+    price:6.80, lt:14, perm:'SHARED', dpp:true, updated:'Jun 11',
+    spuFields:{ Category:'Film', 'Base resin':'Thermoplastic polyurethane', Thickness:'0.3mm', Standard:'ASTM D412' },
+    skuVariants:[
+      { key:'0.3mm-CLR', label:'0.3mm · Clear', price:6.80, lt:14, fields:{ Thickness:'0.3mm',Color:'Clear',Hardness:'88 Shore A','Tensile strength':'45 MPa',Elongation:'≥500%' } },
+      { key:'0.3mm-WHT', label:'0.3mm · White', price:7.00, lt:14, fields:{ Thickness:'0.3mm',Color:'White',Hardness:'88 Shore A','Tensile strength':'45 MPa',Elongation:'≥500%' } },
+    ],
+    reviews:[
+      { initials:'AW', name:'A. Wong', org:'ProductionTech', date:'Jun 7', stars:5, text:'Excellent bondability for upper lamination. DPP includes full chemical passport.', perm:'SHARED' },
+    ]
+  },
 ];
 
 /* ═══════════════════════
    STATE
 ═══════════════════════ */
-let currentPage = 'search';
+let currentPage = 'home';
 let typeFilter = 'all';
 let dppFilter = false;
+let catFilter = null;
 let fsmContext = null;
 let currentMat = null;
 let currentSku = null;
-let prevPage = 'search';
+let prevPage = 'home';
 let sortMode = null; // 'lt-asc','lt-desc','price-asc','price-desc'
 let companyReturnPage = null;
 let companyReturnMat = null;
@@ -530,7 +689,7 @@ function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
   const fb = document.getElementById('filter-bar');
-  fb.style.display = (id === 'search') ? '' : 'none';
+  fb.style.display = (id === 'search' || id === 'home') ? '' : 'none';
   currentPage = id;
   window.scrollTo(0, 0);
 }
@@ -576,7 +735,7 @@ function toggleDppFilter(el) {
 }
 
 function handleNavSearch(v) {
-  if (currentPage !== 'search') showPage('search');
+  if (currentPage !== 'search') { showPage('search'); }
   applyFilters();
 }
 
@@ -584,6 +743,42 @@ function applyFilters() {
   fsmContext = null;
   document.getElementById('fsm-banner-area').innerHTML = '';
   renderGrid();
+}
+
+function toggleCat(cat, el) {
+  catFilter = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  showPage('search');
+  applyFilters();
+}
+
+function renderHomepage() {
+  const latest = [...MATERIALS].sort((a,b) => b.updated.localeCompare(a.updated)).slice(0,4);
+  const popular = [...MATERIALS].sort((a,b) => (b.views||0) - (a.views||0)).slice(0,4);
+  const card = m => {
+    const sup = SUPPLIERS[m.sup];
+    const avg = avgStars(m.reviews);
+    return `<div class="featured-card" onclick="openSpu('${m.id}')">
+      <img class="featured-card-img" src="${m.photo}" alt="${m.name}" onerror="this.style.display='none'">
+      <div class="featured-card-body">
+        <div class="featured-card-name">${m.name}</div>
+        <div class="featured-card-sup">${sup.name}</div>
+        <div class="featured-card-meta">
+          <span class="badge b-${m.perm.toLowerCase()}">${m.perm}</span>
+          ${m.dpp ? '<span class="b-dpp">DPP</span>' : ''}
+          ${avg ? `<span style="font-size:11px;color:#F5A623">${'★'.repeat(Math.floor(avg))}${' '.repeat(5-Math.floor(avg))} ${avg.toFixed(1)}</span>` : ''}
+        </div>
+      </div>
+    </div>`;
+  };
+  document.getElementById('home-latest').innerHTML = latest.map(card).join('');
+  document.getElementById('home-popular').innerHTML = popular.map(card).join('');
+}
+
+function closeFsmModal() {
+  document.getElementById('fsm-modal').style.display = 'none';
+  document.body.style.overflow = '';
 }
 
 function toggleSort(field, el) {
@@ -615,6 +810,7 @@ function getFiltered() {
   let result = MATERIALS.filter(m => {
     if (typeFilter !== 'all' && m.type !== typeFilter) return false;
     if (dppFilter && !m.dpp) return false;
+    if (catFilter && m.cat !== catFilter) return false;
     if (m.price !== null && (m.price < priceMin || m.price > priceMax)) return false;
     if (m.lt > ltMax) return false;
     if (q && !m.name.toLowerCase().includes(q) && !SUPPLIERS[m.sup].name.toLowerCase().includes(q) && !m.id.toLowerCase().includes(q)) return false;
@@ -707,10 +903,11 @@ function cardHtml(m) {
   const stars = starsHtml(avgStars(m.reviews));
   return `
   <div class="mat-card" onclick="openSpu('${m.id}')">
-    <div class="mc-img">
-      ${imgSVG(m.imgShape)}
-      ${m.dpp ? '<div class="dpp-badge">DPP-ready</div>' : ''}
-      ${m.type === 'secondary' ? '<div class="secondary-tag">Secondary</div>' : ''}
+    <div class="mc-img" style="position:relative;height:140px;overflow:hidden;padding:0">
+      <img src="${m.photo}" alt="${m.name}" style="width:100%;height:140px;object-fit:cover;display:block;background:#F5F5F7" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div style="display:none;width:100%;height:140px;align-items:center;justify-content:center;background:#F5F5F7">${imgSVG(m.imgShape)}</div>
+      ${m.dpp ? '<div class="dpp-badge" style="position:absolute;top:8px;left:8px">DPP-ready</div>' : ''}
+      ${m.type === 'secondary' ? '<div class="secondary-tag" style="position:absolute;top:8px;right:8px">Secondary</div>' : ''}
     </div>
     <div class="mc-name">${m.name}</div>
     <button class="mc-supplier-link" onclick="event.stopPropagation();openCompanyFromCard('${m.sup}')">${sup.name}</button>
@@ -865,9 +1062,45 @@ function selectSku(matId, skuKey) {
 ═══════════════════════ */
 function findSameMaterial(fromId, spuCode, skuKey) {
   fsmContext = { fromId, spuCode, skuKey };
-  const fsm = MATERIALS.filter(m => m.spuCode === spuCode && m.id !== fromId);
-  showPage('search');
-  setTimeout(() => renderGrid(fsm, true), 50);
+  const identical = MATERIALS.filter(m => m.spuCode === spuCode && m.skuKey === skuKey && m.id !== fromId);
+  const alt = MATERIALS.filter(m => m.spuCode === spuCode && m.skuKey !== skuKey && m.id !== fromId);
+
+  let html = `<div style="font-size:13px;color:#86868B;margin-bottom:16px">SPU: <strong>${spuCode}</strong> · SKU: <strong>${skuKey}</strong></div>`;
+
+  if (identical.length) {
+    html += `<div style="font-size:12px;font-weight:600;color:#1D7340;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">Identical (${identical.length})</div>`;
+    html += identical.map(m => fsmCardHtml(m)).join('');
+  }
+  if (alt.length) {
+    html += `<div style="font-size:12px;font-weight:600;color:#0071E3;text-transform:uppercase;letter-spacing:0.06em;margin:16px 0 10px">Alternative (${alt.length})</div>`;
+    html += alt.map(m => fsmCardHtml(m)).join('');
+  }
+  if (!identical.length && !alt.length) {
+    html += `<div style="text-align:center;padding:48px 0;color:#86868B;font-size:14px">No matching materials found in the same SPU family.</div>`;
+  }
+
+  document.getElementById('fsm-modal-body').innerHTML = html;
+  document.getElementById('fsm-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function fsmCardHtml(m) {
+  const sup = SUPPLIERS[m.sup];
+  return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:0.5px solid #F5F5F7;cursor:pointer" onclick="closeFsmModal();openSpu('${m.id}')">
+    <img src="${m.photo}" style="width:56px;height:56px;border-radius:8px;object-fit:cover;flex-shrink:0;background:#F5F5F7" onerror="this.style.display='none'">
+    <div style="flex:1;min-width:0">
+      <div style="font-size:14px;font-weight:500;color:#1D1D1F">${m.name}</div>
+      <div style="font-size:12px;color:#86868B;margin-top:2px">${sup.name}</div>
+      <div style="display:flex;gap:8px;margin-top:4px;align-items:center">
+        <span class="badge b-${m.perm.toLowerCase()}">${m.perm}</span>
+        ${m.dpp ? '<span class="b-dpp" style="font-size:11px">DPP-ready</span>' : ''}
+      </div>
+    </div>
+    <div style="text-align:right;flex-shrink:0">
+      <div style="font-size:14px;font-weight:600;color:#1D1D1F">${m.price !== null ? `USD ${m.price.toFixed(2)}` : '—'}</div>
+      <div style="font-size:12px;color:#86868B">${m.lt}d LT</div>
+    </div>
+  </div>`;
 }
 
 /* ═══════════════════════
@@ -959,6 +1192,9 @@ function renderLibrary() {
 ═══════════════════════ */
 renderGrid();
 renderLibrary();
+renderHomepage();
+// show home by default; filter bar visible
+document.getElementById('filter-bar').style.display = '';
 </script>
 </body>
 </html>

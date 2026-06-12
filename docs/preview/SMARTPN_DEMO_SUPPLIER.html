@@ -409,10 +409,32 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
         <div class="step-item"><div class="step-num">4</div>確認送出</div>
       </div>
       <div class="private-notice"><span class="private-notice-icon">🔒</span><span class="private-notice-text">新建材料預設為 <strong>PRIVATE</strong>。送出後可在「權限管理」以欄位資料夾為單位授權給特定帳號。</span></div>
+      <!-- Step 1 Summary (已完成) -->
+      <div style="background:#F0FFF4;border:0.5px solid #A0D9B5;border-radius:12px;padding:16px 20px;margin-bottom:20px">
+        <div style="font-size:13px;font-weight:600;color:#1D7340;margin-bottom:10px">Step 1 已完成 — SPU 主體</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px">
+          <div style="font-size:12px;color:#86868B">SmartPN ID <span style="color:#1D1D1F;font-weight:500;margin-left:8px">SPN-014（系統自動）</span></div>
+          <div style="font-size:12px;color:#86868B">料號來源 <span style="color:#1D1D1F;font-weight:500;margin-left:8px">SmartPN 自動生成</span></div>
+          <div style="font-size:12px;color:#86868B">材料名稱 <span style="color:#1D1D1F;font-weight:500;margin-left:8px">PA12 UV-Stable</span></div>
+          <div style="font-size:12px;color:#86868B">版本 <span style="color:#1D1D1F;font-weight:500;margin-left:8px">v1.0</span></div>
+          <div style="font-size:12px;color:#86868B">SPU 類別 <span style="color:#1D1D1F;font-weight:500;margin-left:8px">Engineering Polymer</span></div>
+          <div style="font-size:12px;color:#86868B">標準 <span style="color:#1D1D1F;font-weight:500;margin-left:8px">ISO 527</span></div>
+        </div>
+        <div style="margin-top:10px;padding-top:10px;border-top:0.5px solid #A0D9B5;font-size:12px;color:#1D7340">
+          ⚠ SPU 物性欄位（Category / Base resin / Standard）一旦第一個 SKU 確認送出，即鎖定。如需修改請撤回所有已授權版本。
+        </div>
+      </div>
       <div class="form-card">
         <div class="form-card-title">Step 2 — SKU 變體</div>
+        <div style="background:#F5F5F7;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#1D1D1F;line-height:1.6">
+          <strong>料號來源選擇：</strong>
+          <label style="display:inline-flex;align-items:center;gap:6px;margin-left:16px;cursor:pointer"><input type="radio" name="spn-source" value="smartpn" checked style="accent-color:#1D1D1F"> SmartPN 自動生成（推薦）</label>
+          <label style="display:inline-flex;align-items:center;gap:6px;margin-left:16px;cursor:pointer"><input type="radio" name="spn-source" value="gs1"> GS1 / 外部料號帶入</label>
+          <div style="font-size:11px;color:#86868B;margin-top:6px">SmartPN 生成：系統自動指派唯一 SPN-XXX 編號。GS1 帶入：可填入現有 GTIN/GLN，系統建立對照關係。</div>
+        </div>
         <div class="form-grid">
           <div class="form-group"><label class="form-label">SKU Key</label><input class="form-input" placeholder="例：30GF-NAT"></div>
+          <div class="form-group"><label class="form-label">版本 (Version)</label><input class="form-input" value="v1.0" placeholder="例：v1.0"></div>
           <div class="form-group"><label class="form-label">Glass Filler %</label><input class="form-input" placeholder="例：30%"></div>
           <div class="form-group"><label class="form-label">Color</label><select class="form-input form-select"><option>Natural</option><option>Black</option><option>White</option></select></div>
           <div class="form-group"><label class="form-label">Form</label><select class="form-input form-select"><option>Pellet</option><option>Sheet</option><option>Powder</option></select></div>
@@ -442,6 +464,11 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
     <div class="view fade-in" id="view-secondary">
       <div class="page-header"><div class="page-title">二次加工建立</div><div class="page-sub">Secondary Processing — Input / Output / Ratio</div></div>
       <div class="private-notice"><span class="private-notice-icon">🔒</span><span class="private-notice-text">新建加工記錄預設為 <strong>PRIVATE</strong>。</span></div>
+      <div style="background:#F0F7FF;border:0.5px solid #BDD7F7;border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:13px;color:#1D1D1F;line-height:1.7">
+        <strong>順序編碼規則：</strong> 二次加工 SmartPN ID 格式為 <code style="background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px">SPN-[母材ID]-P[順序]</code><br>
+        例：ABS 母材 SPN-006 → 電鍍 <code style="background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px">SPN-006-P01</code>，再陽極氧化 <code style="background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px">SPN-006-P02</code><br>
+        <span style="font-size:12px;color:#86868B">順序號 P01/P02… 代表加工先後次序，由系統自動遞增，可手動修改。無法在同一 SPU 家族內重複。</span>
+      </div>
       <div class="form-card">
         <div class="form-card-title">加工基本資料</div>
         <div class="form-grid">
