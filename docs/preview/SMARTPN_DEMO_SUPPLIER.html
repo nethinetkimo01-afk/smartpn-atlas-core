@@ -1,750 +1,592 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SmartPN Atlas — Supplier Flow</title>
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%}
-    body{font-family:-apple-system,'SF Pro Text','Helvetica Neue',Arial,sans-serif;background:#FFFFFF;color:#1D1D1F;display:flex;flex-direction:column;height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased;font-size:15px}
-
-    /* ── Topbar ── */
-    .topbar{display:flex;align-items:center;gap:16px;padding:0 24px;height:52px;border-bottom:0.5px solid #D2D2D7;flex-shrink:0;background:#FFFFFF}
-    .brand{font-size:17px;font-weight:600;color:#1D1D1F;letter-spacing:-0.3px}
-    .supplier-pill{display:flex;align-items:center;gap:7px;font-size:13px;color:#86868B;padding-left:16px;border-left:0.5px solid #D2D2D7;margin-left:4px}
-    .supplier-pill-dot{width:6px;height:6px;border-radius:50%;background:#1D7340;flex-shrink:0}
-    .topbar-spacer{flex:1}
-    .topbar-actions{display:flex;gap:12px;align-items:center}
-    .notif-btn{position:relative;background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:#1D1D1F}
-    .notif-btn:hover{background:#F5F5F7}
-    .notif-dot{position:absolute;top:5px;right:5px;width:6px;height:6px;background:#FF3B30;border-radius:50%;border:1.5px solid #FFFFFF}
-    .btn-outline{font-size:13px;padding:7px 16px;border-radius:20px;border:0.5px solid #D2D2D7;background:#FFFFFF;color:#1D1D1F;cursor:pointer;font-family:inherit}
-    .btn-primary{background:#1D1D1F;color:#FFFFFF;border:none;border-radius:20px;padding:7px 18px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity 0.15s}
-    .btn-primary:hover{opacity:0.8}
-
-    /* ── Layout ── */
-    .layout{display:flex;flex:1;overflow:hidden}
-
-    /* ── Sidebar ── */
-    .sidebar{width:220px;border-right:0.5px solid #D2D2D7;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;background:#FFFFFF}
-    .supplier-profile-mini{padding:24px 20px 16px;border-bottom:0.5px solid #D2D2D7}
-    .spm-avatar{width:36px;height:36px;background:#1D1D1F;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-weight:700;font-size:13px;margin-bottom:10px}
-    .spm-name{font-size:15px;font-weight:600;color:#1D1D1F}
-    .spm-role{font-size:13px;color:#86868B;margin-top:2px}
-
-    .sidebar-label{font-size:17px;font-weight:600;color:#1D1D1F;padding:24px 20px 8px;letter-spacing:-0.2px}
-    .nav-item{display:flex;align-items:center;gap:10px;padding:14px 20px;font-size:15px;font-weight:400;color:#1D1D1F;cursor:pointer;border:none;background:none;width:100%;text-align:left;border-top:0.5px solid #D2D2D7;transition:background 0.1s;font-family:inherit}
-    .nav-item:hover{background:#F5F5F7}
-    .nav-item.active{background:#F5F5F7;font-weight:500}
-    .nav-icon{width:15px;height:15px;opacity:0.35;flex-shrink:0}
-    .nav-item.active .nav-icon{opacity:0.6}
-    .nav-badge{font-size:11px;font-weight:600;background:#FF3B30;color:#FFFFFF;border-radius:20px;padding:1px 7px;margin-left:auto;margin-right:4px}
-    .nav-count{font-size:13px;color:#86868B;margin-left:auto;margin-right:4px}
-    .nav-chev{font-size:16px;color:#D2D2D7;font-weight:300;flex-shrink:0;line-height:1}
-
-    /* ── Main ── */
-    .main{flex:1;overflow-y:auto;background:#FFFFFF}
-    .view{display:none;padding:32px 40px;max-width:960px}
-    .view.active{display:block}
-    .page-header{padding-bottom:20px;border-bottom:0.5px solid #D2D2D7;margin-bottom:32px}
-    .page-title{font-size:28px;font-weight:600;color:#1D1D1F;letter-spacing:-0.6px}
-    .page-sub{font-size:15px;color:#86868B;margin-top:6px}
-    .fade-in{animation:fadeIn 0.18s ease}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
-
-    /* ── Stats ── */
-    .stats-row{display:flex;gap:0;margin-bottom:32px;border-top:0.5px solid #D2D2D7;border-bottom:0.5px solid #D2D2D7}
-    .stat-card{flex:1;padding:20px 24px;border-right:0.5px solid #D2D2D7;background:#FFFFFF}
-    .stat-card:last-child{border-right:none}
-    .stat-num{font-size:28px;font-weight:600;color:#1D1D1F;letter-spacing:-1px}
-    .stat-label{font-size:13px;color:#86868B;margin-top:4px}
-    .stat-delta{font-size:12px;color:#86868B;margin-top:4px}
-
-    /* ── Section title ── */
-    .section-title{font-size:17px;font-weight:600;color:#1D1D1F;padding-bottom:12px;border-bottom:0.5px solid #D2D2D7;margin-top:32px;letter-spacing:-0.2px}
-
-    /* ── Table ── */
-    .table-wrap{margin-bottom:32px}
-    table{width:100%;border-collapse:collapse}
-    thead th{font-size:12px;font-weight:500;color:#86868B;text-align:left;padding:12px 16px 12px 0;border-bottom:0.5px solid #D2D2D7;text-transform:none;white-space:nowrap;letter-spacing:0}
-    thead th:first-child{padding-left:0}
-    tbody tr{border-bottom:0.5px solid #D2D2D7}
-    tbody tr:last-child{border-bottom:none}
-    tbody tr:hover{background:#F5F5F7}
-    tbody td{font-size:15px;color:#1D1D1F;padding:14px 16px 14px 0;vertical-align:middle}
-    tbody td:first-child{padding-left:0}
-    .td-muted{color:#86868B}
-    .td-link{color:#1D1D1F;font-weight:500;cursor:pointer}
-    .td-action{color:#0071E3;cursor:pointer;font-size:13px}
-
-    /* ── Badges ── */
-    .badge{display:inline-flex;align-items:center;font-size:13px;font-weight:500;padding:0;white-space:nowrap}
-    .badge-private{color:#86868B}
-    .badge-open{color:#1D7340}
-    .badge-shared{color:#0071E3}
-    .badge-supplier{color:#86868B}
-    .badge-request{color:#FF3B30}
-    .badge-approved{color:#1D7340}
-    .badge-pending{color:#86868B}
-
-    /* ── Form ── */
-    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:640px}
-    .form-full{grid-column:1/-1}
-    .form-group{display:flex;flex-direction:column;gap:6px}
-    .form-label{font-size:12px;font-weight:500;color:#86868B;letter-spacing:0}
-    .form-input{border:none;border-bottom:0.5px solid #D2D2D7;border-radius:0;padding:10px 0;font-size:15px;color:#1D1D1F;background:#FFFFFF;outline:none;transition:border-bottom-color 0.15s;font-family:inherit}
-    .form-input:focus{border-bottom-color:#1D1D1F}
-    .form-input[readonly]{color:#86868B}
-    .form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2386868B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0 center;padding-right:20px}
-    .form-textarea{resize:vertical;min-height:80px;border:0.5px solid #D2D2D7;border-radius:0;padding:10px;font-size:15px;font-family:inherit;outline:none}
-    .form-textarea:focus{border-color:#1D1D1F}
-    .form-actions{display:flex;gap:12px;margin-top:32px;padding-top:20px;border-top:0.5px solid #D2D2D7}
-    .btn-secondary{background:#FFFFFF;color:#1D1D1F;border:0.5px solid #D2D2D7;border-radius:20px;padding:10px 24px;font-size:14px;cursor:pointer;font-family:inherit}
-    .form-section-title{font-size:17px;font-weight:600;color:#1D1D1F;margin:32px 0 16px;padding-bottom:12px;border-bottom:0.5px solid #D2D2D7;letter-spacing:-0.2px}
-    #success-msg{margin-top:16px;padding:14px 0;border-top:0.5px solid #D2D2D7;color:#1D7340;font-size:15px;font-weight:500}
-
-    /* ── Request list ── */
-    .request-list{display:flex;flex-direction:column;margin-bottom:32px}
-    .request-card{padding:20px 0;border-bottom:0.5px solid #D2D2D7}
-    .request-card:last-child{border-bottom:none}
-    .req-header{display:flex;align-items:center;gap:12px;margin-bottom:8px}
-    .req-from{font-size:13px;color:#86868B}
-    .req-from strong{color:#1D1D1F}
-    .req-time{font-size:12px;color:#86868B;margin-left:auto}
-    .req-title{font-size:17px;font-weight:600;color:#1D1D1F;margin-bottom:8px;letter-spacing:-0.2px}
-    .req-body{font-size:15px;color:#86868B;line-height:1.6;margin-bottom:16px}
-    .req-actions{display:flex;gap:12px;align-items:center}
-    .req-btn-approve{background:#1D1D1F;color:#FFFFFF;border:none;border-radius:20px;padding:8px 20px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity 0.15s}
-    .req-btn-approve:hover{opacity:0.8}
-    .req-btn-discuss{background:#FFFFFF;color:#1D1D1F;border:0.5px solid #D2D2D7;border-radius:20px;padding:8px 20px;font-size:13px;cursor:pointer;font-family:inherit}
-    .req-btn-decline{background:none;color:#FF3B30;border:none;padding:8px 12px;font-size:13px;cursor:pointer;font-family:inherit}
-
-    /* ── Permission panel ── */
-    .perm-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:0.5px solid #D2D2D7}
-    .perm-row:last-child{border-bottom:none}
-    .perm-name{font-size:15px;color:#1D1D1F;flex:1}
-    .perm-code{font-size:12px;color:#86868B;margin-top:2px}
-    .perm-toggle{display:flex;background:#F5F5F7;border-radius:20px;padding:3px;gap:2px}
-    .perm-toggle-btn{font-size:12px;padding:5px 12px;border-radius:20px;border:none;background:transparent;color:#86868B;cursor:pointer;font-family:inherit;transition:all 0.12s;white-space:nowrap}
-    .perm-toggle-btn.active-private{background:#FFFFFF;color:#1D1D1F;box-shadow:0 0.5px 2px rgba(0,0,0,0.10)}
-    .perm-toggle-btn.active-shared{background:#FFFFFF;color:#0071E3;box-shadow:0 0.5px 2px rgba(0,0,0,0.10)}
-    .perm-toggle-btn.active-open{background:#FFFFFF;color:#1D7340;box-shadow:0 0.5px 2px rgba(0,0,0,0.10)}
-
-    /* ── Profile ── */
-    .profile-header{display:flex;align-items:center;gap:20px;padding-bottom:20px;border-bottom:0.5px solid #D2D2D7;margin-bottom:24px}
-    .profile-avatar-lg{width:60px;height:60px;background:#1D1D1F;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-weight:700;font-size:22px;flex-shrink:0}
-    .profile-name{font-size:20px;font-weight:600;letter-spacing:-0.4px}
-    .profile-meta{font-size:14px;color:#86868B;margin-top:4px}
-    .info-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;margin-bottom:32px}
-    .info-item{padding:16px 20px 16px 0;border-bottom:0.5px solid #D2D2D7;display:flex;flex-direction:column;gap:4px}
-    .info-item-label{font-size:12px;color:#86868B}
-    .info-item-val{font-size:15px;font-weight:500;color:#1D1D1F}
-    .progress-section{margin-bottom:32px}
-    .progress-bar-wrap{margin-top:16px}
-    .progress-label{display:flex;justify-content:space-between;font-size:13px;color:#86868B;margin-bottom:8px}
-    .progress-bar{height:3px;background:#F5F5F7;border-radius:2px;overflow:hidden}
-    .progress-fill{height:100%;background:#1D1D1F;border-radius:2px;transition:width 0.4s ease}
-    .progress-fill.amber{background:#86868B}
-
-    /* ── Log ── */
-    .log-list{display:flex;flex-direction:column}
-    .log-item{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:0.5px solid #D2D2D7}
-    .log-item:last-child{border-bottom:none}
-    .log-dot{width:6px;height:6px;border-radius:50%;margin-top:7px;flex-shrink:0}
-    .log-dot-add{background:#1D7340}
-    .log-dot-edit{background:#0071E3}
-    .log-dot-perm{background:#86868B}
-    .log-dot-req{background:#FF3B30}
-    .log-action{font-weight:500;font-size:15px;color:#1D1D1F}
-    .log-detail{font-size:13px;color:#86868B;margin-top:2px}
-    .log-time{font-size:12px;color:#86868B;margin-left:auto;white-space:nowrap;flex-shrink:0}
-
-    /* ── Note ── */
-    .note-box{font-size:13px;color:#86868B;margin-top:16px;padding-top:14px;border-top:0.5px solid #D2D2D7;line-height:1.6}
-
-    /* ── Search bar ── */
-    .search-row{display:flex;align-items:center;gap:12px;margin-bottom:20px}
-    .search-input-wrap{display:flex;align-items:center;gap:8px;background:#F5F5F7;border-radius:8px;padding:8px 14px;flex:1;max-width:360px}
-    .search-input-wrap input{border:none;background:transparent;font-size:14px;outline:none;width:100%;color:#1D1D1F;font-family:inherit}
-
-    /* ── Material cards (My Materials grid) ── */
-    .mat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-bottom:24px}
-    .mat-card{background:#FFFFFF;padding:24px 18px 20px;text-align:center;cursor:pointer;transition:background 0.12s;position:relative}
-    .mat-card:hover{background:#F5F5F7}
-    .mat-img{width:100%;aspect-ratio:4/3;background:#F5F5F7;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;overflow:hidden}
-    .mat-img svg{opacity:0.2}
-    .mat-name{font-size:16px;font-weight:600;color:#1D1D1F;letter-spacing:-0.2px;margin-bottom:5px;line-height:1.3}
-    .mat-code{font-size:11px;color:#86868B;margin-bottom:3px}
-    .mat-type-tag{font-size:10px;color:#D2D2D7;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px}
-    .mat-perm{font-size:13px;font-weight:500;margin-bottom:4px}
-    .mat-perm.open{color:#1D7340}
-    .mat-perm.shared{color:#0071E3}
-    .mat-perm.priv{color:#86868B}
-    .mat-views{font-size:11px;color:#D2D2D7}
-    .mat-edit-btn{position:absolute;top:10px;right:10px;font-size:11px;color:#0071E3;background:none;border:none;cursor:pointer;font-family:inherit;opacity:0;transition:opacity 0.12s}
-    .mat-card:hover .mat-edit-btn{opacity:1}
-
-    /* ── Custom Field Groups (GRANT) ── */
-    .cfg-section{margin-top:28px}
-    .cfg-group{border:0.5px solid #D2D2D7;border-radius:10px;margin-bottom:12px;overflow:hidden}
-    .cfg-group-header{display:flex;align-items:center;gap:12px;padding:14px 16px;background:#F5F5F7;cursor:pointer;user-select:none}
-    .cfg-group-name{font-size:15px;font-weight:500;color:#1D1D1F;flex:1}
-    .cfg-group-count{font-size:12px;color:#86868B}
-    .cfg-group-chev{font-size:14px;color:#D2D2D7}
-    .cfg-fields{padding:8px 0 8px 16px}
-    .cfg-field-row{display:flex;align-items:center;gap:10px;padding:10px 16px 10px 0;border-bottom:0.5px solid #F5F5F7}
-    .cfg-field-row:last-child{border-bottom:none}
-    .cfg-field-name{font-size:14px;color:#1D1D1F;flex:1}
-    .cfg-field-check{width:16px;height:16px;accent-color:#1D1D1F}
-    .cfg-grant-row{display:flex;align-items:center;gap:10px;padding:10px 16px;background:#FFFFFF;border-top:0.5px solid #D2D2D7}
-    .cfg-grant-label{font-size:13px;color:#86868B;flex:1}
-    .cfg-grant-account{font-size:13px;color:#0071E3;font-weight:500}
-    .cfg-add-btn{font-size:13px;color:#0071E3;background:none;border:none;cursor:pointer;font-family:inherit;padding:0}
-
-    /* ── Scrollbar ── */
-    ::-webkit-scrollbar{width:6px}
-    ::-webkit-scrollbar-track{background:transparent}
-    ::-webkit-scrollbar-thumb{background:#D2D2D7;border-radius:3px}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartPN Atlas — Supplier Portal</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',Arial,sans-serif;background:#FFFFFF;color:#1D1D1F;-webkit-font-smoothing:antialiased;font-size:15px;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;gap:16px;padding:0 24px;height:52px;border-bottom:0.5px solid #D2D2D7;flex-shrink:0;background:#FFFFFF;position:sticky;top:0;z-index:100}
+.brand{font-size:17px;font-weight:600;color:#1D1D1F;letter-spacing:-0.3px;white-space:nowrap}
+.brand-role{font-size:13px;color:#86868B;margin-left:4px;font-weight:400}
+.topbar-spacer{flex:1}
+.sup-identity{display:flex;align-items:center;gap:10px}
+.sup-avatar{width:30px;height:30px;background:#1D1D1F;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-weight:700;font-size:11px;flex-shrink:0}
+.sup-name{font-size:14px;font-weight:500;color:#1D1D1F}
+.sup-role-tag{font-size:12px;color:#86868B}
+.layout{display:flex;flex:1;overflow:hidden}
+.sidebar{width:240px;border-right:0.5px solid #D2D2D7;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;background:#FAFAFA}
+.sidebar-section{padding:28px 16px 8px;font-size:12px;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:0.06em}
+.nav-group{margin:0 8px 4px;background:#FFFFFF;border-radius:12px;overflow:hidden;border:0.5px solid #E5E5EA}
+.nav-item{display:flex;align-items:center;gap:10px;padding:12px 16px;font-size:14px;color:#1D1D1F;cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:background 0.1s;font-family:inherit;border-bottom:0.5px solid #E5E5EA}
+.nav-item:last-child{border-bottom:none}
+.nav-item:hover{background:#F5F5F7}
+.nav-item.active{background:#F0F7FF;color:#0071E3}
+.nav-icon-wrap{width:28px;height:28px;border-radius:7px;background:#636366;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.12s}
+.nav-item.active .nav-icon-wrap{background:#0071E3}
+.nav-label{flex:1;font-size:14px}
+.nav-chev{font-size:16px;color:#C7C7CC;font-weight:300;flex-shrink:0}
+.nav-sub-item{display:flex;align-items:center;gap:10px;padding:11px 16px 11px 54px;font-size:13px;color:#1D1D1F;cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:background 0.1s;font-family:inherit;border-bottom:0.5px solid #E5E5EA}
+.nav-sub-item:last-child{border-bottom:none}
+.nav-sub-item:hover{background:#F5F5F7}
+.nav-sub-item.active{background:#F0F7FF;color:#0071E3}
+.nav-sub-dot{width:6px;height:6px;border-radius:50%;background:#C7C7CC;flex-shrink:0;margin-right:2px}
+.nav-sub-item.active .nav-sub-dot{background:#0071E3}
+.main{flex:1;overflow-y:auto;background:#FFFFFF}
+.view{display:none;padding:32px 40px;max-width:960px}
+.view.active{display:block}
+.page-header{padding-bottom:20px;border-bottom:0.5px solid #D2D2D7;margin-bottom:28px}
+.page-title{font-size:28px;font-weight:600;color:#1D1D1F;letter-spacing:-0.6px}
+.page-sub{font-size:14px;color:#86868B;margin-top:6px}
+.step-wrap{display:flex;align-items:center;gap:0;margin-bottom:28px}
+.step-item{display:flex;align-items:center;gap:8px;font-size:13px;color:#86868B}
+.step-num{width:22px;height:22px;border-radius:50%;background:#F5F5F7;border:0.5px solid #D2D2D7;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#86868B;flex-shrink:0}
+.step-item.active .step-num{background:#1D1D1F;color:#FFFFFF;border-color:#1D1D1F}
+.step-item.active{color:#1D1D1F;font-weight:500}
+.step-item.done .step-num{background:#1D7340;color:#FFFFFF;border-color:#1D7340}
+.step-item.done{color:#1D7340}
+.step-line{flex:1;height:0.5px;background:#D2D2D7;margin:0 8px}
+.form-card{background:#FAFAFA;border:0.5px solid #E5E5EA;border-radius:12px;padding:24px;margin-bottom:20px}
+.form-card-title{font-size:15px;font-weight:600;color:#1D1D1F;margin-bottom:16px;padding-bottom:12px;border-bottom:0.5px solid #E5E5EA}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.form-full{grid-column:1/-1}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:12px;font-weight:500;color:#86868B;text-transform:uppercase;letter-spacing:0.04em}
+.form-input{border:none;border-bottom:0.5px solid #D2D2D7;padding:10px 0;font-size:15px;color:#1D1D1F;background:transparent;outline:none;font-family:inherit;width:100%;transition:border-bottom-color 0.15s}
+.form-input:focus{border-bottom-color:#1D1D1F}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2386868B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0 center;padding-right:20px;background-color:transparent}
+.form-actions{display:flex;gap:12px;margin-top:28px;padding-top:20px;border-top:0.5px solid #D2D2D7}
+.btn-primary{background:#1D1D1F;color:#FFFFFF;border:none;border-radius:20px;padding:10px 28px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity 0.15s}
+.btn-primary:hover{opacity:0.8}
+.btn-secondary{background:#FFFFFF;color:#1D1D1F;border:0.5px solid #D2D2D7;border-radius:20px;padding:10px 24px;font-size:14px;cursor:pointer;font-family:inherit}
+.tab-bar{display:flex;border-bottom:0.5px solid #D2D2D7;margin-bottom:28px}
+.tab-btn{font-size:14px;padding:10px 20px;border:none;background:none;color:#86868B;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-0.5px;white-space:nowrap}
+.tab-btn.active{color:#1D1D1F;border-bottom-color:#1D1D1F;font-weight:500}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.company-tree{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+.company-node{display:flex;align-items:center;gap:12px;padding:14px 16px;border:0.5px solid #E5E5EA;border-radius:10px;cursor:pointer;transition:background 0.12s}
+.company-node:hover{background:#F5F5F7}
+.company-node.child{margin-left:32px;border-style:dashed}
+.company-node-avatar{width:36px;height:36px;background:#1D1D1F;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-size:11px;font-weight:700;flex-shrink:0}
+.company-node.child .company-node-avatar{background:#86868B}
+.company-node-name{font-size:15px;font-weight:500;color:#1D1D1F;flex:1}
+.company-node-meta{font-size:12px;color:#86868B;margin-top:2px}
+.company-node-chev{font-size:18px;color:#D2D2D7;margin-left:auto}
+.add-node-btn{display:flex;align-items:center;gap:8px;padding:12px 16px;border:0.5px dashed #D2D2D7;border-radius:10px;color:#0071E3;font-size:14px;cursor:pointer;background:none;font-family:inherit}
+.add-node-btn:hover{background:#F0F7FF}
+.add-node-btn.child{margin-left:32px}
+.private-notice{background:#FFF8E7;border:0.5px solid #F5A623;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:24px}
+.private-notice-icon{font-size:16px;flex-shrink:0}
+.private-notice-text{font-size:13px;color:#1D1D1F;line-height:1.5}
+.folder-list{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+.folder-card{border:0.5px solid #E5E5EA;border-radius:12px;overflow:hidden}
+.folder-header{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;background:#FAFAFA;transition:background 0.12s}
+.folder-header:hover{background:#F5F5F7}
+.folder-icon{width:32px;height:32px;background:#F5F5F7;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+.folder-name{font-size:15px;font-weight:500;color:#1D1D1F;flex:1}
+.folder-count{font-size:12px;color:#86868B;margin-right:8px}
+.folder-chev{font-size:16px;color:#C7C7CC;transition:transform 0.2s}
+.folder-card.open .folder-chev{transform:rotate(90deg)}
+.folder-body{display:none;padding:12px 16px 16px;border-top:0.5px solid #E5E5EA}
+.folder-card.open .folder-body{display:block}
+.field-check-list{display:flex;flex-direction:column}
+.field-check{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid #F5F5F7;cursor:pointer}
+.field-check:last-child{border-bottom:none}
+.checkbox{width:18px;height:18px;border:1px solid #D2D2D7;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:transparent;transition:all 0.12s}
+.checkbox.checked{background:#1D1D1F;border-color:#1D1D1F;color:#FFFFFF}
+.field-check-label{font-size:14px;color:#1D1D1F;flex:1}
+.field-check-type{font-size:11px;color:#86868B;background:#F5F5F7;border-radius:4px;padding:2px 7px}
+.grant-table{width:100%;border-collapse:collapse;margin-top:16px}
+.grant-table th{font-size:12px;font-weight:500;color:#86868B;text-align:left;padding:8px 12px;border-bottom:0.5px solid #D2D2D7}
+.grant-table td{font-size:14px;color:#1D1D1F;padding:12px;border-bottom:0.5px solid #F5F5F7;vertical-align:middle}
+.grant-table tr:last-child td{border-bottom:none}
+.grant-company{font-size:14px;font-weight:500}
+.grant-unit{font-size:12px;color:#86868B}
+.grant-status{font-size:12px;font-weight:500;color:#1D7340}
+.btn-revoke{font-size:12px;color:#FF3B30;border:none;background:none;cursor:pointer;font-family:inherit;padding:0}
+.btn-grant-add{background:none;border:0.5px dashed #0071E3;color:#0071E3;border-radius:20px;padding:6px 16px;font-size:13px;cursor:pointer;font-family:inherit;margin-top:12px}
+.mat-list{display:flex;flex-direction:column;border:0.5px solid #E5E5EA;border-radius:12px;overflow:hidden;margin-bottom:20px}
+.mat-row{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:0.5px solid #F5F5F7;cursor:pointer;transition:background 0.1s}
+.mat-row:last-child{border-bottom:none}
+.mat-row:hover{background:#F5F5F7}
+.mat-row-img{width:36px;height:36px;background:#F5F5F7;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mat-row-name{font-size:14px;font-weight:500;color:#1D1D1F;flex:1}
+.mat-row-code{font-size:12px;color:#86868B;margin-top:2px}
+.mat-row-chev{font-size:16px;color:#D2D2D7;flex-shrink:0}
+.perm-open{color:#1D7340;font-size:12px;font-weight:500}
+.perm-shared{color:#0071E3;font-size:12px;font-weight:500}
+.perm-priv{color:#86868B;font-size:12px;font-weight:500}
+.tag{display:inline-flex;align-items:center;font-size:11px;font-weight:600;border-radius:6px;padding:2px 7px}
+.tag-private{background:#F5F5F7;color:#86868B}
+.level-select-wrap{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.level-btn{font-size:13px;padding:8px 18px;border-radius:20px;border:0.5px solid #D2D2D7;background:#FFFFFF;color:#1D1D1F;cursor:pointer;font-family:inherit}
+.level-btn.active{background:#1D1D1F;color:#FFFFFF;border-color:#1D1D1F}
+.quote-card{border:0.5px solid #E5E5EA;border-radius:12px;overflow:hidden;margin-bottom:12px}
+.quote-card-header{display:flex;align-items:center;gap:12px;padding:14px 16px;background:#FAFAFA;border-bottom:0.5px solid #E5E5EA}
+.quote-card-id{font-size:14px;font-weight:600;color:#1D1D1F;flex:1}
+.quote-card-date{font-size:12px;color:#86868B}
+.quote-card-status{font-size:12px;font-weight:500;color:#1D7340;background:#F0FFF4;border-radius:6px;padding:3px 8px}
+.quote-card-body{padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.quote-detail-row{display:flex;gap:8px;font-size:13px;color:#86868B;align-items:flex-start}
+.quote-detail-val{color:#1D1D1F;font-weight:500;margin-left:4px}
+.section-title{font-size:17px;font-weight:600;color:#1D1D1F;padding-bottom:12px;border-bottom:0.5px solid #D2D2D7;margin-bottom:16px;letter-spacing:-0.2px}
+.fade-in{animation:fadeIn 0.15s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#D2D2D7;border-radius:3px}
+</style>
 </head>
 <body>
 
-<!-- ══ TOPBAR ══ -->
 <div class="topbar">
-  <span class="brand">SmartPN Atlas</span>
-  <div class="supplier-pill">
-    <span class="supplier-pill-dot"></span>
-    Supplier View — Formosa Plastics
-  </div>
+  <span class="brand">SmartPN Atlas <span class="brand-role">Supplier Portal</span></span>
   <div class="topbar-spacer"></div>
-  <div class="topbar-actions">
-    <button class="notif-btn" title="Notifications">
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2a5 5 0 00-5 5v3l-1.5 2.5h13L14 10V7a5 5 0 00-5-5z" stroke="#1D1D1F" stroke-width="1.2" stroke-linejoin="round"/><path d="M7 14.5a2 2 0 004 0" stroke="#1D1D1F" stroke-width="1.2" stroke-linecap="round"/></svg>
-      <span class="notif-dot"></span>
-    </button>
-    <button class="btn-outline" onclick="window.open('SMARTPN_DEMO.html','_blank')">← Brand view</button>
-    <button class="btn-primary" onclick="showView('add-material')">+ Add Material</button>
+  <div class="sup-identity">
+    <div class="sup-avatar">FP</div>
+    <div>
+      <div class="sup-name">Formosa Plastics Corp.</div>
+      <div class="sup-role-tag">Data Creator · Lisa Chen</div>
+    </div>
   </div>
 </div>
 
-<!-- ══ LAYOUT ══ -->
 <div class="layout">
-
-  <!-- ── SIDEBAR ── -->
   <div class="sidebar">
-    <div class="supplier-profile-mini">
-      <div class="spm-avatar">FP</div>
-      <div class="spm-name">Formosa Plastics</div>
-      <div class="spm-role">Supplier account</div>
+    <div class="sidebar-section">Menu</div>
+
+    <div class="nav-group">
+      <button class="nav-item active" onclick="showView('company-main');setActive(this)">
+        <div class="nav-icon-wrap">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="5" width="12" height="9" rx="1.5" stroke="white" stroke-width="1.3"/><path d="M5 5V4a3 3 0 016 0v1" stroke="white" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </div>
+        <span class="nav-label">公司建立</span>
+        <span class="nav-chev">›</span>
+      </button>
+      <button class="nav-sub-item" onclick="showView('company-main');setActive(this);switchTab('ctab','parent')">
+        <span class="nav-sub-dot"></span>母公司
+      </button>
+      <button class="nav-sub-item" onclick="showView('company-main');setActive(this);switchTab('ctab','child')">
+        <span class="nav-sub-dot"></span>子公司
+      </button>
+      <button class="nav-sub-item" onclick="showView('company-customs');setActive(this)">
+        <span class="nav-sub-dot"></span>關務資訊
+      </button>
+      <button class="nav-sub-item" onclick="showView('company-tax');setActive(this)">
+        <span class="nav-sub-dot"></span>稅務資訊
+      </button>
+      <button class="nav-sub-item" onclick="showView('company-matinfo');setActive(this)">
+        <span class="nav-sub-dot"></span>材料訊息
+      </button>
     </div>
 
-    <div class="sidebar-label">Overview</div>
-    <button class="nav-item active" onclick="showView('dashboard')">
-      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.7"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.7"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.7"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.7"/></svg>
-      Dashboard<span class="nav-chev">›</span>
-    </button>
-    <button class="nav-item" onclick="showView('my-materials')">
-      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M5 6h6M5 9h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      My Materials<span class="nav-count">247</span><span class="nav-chev">›</span>
-    </button>
-    <button class="nav-item" onclick="showView('requests')">
-      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M2 4h12v8a1 1 0 01-1 1H3a1 1 0 01-1-1V4z" stroke="currentColor" stroke-width="1.3"/><path d="M2 4l6 5 6-5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      Requests<span class="nav-badge">3</span><span class="nav-chev">›</span>
-    </button>
+    <div class="nav-group" style="margin-top:4px">
+      <button class="nav-item" onclick="showView('raw');setActive(this)">
+        <div class="nav-icon-wrap" style="background:#007AFF">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="white" stroke-width="1.3"/><path d="M8 5v3l2 1.5" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+        <span class="nav-label">SmartPN 建立</span>
+        <span class="nav-chev">›</span>
+      </button>
+      <button class="nav-sub-item" onclick="showView('raw');setActive(this)">
+        <span class="nav-sub-dot"></span>原物料
+      </button>
+      <button class="nav-sub-item" onclick="showView('secondary');setActive(this)">
+        <span class="nav-sub-dot"></span>二次加工
+      </button>
+      <button class="nav-sub-item" onclick="showView('permission');setActive(this)">
+        <span class="nav-sub-dot"></span>權限管理
+      </button>
+      <button class="nav-sub-item" onclick="showView('quotation');setActive(this)">
+        <span class="nav-sub-dot"></span>單價管理
+      </button>
+    </div>
 
-    <div class="sidebar-label" style="padding-top:20px">SmartPN 建立</div>
-    <button class="nav-item" onclick="showView('add-material')">
-      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v6M5 8h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      原物料建立<span class="nav-chev">›</span>
-    </button>
-    <button class="nav-item" onclick="showView('add-secondary')">
-      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M3 13L8 3l5 10H3z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
-      二次加工建立<span class="nav-chev">›</span>
-    </button>
-
-    <div class="sidebar-label" style="padding-top:20px">Settings</div>
-    <button class="nav-item" onclick="showView('permissions')">
-      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="4" y="7" width="8" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Permission Control<span class="nav-chev">›</span>
-    </button>
-    <button class="nav-item" onclick="showView('profile')">
-      <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 14c0-3 2.5-5 5.5-5s5.5 2 5.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      My Profile<span class="nav-chev">›</span>
-    </button>
+    <div style="flex:1;min-height:24px"></div>
+    <div style="padding:12px 16px;border-top:0.5px solid #E5E5EA;font-size:11px;color:#86868B;line-height:1.7">
+      Formosa Plastics Corp.<br>
+      lisa.chen@formosa.com<br>
+      <span style="color:#0071E3;cursor:pointer">Switch account</span>
+    </div>
   </div>
 
-  <!-- ── MAIN ── -->
   <div class="main">
 
-    <!-- ════ DASHBOARD ════ -->
-    <div class="view active fade-in" id="view-dashboard">
-      <div class="page-header">
-        <div class="page-title">Dashboard</div>
-        <div class="page-sub">Formosa Plastics · June 2026</div>
+    <!-- 公司建立 -->
+    <div class="view active fade-in" id="view-company-main">
+      <div class="page-header"><div class="page-title">公司建立</div><div class="page-sub">母公司與子公司架構管理</div></div>
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('ctab','parent');setTabBtn(this)">母公司</button>
+        <button class="tab-btn" onclick="switchTab('ctab','child');setTabBtn(this)">子公司</button>
       </div>
-      <div class="stats-row">
-        <div class="stat-card">
-          <div class="stat-num">247</div>
-          <div class="stat-label">My Materials</div>
-          <div class="stat-delta">+3 this week</div>
+
+      <div class="tab-panel active" id="ctab-parent">
+        <div class="company-tree">
+          <div class="company-node">
+            <div class="company-node-avatar">FP</div>
+            <div style="flex:1">
+              <div class="company-node-name">Formosa Plastics Corporation</div>
+              <div class="company-node-meta">Taipei, Taiwan · 母公司</div>
+            </div>
+            <span style="font-size:11px;background:#F0FFF4;color:#1D7340;border-radius:6px;padding:3px 8px;font-weight:600;margin-right:8px">Verified</span>
+            <span class="company-node-chev">›</span>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-num">89</div>
-          <div class="stat-label">OPEN</div>
-          <div class="stat-delta">36% of total</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num">112</div>
-          <div class="stat-label">SHARED</div>
-          <div class="stat-delta">with 4 brands</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num">3</div>
-          <div class="stat-label">Pending Requests</div>
-          <div class="stat-delta" style="color:#FF3B30">Action needed</div>
+        <div class="form-card">
+          <div class="form-card-title">母公司基本資料</div>
+          <div class="form-grid">
+            <div class="form-group"><label class="form-label">公司名稱（中）</label><input class="form-input" value="台灣塑膠工業股份有限公司" readonly></div>
+            <div class="form-group"><label class="form-label">Company Name (EN)</label><input class="form-input" value="Formosa Plastics Corporation" readonly></div>
+            <div class="form-group"><label class="form-label">統一編號</label><input class="form-input" value="03017001" readonly></div>
+            <div class="form-group"><label class="form-label">DUNS Number</label><input class="form-input" value="540012345" readonly></div>
+            <div class="form-group form-full"><label class="form-label">公司地址</label><input class="form-input" value="台北市松山區民生東路二段166號" readonly></div>
+            <div class="form-group"><label class="form-label">產業類別</label><input class="form-input" value="Polymer &amp; Raw Materials" readonly></div>
+            <div class="form-group"><label class="form-label">聯絡人</label><input class="form-input" value="Lisa Chen · lisa.chen@formosa.com" readonly></div>
+          </div>
+          <div class="form-actions"><button class="btn-primary">儲存變更</button><button class="btn-secondary">取消</button></div>
         </div>
       </div>
 
-      <div class="section-title" style="margin-top:0">Pending requests</div>
-      <div class="request-list" style="margin-top:0">
-        <div class="request-card">
-          <div class="req-header">
-            <span class="badge badge-request">New</span>
-            <span class="req-from">From <strong>Brand Co.</strong></span>
-            <span class="req-time">2h ago</span>
-          </div>
-          <div class="req-title">Request to upgrade STM-PA66-003 to OPEN</div>
-          <div class="req-body">Brand Co. is requesting permission to share this material specification with their downstream manufacturing partners for DPP compliance. Estimated reach: 2 factories in Vietnam.</div>
-          <div class="req-actions">
-            <button class="req-btn-approve" onclick="this.textContent='Approved ✓';this.style.background='#1D7340';this.disabled=true">Approve</button>
-            <button class="req-btn-discuss">Request discussion</button>
-            <button class="req-btn-decline">Decline</button>
-          </div>
+      <div class="tab-panel" id="ctab-child">
+        <div class="company-tree">
+          <div class="company-node"><div class="company-node-avatar">FP</div><div style="flex:1"><div class="company-node-name">Formosa Plastics Corporation</div><div class="company-node-meta">母公司</div></div></div>
+          <div class="company-node child"><div class="company-node-avatar">FP-VN</div><div style="flex:1"><div class="company-node-name">Formosa Plastics Vietnam Co., Ltd.</div><div class="company-node-meta">子公司 · Ho Chi Minh City, Vietnam</div></div><span class="company-node-chev">›</span></div>
+          <div class="company-node child"><div class="company-node-avatar">FP-US</div><div style="flex:1"><div class="company-node-name">Formosa Plastics Corp. USA</div><div class="company-node-meta">子公司 · Point Comfort, Texas, USA</div></div><span class="company-node-chev">›</span></div>
+          <button class="add-node-btn child" onclick="alert('新增子公司')">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>
+            新增子公司
+          </button>
         </div>
-      </div>
-
-      <div class="section-title">Recently updated materials</div>
-      <div class="table-wrap" style="margin-top:0">
-        <table>
-          <thead><tr><th>SmartPN Code</th><th>Name</th><th>Type</th><th>Permission</th><th>Updated</th></tr></thead>
-          <tbody>
-            <tr><td class="td-link">SPN-001-PA66GF30-FOR</td><td>PA66-GF30 Nylon</td><td class="td-muted">Raw</td><td><span class="badge badge-open">OPEN</span></td><td class="td-muted">Jun 9</td></tr>
-            <tr><td class="td-link">SPN-042-PETG-FOR</td><td>PETG Sheet 1.5mm</td><td class="td-muted">Raw</td><td><span class="badge badge-shared">SHARED</span></td><td class="td-muted">Jun 7</td></tr>
-            <tr><td class="td-link">SPN-103-ABS-FOR</td><td>ABS-HI Resin</td><td class="td-muted">Raw</td><td><span class="badge badge-open">OPEN</span></td><td class="td-muted">Jun 5</td></tr>
-            <tr><td class="td-link">SPN-190-ANOD-A</td><td>Anodising Black 20μm</td><td class="td-muted">Secondary</td><td><span class="badge badge-private">PRIVATE</span></td><td class="td-muted">Jun 1</td></tr>
-          </tbody>
-        </table>
       </div>
     </div>
 
-    <!-- ════ MY MATERIALS ════ -->
-    <div class="view fade-in" id="view-my-materials">
-      <div class="page-header">
-        <div class="page-title">My Materials</div>
-        <div class="page-sub">247 records · maintained by Formosa Plastics</div>
-      </div>
-      <div class="search-row">
-        <div class="search-input-wrap">
-          <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="#86868B" stroke-width="1.3"/><path d="M9.5 9.5L12.5 12.5" stroke="#86868B" stroke-width="1.3" stroke-linecap="round"/></svg>
-          <input type="text" placeholder="Filter my materials…" />
-        </div>
-        <button class="btn-primary" onclick="showView('add-material')">+ Add Material</button>
-      </div>
-      <!-- Product card grid with image placeholders -->
-      <div class="mat-grid">
-        <div class="mat-card">
-          <button class="mat-edit-btn" onclick="event.stopPropagation()">Edit ›</button>
-          <div class="mat-img"><svg width="72" height="72" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="20" stroke="#1D1D1F" stroke-width="3"/><circle cx="40" cy="40" r="8" fill="#1D1D1F"/><circle cx="18" cy="28" r="5" fill="#1D1D1F"/><circle cx="62" cy="28" r="5" fill="#1D1D1F"/><circle cx="18" cy="52" r="5" fill="#1D1D1F"/><circle cx="62" cy="52" r="5" fill="#1D1D1F"/><line x1="22" y1="31" x2="32" y2="37" stroke="#1D1D1F" stroke-width="2"/><line x1="58" y1="31" x2="48" y2="37" stroke="#1D1D1F" stroke-width="2"/><line x1="22" y1="49" x2="32" y2="43" stroke="#1D1D1F" stroke-width="2"/><line x1="58" y1="49" x2="48" y2="43" stroke="#1D1D1F" stroke-width="2"/></svg></div>
-          <div class="mat-type-tag">Raw Material</div>
-          <div class="mat-name">PA66-GF30 Nylon</div>
-          <div class="mat-code">SPN-001-PA66GF30-FOR</div>
-          <div class="mat-perm open">OPEN</div>
-          <div class="mat-views">142 views (30d)</div>
-        </div>
-        <div class="mat-card">
-          <button class="mat-edit-btn" onclick="event.stopPropagation()">Edit ›</button>
-          <div class="mat-img"><svg width="72" height="72" viewBox="0 0 80 80" fill="none"><rect x="14" y="20" width="52" height="40" rx="4" stroke="#1D1D1F" stroke-width="3"/><line x1="14" y1="32" x2="66" y2="32" stroke="#1D1D1F" stroke-width="1.5"/><line x1="14" y1="44" x2="66" y2="44" stroke="#1D1D1F" stroke-width="1.5"/><line x1="14" y1="56" x2="66" y2="56" stroke="#1D1D1F" stroke-width="1.5"/></svg></div>
-          <div class="mat-type-tag">Raw Material</div>
-          <div class="mat-name">PETG Sheet 1.5mm</div>
-          <div class="mat-code">SPN-042-PETG-FOR</div>
-          <div class="mat-perm shared">SHARED</div>
-          <div class="mat-views">87 views (30d)</div>
-        </div>
-        <div class="mat-card">
-          <button class="mat-edit-btn" onclick="event.stopPropagation()">Edit ›</button>
-          <div class="mat-img"><svg width="72" height="72" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="20" stroke="#1D1D1F" stroke-width="3"/><circle cx="40" cy="40" r="8" fill="#1D1D1F"/><circle cx="18" cy="28" r="5" fill="#1D1D1F"/><circle cx="62" cy="28" r="5" fill="#1D1D1F"/><circle cx="18" cy="52" r="5" fill="#1D1D1F"/><circle cx="62" cy="52" r="5" fill="#1D1D1F"/><line x1="22" y1="31" x2="32" y2="37" stroke="#1D1D1F" stroke-width="2"/><line x1="58" y1="31" x2="48" y2="37" stroke="#1D1D1F" stroke-width="2"/><line x1="22" y1="49" x2="32" y2="43" stroke="#1D1D1F" stroke-width="2"/><line x1="58" y1="49" x2="48" y2="43" stroke="#1D1D1F" stroke-width="2"/></svg></div>
-          <div class="mat-type-tag">Raw Material</div>
-          <div class="mat-name">ABS-HI Resin</div>
-          <div class="mat-code">SPN-103-ABS-FOR</div>
-          <div class="mat-perm open">OPEN</div>
-          <div class="mat-views">63 views (30d)</div>
-        </div>
-        <div class="mat-card">
-          <button class="mat-edit-btn" onclick="event.stopPropagation()">Edit ›</button>
-          <div class="mat-img"><svg width="72" height="72" viewBox="0 0 80 80" fill="none"><rect x="18" y="28" width="44" height="24" rx="12" stroke="#1D1D1F" stroke-width="3"/><path d="M32 40h16" stroke="#1D1D1F" stroke-width="2.5" stroke-linecap="round"/><path d="M42 34l6 6-6 6" stroke="#1D1D1F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <div class="mat-type-tag">Secondary Processing</div>
-          <div class="mat-name">Anodising Black 20μm</div>
-          <div class="mat-code">SPN-190-ANOD-A</div>
-          <div class="mat-perm priv">PRIVATE</div>
-          <div class="mat-views">0 views (30d)</div>
-        </div>
-        <div class="mat-card">
-          <button class="mat-edit-btn" onclick="event.stopPropagation()">Edit ›</button>
-          <div class="mat-img"><svg width="72" height="72" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="20" stroke="#1D1D1F" stroke-width="3"/><circle cx="40" cy="40" r="8" fill="#1D1D1F"/><circle cx="18" cy="28" r="5" fill="#1D1D1F"/><circle cx="62" cy="28" r="5" fill="#1D1D1F"/><circle cx="18" cy="52" r="5" fill="#1D1D1F"/><circle cx="62" cy="52" r="5" fill="#1D1D1F"/><line x1="22" y1="31" x2="32" y2="37" stroke="#1D1D1F" stroke-width="2"/><line x1="58" y1="31" x2="48" y2="37" stroke="#1D1D1F" stroke-width="2"/><line x1="22" y1="49" x2="32" y2="43" stroke="#1D1D1F" stroke-width="2"/><line x1="58" y1="49" x2="48" y2="43" stroke="#1D1D1F" stroke-width="2"/></svg></div>
-          <div class="mat-type-tag">Raw Material</div>
-          <div class="mat-name">PA12 Nylon</div>
-          <div class="mat-code">SPN-055-PA12-FOR</div>
-          <div class="mat-perm shared">SHARED</div>
-          <div class="mat-views">44 views (30d)</div>
-        </div>
-        <div class="mat-card">
-          <button class="mat-edit-btn" onclick="event.stopPropagation()">Edit ›</button>
-          <div class="mat-img"><svg width="72" height="72" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="20" stroke="#1D1D1F" stroke-width="3"/><circle cx="40" cy="40" r="8" fill="#1D1D1F"/><circle cx="18" cy="28" r="5" fill="#1D1D1F"/><circle cx="62" cy="28" r="5" fill="#1D1D1F"/><circle cx="18" cy="52" r="5" fill="#1D1D1F"/><circle cx="62" cy="52" r="5" fill="#1D1D1F"/><line x1="22" y1="31" x2="32" y2="37" stroke="#1D1D1F" stroke-width="2"/><line x1="58" y1="31" x2="48" y2="37" stroke="#1D1D1F" stroke-width="2"/><line x1="22" y1="49" x2="32" y2="43" stroke="#1D1D1F" stroke-width="2"/><line x1="58" y1="49" x2="48" y2="43" stroke="#1D1D1F" stroke-width="2"/></svg></div>
-          <div class="mat-type-tag">Raw Material</div>
-          <div class="mat-name">POM Acetal</div>
-          <div class="mat-code">SPN-088-POM-FOR</div>
-          <div class="mat-perm priv">PRIVATE</div>
-          <div class="mat-views">0 views (30d)</div>
-        </div>
-      </div>
-      <div class="note-box">PRIVATE materials are visible only to you. SHARED materials are visible to explicitly authorised brand partners. OPEN materials are discoverable by all authenticated parties.</div>
-    </div>
-
-    <!-- ════ REQUESTS ════ -->
-    <div class="view fade-in" id="view-requests">
-      <div class="page-header">
-        <div class="page-title">Requests</div>
-        <div class="page-sub">Permission and data requests from brand partners</div>
-      </div>
-      <div class="section-title" style="margin-top:0">Pending (3)</div>
-      <div class="request-list" style="margin-top:0">
-        <div class="request-card">
-          <div class="req-header"><span class="badge badge-request">New</span><span class="req-from">From <strong>Brand Co.</strong></span><span class="req-time">2h ago</span></div>
-          <div class="req-title">Upgrade STM-PA66-003 to OPEN</div>
-          <div class="req-body">Required for DPP downstream disclosure to 2 Vietnam factories. Deadline: Jun 15.</div>
-          <div class="req-actions">
-            <button class="req-btn-approve" onclick="this.closest('.request-card').style.opacity='0.4';this.textContent='Approved ✓'">Approve</button>
-            <button class="req-btn-discuss">Discuss</button>
-            <button class="req-btn-decline">Decline</button>
+    <!-- 關務資訊 -->
+    <div class="view fade-in" id="view-company-customs">
+      <div class="page-header"><div class="page-title">關務資訊</div><div class="page-sub">Customs &amp; Trade Compliance</div></div>
+      <div class="form-card">
+        <div class="form-card-title">台灣總部</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">AEO 認證號</label><input class="form-input" placeholder="例：TW-AEO-XXXXX"></div>
+          <div class="form-group"><label class="form-label">報關行</label><input class="form-input" placeholder="Custom broker name"></div>
+          <div class="form-group"><label class="form-label">主要輸出 HS Code</label><input class="form-input" value="3901.10 / 3902.10 / 3907.91"></div>
+          <div class="form-group"><label class="form-label">REACH 符合聲明</label>
+            <select class="form-input form-select"><option>REACH compliant — no SVHC</option><option>REACH compliant — with SVHC list</option><option>Pending assessment</option></select>
           </div>
-        </div>
-        <div class="request-card">
-          <div class="req-header"><span class="badge badge-request">New</span><span class="req-from">From <strong>Nordic OEM</strong></span><span class="req-time">1 day ago</span></div>
-          <div class="req-title">Share PETG Sheet 1.5mm technical specs</div>
-          <div class="req-body">Nordic OEM requests access to full mechanical spec sheet including impact resistance and UV stability data.</div>
-          <div class="req-actions">
-            <button class="req-btn-approve" onclick="this.closest('.request-card').style.opacity='0.4';this.textContent='Approved ✓'">Approve</button>
-            <button class="req-btn-discuss">Discuss</button>
-            <button class="req-btn-decline">Decline</button>
+          <div class="form-group form-full"><label class="form-label">Country of Origin（主要材料）</label><input class="form-input" value="Taiwan, R.O.C."></div>
+          <div class="form-group"><label class="form-label">DPP 資料接口</label>
+            <select class="form-input form-select"><option>SmartPN 平台直連</option><option>PDF 上傳</option><option>API 串接</option></select>
           </div>
+          <div class="form-group"><label class="form-label">DPP 回應時效（工作天）</label><input class="form-input" placeholder="例：2"></div>
         </div>
-        <div class="request-card">
-          <div class="req-header"><span class="badge badge-request">New</span><span class="req-from">From <strong>SmartPN Atlas</strong></span><span class="req-time">2 days ago</span></div>
-          <div class="req-title">Quarterly review: 15 materials eligible for SHARED upgrade</div>
-          <div class="req-body">Based on Rule 21 — materials with no price data and ≥6 months stable can be upgraded to SHARED. Review and approve batch.</div>
-          <div class="req-actions">
-            <button class="req-btn-approve" onclick="this.closest('.request-card').style.opacity='0.4';this.textContent='Batch approved ✓'">Approve batch</button>
-            <button class="req-btn-discuss">Review individually</button>
-          </div>
-        </div>
-      </div>
-      <div class="section-title">Resolved (5)</div>
-      <div class="table-wrap" style="margin-top:0">
-        <table>
-          <thead><tr><th>Request</th><th>From</th><th>Material</th><th>Status</th><th>Date</th></tr></thead>
-          <tbody>
-            <tr><td>Upgrade to OPEN</td><td class="td-muted">Brand Co.</td><td class="td-muted">SPN-001-PA66GF30-FOR</td><td><span class="badge badge-approved">Approved</span></td><td class="td-muted">Jun 3</td></tr>
-            <tr><td>Share spec sheet</td><td class="td-muted">Nordic OEM</td><td class="td-muted">SPN-103-ABS-FOR</td><td><span class="badge badge-approved">Approved</span></td><td class="td-muted">May 30</td></tr>
-            <tr><td>Price data request</td><td class="td-muted">Brand Co.</td><td class="td-muted">SPN-190-ANOD-A</td><td><span class="badge badge-private">Declined</span></td><td class="td-muted">May 25</td></tr>
-          </tbody>
-        </table>
+        <div class="form-actions"><button class="btn-primary">儲存</button></div>
       </div>
     </div>
 
-    <!-- ════ 原物料建立 ════ -->
-    <div class="view fade-in" id="view-add-material">
-      <div class="page-header">
-        <div class="page-title">原物料建立</div>
-        <div class="page-sub">Add new raw material to SmartPN Atlas</div>
-      </div>
-      <div class="form-section-title" style="margin-top:0">Basic Info</div>
-      <div class="form-grid">
-        <div class="form-group"><div class="form-label">Material Name</div><input class="form-input" type="text" placeholder="e.g. PA66-GF30 Nylon" /></div>
-        <div class="form-group"><div class="form-label">SmartPN Code (auto-assigned)</div><input class="form-input" type="text" value="SPN-248-NEW" readonly /></div>
-        <div class="form-group"><div class="form-label">Supplier (you)</div><input class="form-input" type="text" value="Formosa Plastics Corporation" readonly /></div>
-        <div class="form-group"><div class="form-label">Material Category</div><select class="form-input form-select"><option>Polymer</option><option>Metal</option><option>Composite</option><option>Engineering Plastic</option><option>Other</option></select></div>
-        <div class="form-group form-full"><div class="form-label">Description / Application</div><textarea class="form-input form-textarea" placeholder="Describe material properties, typical applications, handling notes…"></textarea></div>
-      </div>
-      <div class="form-section-title">SPU / SKU Identity</div>
-      <div style="font-size:13px;color:#86868B;margin-bottom:16px;line-height:1.6">
-        SPU defines the material family identity. SKU defines the variant dimensions. Materials sharing the same SPU can be found via <em>Find Same Material</em>.
-      </div>
-      <div class="form-grid">
-        <div class="form-group"><div class="form-label">SPU Code (material family)</div><input class="form-input" type="text" placeholder="e.g. PA66-GF" /></div>
-        <div class="form-group"><div class="form-label">SKU Key (auto from dims)</div><input class="form-input" type="text" value="— set from dimensions below —" readonly /></div>
-        <div class="form-group"><div class="form-label">SKU Dim 1 — Filler / Additive</div><input class="form-input" type="text" placeholder="e.g. 30% Glass Fiber" /></div>
-        <div class="form-group"><div class="form-label">SKU Dim 2 — Color</div><input class="form-input" type="text" placeholder="e.g. Natural / Black" /></div>
-        <div class="form-group"><div class="form-label">SKU Dim 3 — Form</div><select class="form-input form-select"><option>Pellet</option><option>Sheet</option><option>Rod</option><option>Film</option><option>Other</option></select></div>
-      </div>
-      <div class="form-section-title">Technical Specifications</div>
-      <div class="form-grid">
-        <div class="form-group"><div class="form-label">Base Polymer</div><input class="form-input" type="text" placeholder="e.g. PA66" /></div>
-        <div class="form-group"><div class="form-label">Tensile Strength (MPa)</div><input class="form-input" type="number" placeholder="185" /></div>
-        <div class="form-group"><div class="form-label">Density (g/cm³)</div><input class="form-input" type="number" placeholder="1.38" /></div>
-        <div class="form-group"><div class="form-label">Heat Deflection Temp (°C)</div><input class="form-input" type="number" placeholder="250" /></div>
-        <div class="form-group"><div class="form-label">Standard / Certification</div><input class="form-input" type="text" placeholder="e.g. ISO 527-2, RoHS" /></div>
-        <div class="form-group"><div class="form-label">Elongation at Break (%)</div><input class="form-input" type="number" placeholder="3.5" /></div>
-      </div>
-      <div class="form-section-title">Commercial Info</div>
-      <div class="form-grid">
-        <div class="form-group"><div class="form-label">Price / kg (USD)</div><input class="form-input" type="number" placeholder="4.20" /></div>
-        <div class="form-group"><div class="form-label">MOQ (kg)</div><input class="form-input" type="number" placeholder="500" /></div>
-        <div class="form-group"><div class="form-label">Lead Time (weeks)</div><input class="form-input" type="number" placeholder="4" /></div>
-        <div class="form-group"><div class="form-label">Packaging (kg/bag)</div><input class="form-input" type="number" placeholder="25" /></div>
-      </div>
-      <div class="form-section-title">Permission</div>
-      <div class="form-grid">
-        <div class="form-group">
-          <div class="form-label">Permission Level</div>
-          <select class="form-input form-select" onchange="handlePermChange(this.value)">
-            <option value="private">PRIVATE — visible only to me</option>
-            <option value="shared">SHARED — visible to selected brand</option>
-            <option value="open">OPEN — visible to all authenticated parties</option>
-          </select>
+    <!-- 稅務資訊 -->
+    <div class="view fade-in" id="view-company-tax">
+      <div class="page-header"><div class="page-title">稅務資訊</div><div class="page-sub">Tax &amp; VAT Registration</div></div>
+      <div class="form-card">
+        <div class="form-card-title">台灣總部</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">統一編號</label><input class="form-input" value="03017001" readonly></div>
+          <div class="form-group"><label class="form-label">營業稅率</label><input class="form-input" value="5%" readonly></div>
+          <div class="form-group"><label class="form-label">發票類型</label>
+            <select class="form-input form-select"><option>三聯式發票（VAT invoice）</option><option>電子發票</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">銀行帳戶（報價用）</label><input class="form-input" placeholder="Bank / Account no."></div>
+          <div class="form-group form-full"><label class="form-label">付款條件（預設）</label>
+            <select class="form-input form-select"><option>Net 30</option><option>Net 45</option><option>Net 60</option><option>Prepaid</option></select>
+          </div>
         </div>
-        <div class="form-group" id="shared-brand-field" style="display:none">
-          <div class="form-label">Share with brand</div>
-          <select class="form-input form-select"><option>— Select brand —</option><option>Brand Co.</option><option>Nordic OEM</option></select>
-        </div>
-        <div class="form-group form-full">
-          <div class="form-label">Notes on permission</div>
-          <input class="form-input" type="text" placeholder="Optional: reason or conditions for this permission level" />
-        </div>
-      </div>
-      <div class="form-actions">
-        <button class="btn-primary" onclick="showSuccess()">Create SmartPN Record</button>
-        <button class="btn-secondary" onclick="showView('my-materials')">Cancel</button>
-      </div>
-      <div id="success-msg" style="display:none">✓ SmartPN record SPN-248-NEW created successfully. Permission: PRIVATE.</div>
-    </div>
-
-    <!-- ════ 二次加工建立 ════ -->
-    <div class="view fade-in" id="view-add-secondary">
-      <div class="page-header">
-        <div class="page-title">二次加工建立</div>
-        <div class="page-sub">Add secondary processing spec to SmartPN Atlas</div>
-      </div>
-      <div class="form-section-title" style="margin-top:0">Processing Info</div>
-      <div class="form-grid">
-        <div class="form-group"><div class="form-label">Processing Name</div><input class="form-input" type="text" placeholder="e.g. Electroplating Spec A" /></div>
-        <div class="form-group"><div class="form-label">SmartPN Code (auto)</div><input class="form-input" type="text" value="SPN-SEC-XXX" readonly /></div>
-        <div class="form-group"><div class="form-label">Processing Type</div><select class="form-input form-select"><option>Electroplating</option><option>Anodising</option><option>Powder Coat</option><option>Heat Treatment</option><option>CNC Machining</option><option>Injection Moulding</option><option>Other</option></select></div>
-        <div class="form-group"><div class="form-label">Supplier (you)</div><input class="form-input" type="text" value="Formosa Plastics Corporation" readonly /></div>
-        <div class="form-group form-full"><div class="form-label">Process Description</div><textarea class="form-input form-textarea" placeholder="Describe the processing method, applicable standards, and key parameters…"></textarea></div>
-      </div>
-      <div class="form-section-title">Technical Specs</div>
-      <div class="form-grid">
-        <div class="form-group"><div class="form-label">Surface Finish</div><input class="form-input" type="text" placeholder="e.g. Ra 0.8μm" /></div>
-        <div class="form-group"><div class="form-label">Dimensional Tolerance</div><input class="form-input" type="text" placeholder="e.g. ±0.05mm" /></div>
-        <div class="form-group"><div class="form-label">Layer Thickness (μm)</div><input class="form-input" type="text" placeholder="e.g. 10–25" /></div>
-        <div class="form-group"><div class="form-label">Standard Reference</div><input class="form-input" type="text" placeholder="e.g. ASTM B633, ISO 2080" /></div>
-        <div class="form-group"><div class="form-label">Applicable Base Material</div><input class="form-input" type="text" placeholder="e.g. Aluminium alloy 6061" /></div>
-        <div class="form-group"><div class="form-label">Linked Raw Material SmartPN</div><select class="form-input form-select"><option>— Link to raw material —</option><option>SPN-001-PA66GF30-FOR</option><option>SPN-055-MG-TW</option><option>SPN-103-ABS-FOR</option></select></div>
-      </div>
-      <div class="form-section-title">Permission</div>
-      <div class="form-grid">
-        <div class="form-group"><div class="form-label">Permission Level</div><select class="form-input form-select"><option>PRIVATE — only I can see</option><option>SHARED — selected brand</option><option>OPEN</option></select></div>
-        <div class="form-group"><div class="form-label">Pricing (USD / surface m²)</div><input class="form-input" type="number" placeholder="12.50" /></div>
-      </div>
-      <div class="form-actions">
-        <button class="btn-primary">Create SmartPN Record</button>
-        <button class="btn-secondary" onclick="showView('my-materials')">Cancel</button>
+        <div class="form-actions"><button class="btn-primary">儲存</button></div>
       </div>
     </div>
 
-    <!-- ════ PERMISSION CONTROL ════ -->
-    <div class="view fade-in" id="view-permissions">
-      <div class="page-header">
-        <div class="page-title">Permission Control</div>
-        <div class="page-sub">Manage visibility for your materials</div>
-      </div>
-      <div class="section-title" style="margin-top:0">Quick permission editor</div>
-      <div style="margin-top:0">
-        <div class="perm-row">
-          <div style="flex:1"><div class="perm-name">PA66-GF30 Nylon</div><div class="perm-code">SPN-001-PA66GF30-FOR</div></div>
-          <div class="perm-toggle"><button class="perm-toggle-btn" onclick="setPermBtn(this,'private')">PRIVATE</button><button class="perm-toggle-btn" onclick="setPermBtn(this,'shared')">SHARED</button><button class="perm-toggle-btn active-open" onclick="setPermBtn(this,'open')">OPEN</button></div>
-        </div>
-        <div class="perm-row">
-          <div style="flex:1"><div class="perm-name">PETG Sheet 1.5mm</div><div class="perm-code">SPN-042-PETG-FOR</div></div>
-          <div class="perm-toggle"><button class="perm-toggle-btn" onclick="setPermBtn(this,'private')">PRIVATE</button><button class="perm-toggle-btn active-shared" onclick="setPermBtn(this,'shared')">SHARED</button><button class="perm-toggle-btn" onclick="setPermBtn(this,'open')">OPEN</button></div>
-        </div>
-        <div class="perm-row">
-          <div style="flex:1"><div class="perm-name">ABS-HI Resin</div><div class="perm-code">SPN-103-ABS-FOR</div></div>
-          <div class="perm-toggle"><button class="perm-toggle-btn" onclick="setPermBtn(this,'private')">PRIVATE</button><button class="perm-toggle-btn" onclick="setPermBtn(this,'shared')">SHARED</button><button class="perm-toggle-btn active-open" onclick="setPermBtn(this,'open')">OPEN</button></div>
-        </div>
-        <div class="perm-row">
-          <div style="flex:1"><div class="perm-name">Anodising Black 20μm</div><div class="perm-code">SPN-190-ANOD-A</div></div>
-          <div class="perm-toggle"><button class="perm-toggle-btn active-private" onclick="setPermBtn(this,'private')">PRIVATE</button><button class="perm-toggle-btn" onclick="setPermBtn(this,'shared')">SHARED</button><button class="perm-toggle-btn" onclick="setPermBtn(this,'open')">OPEN</button></div>
-        </div>
-        <div class="perm-row">
-          <div style="flex:1"><div class="perm-name">PA12 Nylon</div><div class="perm-code">SPN-055-PA12-FOR</div></div>
-          <div class="perm-toggle"><button class="perm-toggle-btn" onclick="setPermBtn(this,'private')">PRIVATE</button><button class="perm-toggle-btn active-shared" onclick="setPermBtn(this,'shared')">SHARED</button><button class="perm-toggle-btn" onclick="setPermBtn(this,'open')">OPEN</button></div>
-        </div>
-        <div class="perm-row">
-          <div style="flex:1"><div class="perm-name">POM Acetal</div><div class="perm-code">SPN-088-POM-FOR</div></div>
-          <div class="perm-toggle"><button class="perm-toggle-btn active-private" onclick="setPermBtn(this,'private')">PRIVATE</button><button class="perm-toggle-btn" onclick="setPermBtn(this,'shared')">SHARED</button><button class="perm-toggle-btn" onclick="setPermBtn(this,'open')">OPEN</button></div>
-        </div>
-      </div>
-      <div class="note-box">Changes take effect immediately. SHARED requires at least one authorised brand selected. Price data is excluded from OPEN disclosure unless you explicitly include it.</div>
-
-      <!-- Custom Field Groups — GRANT layer in action -->
-      <div class="cfg-section">
-        <div class="section-title" style="margin-top:0">Custom Field Groups (GRANT)</div>
-        <div style="font-size:13px;color:#86868B;margin-bottom:16px;line-height:1.6">
-          Create named field groups. Check which fields belong to each group. Grant the group to specific accounts — they see exactly those fields, nothing else.
-        </div>
-
-        <div class="cfg-group">
-          <div class="cfg-group-header">
-            <span class="cfg-group-name">關務欄位 (Customs)</span>
-            <span class="cfg-group-count">3 fields · granted to 1 account</span>
-            <span class="cfg-group-chev">›</span>
+    <!-- 材料訊息 -->
+    <div class="view fade-in" id="view-company-matinfo">
+      <div class="page-header"><div class="page-title">材料訊息</div><div class="page-sub">公司材料概覽與預設設定</div></div>
+      <div class="form-card">
+        <div class="form-card-title">材料管理設定</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">材料命名規則</label><input class="form-input" value="[Material Family]-[Grade]-[Suffix]"></div>
+          <div class="form-group"><label class="form-label">新材料預設權限</label>
+            <select class="form-input form-select"><option selected>PRIVATE（全私密，需主動授權）</option><option>SHARED（需授權才可見細節）</option><option>OPEN</option></select>
           </div>
-          <div class="cfg-fields">
-            <div class="cfg-field-row"><input type="checkbox" class="cfg-field-check" checked /><span class="cfg-field-name">Composition / Material content</span></div>
-            <div class="cfg-field-row"><input type="checkbox" class="cfg-field-check" checked /><span class="cfg-field-name">HS Code</span></div>
-            <div class="cfg-field-row"><input type="checkbox" class="cfg-field-check" checked /><span class="cfg-field-name">Country of Origin</span></div>
-            <div class="cfg-field-row"><input type="checkbox" class="cfg-field-check" /><span class="cfg-field-name">RoHS / REACH declaration</span></div>
+          <div class="form-group form-full"><label class="form-label">DPP 資料維護週期</label>
+            <select class="form-input form-select"><option>每季更新</option><option>每半年更新</option><option>每年更新</option></select>
           </div>
-          <div class="cfg-grant-row">
-            <span class="cfg-grant-label">Granted to</span>
-            <span class="cfg-grant-account">Brand Co. (Customs team)</span>
-            <button class="cfg-add-btn" style="margin-left:16px">+ Add account</button>
-          </div>
+          <div class="form-group"><label class="form-label">材料分類（主）</label><input class="form-input" value="Engineering Polymer"></div>
+          <div class="form-group"><label class="form-label">材料分類（次）</label><input class="form-input" value="Commodity Polymer, Metal"></div>
         </div>
-
-        <div class="cfg-group">
-          <div class="cfg-group-header">
-            <span class="cfg-group-name">財務欄位 (Finance)</span>
-            <span class="cfg-group-count">3 fields · granted to 1 account</span>
-            <span class="cfg-group-chev">›</span>
-          </div>
-          <div class="cfg-fields">
-            <div class="cfg-field-row"><input type="checkbox" class="cfg-field-check" checked /><span class="cfg-field-name">Price / kg (USD)</span></div>
-            <div class="cfg-field-row"><input type="checkbox" class="cfg-field-check" checked /><span class="cfg-field-name">MOQ</span></div>
-            <div class="cfg-field-row"><input type="checkbox" class="cfg-field-check" checked /><span class="cfg-field-name">Lead Time</span></div>
-            <div class="cfg-field-row"><input type="checkbox" class="cfg-field-check" /><span class="cfg-field-name">Payment terms</span></div>
-          </div>
-          <div class="cfg-grant-row">
-            <span class="cfg-grant-label">Granted to</span>
-            <span class="cfg-grant-account">Brand Co. (Finance team)</span>
-            <button class="cfg-add-btn" style="margin-left:16px">+ Add account</button>
-          </div>
-        </div>
-
-        <div class="cfg-group">
-          <div class="cfg-group-header">
-            <span class="cfg-group-name">Technical Specs</span>
-            <span class="cfg-group-count">5 fields · granted to 2 accounts</span>
-            <span class="cfg-group-chev">›</span>
-          </div>
-          <div class="cfg-fields">
-            <div class="cfg-field-row"><input type="checkbox" class="cfg-field-check" checked /><span class="cfg-field-name">Tensile Strength</span></div>
-            <div class="cfg-field-row"><input type="checkbox" class="cfg-field-check" checked /><span class="cfg-field-name">Density</span></div>
-            <div class="cfg-field-row"><input type="checkbox" class="cfg-field-check" checked /><span class="cfg-field-name">Heat Deflection Temp</span></div>
-            <div class="cfg-field-row"><input type="checkbox" class="cfg-field-check" checked /><span class="cfg-field-name">Standard / Certification</span></div>
-            <div class="cfg-field-row"><input type="checkbox" class="cfg-field-check" checked /><span class="cfg-field-name">Elongation at Break</span></div>
-          </div>
-          <div class="cfg-grant-row">
-            <span class="cfg-grant-label">Granted to</span>
-            <span class="cfg-grant-account">Brand Co. · Nordic OEM</span>
-            <button class="cfg-add-btn" style="margin-left:16px">+ Add account</button>
-          </div>
-        </div>
-
-        <button class="cfg-add-btn" style="margin-top:12px;font-size:14px">+ Create new field group</button>
-        <div class="note-box" style="margin-top:20px"><strong>GRANT layer:</strong> The data owner defines what to group. The data owner grants groups to the right people. Access is not taken — it is granted.</div>
+        <div class="form-actions"><button class="btn-primary">儲存</button></div>
       </div>
     </div>
 
-    <!-- ════ MY PROFILE ════ -->
-    <div class="view fade-in" id="view-profile">
-      <div class="page-header">
-        <div class="page-title">My Profile</div>
-        <div class="page-sub">Supplier account settings</div>
+    <!-- 原物料建立 -->
+    <div class="view fade-in" id="view-raw">
+      <div class="page-header"><div class="page-title">原物料建立</div><div class="page-sub">Raw Material — SPU + SKU</div></div>
+      <div class="step-wrap">
+        <div class="step-item done"><div class="step-num">✓</div>SPU 主體</div>
+        <div class="step-line"></div>
+        <div class="step-item active"><div class="step-num">2</div>SKU 變體</div>
+        <div class="step-line"></div>
+        <div class="step-item"><div class="step-num">3</div>權限設定</div>
+        <div class="step-line"></div>
+        <div class="step-item"><div class="step-num">4</div>確認送出</div>
       </div>
-      <div class="profile-header">
-        <div class="profile-avatar-lg">FP</div>
-        <div style="flex:1">
-          <div class="profile-name">Formosa Plastics Corporation</div>
-          <div class="profile-meta">Taipei, Taiwan · Polymer Supplier · SmartPN Active since 2024</div>
-        </div>
-        <button class="btn-outline">Edit profile</button>
+      <div class="private-notice">
+        <span class="private-notice-icon">🔒</span>
+        <span class="private-notice-text">新建材料預設為 <strong>PRIVATE</strong>。送出後可在「權限管理」以欄位資料夾為單位授權給特定帳號。</span>
       </div>
-      <div class="info-row">
-        <div class="info-item"><div class="info-item-label">Company ID</div><div class="info-item-val">SP-TW-0048</div></div>
-        <div class="info-item"><div class="info-item-label">Country</div><div class="info-item-val">Taiwan</div></div>
-        <div class="info-item"><div class="info-item-label">Tier</div><div class="info-item-val">Tier 1 Supplier</div></div>
-        <div class="info-item"><div class="info-item-label">Materials</div><div class="info-item-val">247 records</div></div>
-        <div class="info-item"><div class="info-item-label">Brand partners</div><div class="info-item-val">4 active</div></div>
-        <div class="info-item"><div class="info-item-label">Account status</div><div class="info-item-val" style="color:#1D7340">Verified ✓</div></div>
+      <div class="form-card">
+        <div class="form-card-title">Step 2 — SKU 變體</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">SKU Key</label><input class="form-input" placeholder="例：30GF-NAT"></div>
+          <div class="form-group"><label class="form-label">Glass Filler %</label><input class="form-input" placeholder="例：30%"></div>
+          <div class="form-group"><label class="form-label">Color</label>
+            <select class="form-input form-select"><option>Natural</option><option>Black</option><option>White</option><option>Custom</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">Form</label>
+            <select class="form-input form-select"><option>Pellet</option><option>Sheet</option><option>Powder</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">Tensile Strength (MPa)</label><input class="form-input" placeholder="例：185"></div>
+          <div class="form-group"><label class="form-label">Melt Flow Index (g/10min)</label><input class="form-input" placeholder="例：14"></div>
+          <div class="form-group"><label class="form-label">Price / kg (USD)</label><input class="form-input" placeholder="例：4.20"></div>
+          <div class="form-group"><label class="form-label">Lead Time (days)</label><input class="form-input" placeholder="例：14"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:16px;padding-top:14px;border-top:0.5px solid #E5E5EA">
+          <button style="background:none;border:0.5px dashed #0071E3;color:#0071E3;border-radius:8px;padding:7px 16px;font-size:13px;cursor:pointer;font-family:inherit">+ 新增 SKU 變體</button>
+          <span style="font-size:12px;color:#86868B">已新增 1 個 SKU</span>
+        </div>
+        <div class="form-actions"><button class="btn-primary">下一步：權限設定</button><button class="btn-secondary">上一步</button></div>
       </div>
-      <div class="section-title" style="margin-top:0">SmartPN completeness</div>
-      <div class="progress-section" style="margin-top:0;padding-top:16px">
-        <div class="progress-bar-wrap">
-          <div class="progress-label"><span>Technical specs complete</span><span>89%</span></div>
-          <div class="progress-bar"><div class="progress-fill" style="width:89%"></div></div>
+      <div style="margin-top:24px">
+        <div class="section-title">現有原物料</div>
+        <div class="mat-list">
+          <div class="mat-row"><div class="mat-row-img"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#1D1D1F" stroke-width="1.2"/></svg></div><div style="flex:1"><div class="mat-row-name">PA66-GF30 Nylon</div><div class="mat-row-code">SPN-001 · 3 SKUs</div></div><span class="perm-open">OPEN</span><span class="mat-row-chev">›</span></div>
+          <div class="mat-row"><div class="mat-row-img"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="#1D1D1F" stroke-width="1.2"/></svg></div><div style="flex:1"><div class="mat-row-name">PETG Sheet 1.5mm</div><div class="mat-row-code">SPN-004 · 3 SKUs</div></div><span class="perm-shared">SHARED</span><span class="mat-row-chev">›</span></div>
+          <div class="mat-row"><div class="mat-row-img"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#1D1D1F" stroke-width="1.2"/></svg></div><div style="flex:1"><div class="mat-row-name">ABS-HI Resin</div><div class="mat-row-code">SPN-006 · 2 SKUs</div></div><span class="perm-open">OPEN</span><span class="mat-row-chev">›</span></div>
+          <div class="mat-row"><div class="mat-row-img"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#1D1D1F" stroke-width="1.2"/></svg></div><div style="flex:1"><div class="mat-row-name">PA12 UV-Stable <span class="tag tag-private">PRIVATE</span></div><div class="mat-row-code">SPN-014 · 1 SKU · 新建中</div></div><span class="mat-row-chev">›</span></div>
         </div>
-        <div class="progress-bar-wrap">
-          <div class="progress-label"><span>Materials with permission set</span><span>100%</span></div>
-          <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
-        </div>
-        <div class="progress-bar-wrap">
-          <div class="progress-label"><span>OPEN / SHARED ratio</span><span>81%</span></div>
-          <div class="progress-bar"><div class="progress-fill amber" style="width:81%"></div></div>
-        </div>
-      </div>
-      <div class="section-title">Recent activity</div>
-      <div class="log-list" style="margin-top:0">
-        <div class="log-item"><div class="log-dot log-dot-add"></div><div><div class="log-action">PA66-GF30 added</div><div class="log-detail">Permission: OPEN</div></div><div class="log-time">Jun 9</div></div>
-        <div class="log-item"><div class="log-dot log-dot-req"></div><div><div class="log-action">Request received from Brand Co.</div><div class="log-detail">STM-PA66-003 upgrade</div></div><div class="log-time">Jun 9</div></div>
-        <div class="log-item"><div class="log-dot log-dot-edit"></div><div><div class="log-action">PETG Sheet specs updated</div><div class="log-detail">Price updated to USD 1.95</div></div><div class="log-time">Jun 7</div></div>
-        <div class="log-item"><div class="log-dot log-dot-perm"></div><div><div class="log-action">ABS-HI Resin set to OPEN</div><div class="log-detail">Was SHARED — Brand Co. request approved</div></div><div class="log-time">Jun 5</div></div>
       </div>
     </div>
 
-  </div><!-- /main -->
-</div><!-- /layout -->
+    <!-- 二次加工建立 -->
+    <div class="view fade-in" id="view-secondary">
+      <div class="page-header"><div class="page-title">二次加工建立</div><div class="page-sub">Secondary Processing — Input / Output / Ratio</div></div>
+      <div class="private-notice">
+        <span class="private-notice-icon">🔒</span>
+        <span class="private-notice-text">新建加工記錄預設為 <strong>PRIVATE</strong>。</span>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title">加工基本資料</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">加工名稱</label><input class="form-input" placeholder="例：Electroplating Chrome"></div>
+          <div class="form-group"><label class="form-label">加工類型</label>
+            <select class="form-input form-select"><option>Electroplating</option><option>Powder Coating</option><option>Anodising</option><option>Heat Treatment</option><option>Other</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">Input 材料（Base material）</label><input class="form-input" placeholder="例：ABS substrate"></div>
+          <div class="form-group"><label class="form-label">Output 規格</label><input class="form-input" placeholder="例：Chrome-plated ABS"></div>
+          <div class="form-group"><label class="form-label">Processing Ratio</label><input class="form-input" placeholder="例：1:1 (surface area based)"></div>
+          <div class="form-group"><label class="form-label">Coating Thickness</label><input class="form-input" placeholder="例：10–25 µm"></div>
+          <div class="form-group"><label class="form-label">Lead Time (days)</label><input class="form-input" placeholder="例：14"></div>
+          <div class="form-group"><label class="form-label">Standard / Test Method</label><input class="form-input" placeholder="例：ISO 2409"></div>
+        </div>
+        <div class="form-actions"><button class="btn-primary">儲存 — 設定權限</button><button class="btn-secondary">取消</button></div>
+      </div>
+      <div style="margin-top:20px">
+        <div class="section-title">現有加工記錄</div>
+        <div class="mat-list">
+          <div class="mat-row"><div class="mat-row-img"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 12 Q8 6 12 12 Q16 18 20 12" stroke="#1D1D1F" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg></div><div style="flex:1"><div class="mat-row-name">Electroplating Chrome</div><div class="mat-row-code">SPN-010 · 1 SKU</div></div><span class="perm-open">OPEN</span><span class="mat-row-chev">›</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 權限管理 -->
+    <div class="view fade-in" id="view-permission">
+      <div class="page-header"><div class="page-title">權限管理</div><div class="page-sub">欄位資料夾建立 · 打勾選欄位 · 授權給公司 · 單位 · 姓名</div></div>
+      <div class="private-notice">
+        <span class="private-notice-icon">🔒</span>
+        <span class="private-notice-text">所有新材料預設 <strong>PRIVATE</strong>。授權流程：<br>1) 建立資料夾並命名（例：關務資料夾）&nbsp; 2) 打勾選哪些欄位屬於此資料夾&nbsp; 3) 以資料夾為單位授權給「公司 · 單位 · 姓名」</span>
+      </div>
+
+      <div class="folder-list">
+        <!-- 關務資料夾 -->
+        <div class="folder-card open">
+          <div class="folder-header" onclick="toggleFolder(this.parentElement)">
+            <div class="folder-icon">📁</div>
+            <div class="folder-name">關務資料夾</div>
+            <span class="folder-count">3 欄位已選</span>
+            <span class="folder-chev">›</span>
+          </div>
+          <div class="folder-body">
+            <div style="font-size:12px;color:#86868B;margin-bottom:10px">勾選哪些欄位屬於此資料夾：</div>
+            <div class="field-check-list">
+              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox checked">✓</div><span class="field-check-label">Composition</span><span class="field-check-type">SPU</span></div>
+              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox checked">✓</div><span class="field-check-label">HS Code</span><span class="field-check-type">SPU</span></div>
+              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox checked">✓</div><span class="field-check-label">Country of Origin</span><span class="field-check-type">SPU</span></div>
+              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox"></div><span class="field-check-label">REACH Status</span><span class="field-check-type">SPU</span></div>
+              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox"></div><span class="field-check-label">Price / kg</span><span class="field-check-type">SKU</span></div>
+            </div>
+            <div style="margin-top:16px;font-size:13px;font-weight:600;color:#1D1D1F;margin-bottom:10px">已授權帳號</div>
+            <table class="grant-table">
+              <thead><tr><th>公司</th><th>單位</th><th>姓名</th><th>狀態</th><th></th></tr></thead>
+              <tbody>
+                <tr><td><div class="grant-company">NexBrand Co.</div></td><td><div class="grant-unit">關務部</div></td><td>James Liu</td><td><span class="grant-status">Active</span></td><td><button class="btn-revoke">Revoke</button></td></tr>
+                <tr><td><div class="grant-company">Apex Factory</div></td><td><div class="grant-unit">Compliance</div></td><td>K. Matsuda</td><td><span class="grant-status">Active</span></td><td><button class="btn-revoke">Revoke</button></td></tr>
+              </tbody>
+            </table>
+            <button class="btn-grant-add" onclick="alert('授權新帳號')">+ 授權新帳號（公司 · 單位 · 姓名）</button>
+          </div>
+        </div>
+
+        <!-- 財務資料夾 -->
+        <div class="folder-card">
+          <div class="folder-header" onclick="toggleFolder(this.parentElement)">
+            <div class="folder-icon">📁</div>
+            <div class="folder-name">財務資料夾</div>
+            <span class="folder-count">2 欄位已選</span>
+            <span class="folder-chev">›</span>
+          </div>
+          <div class="folder-body">
+            <div class="field-check-list">
+              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox checked">✓</div><span class="field-check-label">Price / kg</span><span class="field-check-type">SKU</span></div>
+              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox checked">✓</div><span class="field-check-label">MOQ (kg)</span><span class="field-check-type">SKU</span></div>
+              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox"></div><span class="field-check-label">Lead Time</span><span class="field-check-type">SKU</span></div>
+            </div>
+            <div style="margin-top:16px;font-size:13px;font-weight:600;color:#1D1D1F;margin-bottom:10px">已授權帳號</div>
+            <table class="grant-table">
+              <thead><tr><th>公司</th><th>單位</th><th>姓名</th><th>狀態</th><th></th></tr></thead>
+              <tbody>
+                <tr><td><div class="grant-company">NexBrand Co.</div></td><td><div class="grant-unit">採購部</div></td><td>Rachel L.</td><td><span class="grant-status">Active</span></td><td><button class="btn-revoke">Revoke</button></td></tr>
+              </tbody>
+            </table>
+            <button class="btn-grant-add" onclick="alert('授權新帳號')">+ 授權新帳號（公司 · 單位 · 姓名）</button>
+          </div>
+        </div>
+
+        <!-- 原物料資料夾 -->
+        <div class="folder-card">
+          <div class="folder-header" onclick="toggleFolder(this.parentElement)">
+            <div class="folder-icon">📁</div>
+            <div class="folder-name">原物料資料夾</div>
+            <span class="folder-count">4 欄位已選</span>
+            <span class="folder-chev">›</span>
+          </div>
+          <div class="folder-body">
+            <div class="field-check-list">
+              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox checked">✓</div><span class="field-check-label">Tensile Strength</span><span class="field-check-type">SKU</span></div>
+              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox checked">✓</div><span class="field-check-label">Melt Flow Index</span><span class="field-check-type">SKU</span></div>
+              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox checked">✓</div><span class="field-check-label">Density</span><span class="field-check-type">SKU</span></div>
+              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox checked">✓</div><span class="field-check-label">Flexural Modulus</span><span class="field-check-type">SKU</span></div>
+            </div>
+            <div style="margin-top:16px;font-size:13px;font-weight:600;color:#1D1D1F;margin-bottom:10px">已授權帳號</div>
+            <table class="grant-table">
+              <thead><tr><th>公司</th><th>單位</th><th>姓名</th><th>狀態</th><th></th></tr></thead>
+              <tbody>
+                <tr><td><div class="grant-company">GlobalBrand R&amp;D</div></td><td><div class="grant-unit">Material Eng.</div></td><td>T. Kim</td><td><span class="grant-status">Active</span></td><td><button class="btn-revoke">Revoke</button></td></tr>
+              </tbody>
+            </table>
+            <button class="btn-grant-add" onclick="alert('授權新帳號')">+ 授權新帳號（公司 · 單位 · 姓名）</button>
+          </div>
+        </div>
+
+        <button class="add-node-btn" onclick="alert('新增欄位資料夾')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>
+          新增欄位資料夾
+        </button>
+      </div>
+    </div>
+
+    <!-- 單價管理 -->
+    <div class="view fade-in" id="view-quotation">
+      <div class="page-header"><div class="page-title">單價管理</div><div class="page-sub">報價單建立 · 授權帳號查看</div></div>
+      <div style="margin-bottom:24px">
+        <div style="font-size:15px;font-weight:600;color:#1D1D1F;margin-bottom:12px">報價層級選擇</div>
+        <div class="level-select-wrap">
+          <button class="level-btn active" onclick="setLevelBtn(this)">SPU</button>
+          <button class="level-btn" onclick="setLevelBtn(this)">SPU + SKU</button>
+          <button class="level-btn" onclick="setLevelBtn(this)">SPU + SKU + 備註</button>
+        </div>
+        <div style="font-size:13px;color:#86868B;line-height:1.6;margin-top:8px">本期範圍：報價記錄交換（Record exchange）。最終成交單價暫不記錄，未來依需求決定。</div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title">新增報價單</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">報價材料 (SPU)</label>
+            <select class="form-input form-select"><option>PA66-GF30 Nylon (SPN-001)</option><option>PETG Sheet 1.5mm (SPN-004)</option><option>ABS-HI Resin (SPN-006)</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">SKU 變體</label>
+            <select class="form-input form-select"><option>30GF-NAT — Natural Pellet</option><option>30GF-BLK — Black Pellet</option><option>33GF-NAT — 33% GF Natural</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">報價單價 (USD / kg)</label><input class="form-input" placeholder="例：4.20"></div>
+          <div class="form-group"><label class="form-label">有效期限</label><input class="form-input" type="date" value="2026-09-30"></div>
+          <div class="form-group form-full"><label class="form-label">備註（SPU + SKU + 備註 層級）</label><input class="form-input" placeholder="例：Min order 500kg. DDP Taipei. Valid for project NB-2026-Q3."></div>
+          <div class="form-group form-full"><label class="form-label">授權帳號（可查看此報價單）</label>
+            <input class="form-input" placeholder="搜尋公司 / 帳號…" style="margin-bottom:8px">
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              <span style="font-size:12px;background:#F0F7FF;color:#0071E3;border:0.5px solid #BDD7F7;border-radius:14px;padding:4px 12px">NexBrand · Rachel L. <span style="cursor:pointer;opacity:0.6">×</span></span>
+              <span style="font-size:12px;background:#F0F7FF;color:#0071E3;border:0.5px solid #BDD7F7;border-radius:14px;padding:4px 12px">Apex · K. Matsuda <span style="cursor:pointer;opacity:0.6">×</span></span>
+            </div>
+          </div>
+        </div>
+        <div class="form-actions"><button class="btn-primary">建立報價單</button><button class="btn-secondary">取消</button></div>
+      </div>
+      <div style="margin-top:8px">
+        <div class="section-title">現有報價單</div>
+        <div class="quote-card">
+          <div class="quote-card-header"><div class="quote-card-id">QT-2026-001 · PA66-GF30 Natural</div><div class="quote-card-date">Valid until Sep 30, 2026</div><div class="quote-card-status">Active</div></div>
+          <div class="quote-card-body">
+            <div class="quote-detail-row">Level: <span class="quote-detail-val">SPU + SKU</span></div>
+            <div class="quote-detail-row">SKU: <span class="quote-detail-val">30GF-NAT</span></div>
+            <div class="quote-detail-row">Quoted price: <span class="quote-detail-val">USD 4.20 / kg</span></div>
+            <div class="quote-detail-row">Authorized to: <span class="quote-detail-val">NexBrand · Rachel L., Apex · K. Matsuda</span></div>
+          </div>
+        </div>
+        <div class="quote-card">
+          <div class="quote-card-header"><div class="quote-card-id">QT-2026-002 · PETG Sheet 1.5mm</div><div class="quote-card-date">Valid until Dec 31, 2026</div><div class="quote-card-status">Active</div></div>
+          <div class="quote-card-body">
+            <div class="quote-detail-row">Level: <span class="quote-detail-val">SPU + SKU + 備註</span></div>
+            <div class="quote-detail-row">SKU: <span class="quote-detail-val">1.5mm-CLR</span></div>
+            <div class="quote-detail-row">Quoted price: <span class="quote-detail-val">USD 5.50 / kg</span></div>
+            <div class="quote-detail-row">備註: <span class="quote-detail-val">DDP Taipei. Min. 200kg. Project: NB-2026.</span></div>
+            <div class="quote-detail-row">Authorized to: <span class="quote-detail-val">NexBrand · James Liu</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <script>
-  function showView(id) {
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    const v = document.getElementById('view-' + id);
-    if (v) { v.classList.add('active'); v.classList.remove('fade-in'); void v.offsetWidth; v.classList.add('fade-in'); }
-    document.querySelectorAll('.nav-item').forEach(n => {
-      if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + id + "'")) n.classList.add('active');
-    });
-  }
-
-  function handlePermChange(val) {
-    const f = document.getElementById('shared-brand-field');
-    if (f) f.style.display = val === 'shared' ? 'flex' : 'none';
-  }
-
-  function showSuccess() {
-    const m = document.getElementById('success-msg');
-    if (m) { m.style.display = 'block'; setTimeout(() => { m.style.display = 'none'; showView('my-materials'); }, 2500); }
-  }
-
-  function setPermBtn(btn, level) {
-    const group = btn.closest('.perm-toggle');
-    group.querySelectorAll('.perm-toggle-btn').forEach(b => { b.className = 'perm-toggle-btn'; });
-    if (level === 'private') btn.classList.add('active-private');
-    else if (level === 'shared') btn.classList.add('active-shared');
-    else btn.classList.add('active-open');
-  }
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function setActive(el) {
+  document.querySelectorAll('.nav-item,.nav-sub-item').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+function switchTab(prefix, tab) {
+  document.querySelectorAll(`[id^="${prefix}-"]`).forEach(p => p.classList.remove('active'));
+  document.getElementById(`${prefix}-${tab}`).classList.add('active');
+}
+function setTabBtn(el) {
+  el.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+function toggleFolder(card) { card.classList.toggle('open'); }
+function toggleCheck(row) {
+  const cb = row.querySelector('.checkbox');
+  cb.classList.toggle('checked');
+  cb.textContent = cb.classList.contains('checked') ? '✓' : '';
+}
+function setLevelBtn(el) {
+  el.closest('.level-select-wrap').querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
 </script>
 </body>
 </html>
