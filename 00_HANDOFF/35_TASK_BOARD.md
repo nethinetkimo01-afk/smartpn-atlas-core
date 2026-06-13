@@ -61,7 +61,8 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 037 | Assembly/STF 差異查證 + get_ie_sum 邏輯分析 | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | 結論：code 邏輯正確(fallback=actual for theory=None)；差異是 SUM.C2B 用 actual_operators 非公式 |
 | 038 | 更新 verification reports + 差距根因說明 | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | sum_verification_1609.txt / sum_verification_32.txt 含根因分析 |
-| 039 | LA TRAINER STF 補導入（打粗/照射/貼底 真實工序） | DATA SYSTEM | 排隊中 | | | |
+| 039 | 成型面照射歸段修正（assembly→stf/照射）+ 重新驗算 | DATA SYSTEM | 進行中 | 2026-06-13 | | ie_process UPDATE + sum verification |
+| 040 | LA TRAINER STF flag='待手工' 標記 + 細表顯示橙色 | DATA SYSTEM | 排隊中 | | | |
 
 ## 待 Jim 決定（不擋工）
 

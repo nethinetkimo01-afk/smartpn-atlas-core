@@ -197,7 +197,8 @@ function renderZones(data) {
 
   for (const z of data.zones) {
     const isSpecial = z.zone === '_summary';
-    const hasFlag   = z.rows.some(r => r.flag);
+    const hasFlag      = z.rows.some(r => r.flag && r.flag !== '待手工');
+    const hasPending   = z.rows.some(r => r.flag === '待手工');
     const isLocked  = z.rows.every(r => r.is_locked);
 
     html += `<div class="zone-card">
@@ -206,7 +207,8 @@ function renderZones(data) {
       ${zoneLabel(z.zone)}
       <span class="zone-count">${z.rows.length} 道工序</span>
       ${isLocked ? '<span class="zone-locked">鎖定</span>' : ''}
-      ${hasFlag  ? '<span class="zone-pending">待補</span>'  : ''}
+      ${hasFlag    ? '<span class="zone-pending">待補</span>'  : ''}
+      ${hasPending ? '<span class="zone-pending" style="background:#fff3e0;color:#e65100">待手工</span>' : ''}
     </div>
   </div>`;
 
@@ -251,7 +253,10 @@ function renderCell(row, col, seg, eolr) {
   if (col === 'seq')          return `<td class="seq">${val ?? ''}</td>`;
   if (col === 'process_name') return `<td class="name">${esc(val ?? '')}</td>`;
   if (col === 'part_name')    return `<td class="name" style="color:#888;font-size:10px">${esc(val ?? '')}</td>`;
-  if (col === 'flag')         return `<td class="flag-cell">${esc(val ?? '')}</td>`;
+  if (col === 'flag') {
+    if (val === '待手工') return `<td class="flag-cell" style="color:#e65100;background:#fff3e0">⚠ 待手工</td>`;
+    return `<td class="flag-cell">${esc(val ?? '')}</td>`;
+  }
   if (col === 'machine')      return `<td class="num" style="color:#555;font-family:sans-serif">${esc(val ?? '')}</td>`;
 
   if (col === 'theory_operators') {
