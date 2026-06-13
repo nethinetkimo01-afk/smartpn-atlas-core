@@ -114,6 +114,10 @@ def ie_interface():
 def ie_detail(header_id):
     return send_from_directory('..', 'ie_detail.html')
 
+@app.route('/ie/<int:header_id>/detail')
+def ie_cell_detail(header_id):
+    return send_from_directory('..', 'ie_cell_detail.html')
+
 @app.route('/ie/matrix')
 def ie_matrix_page():
     return send_from_directory('..', 'ie_matrix.html')
@@ -269,6 +273,32 @@ def ie_cutting_arts_api():
 def ie_process_by_header(header_id):
     segment = request.args.get('segment', 'cutting')
     return jsonify(db.get_ie_process_by_header(header_id, segment))
+
+@app.route('/api/ie/cell/<int:header_id>', methods=['GET'])
+def ie_cell_data(header_id):
+    segment = request.args.get('segment', 'cutting')
+    eolr    = request.args.get('eolr', 120)
+    return jsonify(db.get_ie_cell_data(header_id, segment, eolr))
+
+@app.route('/api/ie/stages/<int:header_id>', methods=['GET', 'POST'])
+def ie_stages(header_id):
+    if request.method == 'POST':
+        d = request.get_json(force=True)
+        return jsonify(db.create_ie_stage(header_id, d.get('stage_name', '新版本')))
+    return jsonify(db.get_ie_stages(header_id))
+
+@app.route('/api/ie/cell/save', methods=['POST'])
+def ie_cell_save():
+    d = request.get_json(force=True)
+    return jsonify(db.save_ie_edit(
+        d.get('cell_id'), d.get('stage_id'),
+        d.get('field'), d.get('value'), d.get('user', 'anonymous')
+    ))
+
+@app.route('/api/ie/cell/approve', methods=['POST'])
+def ie_cell_approve():
+    d = request.get_json(force=True)
+    return jsonify(db.approve_ie_edit(d.get('log_id'), d.get('approver', 'system')))
 
 @app.route('/api/ie/matrix', methods=['GET'])
 def ie_matrix_api():

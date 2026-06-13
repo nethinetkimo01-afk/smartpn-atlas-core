@@ -123,7 +123,8 @@ thead tr:last-child th.sub-120{background:#e8f5e9!important;color:#1b5e20!import
       <tr>
         <th id="th-model" rowspan="2" class="th-left" style="min-width:190px">鞋型</th>
         <th id="th-arts"  rowspan="2" class="th-left" style="min-width:150px">ART 列表</th>
-        <th id="th-mat"   rowspan="2" class="th-left" style="min-width:110px">材料類</th>
+        <th id="th-mat"    rowspan="2" class="th-left" style="min-width:110px">材料類</th>
+        <th id="th-season" rowspan="2" style="min-width:60px">生產季度</th>
         <th colspan="4" class="eolr-hdr-60">EOLR = 60</th>
         <th colspan="4" class="eolr-hdr-120">EOLR = 120</th>
       </tr>
@@ -139,7 +140,7 @@ thead tr:last-child th.sub-120{background:#e8f5e9!important;color:#1b5e20!import
       </tr>
     </thead>
     <tbody id="ie-tbody">
-      <tr><td colspan="11" class="loading">載入中...</td></tr>
+      <tr><td colspan="12" class="loading">載入中...</td></tr>
     </tbody>
   </table>
 </div>
@@ -256,10 +257,11 @@ function groupByModel(records){
   const map = new Map();
   records.forEach(r=>{
     const key = normKey(r.model_name);
-    if(!map.has(key)) map.set(key,{model_name:r.model_name||'',arts:[],mat:'',r60:null,r120:null,id60:null,id120:null});
+    if(!map.has(key)) map.set(key,{model_name:r.model_name||'',arts:[],mat:'',season:'',r60:null,r120:null,id60:null,id120:null});
     const g = map.get(key);
     (r.arts||[]).forEach(a=>{ if(!g.arts.includes(a)) g.arts.push(a); });
     if(!g.mat && r.material) g.mat = r.material;
+    if(!g.season && r.season) g.season = r.season;
     const eolr = parseInt(r.eolr, 10);
     if(eolr===60)  { g.r60=r;  g.id60=r.id; }
     if(eolr===120) { g.r120=r; g.id120=r.id; }
@@ -285,10 +287,12 @@ function mp4cells(r, firstCls){
 function renderRow(g){
   const chips = g.arts.map(a=>`<span class="art-chip">${esc(a)}</span>`).join('');
   const linkId = g.id120||g.id60||0;
+  const detailLink = linkId ? `<a href="/ie/${linkId}/detail" style="font-size:10px;color:#7a9bcc;margin-left:5px" title="IE細表">細表</a>` : '';
   return `<tr class="tr-model">`+
-    `<td class="model-cell"><a href="/ie/${linkId}" class="model-link">${fmtModel(g.model_name)}</a></td>`+
+    `<td class="model-cell"><a href="/ie/${linkId}" class="model-link">${fmtModel(g.model_name)}</a>${detailLink}</td>`+
     `<td class="arts-cell">${chips||'<span style="color:#aaa;font-size:11px">—</span>'}</td>`+
     `<td class="mat-cell">${matText(g.mat)}</td>`+
+    `<td style="text-align:center;font-size:11px;font-weight:600;color:#1a4a7a;white-space:nowrap">${esc(g.season||'—')}</td>`+
     mp4cells(g.r60, '')+
     mp4cells(g.r120, 'sep-120')+
     `</tr>`;

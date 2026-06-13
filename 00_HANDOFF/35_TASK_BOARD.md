@@ -45,6 +45,8 @@ Version: v1.0 | 建立: 2026-06-13
 
 ---
 
+| 025 | LA TRAINER OG 四段導入+細表界面 | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | ie_import_la_trainer.py / API 3端點 / ie_cell_detail.html / S1-S6全PASS |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |
