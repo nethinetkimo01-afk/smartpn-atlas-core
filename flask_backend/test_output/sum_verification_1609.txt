@@ -1,0 +1,49 @@
+======================================================================
+SUM C2B Verification Report
+Generated: 2026-06-13
+======================================================================
+
+Header 49 | Model: 1609ER RS Target Output: 960 Prs / 8H (120 Prs / H | EOLR=120 | Target=960
+----------------------------------------------------------------------
+  Segment        Sys Ops   Exp Ops     Diff  Status     Sys TCT   Exp TCT  Sys PPH
+  ------------ --------- --------- --------  -------  --------- ---------  -------
+  cutting        12.2870      12.5    -1.7%  PASS         308.6     282.2  9.766
+  stitching      33.0787      33.5    -1.3%  PASS         932.4     870.2  3.628
+  assembly       35.5204      38.5    -7.7%  DIFF        1005.6     936.1  3.378
+  stf            14.1099      13.0    +8.5%  DIFF         333.3     354.2  8.505
+
+  Total: ops=94.9960  pph=1.263
+  Offline 電腦針車: ops=6.7466  tct=202.4s  pph=17.787
+
+Header 160 | Model: 1609ER RS Target Output: 480 Prs / 8H (60 Prs / Ho | EOLR=60 | Target=480
+----------------------------------------------------------------------
+  Segment        Sys Ops   Exp Ops     Diff  Status     Sys TCT   Exp TCT  Sys PPH
+  ------------ --------- --------- --------  -------  --------- ---------  -------
+  cutting         6.1435       7.0   -12.2%  DIFF         308.6         —  9.766
+  stitching      16.5393      17.5    -5.5%  DIFF         932.4         —  3.628
+  assembly       17.7601      21.5   -17.4%  DIFF        1005.6         —  3.378
+  stf             8.5551       7.0   +22.2%  DIFF         333.3         —  7.013
+
+  Total: ops=48.9980  pph=1.225
+  Offline 電腦針車: ops=3.4100  tct=204.6s  pph=17.595
+
+Header 32 | Model: LA TRAINER   Target Output : 480 Prs / 8H (60 Prs  | EOLR=120 | Target=960
+----------------------------------------------------------------------
+  Segment        Sys Ops   Exp Ops     Diff  Status     Sys TCT   Exp TCT  Sys PPH
+  ------------ --------- --------- --------  -------  --------- ---------  -------
+  cutting        19.6059      18.5    +6.0%  DIFF         468.2         —  6.121
+  stitching      29.9405      33.0    -9.3%  DIFF         838.2         —  4.008
+  assembly       35.9974      41.5   -13.3%  DIFF        1019.9         —  3.334
+  stf             5.0000      16.0   -68.8%  DIFF             —         —  24.000
+
+  Total: ops=90.5438  pph=1.325
+  Offline 電腦針車: ops=9.5333  tct=286.0s  pph=12.587
+
+======================================================================
+EOLR ratio check (should be ~2.0 for formula rows)
+  hdr=49 cutting: 12.2870/6.1435 ratio=2.0 OK
+  hdr=49 stitching: 33.0787/16.5393 ratio=2.0 OK
+  hdr=49 assembly: 35.5204/17.7601 ratio=2.0 OK
+  hdr=32 cutting: 19.6059/11.8034 ratio=1.661 CHECK
+  hdr=32 stitching: 29.9405/15.9706 ratio=1.875 CHECK
+  hdr=32 assembly: 35.9974/18.9986 ratio=1.895 CHECK

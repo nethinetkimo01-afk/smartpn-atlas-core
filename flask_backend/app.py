@@ -300,6 +300,15 @@ def ie_cell_approve():
     d = request.get_json(force=True)
     return jsonify(db.approve_ie_edit(d.get('log_id'), d.get('approver', 'system')))
 
+@app.route('/api/ie/<int:header_id>/sum', methods=['GET'])
+def ie_sum_api(header_id):
+    eolr = request.args.get('eolr', 120)
+    return jsonify(db.get_ie_sum(header_id, eolr))
+
+@app.route('/ie/<int:header_id>/sum')
+def ie_sum_page(header_id):
+    return send_from_directory('..', 'ie_sum.html')
+
 @app.route('/api/ie/matrix', methods=['GET'])
 def ie_matrix_api():
     return jsonify(db.get_ie_matrix())

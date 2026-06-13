@@ -958,6 +958,80 @@ def get_ie_header_meta(header_id):
         conn.close()
 
 
+def get_ie_sum(header_id, eolr=120):
+    """SUM C2B: aggregate theory_operators per segment, with offline (電腦針車) separate."""
+    eolr = int(eolr)
+    target_output = eolr * 8  # pairs / 8-hour shift
+
+    meta = get_ie_header_meta(header_id)
+    if not meta:
+        return {'ok': False, 'error': f'header {header_id} not found'}
+
+    SEGMENTS = ['cutting', 'stitching', 'assembly', 'stf']
+    OFFLINE_ZONES = {'stitching': ['電腦針車']}
+
+    result = {'ok': True, 'header_id': header_id, 'eolr': eolr,
+               'target_output': target_output, 'meta': meta}
+    total_ops = 0.0
+    offline_list = []
+    seg_results = {}
+
+    for seg in SEGMENTS:
+        cell = get_ie_cell_data(header_id, seg, eolr)
+        ops_sum = 0.0
+        tct_sum = 0.0
+        offline_zones = OFFLINE_ZONES.get(seg, [])
+
+        for zone_entry in cell.get('zones', []):
+            zname = zone_entry['zone']
+            if zname == '_summary':
+                continue
+            zone_ops = 0.0
+            zone_tct = 0.0
+            for row in zone_entry['rows']:
+                t = row.get('theory_operators')
+                if t is None:
+                    t = row.get('actual_operators') or 0.0
+                # Only fallback to actual_operators for locked rows (e.g. STF water washing)
+                if t is None and row.get('is_locked'):
+                    t = row.get('actual_operators') or 0.0
+                if t is None:
+                    t = 0.0
+                zone_ops += t
+                zone_tct += row.get('standard_time') or 0.0
+
+            if zname in offline_zones:
+                pph_z = round(target_output / zone_ops / 8, 3) if zone_ops else None
+                offline_list.append({
+                    'name': zname, 'eolr': eolr,
+                    'operators': round(zone_ops, 4),
+                    'tct': round(zone_tct, 2),
+                    'pph': pph_z,
+                })
+            else:
+                ops_sum += zone_ops
+                tct_sum += zone_tct
+
+        pph = round(target_output / ops_sum / 8, 3) if ops_sum else None
+        seg_results[seg] = {
+            'operators': round(ops_sum, 4),
+            'pph': pph,
+            'tct_sum': round(tct_sum, 2),
+        }
+        total_ops += ops_sum
+
+    result['cutting']   = seg_results['cutting']
+    result['stitching'] = seg_results['stitching']
+    result['assembly']  = seg_results['assembly']
+    result['stf']       = seg_results['stf']
+    result['total']     = {
+        'operators': round(total_ops, 4),
+        'pph': round(target_output / total_ops / 8, 3) if total_ops else None,
+    }
+    result['offline'] = offline_list
+    return result
+
+
 def get_db_stats():
     conn = get_conn()
     try:

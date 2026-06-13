@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IE SUM C2B</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background:#f0f2f5;color:#1a1a2e;min-height:100vh}
+.topbar{background:#1a2744;color:#fff;padding:9px 18px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3);flex-wrap:wrap}
+.topbar-model{font-size:14px;font-weight:700;white-space:nowrap}
+.topbar-meta{font-size:11px;color:#7a9bcc}
+.topbar-spacer{flex:1}
+.eolr-toggle{display:flex;gap:2px;background:#0f1e38;border-radius:6px;padding:3px}
+.eolr-btn{background:transparent;color:#7a9bcc;border:none;border-radius:4px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s}
+.eolr-btn.active{background:#4a6cf7;color:#fff}
+.back-link{color:#7a9bcc;text-decoration:none;font-size:11px}
+.back-link:hover{color:#fff}
+.btn-outline{background:transparent;color:#7a9bcc;border:1px solid #3a4f72;border-radius:5px;padding:5px 12px;font-size:12px;cursor:pointer;text-decoration:none}
+
+.content{padding:20px 18px;max-width:1100px;margin:0 auto}
+
+/* Header info block */
+.info-card{background:#fff;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.08);padding:16px 20px;margin-bottom:16px}
+.info-title{font-size:16px;font-weight:700;color:#1a2744;margin-bottom:10px}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.info-item{display:flex;flex-direction:column;gap:2px}
+.info-label{font-size:10px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.05em}
+.info-val{font-size:14px;font-weight:600;color:#1a2744}
+
+/* Segment grid */
+.seg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:800px){.seg-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:500px){.seg-grid{grid-template-columns:1fr}}
+.seg-card{background:#fff;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.08);padding:16px;display:flex;flex-direction:column;gap:10px}
+.seg-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#4a6cf7}
+.seg-ops{font-size:32px;font-weight:800;color:#1a2744;letter-spacing:-0.5px;font-family:'Consolas','Courier New',monospace}
+.seg-ops-label{font-size:10px;color:#888;margin-top:-8px}
+.seg-pph{font-size:14px;font-weight:600;color:#1a6e3c}
+.seg-pph-label{font-size:10px;color:#888}
+.seg-tct{font-size:12px;color:#555}
+.seg-tct-label{font-size:10px;color:#888}
+.seg-divider{height:0.5px;background:#e4e9f2}
+
+/* Total card */
+.total-card{background:#1a2744;color:#fff;border-radius:8px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.total-label{font-size:11px;color:#7a9bcc;font-weight:600;text-transform:uppercase;letter-spacing:0.05em}
+.total-ops{font-size:36px;font-weight:800;font-family:'Consolas','Courier New',monospace}
+.total-pph{font-size:18px;font-weight:700;color:#4ac4c4}
+.total-target{font-size:12px;color:#7a9bcc}
+
+/* Offline block */
+.offline-card{background:#fff;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.08);padding:16px;margin-bottom:16px}
+.offline-title{font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px}
+.offline-table{border-collapse:collapse;width:100%}
+.offline-table th{background:#f5f7fc;color:#555;padding:6px 10px;font-size:10px;font-weight:600;text-align:left;border:1px solid #e4e9f2;text-transform:uppercase}
+.offline-table td{padding:6px 10px;border:1px solid #e4e9f2;font-family:'Consolas','Courier New',monospace;font-size:12px}
+
+/* Verification block */
+.verify-card{background:#fff;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.08);padding:16px;margin-bottom:16px}
+.verify-title{font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px}
+.verify-table{border-collapse:collapse;width:100%}
+.verify-table th{background:#f5f7fc;color:#555;padding:6px 10px;font-size:10px;font-weight:600;text-align:center;border:1px solid #e4e9f2;text-transform:uppercase}
+.verify-table td{padding:6px 10px;border:1px solid #e4e9f2;text-align:center;font-family:'Consolas','Courier New',monospace;font-size:12px}
+.verify-table .pass{color:#1a6e3c;font-weight:700}
+.verify-table .fail{color:#c62828;font-weight:700}
+.verify-table .skip{color:#888}
+
+.loading-msg{padding:40px;text-align:center;color:#888}
+.error-msg{padding:20px;color:#cc2222}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="back-link" id="backDetail" href="/ie">← 細表</a>
+  <div class="topbar-model" id="modelName">載入中…</div>
+  <div class="topbar-meta" id="modelMeta"></div>
+  <div class="topbar-spacer"></div>
+  <div class="eolr-toggle">
+    <button class="eolr-btn" id="eolr60"  onclick="setEolr(60)">EOLR 60</button>
+    <button class="eolr-btn active" id="eolr120" onclick="setEolr(120)">EOLR 120</button>
+  </div>
+</div>
+
+<div class="content">
+  <div id="main"><div class="loading-msg">載入中…</div></div>
+</div>
+
+<script>
+const SEGS = ['cutting','stitching','assembly','stf'];
+const SEG_LABELS = {cutting:'Cutting',stitching:'Stitching',assembly:'Assembly',stf:'STF'};
+const EXPECTED = {
+  120: {cutting:18.5, stitching:33.0, assembly:41.5, stf:16.0},
+  60:  {cutting:null, stitching:null, assembly:null, stf:null},
+};
+
+const pathParts = location.pathname.split('/');
+const HEADER_ID = parseInt(pathParts[pathParts.length - 2]) || 0;
+let eolr = 120;
+
+function setEolr(v) {
+  eolr = v;
+  document.getElementById('eolr60').classList.toggle('active', v===60);
+  document.getElementById('eolr120').classList.toggle('active', v===120);
+  load();
+}
+
+function fmt(n, dp=4) {
+  if (n === null || n === undefined) return '—';
+  return Number(n).toFixed(dp);
+}
+
+function load() {
+  document.getElementById('main').innerHTML = '<div class="loading-msg">計算中…</div>';
+  fetch(`/api/ie/${HEADER_ID}/sum?eolr=${eolr}`)
+    .then(r => r.json())
+    .then(render)
+    .catch(e => { document.getElementById('main').innerHTML = `<div class="error-msg">${e}</div>`; });
+}
+
+function render(d) {
+  if (!d.ok) { document.getElementById('main').innerHTML = `<div class="error-msg">${d.error}</div>`; return; }
+
+  const meta = d.meta || {};
+  document.getElementById('modelName').textContent = meta.model_name || `Header #${HEADER_ID}`;
+  document.getElementById('modelMeta').textContent = [meta.season, meta.material].filter(Boolean).join(' · ');
+  document.getElementById('backDetail').href = `/ie/${HEADER_ID}/detail`;
+
+  const exp = EXPECTED[eolr] || {};
+  let html = '';
+
+  // Info card
+  html += `<div class="info-card">
+    <div class="info-grid">
+      <div class="info-item"><span class="info-label">Model</span><span class="info-val">${meta.model_name||'—'}</span></div>
+      <div class="info-item"><span class="info-label">Season</span><span class="info-val">${meta.season||'—'}</span></div>
+      <div class="info-item"><span class="info-label">Material</span><span class="info-val">${meta.material||'—'}</span></div>
+      <div class="info-item"><span class="info-label">EOLR</span><span class="info-val">${d.eolr}</span></div>
+      <div class="info-item"><span class="info-label">Target Output</span><span class="info-val">${d.target_output} pairs/shift</span></div>
+    </div>
+  </div>`;
+
+  // Segment cards
+  html += '<div class="seg-grid">';
+  for (const seg of SEGS) {
+    const s = d[seg] || {};
+    const ops = s.operators != null ? s.operators : null;
+    const pph = s.pph != null ? s.pph : null;
+    html += `<div class="seg-card">
+      <div class="seg-name">${SEG_LABELS[seg]}</div>
+      <div>
+        <div class="seg-ops">${ops != null ? fmt(ops,2) : '—'}</div>
+        <div class="seg-ops-label">operators</div>
+      </div>
+      <div class="seg-divider"></div>
+      <div>
+        <div class="seg-pph">${pph != null ? fmt(pph,3) : '—'} <span style="font-size:11px;color:#888">PPH</span></div>
+        <div class="seg-pph-label">${d.target_output}÷${ops!=null?fmt(ops,2):'?'}÷8</div>
+      </div>
+      <div>
+        <div class="seg-tct">${fmt(s.tct_sum,2)}</div>
+        <div class="seg-tct-label">Σ TCT (sec)</div>
+      </div>
+    </div>`;
+  }
+  html += '</div>';
+
+  // Total bar
+  const tot = d.total || {};
+  html += `<div class="total-card">
+    <div>
+      <div class="total-label">Total Operators</div>
+      <div class="total-ops">${fmt(tot.operators,2)}</div>
+    </div>
+    <div style="width:0.5px;height:50px;background:rgba(255,255,255,0.15)"></div>
+    <div>
+      <div class="total-label">Overall PPH</div>
+      <div class="total-pph">${fmt(tot.pph,3)}</div>
+      <div class="total-target">${d.target_output} pairs / shift</div>
+    </div>
+  </div>`;
+
+  // Offline
+  if (d.offline && d.offline.length) {
+    html += `<div class="offline-card">
+      <div class="offline-title">Offline Labor</div>
+      <table class="offline-table">
+        <tr><th>Zone</th><th>EOLR</th><th>Operators</th><th>Σ TCT (sec)</th><th>PPH</th></tr>`;
+    for (const o of d.offline) {
+      html += `<tr>
+        <td>${o.name}</td><td>${o.eolr}</td>
+        <td>${fmt(o.operators,2)}</td><td>${fmt(o.tct,2)}</td>
+        <td>${o.pph != null ? fmt(o.pph,3) : '—'}</td>
+      </tr>`;
+    }
+    html += `</table></div>`;
+  }
+
+  // Verification comparison
+  const hasExp = Object.values(exp).some(v => v !== null);
+  if (hasExp) {
+    html += `<div class="verify-card">
+      <div class="verify-title">驗收對照 (EOLR=${eolr})</div>
+      <table class="verify-table">
+        <tr><th>Segment</th><th>System Ops</th><th>Expected Ops</th><th>Diff</th><th>Status</th></tr>`;
+    for (const seg of SEGS) {
+      const sysOps = d[seg]?.operators;
+      const expOps = exp[seg];
+      let diff = '—', status = '<span class="skip">—</span>';
+      if (sysOps != null && expOps != null) {
+        const pct = ((sysOps - expOps) / expOps * 100);
+        diff = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+        const ok = Math.abs(pct) <= 5;
+        status = `<span class="${ok?'pass':'fail'}">${ok?'✓ PASS':'✗ DIFF'}</span>`;
+      }
+      html += `<tr>
+        <td style="text-align:left;font-weight:600">${SEG_LABELS[seg]}</td>
+        <td>${sysOps != null ? fmt(sysOps,4) : '—'}</td>
+        <td>${expOps != null ? expOps : '—'}</td>
+        <td>${diff}</td>
+        <td>${status}</td>
+      </tr>`;
+    }
+    html += '</table></div>';
+  }
+
+  document.getElementById('main').innerHTML = html;
+}
+
+load();
+</script>
+</body>
+</html>

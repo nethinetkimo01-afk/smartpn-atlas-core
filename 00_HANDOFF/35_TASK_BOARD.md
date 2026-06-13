@@ -52,12 +52,12 @@ Version: v1.0 | 建立: 2026-06-13
 | 028 | SMARTPN_SCENARIO_INDEX.html 建立 | 交接文件 | ✅完成 | 2026-06-13 | 2026-06-13 | docs/preview/SMARTPN_SCENARIO_INDEX.html — S01-S17 PPT links only |
 | 029 | INDEX.html 簡化（僅2入口） | 交接文件 | ✅完成 | 2026-06-13 | 2026-06-13 | Brand Demo / Supplier Demo 兩卡片，移除 scenario table |
 | 030 | 任務板更新（026-035） | 管理 | ✅完成 | 2026-06-13 | 2026-06-13 | 本行 |
-| 031 | 修復 /ie/32/detail 路由 + Part2 細表界面確認 | DATA SYSTEM | 排隊中 | | | |
-| 032 | SUM C2B API /api/ie/<id>/sum | DATA SYSTEM | 排隊中 | | | |
-| 033 | SUM C2B 界面 /ie/<id>/sum | DATA SYSTEM | 排隊中 | | | |
-| 034 | SUM C2B 驗收 LA TRAINER OG EOLR=120 | DATA SYSTEM | 排隊中 | | | |
-| 035 | 1609ER RS 四段導入 | DATA SYSTEM | 排隊中 | | | |
-| 036 | SUM C2B 驗算 1609ER（EOLR=60+120 對照） | DATA SYSTEM | 排隊中 | | | |
+| 031 | 修復 /ie/32/detail 路由 + Part2 細表界面確認 | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | Flask重啟(PID 13884)→路由200；細表4段/7區/EOLR切換已驗 |
+| 032 | SUM C2B API /api/ie/<id>/sum | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | database.py get_ie_sum() / app.py GET /api/ie/<id>/sum?eolr= |
+| 033 | SUM C2B 界面 /ie/<id>/sum | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | ie_sum.html / /ie/<id>/sum 路由 / EOLR toggle / 驗收對照表 |
+| 034 | SUM C2B 驗收 LA TRAINER OG EOLR=120 | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | test_output/sum_verification_32.txt — STF=5.0 vs 16.0 待查 |
+| 035 | 1609ER RS 四段導入 | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | ie_import_1609er_rs.py / header49(EOLR=120)+160(EOLR=60) / 寬幅裁斷格式 |
+| 036 | SUM C2B 驗算 1609ER（EOLR=60+120 對照） | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | test_output/sum_verification_1609.txt — EOLR=120: 裁12.29/針33.08/成35.52/貼14.11 |
 
 ## 待 Jim 決定（不擋工）
 
