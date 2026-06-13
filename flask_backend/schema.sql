@@ -147,6 +147,45 @@ CREATE TABLE IF NOT EXISTS art_sheet_status (
     UNIQUE(header_id, sheet_type)
 );
 
+-- ── 勾選分配系統 (Allocation Phase 1) ──────────────────────────────────────────
+-- 勾選明細：一行 = 一個部件 × 一個後製工序（最小勾選單位）
+CREATE TABLE IF NOT EXISTS allocation_item (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    header_id     INTEGER,
+    art           TEXT,
+    lean          TEXT,
+    zone          TEXT,
+    seq           INTEGER,
+    process_name  TEXT,
+    part_name     TEXT,
+    post_process  TEXT,              -- 後製工序名（ATOM/LASER/打粗…），= zone
+    theory_mp     REAL,              -- 理論MP = standard_time ÷ (3600÷eolr)
+    target_unit   TEXT,              -- 目標外移單位
+    is_checked    INTEGER DEFAULT 0, -- 0=留CSA, 1=外移
+    checked_by    TEXT,
+    checked_at    TEXT,
+    confirmed_by  TEXT,
+    confirmed_at  TEXT,
+    month         TEXT,              -- 勾選月份快照（YYYY-MM）
+    UNIQUE(header_id, art, zone, seq, process_name, part_name, month)
+);
+
+-- 勾選彙總（每月，每 LEAN×ART×段×單位 一筆）
+CREATE TABLE IF NOT EXISTS allocation_summary (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    lean      TEXT,
+    art       TEXT,
+    segment   TEXT,
+    unit      TEXT,
+    total_mp  REAL,
+    month     TEXT,
+    confirmed INTEGER DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS idx_alloc_item_lookup ON allocation_item(month, target_unit, lean, art);
+CREATE INDEX IF NOT EXISTS idx_alloc_item_header ON allocation_item(header_id);
+CREATE INDEX IF NOT EXISTS idx_alloc_summary     ON allocation_summary(month, unit, lean, art);
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_ie_sheet_data_hdr  ON ie_sheet_data(header_id, sheet_name);
 CREATE INDEX IF NOT EXISTS idx_ie_sheet_data_type ON ie_sheet_data(cell_type);

@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, session
 from flask_cors import CORS
 import database as db
 import os
@@ -98,7 +98,21 @@ def _parse_excel(path, col_map, pk_field):
     return records, {'total': len(records), 'unmapped_cols': unmapped[:10]}
 
 app = Flask(__name__, static_folder='..', static_url_path='')
-CORS(app)
+app.secret_key = os.environ.get('ATLAS_SECRET', 'smartpn-allocation-demo-key')
+CORS(app, supports_credentials=True)
+
+# ── Allocation users (Phase 1, no password — demo identity switch) ─────────────
+ALLOC_USERS = {
+    'jim':     {'role': 'admin',     'unit': None,        'name': 'Jim (Admin)'},
+    'tongcai': {'role': 'unit_user', 'unit': '同材共裁自動化', 'name': '同材共裁自動化'},
+    'dianno':  {'role': 'unit_user', 'unit': '電腦針車折邊',  'name': '電腦針車折邊'},
+    'dacu':    {'role': 'unit_user', 'unit': '打粗水洗照射',  'name': '打粗水洗照射'},
+}
+def _current_user():
+    u = session.get('alloc_user')
+    if u and u in ALLOC_USERS:
+        return {'username': u, **ALLOC_USERS[u]}
+    return None
 
 # ── Frontend ─────────────────────────────────────────────────────────────────
 
@@ -125,6 +139,10 @@ def ie_matrix_page():
 @app.route('/ie/cutting')
 def ie_cutting_page():
     return send_from_directory('..', 'ie_cutting.html')
+
+@app.route('/allocation')
+def allocation_page():
+    return send_from_directory('..', 'allocation.html')
 
 # ── IE Interface API ─────────────────────────────────────────────────────────
 
@@ -354,6 +372,122 @@ def ie_update_mp():
         data.get('cutting'), data.get('stitching'),
         data.get('assembly'), data.get('stock')
     ))
+
+# ── 勾選分配系統 (Allocation Phase 1) ───────────────────────────────────────────
+
+@app.route('/api/allocation/login', methods=['POST'])
+def alloc_login():
+    d = request.get_json(force=True)
+    u = (d.get('username') or '').strip().lower()
+    if u not in ALLOC_USERS:
+        return jsonify({'ok': False, 'error': 'unknown user'}), 401
+    session['alloc_user'] = u
+    return jsonify({'ok': True, 'username': u, **ALLOC_USERS[u]})
+
+@app.route('/api/allocation/logout', methods=['POST'])
+def alloc_logout():
+    session.pop('alloc_user', None)
+    return jsonify({'ok': True})
+
+@app.route('/api/allocation/me', methods=['GET'])
+def alloc_me():
+    u = _current_user()
+    return jsonify({'ok': True, 'user': u})
+
+@app.route('/api/allocation/units', methods=['GET'])
+def alloc_units():
+    return jsonify({'ok': True, 'units': db.ALLOCATION_UNITS})
+
+@app.route('/api/allocation/leans', methods=['GET'])
+def alloc_leans():
+    return jsonify(db.get_allocation_leans(request.args.get('month')))
+
+@app.route('/api/allocation/prefill', methods=['POST'])
+def alloc_prefill():
+    u = _current_user()
+    if not u or u['role'] != 'admin':
+        return jsonify({'ok': False, 'error': 'admin only'}), 403
+    d = request.get_json(force=True) or {}
+    hid = d.get('header_id')
+    return jsonify(db.prefill_allocation(int(hid) if hid else None, d.get('month')))
+
+@app.route('/api/allocation/items', methods=['GET'])
+def alloc_items():
+    u = _current_user()
+    unit = request.args.get('unit') or None
+    # unit_user is scoped to its own unit regardless of requested unit
+    if u and u['role'] == 'unit_user':
+        unit = u['unit']
+    return jsonify(db.get_allocation_items(
+        month=request.args.get('month'), unit=unit,
+        lean=request.args.get('lean') or None,
+        art=request.args.get('art') or None,
+        header_id=request.args.get('header_id') or None))
+
+@app.route('/api/allocation/check', methods=['POST'])
+def alloc_check():
+    u = _current_user()
+    if not u:
+        return jsonify({'ok': False, 'error': 'not logged in'}), 401
+    d = request.get_json(force=True)
+    item_id = d.get('id')
+    item = db.get_allocation_item(item_id)
+    if not item:
+        return jsonify({'ok': False, 'error': 'item not found'}), 404
+    # Backend-enforced unit permission (not just front-end hiding)
+    if u['role'] != 'admin' and item.get('target_unit') != u['unit']:
+        return jsonify({'ok': False,
+                        'error': f"forbidden: {u['unit']} cannot edit {item.get('target_unit')}"}), 403
+    return jsonify(db.set_allocation_check(item_id, d.get('is_checked'), u['username']))
+
+@app.route('/api/allocation/csa_mp', methods=['GET'])
+def alloc_csa_mp():
+    return jsonify(db.get_csa_mp(
+        lean=request.args.get('lean') or None,
+        art=request.args.get('art') or None,
+        eolr=request.args.get('eolr', 120),
+        month=request.args.get('month')))
+
+@app.route('/api/allocation/export', methods=['GET'])
+def alloc_export():
+    if not HAS_XLSX:
+        return jsonify({'ok': False, 'error': 'openpyxl not installed'}), 500
+    unit = request.args.get('unit', '')
+    if unit not in db.ALLOCATION_UNITS:
+        return jsonify({'ok': False, 'error': 'unknown unit'}), 400
+    month = request.args.get('month')
+    data = db.get_allocation_export_rows(unit, month)
+    import io, openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from flask import send_file
+    wb = openpyxl.Workbook(); ws = wb.active; ws.title = unit[:28]
+    hdr_font = Font(bold=True, color='FFFFFF')
+    hdr_fill = PatternFill('solid', fgColor='1A2744')
+    thin = Side(style='thin', color='C0C8D8'); bord = Border(left=thin, right=thin, bottom=thin, top=thin)
+    if unit == '打粗水洗照射':
+        headers = ['LEAN', 'ART', '工序', 'TCT', '需求人力(=訂單÷(3600÷TCT)÷222)']
+        keys = lambda r: [r.get('lean') or '', r.get('art') or '', r.get('process') or '',
+                          r.get('tct'), r.get('headcount')]
+    else:
+        headers = ['LEAN', 'ART', '部件', '工序', 'TCT', '理論MP']
+        keys = lambda r: [r.get('lean') or '', r.get('art') or '', r.get('part_name') or '',
+                          r.get('process') or '', r.get('tct'), r.get('theory_mp')]
+    for ci, h in enumerate(headers, 1):
+        c = ws.cell(row=1, column=ci, value=h)
+        c.font = hdr_font; c.fill = hdr_fill; c.border = bord
+        c.alignment = Alignment(horizontal='center', vertical='center')
+    for ri, r in enumerate(data.get('rows', []), 2):
+        for ci, v in enumerate(keys(r), 1):
+            ws.cell(row=ri, column=ci, value=v)
+    if not data.get('rows'):
+        ws.cell(row=2, column=1, value='（尚無已勾選外移工序 — 先在 /allocation 勾選並由 admin 預填）')
+    for ci in range(1, len(headers) + 1):
+        ws.column_dimensions[ws.cell(1, ci).column_letter].width = 22 if ci == len(headers) else 14
+    buf = io.BytesIO(); wb.save(buf); buf.seek(0)
+    fname = {'同材共裁自動化': 'unit_同材共裁.xlsx', '電腦針車折邊': 'unit_電腦針車.xlsx',
+             '打粗水洗照射': 'unit_打粗水洗.xlsx'}[unit]
+    return send_file(buf, as_attachment=True, download_name=fname,
+                     mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 # ── DS-03 OB ─────────────────────────────────────────────────────────────────
 

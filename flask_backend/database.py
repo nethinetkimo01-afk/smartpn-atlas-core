@@ -1188,3 +1188,287 @@ def get_db_stats():
         }
     finally:
         conn.close()
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 勾選分配系統 (Allocation Phase 1)
+# ══════════════════════════════════════════════════════════════════════════════
+
+# 後製工序 zone → 外移單位
+ZONE_TO_UNIT = {
+    'ATOM': '同材共裁自動化', 'LASER': '同材共裁自動化', 'EMMA': '同材共裁自動化',
+    '電腦針車': '電腦針車折邊',
+    '打粗': '打粗水洗照射', '照射': '打粗水洗照射',
+}
+# 後製工序 zone → IE 段（用於 CSA MP 扣除歸段）
+ZONE_TO_SEGMENT = {
+    'ATOM': 'cutting', 'LASER': 'cutting', 'EMMA': 'cutting',
+    '電腦針車': 'stitching',
+    '打粗': 'stf', '照射': 'stf',
+}
+ALLOCATION_UNITS = ['同材共裁自動化', '電腦針車折邊', '打粗水洗照射']
+TARGET_ZONES = ['ATOM', 'Laser', 'EMMA', '電腦針車', '打粗', '照射']
+
+
+def _zone_unit(zone):
+    return ZONE_TO_UNIT.get((zone or '').upper(), ZONE_TO_UNIT.get(zone or ''))
+
+def _zone_segment(zone):
+    return ZONE_TO_SEGMENT.get((zone or '').upper(), ZONE_TO_SEGMENT.get(zone or ''))
+
+
+def _ensure_alloc_tables(conn):
+    """Create allocation tables on any DB (works even when init_db never ran here)."""
+    conn.executescript('''
+    CREATE TABLE IF NOT EXISTS allocation_item (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        header_id INTEGER, art TEXT, lean TEXT, zone TEXT, seq INTEGER,
+        process_name TEXT, part_name TEXT, post_process TEXT,
+        theory_mp REAL, target_unit TEXT,
+        is_checked INTEGER DEFAULT 0,
+        checked_by TEXT, checked_at TEXT, confirmed_by TEXT, confirmed_at TEXT,
+        month TEXT,
+        UNIQUE(header_id, art, zone, seq, process_name, part_name, month)
+    );
+    CREATE TABLE IF NOT EXISTS allocation_summary (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        lean TEXT, art TEXT, segment TEXT, unit TEXT, total_mp REAL, month TEXT, confirmed INTEGER DEFAULT 0
+    );
+    CREATE INDEX IF NOT EXISTS idx_alloc_item_lookup ON allocation_item(month, target_unit, lean, art);
+    CREATE INDEX IF NOT EXISTS idx_alloc_item_header ON allocation_item(header_id);
+    ''')
+    conn.commit()
+
+
+def _art_order_qty(conn, art):
+    """Defensive order-qty lookup (DS-04 ob_articles.ob_qty if present, else DS-01 quantity, else 0)."""
+    try:
+        cols = [r[1] for r in conn.execute('PRAGMA table_info(ob_articles)').fetchall()]
+        if 'ob_qty' in cols:
+            r = conn.execute('SELECT SUM(ob_qty) FROM ob_articles WHERE art=?', (art,)).fetchone()
+            if r and r[0]:
+                return float(r[0])
+    except Exception:
+        pass
+    try:
+        r = conn.execute('SELECT SUM(quantity) FROM ds01_sp WHERE article_id=?', (art,)).fetchone()
+        if r and r[0]:
+            return float(r[0])
+    except Exception:
+        pass
+    return 0.0
+
+
+def prefill_allocation(header_id=None, month=None):
+    """Step 2: scan ie_process target zones → seed allocation_item rows.
+    header_id=None → prefill every ob_header. Idempotent (INSERT OR IGNORE on unique key).
+    """
+    conn = get_conn()
+    try:
+        _ensure_alloc_tables(conn)
+        month = month or now_iso()[:7]
+        if header_id:
+            hdr_ids = [header_id]
+        else:
+            hdr_ids = [r[0] for r in conn.execute('SELECT id FROM ob_header').fetchall()]
+
+        inserted = 0
+        for hid in hdr_ids:
+            meta = conn.execute('SELECT eolr FROM ob_header WHERE id=?', (hid,)).fetchone()
+            if not meta:
+                continue
+            eolr = int(meta['eolr'] or 120)
+            divisor = 3600.0 / eolr
+            arts = [r['art'] for r in conn.execute(
+                'SELECT art FROM ob_articles WHERE header_id=? ORDER BY id', (hid,)).fetchall()]
+            if not arts:
+                arts = [None]
+            try:
+                rows = conn.execute('''
+                    SELECT zone, seq, process_name, part_name, standard_time
+                    FROM ie_process
+                    WHERE header_id=? AND (flag IS NULL OR flag != 'deleted')
+                      AND zone IN ({})
+                    ORDER BY zone, seq, id
+                '''.format(','.join('?' * len(TARGET_ZONES))),
+                    [hid] + TARGET_ZONES).fetchall()
+            except Exception:
+                rows = []
+            for art in arts:
+                for r in rows:
+                    zone = r['zone']
+                    st = r['standard_time']
+                    theory_mp = round(st / divisor, 4) if st else None
+                    cur = conn.execute('''
+                        INSERT OR IGNORE INTO allocation_item
+                        (header_id, art, lean, zone, seq, process_name, part_name,
+                         post_process, theory_mp, target_unit, is_checked, month)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,0,?)
+                    ''', (hid, art, None, zone, r['seq'], r['process_name'], r['part_name'],
+                          zone, theory_mp, _zone_unit(zone), month))
+                    inserted += cur.rowcount
+        conn.commit()
+        return {'ok': True, 'inserted': inserted, 'month': month, 'headers': len(hdr_ids)}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def get_allocation_items(month=None, unit=None, lean=None, art=None, header_id=None):
+    """Step 3: return allocation items grouped by ART for the 勾選 grid."""
+    conn = get_conn()
+    try:
+        _ensure_alloc_tables(conn)
+        month = month or now_iso()[:7]
+        where = ['month=?']
+        params = [month]
+        if unit:      where.append('target_unit=?'); params.append(unit)
+        if lean:      where.append('lean=?');         params.append(lean)
+        if art:       where.append('art=?');          params.append(art)
+        if header_id: where.append('header_id=?');    params.append(header_id)
+        rows = conn.execute(
+            'SELECT * FROM allocation_item WHERE ' + ' AND '.join(where) +
+            ' ORDER BY art, zone, seq, id', params).fetchall()
+
+        groups = {}
+        for r in rows:
+            d = dict(r)
+            a = d['art'] or '(無ART)'
+            g = groups.setdefault(a, {'art': a, 'lean': d['lean'], 'items': [],
+                                      'allocated_mp': 0.0, 'csa_mp': 0.0, 'total_mp': 0.0})
+            g['items'].append(d)
+            mp = d['theory_mp'] or 0.0
+            g['total_mp'] += mp
+            if d['is_checked']:
+                g['allocated_mp'] += mp
+            else:
+                g['csa_mp'] += mp
+        out = []
+        for g in groups.values():
+            g['allocated_mp'] = round(g['allocated_mp'], 4)
+            g['csa_mp'] = round(g['csa_mp'], 4)
+            g['total_mp'] = round(g['total_mp'], 4)
+            out.append(g)
+        out.sort(key=lambda x: x['art'])
+        return {'ok': True, 'month': month, 'unit': unit, 'groups': out,
+                'item_count': len(rows)}
+    except Exception as e:
+        return {'ok': False, 'error': str(e), 'groups': []}
+    finally:
+        conn.close()
+
+
+def get_allocation_item(item_id):
+    conn = get_conn()
+    try:
+        _ensure_alloc_tables(conn)
+        r = conn.execute('SELECT * FROM allocation_item WHERE id=?', (item_id,)).fetchone()
+        return dict(r) if r else None
+    finally:
+        conn.close()
+
+
+def set_allocation_check(item_id, is_checked, user='demo'):
+    """Toggle 外移/留CSA for one allocation item."""
+    conn = get_conn()
+    try:
+        _ensure_alloc_tables(conn)
+        conn.execute(
+            'UPDATE allocation_item SET is_checked=?, checked_by=?, checked_at=? WHERE id=?',
+            (1 if is_checked else 0, user, now_iso(), item_id))
+        conn.commit()
+        return {'ok': True, 'id': item_id, 'is_checked': 1 if is_checked else 0}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def get_allocation_leans(month=None):
+    conn = get_conn()
+    try:
+        _ensure_alloc_tables(conn)
+        month = month or now_iso()[:7]
+        rows = conn.execute(
+            'SELECT DISTINCT lean FROM allocation_item WHERE month=? AND lean IS NOT NULL ORDER BY lean',
+            (month,)).fetchall()
+        return {'ok': True, 'leans': [r[0] for r in rows]}
+    finally:
+        conn.close()
+
+
+def _seg_ie_mp(conn, header_id, segment, divisor):
+    try:
+        r = conn.execute(
+            "SELECT SUM(standard_time) FROM ie_process WHERE header_id=? AND segment=? "
+            "AND (flag IS NULL OR flag != 'deleted')", (header_id, segment)).fetchone()
+        s = r[0] if r else None
+        return round((s or 0.0) / divisor, 4) if s else 0.0
+    except Exception:
+        return 0.0
+
+
+def get_csa_mp(lean=None, art=None, eolr=120, month=None):
+    """Step 4: per-segment IE / allocated / CSA MP for one ART."""
+    conn = get_conn()
+    try:
+        _ensure_alloc_tables(conn)
+        eolr = int(eolr)
+        divisor = 3600.0 / eolr
+        month = month or now_iso()[:7]
+        hdr = conn.execute(
+            'SELECT header_id FROM ob_articles WHERE art=? ORDER BY header_id DESC LIMIT 1',
+            (art,)).fetchone()
+        header_id = hdr['header_id'] if hdr else None
+
+        SEGS = ['cutting', 'stitching', 'assembly', 'stf']
+        out = {'ok': True, 'art': art, 'lean': lean, 'eolr': eolr, 'header_id': header_id}
+        for seg in SEGS:
+            ie_mp = _seg_ie_mp(conn, header_id, seg, divisor) if header_id else 0.0
+            seg_zones = [z for z in TARGET_ZONES if _zone_segment(z) == seg]
+            allocated = 0.0
+            if seg_zones:
+                ar = conn.execute(
+                    'SELECT SUM(theory_mp) FROM allocation_item '
+                    'WHERE art=? AND is_checked=1 AND month=? AND zone IN ({})'.format(
+                        ','.join('?' * len(seg_zones))),
+                    [art, month] + seg_zones).fetchone()
+                allocated = round((ar[0] or 0.0), 4) if ar and ar[0] else 0.0
+            out[f'{seg}_ie_mp'] = ie_mp
+            out[f'{seg}_allocated_mp'] = allocated
+            out[f'{seg}_csa_mp'] = round(ie_mp - allocated, 4)
+        return out
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def get_allocation_export_rows(unit, month=None):
+    """Step 5: rows for a unit's reference xlsx (checked items only)."""
+    conn = get_conn()
+    try:
+        _ensure_alloc_tables(conn)
+        month = month or now_iso()[:7]
+        rows = conn.execute('''
+            SELECT ai.lean, ai.art, ai.part_name, ai.zone AS process, ai.theory_mp,
+                   ip.standard_time AS tct
+            FROM allocation_item ai
+            LEFT JOIN ie_process ip
+              ON ip.header_id=ai.header_id AND ip.zone=ai.zone AND ip.seq=ai.seq
+             AND ip.process_name=ai.process_name
+            WHERE ai.target_unit=? AND ai.month=? AND ai.is_checked=1
+            ORDER BY ai.lean, ai.art, ai.zone, ai.seq
+        ''', (unit, month)).fetchall()
+        out = []
+        for r in rows:
+            d = dict(r)
+            d['order_qty'] = _art_order_qty(conn, d['art']) if d['art'] else 0.0
+            tct = d.get('tct') or 0.0
+            # 打粗水洗：需求人力 = 訂單 ÷ (3600 ÷ TCT) ÷ 222
+            d['headcount'] = round(d['order_qty'] / (3600.0 / tct) / 222.0, 4) if tct else None
+            out.append(d)
+        return {'ok': True, 'unit': unit, 'month': month, 'rows': out}
+    finally:
+        conn.close()

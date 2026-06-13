@@ -73,6 +73,8 @@ Version: v1.0 | 建立: 2026-06-13
 | 046 | SMARTPN_DEMO.html（Brand）完整重建 v3 | Brand Demo | ✅完成 | 2026-06-13 | 2026-06-13 | 首頁/搜尋/產品/公司/Find Same新視窗/My Library分享/Requests即時對話/External View；GS1+SmartPN碼；評論公開私密切換 |
 | 047 | SMARTPN_DEMO_SUPPLIER.html 完整重建 v4 | Supplier Demo | ✅完成 | 2026-06-13 | 2026-06-13 | 兩選單：公司建立(5tab)/SmartPN建立(原物料/二次/權限/單價/誰看過)+Boss BI 8指標+Requests；SmartPN碼排除0/1/I/O/E |
 
+| 048 | 勾選分配系統 Phase 1（IE後製工序→部件勾選外移→CSA MP扣除） | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | schema(allocation_item/summary)+database.py(prefill/items/check/csa_mp/export)+app.py(8 routes+session)+allocation.html。Step1-6+5.5全做。zone→unit對應(ATOM/Laser/EMMA→同材共裁,電腦針車→電腦針車折邊,打粗/照射→打粗水洗)。權限：jim admin + tongcai/dianno/dacu unit_user，/check 後端強制 session.unit==target_unit 否則403。合成資料 KH9679 端到端驗證：prefill 7筆/csa cutting 10.115−0.05=10.065/3單位xlsx格式正確/跨部門403。⚠真資料需有 data/atlas.db 的機器(本checkout只有空schema) |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |
