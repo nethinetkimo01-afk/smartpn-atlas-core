@@ -318,23 +318,23 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 <div class="page active fade-in" id="page-home" style="max-width:none;padding:0">
   <div class="cat-thumb-row">
     <div class="cat-thumb-item" onclick="toggleCat('紡織',document.getElementById('cat-紡織'))">
-      <img class="cat-thumb-img" src="https://images.unsplash.com/photo-1517676109801-1f0f82de892c?w=120&h=120&fit=crop" alt="Textile" onerror="this.style.visibility='hidden'">
+      <img class="cat-thumb-img" src="https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=120&h=120&fit=crop&crop=center" alt="Textile" onerror="this.style.visibility='hidden'">
       <span class="cat-thumb-label" data-i18n="cat_textile">Textile</span>
     </div>
     <div class="cat-thumb-item" onclick="toggleCat('人造皮',document.getElementById('cat-人造皮'))">
-      <img class="cat-thumb-img" src="https://images.unsplash.com/photo-1553290322-b2f10a6a6c0c?w=120&h=120&fit=crop" alt="Synthetic Leather" onerror="this.style.visibility='hidden'">
+      <img class="cat-thumb-img" src="https://images.unsplash.com/photo-1553290322-b2f10a6a6c0c?w=120&h=120&fit=crop&crop=center" alt="Synthetic Leather" onerror="this.style.visibility='hidden'">
       <span class="cat-thumb-label" data-i18n="cat_synleather">Synthetic Leather</span>
     </div>
     <div class="cat-thumb-item" onclick="toggleCat('皮料',document.getElementById('cat-皮料'))">
-      <img class="cat-thumb-img" src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=120&h=120&fit=crop" alt="Leather" onerror="this.style.visibility='hidden'">
+      <img class="cat-thumb-img" src="https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=120&h=120&fit=crop&crop=center" alt="Leather" onerror="this.style.visibility='hidden'">
       <span class="cat-thumb-label" data-i18n="cat_leather">Leather</span>
     </div>
     <div class="cat-thumb-item" onclick="toggleCat('薄膜',document.getElementById('cat-薄膜'))">
-      <img class="cat-thumb-img" src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=120&h=120&fit=crop" alt="Film" onerror="this.style.visibility='hidden'">
+      <img class="cat-thumb-img" src="https://images.unsplash.com/photo-1601598851547-4302969d0614?w=120&h=120&fit=crop&crop=center" alt="Film" onerror="this.style.visibility='hidden'">
       <span class="cat-thumb-label" data-i18n="cat_film">Film</span>
     </div>
     <div class="cat-thumb-item" onclick="toggleCat('二次加工',document.getElementById('cat-二次加工'))">
-      <img class="cat-thumb-img" src="https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=120&h=120&fit=crop" alt="Secondary" onerror="this.style.visibility='hidden'">
+      <img class="cat-thumb-img" src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=120&h=120&fit=crop&crop=center" alt="Secondary" onerror="this.style.visibility='hidden'">
       <span class="cat-thumb-label" data-i18n="cat_secondary">Secondary</span>
     </div>
   </div>
@@ -511,7 +511,7 @@ const SUPPLIERS = {
 const MATERIALS = [
   // ── #1 Formosa VN — Recycled Mesh (FSM Identical: #7 same SPU+SKU, diff supplier)
   { id:'SPA-MAT-0001', name:'Recycled Polyester Mesh 220g', sup:'FV', type:'raw', spuCode:'RPET-MESH-220', skuKey:'BLK-58', imgShape:'wave', cat:'紡織', views:203,
-    photo:'https://images.unsplash.com/photo-1517676109801-1f0f82de892c?w=300&h=300&fit=crop',
+    photo:'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=300&h=300&fit=crop&crop=center',
     price:2.00, priceUnit:'m', lt:30, perm:'OPEN', dpp:true, updated:'Jun 13',
     spuFields:{ Category:'Textile', Fiber:'Recycled PET 220g/m²', Construction:'Knit mesh', Standard:'ISO 105-B02', 'GRS Content':'≥50% post-consumer' },
     skuVariants:[
@@ -525,7 +525,7 @@ const MATERIALS = [
   },
   // ── #2 Formosa ID — TPU Film
   { id:'SPA-MAT-0002', name:'TPU Laminating Film 0.15mm', sup:'FI', type:'raw', spuCode:'TPU-FILM-015', skuKey:'CLR-015', imgShape:'rect', cat:'薄膜', views:87,
-    photo:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop',
+    photo:'https://images.unsplash.com/photo-1601598851547-4302969d0614?w=300&h=300&fit=crop&crop=center',
     price:1.45, priceUnit:'m', lt:25, perm:'OPEN', dpp:true, updated:'Jun 12',
     spuFields:{ Category:'Film', 'Base resin':'Thermoplastic polyurethane', Thickness:'0.15mm', Standard:'ASTM D412' },
     skuVariants:[
@@ -535,7 +535,7 @@ const MATERIALS = [
   },
   // ── #3 Formosa VN — PU Synthetic Leather
   { id:'SPA-MAT-0003', name:'PU Synthetic Leather 1.2mm', sup:'FV', type:'raw', spuCode:'PU-SL-12', skuKey:'BLK-MAT', imgShape:'rect', cat:'人造皮', views:118,
-    photo:'https://images.unsplash.com/photo-1553290322-b2f10a6a6c0c?w=300&h=300&fit=crop',
+    photo:'https://images.unsplash.com/photo-1553290322-b2f10a6a6c0c?w=300&h=300&fit=crop&crop=center',
     price:3.80, priceUnit:'m', lt:35, perm:'OPEN', dpp:false, updated:'Jun 11',
     spuFields:{ Category:'Synthetic Leather', Base:'Woven polyester', Coating:'PU top coat', Standard:'QB/T 2729' },
     skuVariants:[
@@ -546,7 +546,7 @@ const MATERIALS = [
   },
   // ── #4 Apex — Full Grain Cow Leather (OPEN review from Brand-B)
   { id:'SPA-MAT-0004', name:'Full Grain Cow Leather', sup:'AP', type:'raw', spuCode:'FGCL-NATURAL', skuKey:'1.2-NAT', imgShape:'wave', cat:'皮料', views:142,
-    photo:'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=300&h=300&fit=crop',
+    photo:'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=300&h=300&fit=crop&crop=center',
     price:8.50, priceUnit:'sqft', lt:45, perm:'OPEN', dpp:true, updated:'Jun 13',
     spuFields:{ Category:'Leather', Origin:'South America', Tannage:'Chrome-free vegetable', Standard:'IUF 450' },
     skuVariants:[
@@ -580,7 +580,7 @@ const MATERIALS = [
   },
   // ── #7 Sunrise — Recycled Mesh (FSM Identical match with #1: cheaper $1.85 but LT 50d, no DPP)
   { id:'SPA-MAT-0007', name:'Recycled Polyester Mesh 220g', sup:'SS', type:'raw', spuCode:'RPET-MESH-220', skuKey:'BLK-58', imgShape:'wave', cat:'紡織', views:89,
-    photo:'https://images.unsplash.com/photo-1517676109801-1f0f82de892c?w=300&h=300&fit=crop',
+    photo:'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=300&h=300&fit=crop&crop=center',
     price:1.85, priceUnit:'m', lt:50, perm:'OPEN', dpp:false, updated:'Jun 9',
     spuFields:{ Category:'Textile', Fiber:'Recycled PET 220g/m²', Construction:'Knit mesh', Standard:'ISO 105-B02', 'GRS Content':'Not certified' },
     skuVariants:[
@@ -603,7 +603,7 @@ const MATERIALS = [
   },
   // ── #9 Formosa ID — Laminated Black Mesh (2nd process)
   { id:'SPA-COMP-0101', name:'Laminated Black Mesh (2nd)', sup:'FI', type:'secondary', spuCode:'COMP-LBM', skuKey:'BLK-LT', imgShape:'wave', cat:'二次加工', views:133,
-    photo:'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=300&h=300&fit=crop',
+    photo:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop&crop=center',
     price:3.30, priceUnit:'m', lt:38, perm:'OPEN', dpp:true, updated:'Jun 12',
     spuFields:{ Category:'Secondary Process', 'Process type':'Lamination', Materials:'Mesh + TPU film', Standard:'Internal QC-2101' },
     skuVariants:[
@@ -613,7 +613,7 @@ const MATERIALS = [
   },
   // ── #10 PRIVATE — Ripstop Nylon (External view cannot see)
   { id:'SPA-MAT-0010', name:'Ripstop Nylon 70D', sup:'FV', type:'raw', spuCode:'RSN-70D', skuKey:'BLK-70', imgShape:'wave', cat:'紡織', views:27,
-    photo:'https://images.unsplash.com/photo-1517676109801-1f0f82de892c?w=300&h=300&fit=crop',
+    photo:'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=300&h=300&fit=crop&crop=center',
     price:2.75, priceUnit:'m', lt:30, perm:'PRIVATE', dpp:false, updated:'Jun 10',
     spuFields:{ Category:'Textile', Fiber:'Nylon 70D', Construction:'Ripstop weave', Standard:'ISO 13934' },
     skuVariants:[
@@ -623,7 +623,7 @@ const MATERIALS = [
   },
   // ── #11 PRIVATE — Bio-based TPU Film (External view cannot see)
   { id:'SPA-MAT-0011', name:'Bio-based TPU Film', sup:'FI', type:'raw', spuCode:'BIO-TPU', skuKey:'CLR-020', imgShape:'rect', cat:'薄膜', views:19,
-    photo:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop',
+    photo:'https://images.unsplash.com/photo-1601598851547-4302969d0614?w=300&h=300&fit=crop&crop=center',
     price:2.90, priceUnit:'m', lt:42, perm:'PRIVATE', dpp:true, updated:'Jun 13',
     spuFields:{ Category:'Film', 'Base resin':'Bio-based TPU', 'Bio content':'≥30%', Thickness:'0.20mm', Standard:'EN 14067' },
     skuVariants:[
@@ -633,7 +633,7 @@ const MATERIALS = [
   },
   // ── #12 PRIVATE — Bonded Knit + Foam (External view cannot see)
   { id:'SPA-COMP-0102', name:'Bonded Knit + Foam (2nd)', sup:'FV', type:'secondary', spuCode:'COMP-BKF', skuKey:'BLK-BKF', imgShape:'wave', cat:'二次加工', views:31,
-    photo:'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=300&h=300&fit=crop',
+    photo:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop&crop=center',
     price:4.85, priceUnit:'m', lt:36, perm:'PRIVATE', dpp:false, updated:'Jun 11',
     spuFields:{ Category:'Secondary Process', 'Process type':'Bonding', Materials:'Jacquard knit + EVA foam', Standard:'Internal QC-0102' },
     skuVariants:[
