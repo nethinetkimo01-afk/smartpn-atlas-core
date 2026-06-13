@@ -47,6 +47,18 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 025 | LA TRAINER OG 四段導入+細表界面 | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | ie_import_la_trainer.py / API 3端點 / ie_cell_detail.html / S1-S6全PASS |
 
+| 026 | SMARTPN_DEMO.html 重建（EN/ZH toggle + Product/Option） | Brand Demo | ✅完成 | 2026-06-13 | 2026-06-13 | 21 patches OK：lang toggle/i18n/SPU→Product/SKU→Option/remove cta-note |
+| 027 | SMARTPN_DEMO_SUPPLIER.html 重建（lang toggle） | Supplier Demo | ✅完成 | 2026-06-13 | 2026-06-13 | topbar lang toggle + i18n script 插入 |
+| 028 | SMARTPN_SCENARIO_INDEX.html 建立 | 交接文件 | ✅完成 | 2026-06-13 | 2026-06-13 | docs/preview/SMARTPN_SCENARIO_INDEX.html — S01-S17 PPT links only |
+| 029 | INDEX.html 簡化（僅2入口） | 交接文件 | ✅完成 | 2026-06-13 | 2026-06-13 | Brand Demo / Supplier Demo 兩卡片，移除 scenario table |
+| 030 | 任務板更新（026-035） | 管理 | ✅完成 | 2026-06-13 | 2026-06-13 | 本行 |
+| 031 | 修復 /ie/32/detail 路由 + Part2 細表界面確認 | DATA SYSTEM | 排隊中 | | | |
+| 032 | SUM C2B API /api/ie/<id>/sum | DATA SYSTEM | 排隊中 | | | |
+| 033 | SUM C2B 界面 /ie/<id>/sum | DATA SYSTEM | 排隊中 | | | |
+| 034 | SUM C2B 驗收 LA TRAINER OG EOLR=120 | DATA SYSTEM | 排隊中 | | | |
+| 035 | 1609ER RS 四段導入 | DATA SYSTEM | 排隊中 | | | |
+| 036 | SUM C2B 驗算 1609ER（EOLR=60+120 對照） | DATA SYSTEM | 排隊中 | | | |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |

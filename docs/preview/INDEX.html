@@ -1,359 +1,67 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SmartPN Atlas — 成果審查中心</title>
+<title>SmartPN Atlas</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',Arial,sans-serif;background:#F5F5F7;color:#1D1D1F;-webkit-font-smoothing:antialiased;font-size:15px}
-.topbar{display:flex;align-items:center;padding:0 40px;height:56px;background:rgba(255,255,255,0.85);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:0.5px solid #D2D2D7;position:sticky;top:0;z-index:100}
-.brand{font-size:18px;font-weight:700;color:#1D1D1F;letter-spacing:-0.4px}
-.brand-sub{font-size:13px;font-weight:400;color:#86868B;margin-left:8px}
-.topbar-spacer{flex:1}
-.version-chip{font-size:12px;background:#F0FFF4;color:#1D7340;border:0.5px solid #A0D9B5;border-radius:8px;padding:3px 10px;font-weight:500}
-.hero{text-align:center;padding:64px 40px 48px;max-width:760px;margin:0 auto}
-.hero-label{font-size:12px;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px}
-.hero-title{font-size:40px;font-weight:700;color:#1D1D1F;letter-spacing:-1.2px;line-height:1.1;margin-bottom:16px}
-.hero-sub{font-size:16px;color:#86868B;line-height:1.6;max-width:560px;margin:0 auto 32px}
-.hero-meta{display:flex;justify-content:center;gap:32px;flex-wrap:wrap}
-.hero-stat{text-align:center}
-.hero-stat-val{font-size:28px;font-weight:700;color:#1D1D1F;letter-spacing:-0.8px}
-.hero-stat-label{font-size:12px;color:#86868B;margin-top:4px}
-.section{padding:0 40px 56px;max-width:1120px;margin:0 auto}
-.section-header{display:flex;align-items:baseline;gap:12px;margin-bottom:24px;padding-bottom:14px;border-bottom:0.5px solid #D2D2D7}
-.section-title{font-size:22px;font-weight:600;color:#1D1D1F;letter-spacing:-0.4px}
-.section-count{font-size:13px;color:#86868B}
-
-/* System Demo cards */
-.demo-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:8px}
-@media(max-width:700px){.demo-grid{grid-template-columns:1fr}}
-.demo-card{background:#FFFFFF;border:0.5px solid #E5E5EA;border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:20px;transition:box-shadow 0.15s,transform 0.15s;cursor:default}
+html,body{min-height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',Arial,sans-serif;background:#F5F5F7;color:#1D1D1F;-webkit-font-smoothing:antialiased;font-size:15px}
+.topbar{display:flex;align-items:center;padding:0 40px;height:52px;background:rgba(255,255,255,0.9);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:0.5px solid #D2D2D7;position:sticky;top:0;z-index:10}
+.brand{font-size:17px;font-weight:600;letter-spacing:-0.3px}
+.content{max-width:800px;margin:0 auto;padding:72px 40px 80px;display:flex;flex-direction:column;align-items:center}
+.hero-title{font-size:40px;font-weight:700;letter-spacing:-1.2px;text-align:center;margin-bottom:10px}
+.hero-sub{font-size:16px;color:#86868B;text-align:center;margin-bottom:56px}
+.demo-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%}
+@media(max-width:640px){.demo-grid{grid-template-columns:1fr}}
+.demo-card{background:#FFFFFF;border:0.5px solid #D2D2D7;border-radius:18px;padding:32px 32px 28px;display:flex;flex-direction:column;gap:20px;transition:box-shadow 0.15s,transform 0.15s}
 .demo-card:hover{box-shadow:0 8px 32px rgba(0,0,0,0.09);transform:translateY(-2px)}
-.demo-card-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px}
-.demo-card-icon.brand{background:linear-gradient(135deg,#0071E3,#34AADC)}
-.demo-card-icon.supplier{background:linear-gradient(135deg,#5856D6,#AF52DE)}
-.demo-card-title{font-size:19px;font-weight:600;color:#1D1D1F;letter-spacing:-0.3px;margin-bottom:4px}
-.demo-card-sub{font-size:13px;color:#86868B;line-height:1.5}
-.demo-card-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
-.tag{font-size:11px;font-weight:500;border-radius:6px;padding:3px 8px;background:#F5F5F7;color:#86868B}
-.tag.green{background:#F0FFF4;color:#1D7340}
-.tag.blue{background:#F0F7FF;color:#0071E3}
-.tag.purple{background:#F3F0FF;color:#5856D6}
-.demo-card-actions{display:flex;gap:10px;margin-top:auto;padding-top:8px}
-.btn-open{display:inline-flex;align-items:center;gap:6px;background:#1D1D1F;color:#FFFFFF;border:none;border-radius:20px;padding:10px 20px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;text-decoration:none;transition:opacity 0.15s}
-.btn-open:hover{opacity:0.8}
-.btn-open.secondary{background:#FFFFFF;color:#1D1D1F;border:0.5px solid #D2D2D7}
-.btn-open.secondary:hover{background:#F5F5F7}
-
-/* Scenario table */
-.scenario-table{width:100%;border-collapse:collapse;background:#FFFFFF;border-radius:16px;overflow:hidden;border:0.5px solid #E5E5EA}
-.scenario-table th{font-size:11px;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:0.06em;padding:12px 20px;background:#FAFAFA;text-align:left;border-bottom:0.5px solid #E5E5EA}
-.scenario-table td{padding:14px 20px;border-bottom:0.5px solid #F5F5F7;vertical-align:middle}
-.scenario-table tr:last-child td{border-bottom:none}
-.scenario-table tr:hover td{background:#F5F5F7}
-.s-num{font-size:13px;font-weight:700;color:#86868B;width:48px}
-.s-name{font-size:14px;font-weight:500;color:#1D1D1F}
-.s-desc{font-size:12px;color:#86868B;margin-top:3px}
-.s-links{display:flex;gap:8px;white-space:nowrap}
-.s-link{font-size:12px;font-weight:500;color:#0071E3;text-decoration:none;border:0.5px solid #BDD7F7;border-radius:6px;padding:4px 12px;background:#F0F7FF;transition:background 0.12s}
-.s-link:hover{background:#DBE9FF}
-.s-link.ppt{background:#F3F0FF;color:#5856D6;border-color:#C9C0F7}
-.s-link.ppt:hover{background:#E2D9FF}
-.s-qc{font-size:11px;font-weight:600;background:#F0FFF4;color:#1D7340;border-radius:5px;padding:2px 7px}
-.s-qc.warn{background:#FFF8E7;color:#F5A623}
-
-/* Footer */
-.footer{text-align:center;padding:32px 40px 48px;font-size:12px;color:#86868B;line-height:1.8}
-
-/* Divider */
-.divider{height:0.5px;background:#D2D2D7;margin:0 40px 40px}
+.demo-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.demo-icon.brand-icon{background:#0071E3}
+.demo-icon.sup-icon{background:#1D1D1F}
+.demo-title{font-size:20px;font-weight:600;letter-spacing:-0.4px;color:#1D1D1F}
+.demo-desc{font-size:14px;color:#86868B;line-height:1.6}
+.demo-cta{display:inline-flex;align-items:center;gap:6px;background:#0071E3;color:#FFFFFF;font-size:14px;font-weight:500;padding:10px 20px;border-radius:20px;text-decoration:none;width:fit-content;transition:opacity 0.1s}
+.demo-cta:hover{opacity:0.85}
+.demo-cta.dark{background:#1D1D1F}
 </style>
 </head>
 <body>
-
 <div class="topbar">
   <span class="brand">SmartPN Atlas</span>
-  <span class="brand-sub">成果審查中心</span>
-  <div class="topbar-spacer"></div>
-  <span class="version-chip">v2.1 · 2026-06-13</span>
 </div>
-
-<!-- Hero -->
-<div class="hero">
-  <div class="hero-label">Jim 審查入口</div>
-  <div class="hero-title">所有成果，一頁進入</div>
-  <div class="hero-sub">從這一頁點進 2 個系統 Demo 和 S01–S17 全部 PPT 與互動場景，無需記憶檔名。</div>
-  <div class="hero-meta">
-    <div class="hero-stat"><div class="hero-stat-val">2</div><div class="hero-stat-label">系統 Demo</div></div>
-    <div class="hero-stat"><div class="hero-stat-val">17</div><div class="hero-stat-label">場景 PPT</div></div>
-    <div class="hero-stat"><div class="hero-stat-val">17</div><div class="hero-stat-label">互動 Demo</div></div>
-    <div class="hero-stat"><div class="hero-stat-val">QC PASS</div><div class="hero-stat-label">S01–S17</div></div>
-  </div>
-</div>
-
-<!-- System Demos -->
-<div class="section">
-  <div class="section-header">
-    <span class="section-title">系統 Demo</span>
-    <span class="section-count">2 個入口</span>
-  </div>
+<div class="content">
+  <div class="hero-title">SmartPN Atlas</div>
+  <div class="hero-sub">Material Intelligence Platform</div>
   <div class="demo-grid">
-
     <!-- Brand Demo -->
     <div class="demo-card">
-      <div>
-        <div class="demo-card-icon brand">👟</div>
+      <div class="demo-icon brand-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </div>
       <div>
-        <div class="demo-card-title">Brand Portal</div>
-        <div class="demo-card-sub">品牌端完整系統：搜尋材料、Compare、FSM 同款比對、DPP 查看、外部視角切換、評論分組。採用 37 號數據世界（12 材料 / 4 供應商 / 4 評論）。</div>
-        <div class="demo-card-tags">
-          <span class="tag green">DPP-ready</span>
-          <span class="tag blue">FSM #1 vs #7</span>
-          <span class="tag">外部視角</span>
-          <span class="tag">PRIVATE 隱藏</span>
-          <span class="tag green">37 號數據</span>
-        </div>
+        <div class="demo-title">Brand Portal</div>
+        <div class="demo-desc" style="margin-top:6px">Search, compare, and source materials. FSM, DPP, ratings, and supplier profiles.</div>
       </div>
-      <div class="demo-card-actions">
-        <a href="SMARTPN_DEMO.html" class="btn-open" target="_blank">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          開啟 Brand Demo
-        </a>
-      </div>
+      <a class="demo-cta" href="SMARTPN_DEMO.html">Open Brand Demo</a>
     </div>
-
     <!-- Supplier Demo -->
     <div class="demo-card">
-      <div>
-        <div class="demo-card-icon supplier">🏭</div>
+      <div class="demo-icon sup-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="6" width="18" height="13" rx="2" stroke="white" stroke-width="1.5"/>
+          <path d="M8 6V5a4 4 0 018 0v1" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
       </div>
       <div>
-        <div class="demo-card-title">Supplier Portal</div>
-        <div class="demo-card-sub">供應商端完整系統：Formosa Group 母子結構（FV + FI）、7 筆 Formosa 材料、Boss BI 全儀表板（$4.08M / 利潤比 / 帳齡 / 集中度 / 報價到期）、誰看過我的材料。</div>
-        <div class="demo-card-tags">
-          <span class="tag purple">Boss BI</span>
-          <span class="tag">FV + FI 母子</span>
-          <span class="tag">7 筆材料</span>
-          <span class="tag">報價到期提醒</span>
-          <span class="tag green">37 號數據</span>
-        </div>
+        <div class="demo-title">Supplier Portal</div>
+        <div class="demo-desc" style="margin-top:6px">Create and manage materials. Boss BI, quote tracking, and who-viewed analytics.</div>
       </div>
-      <div class="demo-card-actions">
-        <a href="SMARTPN_DEMO_SUPPLIER.html" class="btn-open" target="_blank">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          開啟 Supplier Demo
-        </a>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<div class="divider"></div>
-
-<!-- Scenario Table -->
-<div class="section">
-  <div class="section-header">
-    <span class="section-title">S01–S17 場景全覽</span>
-    <span class="section-count">每個場景有 PPT + 互動 Demo</span>
-  </div>
-  <table class="scenario-table">
-    <thead>
-      <tr>
-        <th style="width:52px">#</th>
-        <th>場景名稱</th>
-        <th style="width:180px">連結</th>
-        <th style="width:80px">QC</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="s-num">S01</td>
-        <td><div class="s-name">Find Same Material (FSM)</div><div class="s-desc">供應商找同款材料 — Identical / Alternative 比對邏輯</div></td>
-        <td class="s-links">
-          <a href="S01_PPT.html" class="s-link ppt" target="_blank">PPT</a>
-          <a href="S01_DEMO.html" class="s-link" target="_blank">Demo</a>
-        </td>
-        <td><span class="s-qc">PASS</span></td>
-      </tr>
-      <tr>
-        <td class="s-num">S02</td>
-        <td><div class="s-name">Material Transparency</div><div class="s-desc">DPP 數位護照 — 成份溯源 / 認證查看</div></td>
-        <td class="s-links">
-          <a href="S02_PPT.html" class="s-link ppt" target="_blank">PPT</a>
-          <a href="S02_DEMO.html" class="s-link" target="_blank">Demo</a>
-        </td>
-        <td><span class="s-qc">PASS</span></td>
-      </tr>
-      <tr>
-        <td class="s-num">S03</td>
-        <td><div class="s-name">Supplier Rating & Review</div><div class="s-desc">同公司評論 / 公開評論分組 — 交期/品質量化</div></td>
-        <td class="s-links">
-          <a href="S03_PPT.html" class="s-link ppt" target="_blank">PPT</a>
-          <a href="S03_DEMO.html" class="s-link" target="_blank">Demo</a>
-        </td>
-        <td><span class="s-qc">PASS</span></td>
-      </tr>
-      <tr>
-        <td class="s-num">S04</td>
-        <td><div class="s-name">Price Benchmarking</div><div class="s-desc">多供應商同款材料報價比較</div></td>
-        <td class="s-links">
-          <a href="S04_PPT.html" class="s-link ppt" target="_blank">PPT</a>
-          <a href="S04_DEMO.html" class="s-link" target="_blank">Demo</a>
-        </td>
-        <td><span class="s-qc">PASS</span></td>
-      </tr>
-      <tr>
-        <td class="s-num">S05</td>
-        <td><div class="s-name">Lead Time Visibility</div><div class="s-desc">交期查看與 LT 排序 — 快/慢供應商一眼看</div></td>
-        <td class="s-links">
-          <a href="S05_PPT.html" class="s-link ppt" target="_blank">PPT</a>
-          <a href="S05_DEMO.html" class="s-link" target="_blank">Demo</a>
-        </td>
-        <td><span class="s-qc">PASS</span></td>
-      </tr>
-      <tr>
-        <td class="s-num">S06</td>
-        <td><div class="s-name">Supplier Profile</div><div class="s-desc">供應商公司頁 — 材料列表 / 認證 / 評分</div></td>
-        <td class="s-links">
-          <a href="S06_PPT.html" class="s-link ppt" target="_blank">PPT</a>
-          <a href="S06_DEMO.html" class="s-link" target="_blank">Demo</a>
-        </td>
-        <td><span class="s-qc">PASS</span></td>
-      </tr>
-      <tr>
-        <td class="s-num">S07</td>
-        <td><div class="s-name">Quote Request</div><div class="s-desc">Brand 向 Supplier 發起報價請求</div></td>
-        <td class="s-links">
-          <a href="S07_PPT.html" class="s-link ppt" target="_blank">PPT</a>
-          <a href="S07_DEMO.html" class="s-link" target="_blank">Demo</a>
-        </td>
-        <td><span class="s-qc">PASS</span></td>
-      </tr>
-      <tr>
-        <td class="s-num">S08</td>
-        <td><div class="s-name">Material Search & Filter</div><div class="s-desc">搜尋 + 多維篩選（類別/DPP/LT/價格）</div></td>
-        <td class="s-links">
-          <a href="S08_PPT.html" class="s-link ppt" target="_blank">PPT</a>
-          <a href="S08_DEMO.html" class="s-link" target="_blank">Demo</a>
-        </td>
-        <td><span class="s-qc">PASS</span></td>
-      </tr>
-      <tr>
-        <td class="s-num">S09</td>
-        <td><div class="s-name">Permission Management</div><div class="s-desc">GRANT 欄位資料夾授權 — 精細到欄位層級</div></td>
-        <td class="s-links">
-          <a href="S09_PPT.html" class="s-link ppt" target="_blank">PPT</a>
-          <a href="S09_DEMO.html" class="s-link" target="_blank">Demo</a>
-        </td>
-        <td><span class="s-qc">PASS</span></td>
-      </tr>
-      <tr>
-        <td class="s-num">S10</td>
-        <td><div class="s-name">Data Completeness</div><div class="s-desc">供應商資料完整度追蹤 — 補齊欄位提升曝光</div></td>
-        <td class="s-links">
-          <a href="S10_PPT.html" class="s-link ppt" target="_blank">PPT</a>
-          <a href="S10_DEMO.html" class="s-link" target="_blank">Demo</a>
-        </td>
-        <td><span class="s-qc">PASS</span></td>
-      </tr>
-      <tr>
-        <td class="s-num">S11</td>
-        <td><div class="s-name">Who Viewed My Material</div><div class="s-desc">隱私三層分級 — 供應商知道有人看但不知道是誰</div></td>
-        <td class="s-links">
-          <a href="S11_PPT.html" class="s-link ppt" target="_blank">PPT</a>
-          <a href="S11_DEMO.html" class="s-link" target="_blank">Demo</a>
-        </td>
-        <td><span class="s-qc">PASS</span></td>
-      </tr>
-      <tr>
-        <td class="s-num">S12</td>
-        <td><div class="s-name">Boss BI Dashboard</div><div class="s-desc">經營儀表板 — 總營業額 / 利潤比 / 帳齡 / 集中度</div></td>
-        <td class="s-links">
-          <a href="S12_PPT.html" class="s-link ppt" target="_blank">PPT</a>
-          <a href="S12_DEMO.html" class="s-link" target="_blank">Demo</a>
-        </td>
-        <td><span class="s-qc">PASS</span></td>
-      </tr>
-      <tr>
-        <td class="s-num">S13</td>
-        <td><div class="s-name">Cash Flow & AR Aging</div><div class="s-desc">現金流明細含入帳預計日期 / 應收帳款帳齡桶</div></td>
-        <td class="s-links">
-          <a href="S13_PPT.html" class="s-link ppt" target="_blank">PPT</a>
-          <a href="S13_DEMO.html" class="s-link" target="_blank">Demo</a>
-        </td>
-        <td><span class="s-qc">PASS</span></td>
-      </tr>
-      <tr>
-        <td class="s-num">S14</td>
-        <td><div class="s-name">Win Rate & Quotation Expiry</div><div class="s-desc">報價成交率環 + 有效期到期提醒</div></td>
-        <td class="s-links">
-          <a href="S14_PPT.html" class="s-link ppt" target="_blank">PPT</a>
-          <a href="S14_DEMO.html" class="s-link" target="_blank">Demo</a>
-        </td>
-        <td><span class="s-qc">PASS</span></td>
-      </tr>
-      <tr>
-        <td class="s-num">S15</td>
-        <td><div class="s-name">Customer Concentration</div><div class="s-desc">客戶集中度警示 — 前三大佔比 / 分散建議</div></td>
-        <td class="s-links">
-          <a href="S15_PPT.html" class="s-link ppt" target="_blank">PPT</a>
-          <a href="S15_DEMO.html" class="s-link" target="_blank">Demo</a>
-        </td>
-        <td><span class="s-qc">PASS</span></td>
-      </tr>
-      <tr>
-        <td class="s-num">S16</td>
-        <td><div class="s-name">Secondary Processing (2nd)</div><div class="s-desc">二次加工 SmartPN ID 順序編碼 / 加工前後追蹤</div></td>
-        <td class="s-links">
-          <a href="S16_PPT.html" class="s-link ppt" target="_blank">PPT</a>
-          <a href="S16_DEMO.html" class="s-link" target="_blank">Demo</a>
-        </td>
-        <td><span class="s-qc">PASS</span></td>
-      </tr>
-      <tr>
-        <td class="s-num">S17</td>
-        <td><div class="s-name">External View (隱藏 PRIVATE)</div><div class="s-desc">外部視角切換 — #10-12 PRIVATE 材料對外不可見</div></td>
-        <td class="s-links">
-          <a href="S17_PPT.html" class="s-link ppt" target="_blank">PPT</a>
-          <a href="S17_DEMO.html" class="s-link" target="_blank">Demo</a>
-        </td>
-        <td><span class="s-qc">PASS</span></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<div class="divider"></div>
-
-<!-- Data World note -->
-<div class="section" style="padding-bottom:16px">
-  <div class="section-header">
-    <span class="section-title">數據世界說明</span>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
-    <div style="background:#FFFFFF;border:0.5px solid #E5E5EA;border-radius:14px;padding:20px">
-      <div style="font-size:13px;font-weight:600;color:#0071E3;margin-bottom:8px">37_DEMO_MOCK_DATA.md</div>
-      <div style="font-size:13px;color:#1D1D1F;line-height:1.6">Brand Demo + Supplier Demo 共用同一套數據。12 材料 / 4 供應商 / 4 評論，數字可互相驗證。</div>
-    </div>
-    <div style="background:#FFFFFF;border:0.5px solid #E5E5EA;border-radius:14px;padding:20px">
-      <div style="font-size:13px;font-weight:600;color:#5856D6;margin-bottom:8px">S01–S17 PPT 數據</div>
-      <div style="font-size:13px;color:#1D1D1F;line-height:1.6">PPT 使用通用標籤（Data 1/2/3、spu-01）— 噪音最小化，不套用真實名稱。</div>
-    </div>
-    <div style="background:#FFFFFF;border:0.5px solid #E5E5EA;border-radius:14px;padding:20px">
-      <div style="font-size:13px;font-weight:600;color:#1D7340;margin-bottom:8px">Formosa Group 主視角</div>
-      <div style="font-size:13px;color:#1D1D1F;line-height:1.6">Supplier Demo 登入者 = Formosa Materials Group。FV（越南）60% / FI（印尼）40%。</div>
+      <a class="demo-cta dark" href="SMARTPN_DEMO_SUPPLIER.html">Open Supplier Demo</a>
     </div>
   </div>
 </div>
-
-<div class="footer">
-  SmartPN Atlas · 成果審查中心 v2.1 · 2026-06-13<br>
-  維護：Claude Code · 授權：Jim<br>
-  <span style="color:#D2D2D7">所有數據均為 Demo 模擬，不代表真實商業數字</span>
-</div>
-
 </body>
 </html>

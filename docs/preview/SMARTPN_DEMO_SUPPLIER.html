@@ -256,6 +256,7 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
       <div class="sup-role-tag">Data Creator · Lisa Chen</div>
     </div>
   </div>
+  <button id="lang-toggle-sup" onclick="toggleLangSup()" style="background:none;border:0.5px solid #D2D2D7;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;color:#1D1D1F;cursor:pointer;letter-spacing:0.04em;margin-left:8px">中文</button>
 </div>
 
 <div class="layout">
@@ -841,6 +842,24 @@ function setPrivacy(mode, el) {
   el.classList.add('active');
   document.getElementById('privacy-company').style.display = mode === 'company' ? '' : 'none';
   document.getElementById('privacy-fuzzy').style.display = mode === 'fuzzy' ? '' : 'none';
+}
+</script>
+<script>
+/* ─── Supplier i18n ─── */
+let LANG_SUP = 'en';
+const SUP_STRINGS = {
+  product: { en:'Product', zh:'商品' },
+  option:  { en:'Option',  zh:'規格' },
+};
+function TS(key) { return (SUP_STRINGS[key] || {})[LANG_SUP] || key; }
+function toggleLangSup() {
+  LANG_SUP = LANG_SUP === 'en' ? 'zh' : 'en';
+  const btn = document.getElementById('lang-toggle-sup');
+  if (btn) btn.textContent = LANG_SUP === 'en' ? '中文' : 'EN';
+  document.querySelectorAll('[data-i18n-sup]').forEach(el => {
+    const key = el.dataset.i18nSup;
+    if (SUP_STRINGS[key]) el.textContent = TS(key);
+  });
 }
 </script>
 </body>

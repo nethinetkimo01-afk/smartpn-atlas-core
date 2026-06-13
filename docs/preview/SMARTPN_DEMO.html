@@ -283,6 +283,8 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
       <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.9 2.9l1.4 1.4M11.7 11.7l1.4 1.4M11.7 4.3l-1.4 1.4M4.3 11.7l-1.4 1.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
       Settings
     </button>
+    <div style="width:0.5px;height:16px;background:rgba(255,255,255,0.15);margin:0 4px"></div>
+    <button id="lang-toggle" class="nav-btn" onclick="toggleLang()" style="font-weight:700;font-size:11px;letter-spacing:0.04em;background:rgba(255,255,255,0.08);border-radius:6px;padding:5px 10px">中文</button>
   </div>
 </nav>
 
@@ -307,7 +309,7 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
   <button class="fc" id="sort-lt" onclick="toggleSort('lt',this)">LT ↕</button>
   <button class="fc" id="sort-price" onclick="toggleSort('price',this)">Price ↕</button>
   <div class="filter-sep"></div>
-  <button class="fc" id="ext-view-btn" onclick="toggleExtView(this)" title="模擬外部訪客視角，看不到 PRIVATE 材料">外部視角</button>
+  <button class="fc" id="ext-view-btn" onclick="toggleExtView(this)" data-i18n="extView" title="Simulate external visitor view — PRIVATE materials hidden">External View</button>
 </div>
 
 <!-- ══ PAGES ══ -->
@@ -322,15 +324,15 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
   </div>
   <div class="home-section">
     <div class="home-section-header">
-      <div class="home-section-title">最新上架</div>
-      <button class="home-see-all" onclick="showPage('search');applyFilters()">全部查看 →</button>
+      <div class="home-section-title" data-i18n="latest">Latest</div>
+      <button class="home-see-all" data-i18n="seeAll" onclick="showPage('search');applyFilters()">See All</button>
     </div>
     <div class="featured-grid" id="home-latest"></div>
   </div>
   <div class="home-section">
     <div class="home-section-header">
-      <div class="home-section-title">最多人使用</div>
-      <button class="home-see-all" onclick="showPage('search');applyFilters()">全部查看 →</button>
+      <div class="home-section-title" data-i18n="popular">Most Popular</div>
+      <button class="home-see-all" data-i18n="seeAll" onclick="showPage('search');applyFilters()">See All</button>
     </div>
     <div class="featured-grid" id="home-popular"></div>
   </div>
@@ -340,14 +342,14 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 <div class="page" id="page-search" style="max-width:none;padding:0">
   <div class="search-layout">
     <div class="cat-sidebar">
-      <div class="cat-sidebar-title">材料分類</div>
+      <div class="cat-sidebar-title" data-i18n="category">Category</div>
       <button class="cat-btn active" id="cat-all" onclick="toggleCat(null,this)">All <span class="cat-count" id="cnt-all">16</span></button>
       <div class="cat-sep"></div>
-      <button class="cat-btn" id="cat-皮料" onclick="toggleCat('皮料',this)">皮料 <span class="cat-count" id="cnt-皮料">2</span></button>
-      <button class="cat-btn" id="cat-人造皮" onclick="toggleCat('人造皮',this)">人造皮 <span class="cat-count" id="cnt-人造皮">2</span></button>
-      <button class="cat-btn" id="cat-紡織" onclick="toggleCat('紡織',this)">紡織 <span class="cat-count" id="cnt-紡織">2</span></button>
-      <button class="cat-btn" id="cat-薄膜" onclick="toggleCat('薄膜',this)">薄膜 <span class="cat-count" id="cnt-薄膜">4</span></button>
-      <button class="cat-btn" id="cat-二次加工" onclick="toggleCat('二次加工',this)">二次加工 <span class="cat-count" id="cnt-二次加工">3</span></button>
+      <button class="cat-btn" id="cat-皮料" onclick="toggleCat('皮料',this)"><span data-i18n="cat_leather">Leather</span> <span class="cat-count" id="cnt-皮料">2</span></button>
+      <button class="cat-btn" id="cat-人造皮" onclick="toggleCat('人造皮',this)"><span data-i18n="cat_synleather">Synthetic Leather</span> <span class="cat-count" id="cnt-人造皮">2</span></button>
+      <button class="cat-btn" id="cat-紡織" onclick="toggleCat('紡織',this)"><span data-i18n="cat_textile">Textile</span> <span class="cat-count" id="cnt-紡織">2</span></button>
+      <button class="cat-btn" id="cat-薄膜" onclick="toggleCat('薄膜',this)"><span data-i18n="cat_film">Film</span> <span class="cat-count" id="cnt-薄膜">4</span></button>
+      <button class="cat-btn" id="cat-二次加工" onclick="toggleCat('二次加工',this)"><span data-i18n="cat_secondary">Secondary</span> <span class="cat-count" id="cnt-二次加工">3</span></button>
     </div>
     <div class="search-main">
       <div id="fsm-banner-area"></div>
@@ -399,7 +401,7 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
   <div style="max-width:1080px;margin:0 auto;padding:0 40px">
     <div class="compare-page-header">
       <div class="compare-page-title">Compare Materials</div>
-      <div class="compare-page-sub">Recycled Polyester Mesh 220g — Find Same Material 案例：同款不同供應商</div>
+      <div class="compare-page-sub">Side-by-side comparison · 3 materials</div>
     </div>
   </div>
   <div class="compare-wrapper" style="max-width:1080px;margin:0 auto;padding:0 40px 40px">
@@ -696,8 +698,8 @@ function toggleDppFilter(el) {
 function toggleExtView(el) {
   externalView = !externalView;
   el.classList.toggle('active', externalView);
-  el.textContent = externalView ? '外部視角 ●' : '外部視角';
-  el.title = externalView ? '外部視角：PRIVATE材料已隱藏 (模擬#10-12不可見)' : '模擬外部訪客視角，看不到 PRIVATE 材料';
+  el.textContent = externalView ? T('extView') + ' ●' : T('extView');
+  el.title = externalView ? 'External View: PRIVATE hidden (#10-12 not visible)' : 'Simulate external visitor — PRIVATE materials hidden';
   applyFilters();
 }
 
@@ -823,8 +825,8 @@ function renderGrid(mats, fsm) {
     const identBanner = fsmContext ? `
       <div class="fsm-banner">
         <span class="fsm-banner-label">Find Same Material</span>
-        <span class="fsm-tag">SPU: ${fsmContext.spuCode}</span>
-        <span class="fsm-tag">SKU: ${fsmContext.skuKey}</span>
+        <span class="fsm-tag">${T('product')}: ${fsmContext.spuCode}</span>
+        <span class="fsm-tag">${T('option')}: ${fsmContext.skuKey}</span>
         <span class="fsm-clear" onclick="clearFsm()">Clear</span>
       </div>` : '';
     document.getElementById('fsm-banner-area').innerHTML = identBanner;
@@ -919,7 +921,7 @@ function renderSpuPage(m) {
     <div class="spu-info">
       <div class="spu-type-tag">${m.type === 'secondary' ? 'Secondary Process' : 'Raw Material'}</div>
       <div class="spu-title">${m.name}</div>
-      <div class="spu-code">${m.id} · SPU: ${m.spuCode}</div>
+      <div class="spu-code">${m.id} · ${T("product")}: ${m.spuCode}</div>
       <div class="spu-perm ${m.perm.toLowerCase()}">${m.perm}</div>
       <div>Maintained by <button class="supplier-link" onclick="openCompanyFromSpu('${m.sup}')">${sup.name}</button></div>
       <div class="spu-maintained">${sup.location}</div>
@@ -994,7 +996,7 @@ function renderSkuPage(m, sku) {
     <div class="spu-info">
       <div class="spu-type-tag">${m.type === 'secondary' ? 'Secondary Process' : 'Raw Material'} · Variant</div>
       <div class="spu-title">${m.name}</div>
-      <div class="spu-code">${m.id} · SKU: ${sku.key}</div>
+      <div class="spu-code">${m.id} · ${T("option")}: ${sku.key}</div>
       <div class="spu-perm ${m.perm.toLowerCase()}">${m.perm}</div>
       <div>Maintained by <button class="supplier-link" onclick="openCompanyFromSku('${m.sup}')">${sup.name}</button></div>
       <div class="spu-maintained">Updated ${m.updated}</div>
@@ -1017,7 +1019,7 @@ function renderSkuPage(m, sku) {
           <button class="btn-fsm" onclick="findSameMaterial('${m.id}','${m.spuCode}','${sku.key}')">Find Same Material</button>
           <button class="btn-compare" onclick="showPage('compare')">Compare</button>
         </div>
-        <div class="cta-note">Adding to Library saves this variant (SPU + SKU) for quick access.</div>
+
       </div>
     </div>`;
 
@@ -1059,7 +1061,7 @@ function findSameMaterial(fromId, spuCode, skuKey) {
   const identical = MATERIALS.filter(m => m.spuCode === spuCode && m.skuKey === skuKey && m.id !== fromId);
   const alt = MATERIALS.filter(m => m.spuCode === spuCode && m.skuKey !== skuKey && m.id !== fromId);
 
-  let html = `<div style="font-size:13px;color:#86868B;margin-bottom:16px">SPU: <strong>${spuCode}</strong> · SKU: <strong>${skuKey}</strong></div>`;
+  let html = `<div style="font-size:13px;color:#86868B;margin-bottom:16px">${T("product")}: <strong>${spuCode}</strong> · ${T("option")}: <strong>${skuKey}</strong></div>`;
 
   if (identical.length) {
     html += `<div style="font-size:12px;font-weight:600;color:#1D7340;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">Identical (${identical.length})</div>`;
@@ -1184,6 +1186,40 @@ function renderLibrary() {
 /* ═══════════════════════
    INIT
 ═══════════════════════ */
+
+/* ═══════════════════════
+   I18N
+═══════════════════════ */
+let LANG = 'en';
+const STRINGS = {
+  product:       { en:'Product',           zh:'商品' },
+  option:        { en:'Option',            zh:'規格' },
+  latest:        { en:'Latest',            zh:'最新上架' },
+  popular:       { en:'Most Popular',      zh:'最多人使用' },
+  seeAll:        { en:'See All',           zh:'全部查看' },
+  category:      { en:'Category',          zh:'材料分類' },
+  extView:       { en:'External View',     zh:'外部視角' },
+  cat_leather:   { en:'Leather',           zh:'皮料' },
+  cat_synleather:{ en:'Synthetic Leather', zh:'人造皮' },
+  cat_textile:   { en:'Textile',           zh:'紡織' },
+  cat_film:      { en:'Film',              zh:'薄膜' },
+  cat_secondary: { en:'Secondary',         zh:'二次加工' },
+};
+function T(key) { return (STRINGS[key] || {})[LANG] || key; }
+function toggleLang() {
+  LANG = LANG === 'en' ? 'zh' : 'en';
+  const btn = document.getElementById('lang-toggle');
+  if (btn) btn.textContent = LANG === 'en' ? '中文' : 'EN';
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if (STRINGS[key]) el.textContent = T(key);
+  });
+  renderHomepage();
+  if (currentPage === 'search') renderGrid();
+  if (currentPage === 'spu' && currentMat) renderSpuPage(currentMat);
+  if (currentPage === 'sku' && currentMat && currentSku) renderSkuPage(currentMat, currentSku);
+}
+
 renderGrid();
 renderLibrary();
 renderHomepage();
