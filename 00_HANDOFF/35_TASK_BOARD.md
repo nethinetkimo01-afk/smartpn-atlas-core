@@ -34,7 +34,7 @@ Version: v1.0 | 建立: 2026-06-13
 | 014 | ie_process 重複行原因查證 | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | 根因=腳本跑兩次，8081行×2=16162，等Jim授權修正 |
 | 015 | 36 測試/Boss演示腳本 入庫 | 交接文件 | ✅完成 | 2026-06-13 | 2026-06-13 | 00_HANDOFF/36_UX_TEST_AND_BOSS_DEMO_SCRIPT.md + 索引更新 |
 | 016 | ie_process去重重導（方案1+2） | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | 8081行乾淨，UNIQUE INDEX防重，ie_import_cutting.py INSERT OR IGNORE |
-| 017 | Cutting段收尾掃描（待分區統計+L欄清單） | DATA SYSTEM | 進行中 | 2026-06-13 | — | 唯讀不寫入 |
+| 017 | Cutting段收尾掃描（待分區統計+L欄清單） | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | ATOM87/自動化651/L欄68種值，數字=刀數標準，見報告 |
 
 ---
 

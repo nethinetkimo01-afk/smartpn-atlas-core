@@ -35,6 +35,11 @@ def create_table(conn):
     conn.execute("CREATE INDEX IF NOT EXISTS idx_iep_hdr  ON ie_process(header_id)")
     conn.execute("CREATE INDEX IF NOT EXISTS idx_iep_art  ON ie_process(art)")
     conn.execute("CREATE INDEX IF NOT EXISTS idx_iep_seg  ON ie_process(segment, zone)")
+    # Unique guard: prevents double-import if script is re-run
+    conn.execute("""
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_iep_unique
+        ON ie_process(header_id, segment, source_sheet, source_row)
+    """)
     conn.commit()
     print("[Step 1] ie_process table ready.")
 
@@ -153,7 +158,7 @@ def import_cutting(conn):
 
                 seq_counter += 1
                 conn.execute("""
-                    INSERT INTO ie_process
+                    INSERT OR IGNORE INTO ie_process
                       (header_id, art, segment, zone, stage, seq, process_name, part_name,
                        tct, value_type, formula, source_sheet, source_row, flag)
                     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
