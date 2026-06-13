@@ -39,6 +39,7 @@ Version: v1.0 | 建立: 2026-06-13
 | 019 | 37_DEMO_MOCK_DATA.md 入庫+索引 | 交接文件 | ✅完成 | 2026-06-13 | 2026-06-13 | 00_HANDOFF/37_DEMO_MOCK_DATA.md + 00_ENTRY_POINT.md更新 |
 | 020 | SMARTPN_DEMO.html 替換37號數據世界 | Brand Demo | ✅完成 | 2026-06-13 | 2026-06-13 | 12材料/4供應商/4評論/FSM#1vs#7/外部視角切換/#10-12PRIVATE |
 | 021 | SMARTPN_DEMO_SUPPLIER.html 替換37號數據 | Supplier Demo | 排隊中 | — | — | Formosa母子結構/8材料/Boss BI全數字 |
+| 024 | IE標準樣本選取（四段覆蓋統計） | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | 全195份均四段全覆蓋；前10名按sheet數/manual格排列；1609ER RS=hdr49/160 |
 | 022 | docs/preview/INDEX.html 審查中心 | 交接文件 | 排隊中 | — | — | Apple風格清單，連結所有Demo+PPT |
 | 023 | 任務板最終回報 | 管理 | 排隊中 | — | — | 收斂後輸出 |
 
