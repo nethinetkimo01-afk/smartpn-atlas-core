@@ -318,23 +318,23 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 <div class="page active fade-in" id="page-home" style="max-width:none;padding:0">
   <div class="cat-thumb-row">
     <div class="cat-thumb-item" onclick="toggleCat('紡織',document.getElementById('cat-紡織'))">
-      <img class="cat-thumb-img" src="https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=120&h=120&fit=crop&crop=center" alt="Textile" onerror="this.style.visibility='hidden'">
+      <img class="cat-thumb-img" data-pat="textile" alt="Textile">
       <span class="cat-thumb-label" data-i18n="cat_textile">Textile</span>
     </div>
     <div class="cat-thumb-item" onclick="toggleCat('人造皮',document.getElementById('cat-人造皮'))">
-      <img class="cat-thumb-img" src="https://images.unsplash.com/photo-1553290322-b2f10a6a6c0c?w=120&h=120&fit=crop&crop=center" alt="Synthetic Leather" onerror="this.style.visibility='hidden'">
+      <img class="cat-thumb-img" data-pat="synleather" alt="Synthetic Leather">
       <span class="cat-thumb-label" data-i18n="cat_synleather">Synthetic Leather</span>
     </div>
     <div class="cat-thumb-item" onclick="toggleCat('皮料',document.getElementById('cat-皮料'))">
-      <img class="cat-thumb-img" src="https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=120&h=120&fit=crop&crop=center" alt="Leather" onerror="this.style.visibility='hidden'">
+      <img class="cat-thumb-img" data-pat="leather" alt="Leather">
       <span class="cat-thumb-label" data-i18n="cat_leather">Leather</span>
     </div>
     <div class="cat-thumb-item" onclick="toggleCat('薄膜',document.getElementById('cat-薄膜'))">
-      <img class="cat-thumb-img" src="https://images.unsplash.com/photo-1601598851547-4302969d0614?w=120&h=120&fit=crop&crop=center" alt="Film" onerror="this.style.visibility='hidden'">
+      <img class="cat-thumb-img" data-pat="film" alt="Film">
       <span class="cat-thumb-label" data-i18n="cat_film">Film</span>
     </div>
     <div class="cat-thumb-item" onclick="toggleCat('二次加工',document.getElementById('cat-二次加工'))">
-      <img class="cat-thumb-img" src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=120&h=120&fit=crop&crop=center" alt="Secondary" onerror="this.style.visibility='hidden'">
+      <img class="cat-thumb-img" data-pat="secondary" alt="Secondary">
       <span class="cat-thumb-label" data-i18n="cat_secondary">Secondary</span>
     </div>
   </div>
@@ -511,7 +511,6 @@ const SUPPLIERS = {
 const MATERIALS = [
   // ── #1 Formosa VN — Recycled Mesh (FSM Identical: #7 same SPU+SKU, diff supplier)
   { id:'SPA-MAT-0001', name:'Recycled Polyester Mesh 220g', sup:'FV', type:'raw', spuCode:'RPET-MESH-220', skuKey:'BLK-58', imgShape:'wave', cat:'紡織', views:203,
-    photo:'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=300&h=300&fit=crop&crop=center',
     price:2.00, priceUnit:'m', lt:30, perm:'OPEN', dpp:true, updated:'Jun 13',
     spuFields:{ Category:'Textile', Fiber:'Recycled PET 220g/m²', Construction:'Knit mesh', Standard:'ISO 105-B02', 'GRS Content':'≥50% post-consumer' },
     skuVariants:[
@@ -525,7 +524,6 @@ const MATERIALS = [
   },
   // ── #2 Formosa ID — TPU Film
   { id:'SPA-MAT-0002', name:'TPU Laminating Film 0.15mm', sup:'FI', type:'raw', spuCode:'TPU-FILM-015', skuKey:'CLR-015', imgShape:'rect', cat:'薄膜', views:87,
-    photo:'https://images.unsplash.com/photo-1601598851547-4302969d0614?w=300&h=300&fit=crop&crop=center',
     price:1.45, priceUnit:'m', lt:25, perm:'OPEN', dpp:true, updated:'Jun 12',
     spuFields:{ Category:'Film', 'Base resin':'Thermoplastic polyurethane', Thickness:'0.15mm', Standard:'ASTM D412' },
     skuVariants:[
@@ -535,7 +533,6 @@ const MATERIALS = [
   },
   // ── #3 Formosa VN — PU Synthetic Leather
   { id:'SPA-MAT-0003', name:'PU Synthetic Leather 1.2mm', sup:'FV', type:'raw', spuCode:'PU-SL-12', skuKey:'BLK-MAT', imgShape:'rect', cat:'人造皮', views:118,
-    photo:'https://images.unsplash.com/photo-1553290322-b2f10a6a6c0c?w=300&h=300&fit=crop&crop=center',
     price:3.80, priceUnit:'m', lt:35, perm:'OPEN', dpp:false, updated:'Jun 11',
     spuFields:{ Category:'Synthetic Leather', Base:'Woven polyester', Coating:'PU top coat', Standard:'QB/T 2729' },
     skuVariants:[
@@ -546,7 +543,6 @@ const MATERIALS = [
   },
   // ── #4 Apex — Full Grain Cow Leather (OPEN review from Brand-B)
   { id:'SPA-MAT-0004', name:'Full Grain Cow Leather', sup:'AP', type:'raw', spuCode:'FGCL-NATURAL', skuKey:'1.2-NAT', imgShape:'wave', cat:'皮料', views:142,
-    photo:'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=300&h=300&fit=crop&crop=center',
     price:8.50, priceUnit:'sqft', lt:45, perm:'OPEN', dpp:true, updated:'Jun 13',
     spuFields:{ Category:'Leather', Origin:'South America', Tannage:'Chrome-free vegetable', Standard:'IUF 450' },
     skuVariants:[
@@ -559,7 +555,6 @@ const MATERIALS = [
   },
   // ── #5 Apex — Jacquard Knit Upper
   { id:'SPA-MAT-0005', name:'Jacquard Knit Upper 380g', sup:'AP', type:'raw', spuCode:'JKU-380', skuKey:'BLK-JQ', imgShape:'wave', cat:'紡織', views:76,
-    photo:'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=300&h=300&fit=crop',
     price:4.20, priceUnit:'m', lt:28, perm:'OPEN', dpp:true, updated:'Jun 12',
     spuFields:{ Category:'Textile', Fiber:'Polyester/Nylon blend 380g/m²', Construction:'Jacquard knit', Standard:'ISO 13934' },
     skuVariants:[
@@ -570,7 +565,6 @@ const MATERIALS = [
   },
   // ── #6 Sunrise — EVA Foam Sheet
   { id:'SPA-MAT-0006', name:'EVA Foam Sheet 4mm', sup:'SS', type:'raw', spuCode:'EVA-FOAM-4', skuKey:'WHT-4MM', imgShape:'rect', cat:'薄膜', views:55,
-    photo:'https://images.unsplash.com/photo-1604881991720-f91add269bed?w=300&h=300&fit=crop',
     price:1.10, priceUnit:'m', lt:40, perm:'OPEN', dpp:false, updated:'Jun 10',
     spuFields:{ Category:'Foam', Material:'Ethylene vinyl acetate', Thickness:'4mm', Standard:'ASTM D1056' },
     skuVariants:[
@@ -580,7 +574,6 @@ const MATERIALS = [
   },
   // ── #7 Sunrise — Recycled Mesh (FSM Identical match with #1: cheaper $1.85 but LT 50d, no DPP)
   { id:'SPA-MAT-0007', name:'Recycled Polyester Mesh 220g', sup:'SS', type:'raw', spuCode:'RPET-MESH-220', skuKey:'BLK-58', imgShape:'wave', cat:'紡織', views:89,
-    photo:'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=300&h=300&fit=crop&crop=center',
     price:1.85, priceUnit:'m', lt:50, perm:'OPEN', dpp:false, updated:'Jun 9',
     spuFields:{ Category:'Textile', Fiber:'Recycled PET 220g/m²', Construction:'Knit mesh', Standard:'ISO 105-B02', 'GRS Content':'Not certified' },
     skuVariants:[
@@ -592,7 +585,6 @@ const MATERIALS = [
   },
   // ── #8 Apex — Microfiber Suede
   { id:'SPA-MAT-0008', name:'Microfiber Suede 0.8mm', sup:'AP', type:'raw', spuCode:'MFS-08', skuKey:'GRY-08', imgShape:'wave', cat:'人造皮', views:62,
-    photo:'https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=300&h=300&fit=crop',
     price:5.60, priceUnit:'m', lt:32, perm:'OPEN', dpp:true, updated:'Jun 11',
     spuFields:{ Category:'Synthetic Leather', Material:'Microfiber suede', Thickness:'0.8mm', Standard:'QB/T 2726' },
     skuVariants:[
@@ -603,7 +595,6 @@ const MATERIALS = [
   },
   // ── #9 Formosa ID — Laminated Black Mesh (2nd process)
   { id:'SPA-COMP-0101', name:'Laminated Black Mesh (2nd)', sup:'FI', type:'secondary', spuCode:'COMP-LBM', skuKey:'BLK-LT', imgShape:'wave', cat:'二次加工', views:133,
-    photo:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop&crop=center',
     price:3.30, priceUnit:'m', lt:38, perm:'OPEN', dpp:true, updated:'Jun 12',
     spuFields:{ Category:'Secondary Process', 'Process type':'Lamination', Materials:'Mesh + TPU film', Standard:'Internal QC-2101' },
     skuVariants:[
@@ -613,7 +604,6 @@ const MATERIALS = [
   },
   // ── #10 PRIVATE — Ripstop Nylon (External view cannot see)
   { id:'SPA-MAT-0010', name:'Ripstop Nylon 70D', sup:'FV', type:'raw', spuCode:'RSN-70D', skuKey:'BLK-70', imgShape:'wave', cat:'紡織', views:27,
-    photo:'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=300&h=300&fit=crop&crop=center',
     price:2.75, priceUnit:'m', lt:30, perm:'PRIVATE', dpp:false, updated:'Jun 10',
     spuFields:{ Category:'Textile', Fiber:'Nylon 70D', Construction:'Ripstop weave', Standard:'ISO 13934' },
     skuVariants:[
@@ -623,7 +613,6 @@ const MATERIALS = [
   },
   // ── #11 PRIVATE — Bio-based TPU Film (External view cannot see)
   { id:'SPA-MAT-0011', name:'Bio-based TPU Film', sup:'FI', type:'raw', spuCode:'BIO-TPU', skuKey:'CLR-020', imgShape:'rect', cat:'薄膜', views:19,
-    photo:'https://images.unsplash.com/photo-1601598851547-4302969d0614?w=300&h=300&fit=crop&crop=center',
     price:2.90, priceUnit:'m', lt:42, perm:'PRIVATE', dpp:true, updated:'Jun 13',
     spuFields:{ Category:'Film', 'Base resin':'Bio-based TPU', 'Bio content':'≥30%', Thickness:'0.20mm', Standard:'EN 14067' },
     skuVariants:[
@@ -633,7 +622,6 @@ const MATERIALS = [
   },
   // ── #12 PRIVATE — Bonded Knit + Foam (External view cannot see)
   { id:'SPA-COMP-0102', name:'Bonded Knit + Foam (2nd)', sup:'FV', type:'secondary', spuCode:'COMP-BKF', skuKey:'BLK-BKF', imgShape:'wave', cat:'二次加工', views:31,
-    photo:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop&crop=center',
     price:4.85, priceUnit:'m', lt:36, perm:'PRIVATE', dpp:false, updated:'Jun 11',
     spuFields:{ Category:'Secondary Process', 'Process type':'Bonding', Materials:'Jacquard knit + EVA foam', Standard:'Internal QC-0102' },
     skuVariants:[
@@ -745,7 +733,7 @@ function renderHomepage() {
     const sup = SUPPLIERS[m.sup];
     const avg = avgStars(m.reviews);
     return `<div class="featured-card" onclick="openSpu('${m.id}')">
-      <img class="featured-card-img" src="${m.photo}" alt="${m.name}" onerror="this.style.visibility='hidden'">
+      <img class="featured-card-img" src="${matURI(m,300)}" alt="${m.name}">
       <div class="featured-card-body">
         <div class="featured-card-name">${m.name}</div>
         <div class="featured-card-sup">${sup.name}</div>
@@ -826,6 +814,52 @@ function imgSVG(shape) {
   return svgs[shape] || svgs.circle;
 }
 
+/* ═══════════════════════
+   SVG MATERIAL TEXTURES (inline, no external URL)
+═══════════════════════ */
+const TEX_MAP = {
+  textile:    { bg:'#f0ede8', tile:8,  cell:"<path d='M0 0H8M0 0V8' stroke='#a8a09a' stroke-width='0.6'/><circle cx='4' cy='4' r='0.7' fill='#a8a09a'/>" },
+  synleather: { bg:'#3d2e24', tile:16, cell:"<path d='M8 1L15 8L8 15L1 8Z' fill='none' stroke='#5a4035' stroke-width='1.2'/>" },
+  leather:    { bg:'#8b6340', tile:20, cell:"<circle cx='5' cy='6' r='1.6' fill='#7a5534'/><circle cx='13' cy='4' r='1.1' fill='#9b7050'/><circle cx='9' cy='13' r='1.8' fill='#7a5534'/><circle cx='16' cy='15' r='1.2' fill='#9b7050'/><circle cx='3' cy='16' r='1' fill='#9b7050'/>" },
+  secondary:  { bg:'#2c3e35', tile:12, cell:"<path d='M0 0L12 12M12 0L0 12' stroke='#3d5248' stroke-width='1.1'/>" },
+  jacquard:   { bg:'#1a3a5c', tile:10, cell:"<path d='M-2 8L8 -2M3 13L13 3' stroke='#243f6b' stroke-width='2'/>" },
+  eva:        { bg:'#f5f0e8', tile:20, cell:"<path d='M10 2 L17 6 L17 14 L10 18 L3 14 L3 6 Z' fill='none' stroke='#d4c9b8' stroke-width='1'/>" },
+  microfiber: { bg:'#6b4c3b', tile:6,  cell:"<circle cx='3' cy='3' r='0.9' fill='#7d5a48'/><circle cx='0' cy='0' r='0.9' fill='#7d5a48'/><circle cx='6' cy='6' r='0.9' fill='#7d5a48'/>" },
+};
+function texSVG(key, size) {
+  if (key === 'film') {
+    return `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 300 300'>`
+      + `<defs><linearGradient id='fg' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#e8eef5'/><stop offset='0.5' stop-color='#f5f8fa'/><stop offset='1' stop-color='#d8e4ee'/></linearGradient>`
+      + `<pattern id='fp' width='30' height='30' patternUnits='userSpaceOnUse'><path d='M0 0H30M0 0V30' stroke='#c8d8e8' stroke-width='0.7' fill='none'/></pattern></defs>`
+      + `<rect width='300' height='300' fill='url(#fg)'/><rect width='300' height='300' fill='url(#fp)'/></svg>`;
+  }
+  const t = TEX_MAP[key] || TEX_MAP.textile;
+  return `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 300 300'>`
+    + `<defs><pattern id='p' width='${t.tile}' height='${t.tile}' patternUnits='userSpaceOnUse'><rect width='${t.tile}' height='${t.tile}' fill='${t.bg}'/>${t.cell}</pattern></defs>`
+    + `<rect width='300' height='300' fill='${t.bg}'/><rect width='300' height='300' fill='url(#p)'/></svg>`;
+}
+function texURI(key, size) { return 'data:image/svg+xml,' + encodeURIComponent(texSVG(key, size)); }
+function texturePattern(m) {
+  const n = (m.name || '').toLowerCase();
+  if (n.includes('jacquard')) return 'jacquard';
+  if (n.includes('eva') || n.includes('foam')) return 'eva';
+  if (n.includes('microfiber') || n.includes('suede')) return 'microfiber';
+  if (m.type === 'secondary' || m.cat === '二次加工') return 'secondary';
+  if (m.cat === '皮料') return 'leather';
+  if (m.cat === '人造皮') return 'synleather';
+  if (m.cat === '薄膜' || n.includes('film') || n.includes('tpu')) return 'film';
+  return 'textile';
+}
+function matURI(m, size) { return texURI(texturePattern(m), size || 300); }
+function catPatternByName(alt) {
+  const a = (alt || '').toLowerCase();
+  if (a.includes('synthetic')) return 'synleather';
+  if (a.includes('leather'))   return 'leather';
+  if (a.includes('film'))      return 'film';
+  if (a.includes('secondary')) return 'secondary';
+  return 'textile';
+}
+
 function permLabel(p) {
   if (p === 'OPEN') return '<span class="mc-perm open">OPEN</span>';
   if (p === 'SHARED') return '<span class="mc-perm shared">SHARED</span>';
@@ -890,8 +924,7 @@ function cardHtml(m) {
   return `
   <div class="mat-card" onclick="openSpu('${m.id}')">
     <div class="mc-img" style="position:relative;height:140px;overflow:hidden;padding:0">
-      <img src="${m.photo}" alt="${m.name}" style="width:100%;height:140px;object-fit:cover;display:block;background:#F5F5F7" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <div style="display:none;width:100%;height:140px;align-items:center;justify-content:center;background:#F5F5F7">${imgSVG(m.imgShape)}</div>
+      <img src="${matURI(m,300)}" alt="${m.name}" style="width:100%;height:140px;object-fit:cover;display:block;background:#F5F5F7">
       ${m.dpp ? '<div class="dpp-badge" style="position:absolute;top:8px;left:8px">DPP-ready</div>' : ''}
       ${m.type === 'secondary' ? '<div class="secondary-tag" style="position:absolute;top:8px;right:8px">Secondary</div>' : ''}
     </div>
@@ -931,7 +964,7 @@ function renderSpuPage(m) {
   const priceStr = m.price !== null ? `USD ${m.price.toFixed(2)} / ${m.priceUnit||'m'}` : '—';
   document.getElementById('spu-hero').innerHTML = `
     <div class="spu-img">
-      ${imgSVG(m.imgShape)}
+      <img src="${matURI(m,300)}" alt="${m.name}" style="width:100%;height:100%;object-fit:cover">
       ${m.dpp ? '<div class="spu-dpp-badge">DPP-ready</div>' : ''}
     </div>
     <div class="spu-info">
@@ -960,6 +993,12 @@ function renderSpuPage(m) {
   // Reviews — split 同公司 (SHARED) vs 公開 (OPEN)
   const sameCoRev = m.reviews.filter(r => r.perm === 'SHARED');
   const publicRev = m.reviews.filter(r => r.perm !== 'SHARED');
+  function permBadge(r) {
+    const isPublic = r.perm !== 'SHARED';
+    return isPublic
+      ? `<span class="review-perm" style="color:#1D7340;background:#F0FFF4">🌐 公開 · 供應商可見</span>`
+      : `<span class="review-perm" style="color:#0071E3;background:#F0F7FF">🔒 私密 · 僅同公司</span>`;
+  }
   function revCard(r) {
     return `<div class="review-item">
       <div class="review-header">
@@ -968,6 +1007,7 @@ function renderSpuPage(m) {
           <div class="review-name">${r.name}</div>
           <div style="font-size:12px;color:#86868B">${r.org}</div>
         </div>
+        ${permBadge(r)}
         <div class="review-date">${r.date}</div>
       </div>
       <div class="review-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</div>
@@ -980,9 +1020,13 @@ function renderSpuPage(m) {
     <div class="review-list">${reviews.map(revCard).join('')}</div>`;
   }
   let revHtml = `<div class="spec-section-title" style="margin-top:28px">Reviews <span style="font-size:13px;color:#86868B;font-weight:400">(${m.reviews.length})</span></div>`;
+  revHtml += `<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:4px 0 4px">
+    <button class="view-specs-btn" style="padding:8px 20px;font-size:13px" onclick="alert('撰寫評論：可選擇「公開（供應商可見）」或「私密（僅同公司）」')">＋ 撰寫評論</button>
+    <span style="font-size:12px;color:#86868B">🌐 公開評論供應商也看得到；🔒 私密評論僅同公司成員可見。</span>
+  </div>`;
   if (m.reviews.length) {
-    revHtml += revSection('同公司', '#0071E3', '#F0F7FF', sameCoRev);
-    revHtml += revSection('公開', '#1D7340', '#F0FFF4', publicRev);
+    revHtml += revSection('🔒 同公司（私密）', '#0071E3', '#F0F7FF', sameCoRev);
+    revHtml += revSection('🌐 公開（供應商可見）', '#1D7340', '#F0FFF4', publicRev);
   } else {
     revHtml += `<div style="padding:20px 0;color:#86868B;font-size:14px">No reviews yet for this material.</div>`;
   }
@@ -1006,7 +1050,7 @@ function renderSkuPage(m, sku) {
   document.getElementById('sku-back-btn').textContent = '‹ ' + m.name;
   document.getElementById('sku-hero').innerHTML = `
     <div class="spu-img">
-      ${imgSVG(m.imgShape)}
+      <img src="${matURI(m,300)}" alt="${m.name}" style="width:100%;height:100%;object-fit:cover">
       ${m.dpp ? '<div class="spu-dpp-badge">DPP-ready</div>' : ''}
     </div>
     <div class="spu-info">
@@ -1020,7 +1064,7 @@ function renderSkuPage(m, sku) {
       <div class="sku-picker-section">
         <div class="sku-picker-label">Select Variant</div>
         <div class="sku-options" id="sku-opts-wrap">
-          ${m.skuVariants.map(v => `<button class="sku-opt ${v.key === sku.key ? 'selected' : ''}" onclick="selectSku('${m.id}','${v.key}')">${v.label}</button>`).join('')}
+          ${m.skuVariants.map(v => `<button class="sku-opt ${v.key === sku.key ? 'selected' : ''}" onclick="selectSku('${m.id}','${v.key}')"><img src="${matURI(m,80)}" style="width:18px;height:18px;border-radius:4px;object-fit:cover;vertical-align:middle;margin-right:6px" alt="">${v.label}</button>`).join('')}
         </div>
       </div>
 
@@ -1099,7 +1143,7 @@ function findSameMaterial(fromId, spuCode, skuKey) {
 function fsmCardHtml(m) {
   const sup = SUPPLIERS[m.sup];
   return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:0.5px solid #F5F5F7;cursor:pointer" onclick="closeFsmModal();openSpu('${m.id}')">
-    <img src="${m.photo}" style="width:56px;height:56px;border-radius:8px;object-fit:cover;flex-shrink:0;background:#F5F5F7" onerror="this.style.display='none'">
+    <img src="${matURI(m,120)}" style="width:56px;height:56px;border-radius:8px;object-fit:cover;flex-shrink:0;background:#F5F5F7">
     <div style="flex:1;min-width:0">
       <div style="font-size:14px;font-weight:500;color:#1D1D1F">${m.name}</div>
       <div style="font-size:12px;color:#86868B;margin-top:2px">${sup.name}</div>
@@ -1163,7 +1207,7 @@ function renderCompanyPage(supId) {
     <div class="lib-grid">
       ${mats.map(m => `
       <div class="lib-card" onclick="openSpu('${m.id}')">
-        <div class="lib-img">${imgSVG(m.imgShape)}</div>
+        <div class="lib-img" style="overflow:hidden;padding:0"><img src="${matURI(m,120)}" alt="" style="width:100%;height:100%;object-fit:cover"></div>
         <div class="lib-info">
           <div class="lib-name">${m.name}</div>
           <div class="lib-sub">${m.type === 'secondary' ? 'Secondary Process' : 'Raw Material'} · ${m.id}</div>
@@ -1186,7 +1230,7 @@ function renderLibrary() {
   const libMats = MATERIALS.slice(0, 12);
   document.getElementById('library-list').innerHTML = libMats.map(m => `
     <div class="lib-card" onclick="openSpu('${m.id}')">
-      <div class="lib-img">${imgSVG(m.imgShape)}</div>
+      <div class="lib-img" style="overflow:hidden;padding:0"><img src="${matURI(m,120)}" alt="" style="width:100%;height:100%;object-fit:cover"></div>
       <div class="lib-info">
         <div class="lib-name">${m.name}</div>
         <div class="lib-sub">${SUPPLIERS[m.sup].name} · ${m.type === 'secondary' ? 'Secondary' : 'Raw'}</div>
@@ -1239,6 +1283,8 @@ function toggleLang() {
 renderGrid();
 renderLibrary();
 renderHomepage();
+// Fill category thumbnails with inline SVG textures (no external URL)
+document.querySelectorAll('.cat-thumb-img').forEach(img => { img.src = texURI(img.dataset.pat || catPatternByName(img.alt), 120); });
 // show home by default; filter bar visible
 document.getElementById('filter-bar').style.display = '';
 </script>

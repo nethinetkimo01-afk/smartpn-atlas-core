@@ -242,6 +242,16 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 .fade-in{animation:fadeIn 0.15s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#D2D2D7;border-radius:3px}
+
+/* ── Option (規格) cards ── */
+.option-card{display:flex;align-items:flex-start;gap:16px;border:0.5px solid #E5E5EA;border-radius:12px;padding:16px;margin-bottom:12px;background:#FFFFFF;position:relative}
+.option-swatch{width:64px;height:64px;border-radius:10px;object-fit:cover;flex-shrink:0;background:#F5F5F7;border:0.5px solid #E5E5EA}
+.option-fields{flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.option-del{position:absolute;top:10px;right:12px;width:24px;height:24px;border:none;background:#F5F5F7;color:#86868B;border-radius:50%;cursor:pointer;font-size:14px;line-height:1}
+.option-del:hover{background:#FFF0F0;color:#FF3B30}
+.btn-add-option{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border:0.5px dashed #0071E3;border-radius:10px;color:#0071E3;font-size:14px;cursor:pointer;background:none;font-family:inherit}
+.btn-add-option:hover{background:#F0F7FF}
+@media(max-width:760px){.option-fields{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
@@ -356,6 +366,8 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
       <div class="form-card">
         <div class="form-card-title">台灣總部</div>
         <div class="form-grid">
+          <div class="form-group"><label class="form-label">稅號 / VAT No.</label><input class="form-input" value="03017001"></div>
+          <div class="form-group"><label class="form-label">EORI Number</label><input class="form-input" placeholder="例：TW0000123456789"></div>
           <div class="form-group"><label class="form-label">AEO 認證號</label><input class="form-input" placeholder="例：TW-AEO-XXXXX"></div>
           <div class="form-group"><label class="form-label">報關行</label><input class="form-input" placeholder="Custom broker name"></div>
           <div class="form-group"><label class="form-label">主要輸出 HS Code</label><input class="form-input" value="3901.10 / 3902.10 / 3907.91"></div>
@@ -379,6 +391,17 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
           <div class="form-group"><label class="form-label">發票類型</label><select class="form-input form-select"><option>三聯式發票（VAT invoice）</option><option>電子發票</option></select></div>
           <div class="form-group"><label class="form-label">銀行帳戶（報價用）</label><input class="form-input" placeholder="Bank / Account no."></div>
           <div class="form-group form-full"><label class="form-label">付款條件（預設）</label><select class="form-input form-select"><option>Net 30</option><option>Net 45</option><option>Net 60</option></select></div>
+        </div>
+        <div class="form-actions"><button class="btn-primary">儲存</button></div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title">財務資料（報價收款用）</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">銀行名稱 Bank Name</label><input class="form-input" placeholder="例：CTBC Bank"></div>
+          <div class="form-group"><label class="form-label">銀行帳號 Account No.</label><input class="form-input" placeholder="例：0000-0000-00000"></div>
+          <div class="form-group"><label class="form-label">Swift Code / BIC</label><input class="form-input" placeholder="例：CTCBTWTP"></div>
+          <div class="form-group"><label class="form-label">收款幣別 Currency</label><select class="form-input form-select"><option>USD</option><option>TWD</option><option>EUR</option><option>VND</option><option>IDR</option></select></div>
+          <div class="form-group form-full"><label class="form-label">發票抬頭 Invoice Title</label><input class="form-input" value="台灣材料集團股份有限公司 / Formosa Materials Group Co., Ltd."></div>
         </div>
         <div class="form-actions"><button class="btn-primary">儲存</button></div>
       </div>
@@ -410,6 +433,26 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
         <div class="step-item"><div class="step-num">4</div>確認送出</div>
       </div>
       <div class="private-notice"><span class="private-notice-icon">🔒</span><span class="private-notice-text">新建材料預設為 <strong>PRIVATE</strong>。送出後可在「權限管理」以欄位資料夾為單位授權給特定帳號。</span></div>
+      <!-- Step 1 — 產品(SPU)主體建立 -->
+      <div class="form-card">
+        <div class="form-card-title">產品 (SPU) 主體建立</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">材料名稱 Name</label><input class="form-input" value="Ripstop Nylon 70D"></div>
+          <div class="form-group"><label class="form-label">分類 Category</label><select class="form-input form-select"><option>紡織 · Textile</option><option>人造皮 · Synthetic Leather</option><option>皮料 · Leather</option><option>薄膜 · Film</option><option>二次加工 · Secondary</option></select></div>
+          <div class="form-group form-full"><label class="form-label">成分 Composition</label><input class="form-input" placeholder="例：100% Nylon 70D, ripstop weave"></div>
+          <div class="form-group"><label class="form-label">版本 Version</label><input class="form-input" value="v1.0"></div>
+          <div class="form-group"><label class="form-label">料號來源 PN Source</label>
+            <div style="display:flex;gap:14px;padding-top:8px">
+              <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:14px"><input type="radio" name="spu-source" value="smartpn" checked style="accent-color:#1D1D1F"> SmartPN 自動生成</label>
+              <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:14px"><input type="radio" name="spu-source" value="gs1" style="accent-color:#1D1D1F"> GS1 帶入</label>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:14px;padding:10px 14px;background:#FFF8E7;border:0.5px solid #F5A623;border-radius:8px;font-size:12px;color:#1D1D1F;line-height:1.6">
+          🔒 <strong>SPU 物性鎖定：</strong>名稱 / 分類 / 成分 等物性欄位，一旦第一個 Option 確認送出即<strong>鎖定不可修改</strong>。如需更動須撤回所有已授權版本後重建。
+        </div>
+        <div class="form-actions"><button class="btn-primary">儲存 SPU 主體</button></div>
+      </div>
       <!-- Step 1 Summary (已完成) -->
       <div style="background:#F0FFF4;border:0.5px solid #A0D9B5;border-radius:12px;padding:16px 20px;margin-bottom:20px">
         <div style="font-size:13px;font-weight:600;color:#1D7340;margin-bottom:10px">Step 1 已完成 — SPU 主體</div>
@@ -449,16 +492,45 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
         </div>
         <div class="form-actions"><button class="btn-primary">下一步：權限設定</button><button class="btn-secondary">上一步</button></div>
       </div>
+      <!-- Step 3 — 規格 (Option) 建立 -->
+      <div style="margin-top:24px">
+        <div class="section-title">規格 Option（每個 Option 一組顏色/幅寬/重量/單價/LT）</div>
+        <div id="option-cards" data-pat="textile">
+          <div class="option-card">
+            <img class="option-swatch" data-pat="textile" data-size="80" alt="">
+            <div class="option-fields">
+              <div class="form-group"><label class="form-label">顏色 Color</label><input class="form-input" value="Black"></div>
+              <div class="form-group"><label class="form-label">幅寬 Width</label><input class="form-input" value='58"'></div>
+              <div class="form-group"><label class="form-label">重量 Weight</label><input class="form-input" value="70 g/m²"></div>
+              <div class="form-group"><label class="form-label">單價 Price (USD)</label><input class="form-input" value="2.75"></div>
+              <div class="form-group"><label class="form-label">LT (days)</label><input class="form-input" value="30"></div>
+            </div>
+            <button class="option-del" title="刪除 Option" onclick="this.closest('.option-card').remove()">×</button>
+          </div>
+          <div class="option-card">
+            <img class="option-swatch" data-pat="textile" data-size="80" alt="">
+            <div class="option-fields">
+              <div class="form-group"><label class="form-label">顏色 Color</label><input class="form-input" value="Navy"></div>
+              <div class="form-group"><label class="form-label">幅寬 Width</label><input class="form-input" value='44"'></div>
+              <div class="form-group"><label class="form-label">重量 Weight</label><input class="form-input" value="70 g/m²"></div>
+              <div class="form-group"><label class="form-label">單價 Price (USD)</label><input class="form-input" value="2.70"></div>
+              <div class="form-group"><label class="form-label">LT (days)</label><input class="form-input" value="28"></div>
+            </div>
+            <button class="option-del" title="刪除 Option" onclick="this.closest('.option-card').remove()">×</button>
+          </div>
+        </div>
+        <button class="btn-add-option" onclick="addOption()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>新增 Option</button>
+      </div>
       <div style="margin-top:24px">
         <div class="section-title">現有原物料</div>
         <div class="mat-list">
-          <div class="mat-row"><div class="mat-row-img"><img src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=72&h=72&fit=crop" style="width:36px;height:36px;border-radius:8px;object-fit:cover;display:block" onerror="this.style.visibility='hidden'"></div><div style="flex:1"><div class="mat-row-name">Recycled Polyester Mesh 220g</div><div class="mat-row-code">SPA-MAT-0001 · FV · 3 SKUs · DPP ✅</div></div><span class="perm-open">OPEN</span><span class="mat-row-chev">›</span></div>
-          <div class="mat-row"><div class="mat-row-img"><img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=72&h=72&fit=crop" style="width:36px;height:36px;border-radius:8px;object-fit:cover;display:block" onerror="this.style.visibility='hidden'"></div><div style="flex:1"><div class="mat-row-name">TPU Laminating Film 0.15mm</div><div class="mat-row-code">SPA-MAT-0002 · FI · 2 SKUs · DPP ✅</div></div><span class="perm-open">OPEN</span><span class="mat-row-chev">›</span></div>
-          <div class="mat-row"><div class="mat-row-img"><img src="https://images.unsplash.com/photo-1583744946564-b52d01e7f922?w=72&h=72&fit=crop" style="width:36px;height:36px;border-radius:8px;object-fit:cover;display:block" onerror="this.style.visibility='hidden'"></div><div style="flex:1"><div class="mat-row-name">PU Synthetic Leather 1.2mm</div><div class="mat-row-code">SPA-MAT-0003 · FV · 2 SKUs</div></div><span class="perm-open">OPEN</span><span class="mat-row-chev">›</span></div>
-          <div class="mat-row"><div class="mat-row-img"><img src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=72&h=72&fit=crop" style="width:36px;height:36px;border-radius:8px;object-fit:cover;display:block" onerror="this.style.visibility='hidden'"></div><div style="flex:1"><div class="mat-row-name">Laminated Black Mesh (2nd)</div><div class="mat-row-code">SPA-COMP-0101 · FI · 2 SKUs · DPP ✅</div></div><span class="perm-open">OPEN</span><span class="mat-row-chev">›</span></div>
-          <div class="mat-row"><div class="mat-row-img"><img src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=72&h=72&fit=crop" style="width:36px;height:36px;border-radius:8px;object-fit:cover;display:block" onerror="this.style.visibility='hidden'"></div><div style="flex:1"><div class="mat-row-name">Ripstop Nylon 70D <span class="tag tag-private">PRIVATE</span></div><div class="mat-row-code">SPA-MAT-0010 · FV · 2 SKUs · 新建中</div></div><span class="mat-row-chev">›</span></div>
-          <div class="mat-row"><div class="mat-row-img"><img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=72&h=72&fit=crop" style="width:36px;height:36px;border-radius:8px;object-fit:cover;display:block" onerror="this.style.visibility='hidden'"></div><div style="flex:1"><div class="mat-row-name">Bio-based TPU Film <span class="tag tag-private">PRIVATE</span></div><div class="mat-row-code">SPA-MAT-0011 · FI · 1 SKU · DPP ✅</div></div><span class="mat-row-chev">›</span></div>
-          <div class="mat-row"><div class="mat-row-img"><img src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=72&h=72&fit=crop" style="width:36px;height:36px;border-radius:8px;object-fit:cover;display:block" onerror="this.style.visibility='hidden'"></div><div style="flex:1"><div class="mat-row-name">Bonded Knit + Foam (2nd) <span class="tag tag-private">PRIVATE</span></div><div class="mat-row-code">SPA-COMP-0102 · FV · 1 SKU</div></div><span class="mat-row-chev">›</span></div>
+          <div class="mat-row"><div class="mat-row-img"><img class="mat-row-img-tex" data-pat="textile" data-size="80" style="width:36px;height:36px;border-radius:8px;object-fit:cover;display:block" alt=""></div><div style="flex:1"><div class="mat-row-name">Recycled Polyester Mesh 220g</div><div class="mat-row-code">SPA-MAT-0001 · FV · 3 SKUs · DPP ✅</div></div><span class="perm-open">OPEN</span><span class="mat-row-chev">›</span></div>
+          <div class="mat-row"><div class="mat-row-img"><img class="mat-row-img-tex" data-pat="film" data-size="80" style="width:36px;height:36px;border-radius:8px;object-fit:cover;display:block" alt=""></div><div style="flex:1"><div class="mat-row-name">TPU Laminating Film 0.15mm</div><div class="mat-row-code">SPA-MAT-0002 · FI · 2 SKUs · DPP ✅</div></div><span class="perm-open">OPEN</span><span class="mat-row-chev">›</span></div>
+          <div class="mat-row"><div class="mat-row-img"><img class="mat-row-img-tex" data-pat="synleather" data-size="80" style="width:36px;height:36px;border-radius:8px;object-fit:cover;display:block" alt=""></div><div style="flex:1"><div class="mat-row-name">PU Synthetic Leather 1.2mm</div><div class="mat-row-code">SPA-MAT-0003 · FV · 2 SKUs</div></div><span class="perm-open">OPEN</span><span class="mat-row-chev">›</span></div>
+          <div class="mat-row"><div class="mat-row-img"><img class="mat-row-img-tex" data-pat="secondary" data-size="80" style="width:36px;height:36px;border-radius:8px;object-fit:cover;display:block" alt=""></div><div style="flex:1"><div class="mat-row-name">Laminated Black Mesh (2nd)</div><div class="mat-row-code">SPA-COMP-0101 · FI · 2 SKUs · DPP ✅</div></div><span class="perm-open">OPEN</span><span class="mat-row-chev">›</span></div>
+          <div class="mat-row"><div class="mat-row-img"><img class="mat-row-img-tex" data-pat="textile" data-size="80" style="width:36px;height:36px;border-radius:8px;object-fit:cover;display:block" alt=""></div><div style="flex:1"><div class="mat-row-name">Ripstop Nylon 70D <span class="tag tag-private">PRIVATE</span></div><div class="mat-row-code">SPA-MAT-0010 · FV · 2 SKUs · 新建中</div></div><span class="mat-row-chev">›</span></div>
+          <div class="mat-row"><div class="mat-row-img"><img class="mat-row-img-tex" data-pat="film" data-size="80" style="width:36px;height:36px;border-radius:8px;object-fit:cover;display:block" alt=""></div><div style="flex:1"><div class="mat-row-name">Bio-based TPU Film <span class="tag tag-private">PRIVATE</span></div><div class="mat-row-code">SPA-MAT-0011 · FI · 1 SKU · DPP ✅</div></div><span class="mat-row-chev">›</span></div>
+          <div class="mat-row"><div class="mat-row-img"><img class="mat-row-img-tex" data-pat="secondary" data-size="80" style="width:36px;height:36px;border-radius:8px;object-fit:cover;display:block" alt=""></div><div style="flex:1"><div class="mat-row-name">Bonded Knit + Foam (2nd) <span class="tag tag-private">PRIVATE</span></div><div class="mat-row-code">SPA-COMP-0102 · FV · 1 SKU</div></div><span class="mat-row-chev">›</span></div>
         </div>
       </div>
     </div>
@@ -843,6 +915,53 @@ function setPrivacy(mode, el) {
   document.getElementById('privacy-company').style.display = mode === 'company' ? '' : 'none';
   document.getElementById('privacy-fuzzy').style.display = mode === 'fuzzy' ? '' : 'none';
 }
+
+/* ─── SVG material textures (inline, no external URL) ─── */
+const TEX_MAP = {
+  textile:    { bg:'#f0ede8', tile:8,  cell:"<path d='M0 0H8M0 0V8' stroke='#a8a09a' stroke-width='0.6'/><circle cx='4' cy='4' r='0.7' fill='#a8a09a'/>" },
+  synleather: { bg:'#3d2e24', tile:16, cell:"<path d='M8 1L15 8L8 15L1 8Z' fill='none' stroke='#5a4035' stroke-width='1.2'/>" },
+  leather:    { bg:'#8b6340', tile:20, cell:"<circle cx='5' cy='6' r='1.6' fill='#7a5534'/><circle cx='13' cy='4' r='1.1' fill='#9b7050'/><circle cx='9' cy='13' r='1.8' fill='#7a5534'/><circle cx='16' cy='15' r='1.2' fill='#9b7050'/><circle cx='3' cy='16' r='1' fill='#9b7050'/>" },
+  secondary:  { bg:'#2c3e35', tile:12, cell:"<path d='M0 0L12 12M12 0L0 12' stroke='#3d5248' stroke-width='1.1'/>" },
+  jacquard:   { bg:'#1a3a5c', tile:10, cell:"<path d='M-2 8L8 -2M3 13L13 3' stroke='#243f6b' stroke-width='2'/>" },
+  eva:        { bg:'#f5f0e8', tile:20, cell:"<path d='M10 2 L17 6 L17 14 L10 18 L3 14 L3 6 Z' fill='none' stroke='#d4c9b8' stroke-width='1'/>" },
+  microfiber: { bg:'#6b4c3b', tile:6,  cell:"<circle cx='3' cy='3' r='0.9' fill='#7d5a48'/><circle cx='0' cy='0' r='0.9' fill='#7d5a48'/><circle cx='6' cy='6' r='0.9' fill='#7d5a48'/>" },
+};
+function texSVG(key, size) {
+  if (key === 'film') {
+    return `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 300 300'>`
+      + `<defs><linearGradient id='fg' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#e8eef5'/><stop offset='0.5' stop-color='#f5f8fa'/><stop offset='1' stop-color='#d8e4ee'/></linearGradient>`
+      + `<pattern id='fp' width='30' height='30' patternUnits='userSpaceOnUse'><path d='M0 0H30M0 0V30' stroke='#c8d8e8' stroke-width='0.7' fill='none'/></pattern></defs>`
+      + `<rect width='300' height='300' fill='url(#fg)'/><rect width='300' height='300' fill='url(#fp)'/></svg>`;
+  }
+  const t = TEX_MAP[key] || TEX_MAP.textile;
+  return `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 300 300'>`
+    + `<defs><pattern id='p' width='${t.tile}' height='${t.tile}' patternUnits='userSpaceOnUse'><rect width='${t.tile}' height='${t.tile}' fill='${t.bg}'/>${t.cell}</pattern></defs>`
+    + `<rect width='300' height='300' fill='${t.bg}'/><rect width='300' height='300' fill='url(#p)'/></svg>`;
+}
+function texURI(key, size) { return 'data:image/svg+xml,' + encodeURIComponent(texSVG(key, size)); }
+function fillTextures() {
+  document.querySelectorAll('img[data-pat]').forEach(img => { img.src = texURI(img.dataset.pat, parseInt(img.dataset.size) || 120); });
+}
+function addOption() {
+  const wrap = document.getElementById('option-cards');
+  if (!wrap) return;
+  const n = wrap.querySelectorAll('.option-card').length + 1;
+  const pat = wrap.dataset.pat || 'textile';
+  const div = document.createElement('div');
+  div.className = 'option-card';
+  div.innerHTML = `<img class="option-swatch" data-pat="${pat}" data-size="80" alt="">
+    <div class="option-fields">
+      <div class="form-group"><label class="form-label">顏色 Color</label><input class="form-input" placeholder="例：Black"></div>
+      <div class="form-group"><label class="form-label">幅寬 Width</label><input class="form-input" placeholder='例：58"'></div>
+      <div class="form-group"><label class="form-label">重量 Weight</label><input class="form-input" placeholder="例：220 g/m²"></div>
+      <div class="form-group"><label class="form-label">單價 Price (USD)</label><input class="form-input" placeholder="例：2.00"></div>
+      <div class="form-group"><label class="form-label">LT (days)</label><input class="form-input" placeholder="例：30"></div>
+    </div>
+    <button class="option-del" title="刪除 Option" onclick="this.closest('.option-card').remove()">×</button>`;
+  wrap.appendChild(div);
+  fillTextures();
+}
+fillTextures();
 </script>
 <script>
 /* ─── Supplier i18n ─── */
