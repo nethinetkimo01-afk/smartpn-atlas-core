@@ -75,6 +75,8 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 048 | 勾選分配系統 Phase 1（IE後製工序→部件勾選外移→CSA MP扣除） | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | schema(allocation_item/summary)+database.py(prefill/items/check/csa_mp/export)+app.py(8 routes+session)+allocation.html。Step1-6+5.5全做。zone→unit對應(ATOM/Laser/EMMA→同材共裁,電腦針車→電腦針車折邊,打粗/照射→打粗水洗)。權限：jim admin + tongcai/dianno/dacu unit_user，/check 後端強制 session.unit==target_unit 否則403。合成資料 KH9679 端到端驗證：prefill 7筆/csa cutting 10.115−0.05=10.065/3單位xlsx格式正確/跨部門403。⚠真資料需有 data/atlas.db 的機器(本checkout只有空schema) |
 
+| 049 | 雙機作業交接機制（Code機↔結果機） | Infra | ✅完成 | 2026-06-13 | 2026-06-13 | flask_backend/sync.bat（git pull+重啟Flask）+ nightly/morning_sync.py（每日08:00自動同步,--install排程/--startup啟動資料夾,殺舊Flask不殺自己）+ 00_HANDOFF/雙機作業說明.md（程式碼自動同步/DB隨身碟手動同步） |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |
