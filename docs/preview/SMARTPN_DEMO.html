@@ -8,9 +8,9 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',Arial,sans-serif;background:#FFFFFF;color:#1D1D1F;-webkit-font-smoothing:antialiased;font-size:15px}
 
-/* ── Top Navigation Bar (Apple Store style, dark) ── */
+/* topnav */
 .topnav{position:sticky;top:0;z-index:100;background:rgba(22,22,23,0.95);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:0.5px solid rgba(255,255,255,0.08);height:48px;display:flex;align-items:center;padding:0 24px;gap:20px}
-.nav-brand{font-size:15px;font-weight:600;color:#FFFFFF;letter-spacing:-0.2px;white-space:nowrap;flex-shrink:0}
+.nav-brand{font-size:15px;font-weight:600;color:#FFFFFF;letter-spacing:-0.2px;white-space:nowrap;flex-shrink:0;cursor:pointer}
 .nav-search-wrap{flex:1;max-width:400px;margin:0 auto;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.10);border-radius:8px;padding:7px 14px;cursor:text}
 .nav-search-wrap svg{opacity:0.55;flex-shrink:0}
 .nav-search-wrap input{border:none;background:transparent;font-size:14px;color:#FFFFFF;outline:none;width:100%;font-family:inherit}
@@ -20,10 +20,10 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 .nav-btn{display:flex;align-items:center;gap:6px;background:none;border:none;color:rgba(255,255,255,0.75);font-size:12px;padding:6px 10px;border-radius:6px;cursor:pointer;font-family:inherit;transition:color 0.12s;white-space:nowrap}
 .nav-btn:hover{color:#FFFFFF;background:rgba(255,255,255,0.08)}
 .nav-btn svg{opacity:0.75;flex-shrink:0}
-.nav-btn.active-nav{color:#FFFFFF}
 .nav-count{background:#0071E3;color:#FFFFFF;font-size:10px;font-weight:600;border-radius:8px;padding:1px 5px;min-width:16px;text-align:center}
+.nav-count.alert{background:#FF3B30}
 
-/* ── Filter bar ── */
+/* filter bar */
 .filter-bar{display:flex;align-items:center;gap:8px;padding:14px 24px 12px;border-bottom:0.5px solid #D2D2D7;flex-wrap:wrap;background:#FFFFFF;position:sticky;top:48px;z-index:90}
 .fc{font-size:13px;padding:6px 16px;border-radius:20px;border:0.5px solid #D2D2D7;background:#FFFFFF;color:#1D1D1F;cursor:pointer;font-family:inherit;transition:all 0.12s;white-space:nowrap}
 .fc.active{background:#1D1D1F;color:#FFFFFF;border-color:#1D1D1F}
@@ -35,35 +35,30 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 .price-input{width:60px;border:0.5px solid #D2D2D7;border-radius:6px;padding:5px 8px;font-size:12px;color:#1D1D1F;text-align:center;outline:none;font-family:inherit}
 .price-input:focus{border-color:#1D1D1F}
 
-/* ── Page container ── */
+/* page */
 .page{display:none;padding:32px 40px;max-width:1080px;margin:0 auto}
 .page.active{display:block}
-.page.full-w{max-width:none;padding:0}
-
-/* ── Section header ── */
 .section-title{font-size:17px;font-weight:600;color:#1D1D1F;padding-bottom:12px;border-bottom:0.5px solid #D2D2D7;margin-bottom:24px;letter-spacing:-0.2px}
 .result-count{font-size:13px;color:#86868B;margin-bottom:20px}
 
-/* ── Material grid ── */
+/* grid */
 .mat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#D2D2D7}
-.mat-card{background:#FFFFFF;padding:28px 20px 24px;text-align:center;cursor:pointer;transition:background 0.12s;position:relative}
+.mat-card{background:#FFFFFF;padding:0 0 24px;text-align:center;cursor:pointer;transition:background 0.12s;position:relative;overflow:hidden}
 .mat-card:hover{background:#F5F5F7}
-.mc-img{width:100%;aspect-ratio:4/3;background:#F5F5F7;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;overflow:hidden;position:relative}
-.mc-img svg{opacity:0.18}
+.mc-img{width:100%;height:150px;overflow:hidden;position:relative;background:#F5F5F7;margin-bottom:16px}
+.mc-img img{width:100%;height:100%;object-fit:cover;display:block}
 .dpp-badge{position:absolute;top:10px;left:10px;font-size:10px;font-weight:600;color:#1D7340;background:#FFFFFF;border:0.5px solid #1D7340;border-radius:8px;padding:3px 8px;letter-spacing:0.03em}
-.secondary-tag{position:absolute;top:10px;right:10px;font-size:10px;font-weight:500;color:#86868B;background:#F5F5F7;border-radius:8px;padding:3px 8px;letter-spacing:0.04em;text-transform:uppercase}
-.mc-name{font-size:17px;font-weight:600;color:#1D1D1F;letter-spacing:-0.3px;margin-bottom:4px;line-height:1.3}
+.secondary-tag{position:absolute;top:10px;right:10px;font-size:10px;font-weight:500;color:#86868B;background:#FFFFFF;border-radius:8px;padding:3px 8px;letter-spacing:0.04em;text-transform:uppercase}
+.mc-name{font-size:17px;font-weight:600;color:#1D1D1F;letter-spacing:-0.3px;margin-bottom:4px;line-height:1.3;padding:0 20px}
 .mc-supplier-link{font-size:13px;color:#0071E3;cursor:pointer;border:none;background:none;padding:0;font-family:inherit;margin-bottom:10px;display:inline-block}
 .mc-supplier-link:hover{text-decoration:underline}
-.mc-price-row{display:flex;justify-content:center;gap:16px;font-size:13px;color:#86868B;margin-bottom:10px}
+.mc-price-row{display:flex;justify-content:center;gap:16px;font-size:13px;color:#86868B;margin-bottom:10px;padding:0 20px}
 .mc-price-val{color:#1D1D1F;font-weight:500}
 .mc-perm{font-size:12px;font-weight:500;margin-top:4px}
-.mc-perm.open{color:#1D7340}
-.mc-perm.shared{color:#0071E3}
-.mc-perm.priv{color:#86868B}
+.mc-perm.open{color:#1D7340}.mc-perm.shared{color:#0071E3}.mc-perm.priv{color:#86868B}
 .no-results{grid-column:1/-1;text-align:center;padding:80px 0;color:#86868B;font-size:15px;background:#FFFFFF}
 
-/* FSM banner */
+/* fsm banner */
 .fsm-banner{background:#F0F7FF;border:0.5px solid #BDD7F7;border-radius:10px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .fsm-banner-label{font-size:12px;color:#0071E3;font-weight:500;white-space:nowrap}
 .fsm-tag{font-size:12px;background:#FFFFFF;border:0.5px solid #BDD7F7;border-radius:14px;padding:4px 12px;color:#1D1D1F}
@@ -72,145 +67,100 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 .fsm-section-label{font-size:11px;font-weight:600;color:#1D1D1F;text-transform:uppercase;letter-spacing:0.07em}
 .fsm-section-count{font-size:11px;color:#86868B;background:#F5F5F7;padding:2px 10px;border-radius:10px}
 .fsm-line{flex:1;height:0.5px;background:#D2D2D7}
-.fsm-ident .mat-card::after{content:'Identical';position:absolute;top:10px;right:10px;font-size:10px;font-weight:600;color:#1D7340;background:#F0FFF4;border-radius:8px;padding:3px 8px}
-.fsm-alt .mat-card::after{content:'Alternative';position:absolute;top:10px;right:10px;font-size:10px;font-weight:600;color:#0071E3;background:#F0F7FF;border-radius:8px;padding:3px 8px}
 
-/* ── SPU Detail (product homepage, no SKU yet) ── */
+/* detail */
 .detail-back{font-size:13px;color:#0071E3;cursor:pointer;margin-bottom:28px;display:inline-flex;align-items:center;gap:4px;border:none;background:none;padding:0;font-family:inherit}
 .detail-back:hover{text-decoration:underline}
 .spu-hero{display:grid;grid-template-columns:1fr 1fr;gap:56px;padding-bottom:40px;border-bottom:0.5px solid #D2D2D7;align-items:start}
-.spu-img{background:#F5F5F7;border-radius:16px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
-.spu-img svg{opacity:0.15}
+.spu-img{background:#F5F5F7;border-radius:16px;aspect-ratio:1;overflow:hidden;position:relative}
+.spu-img img{width:100%;height:100%;object-fit:cover}
 .spu-dpp-badge{position:absolute;bottom:16px;left:16px;font-size:11px;font-weight:600;color:#FFFFFF;background:#1D7340;border-radius:8px;padding:4px 10px}
 .spu-info{padding-top:8px}
 .spu-type-tag{font-size:11px;color:#86868B;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px}
 .spu-title{font-size:32px;font-weight:600;color:#1D1D1F;letter-spacing:-0.7px;margin-bottom:6px;line-height:1.15}
-.spu-code{font-size:13px;color:#86868B;margin-bottom:4px}
-.spu-perm{font-size:14px;font-weight:500;margin-bottom:14px}
-.spu-perm.open{color:#1D7340}
-.spu-perm.shared{color:#0071E3}
-.spu-perm.priv{color:#86868B}
+.spu-code{font-size:13px;color:#86868B;margin-bottom:2px}
+.spu-code b{color:#1D1D1F;font-weight:500}
+.spu-perm{font-size:14px;font-weight:500;margin:10px 0 14px}
+.spu-perm.open{color:#1D7340}.spu-perm.shared{color:#0071E3}.spu-perm.priv{color:#86868B}
 .supplier-link{color:#0071E3;cursor:pointer;border:none;background:none;padding:0;font-family:inherit;font-size:15px}
 .supplier-link:hover{text-decoration:underline}
 .spu-maintained{font-size:13px;color:#86868B;margin-top:4px;margin-bottom:20px}
 .spu-price-block{display:flex;gap:32px;padding:16px 0;border-top:0.5px solid #D2D2D7;border-bottom:0.5px solid #D2D2D7;margin-bottom:20px}
-.spu-price-item{}
 .spu-price-label{font-size:12px;color:#86868B;margin-bottom:4px}
 .spu-price-val{font-size:20px;font-weight:600;color:#1D1D1F;letter-spacing:-0.4px}
 .spu-price-sub{font-size:12px;color:#86868B;margin-top:2px}
-.view-specs-btn{background:#1D1D1F;color:#FFFFFF;border:none;border-radius:20px;padding:10px 28px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity 0.15s}
-.view-specs-btn:hover{opacity:0.8}
-.fav-btn{background:#FFFFFF;color:#1D1D1F;border:0.5px solid #D2D2D7;border-radius:20px;padding:10px 20px;font-size:14px;cursor:pointer;font-family:inherit;margin-left:10px}
+.opt-row{margin:18px 0}
+.opt-label{font-size:13px;color:#86868B;margin-bottom:8px}
+.opt-list{display:flex;flex-wrap:wrap;gap:8px}
+.opt-btn{display:flex;align-items:center;gap:7px;font-size:13px;padding:6px 14px 6px 6px;border-radius:10px;border:1px solid #D2D2D7;background:#FFFFFF;color:#1D1D1F;cursor:pointer;font-family:inherit;transition:all 0.12s}
+.opt-btn:hover{border-color:#86868B}
+.opt-btn.selected{border:2px solid #1D1D1F;font-weight:500}
+.opt-btn img{width:26px;height:26px;border-radius:6px;object-fit:cover;flex-shrink:0}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.btn-add{background:#0071E3;color:#FFFFFF;border:none;border-radius:20px;padding:11px 26px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
+.btn-add:hover{opacity:0.88}
+.btn-ghost{background:#FFFFFF;color:#1D1D1F;border:0.5px solid #D2D2D7;border-radius:20px;padding:11px 22px;font-size:14px;cursor:pointer;font-family:inherit}
+.btn-ghost:hover{background:#F5F5F7}
+.btn-blue-ghost{background:#FFFFFF;color:#0071E3;border:1px solid #0071E3;border-radius:20px;padding:11px 22px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
+.btn-blue-ghost:hover{background:#F0F7FF}
 
-/* Spec table on SPU page */
+/* spec rows */
 .spec-section-title{font-size:17px;font-weight:600;color:#1D1D1F;padding:28px 0 14px;border-bottom:0.5px solid #D2D2D7;letter-spacing:-0.2px}
 .spec-row{display:flex;align-items:center;padding:14px 0;border-bottom:0.5px solid #D2D2D7}
 .spec-label{font-size:15px;color:#86868B;flex:1}
 .spec-val{font-size:15px;color:#1D1D1F;margin-right:16px}
-.spec-plus{font-size:17px;color:#D2D2D7;flex-shrink:0;font-weight:300}
 
-/* Reviews */
-.review-list{display:flex;flex-direction:column;gap:0}
-.review-item{padding:20px 0;border-bottom:0.5px solid #D2D2D7}
+/* reviews */
+.review-item{padding:18px 0;border-bottom:0.5px solid #D2D2D7}
 .review-item:last-child{border-bottom:none}
 .review-header{display:flex;align-items:center;gap:12px;margin-bottom:8px}
 .review-avatar{width:36px;height:36px;border-radius:50%;background:#F5F5F7;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#1D1D1F;flex-shrink:0}
 .review-name{font-size:14px;font-weight:500;color:#1D1D1F}
 .review-date{font-size:12px;color:#86868B;margin-left:auto}
 .review-stars{font-size:12px;color:#F5A623;letter-spacing:1px}
-.review-perm{font-size:11px;color:#86868B;background:#F5F5F7;border-radius:6px;padding:2px 8px;margin-left:8px}
-.review-text{font-size:14px;color:#1D1D1F;line-height:1.6}
+.review-perm{font-size:11px;border-radius:6px;padding:2px 8px;font-weight:500}
+.review-text{font-size:14px;color:#1D1D1F;line-height:1.6;margin-top:6px}
+.comment-box{border:0.5px solid #D2D2D7;border-radius:12px;padding:14px;margin:8px 0 24px;background:#FAFAFA}
+.comment-box textarea{width:100%;border:0.5px solid #D2D2D7;border-radius:8px;padding:10px;font-size:14px;font-family:inherit;resize:vertical;min-height:60px;outline:none;background:#FFFFFF}
+.comment-box textarea:focus{border-color:#1D1D1F}
+.comment-actions{display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap}
+.seg{display:inline-flex;background:#EFEFF0;border-radius:8px;padding:3px}
+.seg button{font-size:12px;padding:5px 12px;border:none;background:none;color:#86868B;cursor:pointer;font-family:inherit;border-radius:6px}
+.seg button.on{background:#FFFFFF;color:#1D1D1F;font-weight:500;box-shadow:0 0.5px 2px rgba(0,0,0,0.1)}
 
-/* ── SKU Detail page (SPU+SKU, add to library) ── */
-.sku-picker-section{margin-top:20px;margin-bottom:20px}
-.sku-picker-label{font-size:13px;color:#86868B;margin-bottom:8px}
-.sku-options{display:flex;flex-wrap:wrap;gap:8px}
-.sku-opt{font-size:13px;padding:7px 16px;border-radius:8px;border:1px solid #D2D2D7;background:#FFFFFF;color:#1D1D1F;cursor:pointer;font-family:inherit;transition:all 0.12s}
-.sku-opt:hover{border-color:#86868B}
-.sku-opt.selected{border:2px solid #1D1D1F;font-weight:500;padding:6px 15px}
-.detail-cta-area{margin-top:24px;padding-top:20px;border-top:0.5px solid #D2D2D7}
-.btn-add{background:#0071E3;color:#FFFFFF;border:none;border-radius:20px;padding:12px 32px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;min-width:220px}
-.btn-add:hover{opacity:0.88}
-.btn-fsm{background:#FFFFFF;color:#0071E3;border:1px solid #0071E3;border-radius:20px;padding:11px 24px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;margin-left:12px}
-.btn-fsm:hover{background:#F0F7FF}
-.btn-compare{background:#FFFFFF;color:#1D1D1F;border:0.5px solid #D2D2D7;border-radius:20px;padding:11px 24px;font-size:14px;cursor:pointer;font-family:inherit;margin-left:12px}
-.cta-note{font-size:12px;color:#86868B;margin-top:10px}
-
-/* ── Company Profile ── */
+/* company */
 .company-hero{display:flex;align-items:center;gap:24px;padding-bottom:24px;border-bottom:0.5px solid #D2D2D7;margin-bottom:28px}
 .company-avatar{width:64px;height:64px;background:#1D1D1F;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-weight:700;font-size:20px;flex-shrink:0;letter-spacing:-0.5px}
 .company-name{font-size:24px;font-weight:600;letter-spacing:-0.5px}
 .company-meta{font-size:14px;color:#86868B;margin-top:4px}
 .company-desc{font-size:15px;color:#1D1D1F;line-height:1.6;margin-top:8px}
-.cert-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.cert-chip{font-size:12px;color:#1D1D1F;border:0.5px solid #D2D2D7;border-radius:6px;padding:5px 12px;background:#F5F5F7}
-.dpp-chip{background:#F0FFF4;color:#1D7340;border-color:#1D7340}
+.dpp-hero-badge{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#1D7340;background:#F0FFF4;border:0.5px solid #1D7340;border-radius:10px;padding:6px 14px;margin-top:12px}
+.cert-table{width:100%;border-collapse:collapse;margin:8px 0 24px}
+.cert-table th{font-size:12px;font-weight:500;color:#86868B;text-align:left;padding:8px 12px;border-bottom:0.5px solid #D2D2D7}
+.cert-table td{font-size:14px;color:#1D1D1F;padding:12px;border-bottom:0.5px solid #F5F5F7}
+.cert-table tr:last-child td{border-bottom:none}
 .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-bottom:28px}
 .info-card{padding:16px 0;border-bottom:0.5px solid #D2D2D7;padding-right:16px}
 .info-card-label{font-size:12px;color:#86868B;margin-bottom:4px}
 .info-card-val{font-size:15px;font-weight:500;color:#1D1D1F}
 
-/* ── Compare (Apple style) ── */
-.compare-page-header{text-align:center;padding:40px 0 28px;border-bottom:0.5px solid #D2D2D7;margin-bottom:0}
-.compare-page-title{font-size:32px;font-weight:600;letter-spacing:-0.7px;color:#1D1D1F}
-.compare-page-sub{font-size:15px;color:#86868B;margin-top:8px}
-.compare-wrapper{overflow-x:auto}
-.compare-table{width:100%;border-collapse:collapse}
-.compare-table th{font-size:17px;font-weight:600;color:#1D1D1F;padding:24px 20px;border-bottom:0.5px solid #D2D2D7;text-align:center;vertical-align:top;min-width:200px}
-.compare-table th:first-child{text-align:left;color:#86868B;font-weight:400;font-size:13px;min-width:180px}
-.compare-table th .compare-img{width:80px;height:80px;background:#F5F5F7;border-radius:12px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center}
-.compare-table th .compare-img svg{opacity:0.15}
-.compare-table th .compare-supplier{font-size:13px;color:#86868B;font-weight:400;margin-top:4px}
-.compare-table td{font-size:14px;color:#1D1D1F;padding:14px 20px;border-bottom:0.5px solid #D2D2D7;text-align:center;vertical-align:middle}
-.compare-table td:first-child{text-align:left;font-size:13px;color:#86868B;font-weight:500}
-.compare-table tbody tr:hover{background:#F5F5F7}
-.compare-better{color:#1D7340;font-weight:500}
-.compare-worse{color:#FF3B30}
-.compare-same{color:#86868B}
-.compare-add-row td{border-bottom:none;padding-top:20px}
-.btn-compare-add{background:#1D1D1F;color:#FFFFFF;border:none;border-radius:20px;padding:9px 22px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit}
-
-/* ── My Favorites / My Library ── */
+/* library / list */
 .lib-grid{display:flex;flex-direction:column}
-.lib-card{display:flex;align-items:center;padding:16px 0;border-bottom:0.5px solid #D2D2D7;cursor:pointer;gap:14px}
+.lib-card{display:flex;align-items:center;padding:14px 0;border-bottom:0.5px solid #D2D2D7;cursor:pointer;gap:14px}
 .lib-card:last-child{border-bottom:none}
-.lib-img{width:48px;height:48px;background:#F5F5F7;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.lib-img svg{opacity:0.2}
+.lib-img{width:48px;height:48px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#F5F5F7}
+.lib-img img{width:100%;height:100%;object-fit:cover}
 .lib-info{flex:1}
 .lib-name{font-size:15px;font-weight:500;color:#1D1D1F}
 .lib-sub{font-size:13px;color:#86868B;margin-top:2px}
 .lib-meta{display:flex;align-items:center;gap:10px;margin-top:4px}
 .lib-chev{font-size:18px;color:#D2D2D7;flex-shrink:0}
-.badge{display:inline-flex;align-items:center;font-size:12px;font-weight:500;padding:1px 0;white-space:nowrap}
-.b-open{color:#1D7340}
-.b-shared{color:#0071E3}
-.b-priv{color:#86868B}
+.badge{display:inline-flex;align-items:center;font-size:12px;font-weight:500;white-space:nowrap}
+.b-open{color:#1D7340}.b-shared{color:#0071E3}.b-priv{color:#86868B}
 .b-dpp{color:#1D7340;background:#F0FFF4;border:0.5px solid #1D7340;border-radius:6px;padding:2px 8px;font-size:11px}
 
-/* ── Account / Settings ── */
-.account-hero{display:flex;align-items:center;gap:20px;padding-bottom:24px;border-bottom:0.5px solid #D2D2D7;margin-bottom:28px}
-.account-avatar{width:56px;height:56px;background:#1D1D1F;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-weight:700;font-size:18px;flex-shrink:0}
-.account-name{font-size:22px;font-weight:600;letter-spacing:-0.4px}
-.account-org{font-size:14px;color:#86868B;margin-top:3px}
-.settings-row{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:0.5px solid #D2D2D7}
-.settings-row:last-child{border-bottom:none}
-.settings-label{font-size:15px;color:#1D1D1F}
-.settings-val{font-size:15px;color:#86868B}
-.toggle{width:36px;height:22px;background:#34C759;border-radius:11px;position:relative;cursor:pointer;flex-shrink:0}
-.toggle::after{content:'';position:absolute;top:3px;left:17px;width:16px;height:16px;border-radius:50%;background:#FFFFFF;transition:left 0.15s}
-.toggle.off{background:#D2D2D7}
-.toggle.off::after{left:3px}
-
-/* ── Fade ── */
-.fade-in{animation:fadeIn 0.15s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
-
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:#D2D2D7;border-radius:3px}
-
-/* ── Homepage ── */
-.home-section{padding:40px 48px 0}
+/* homepage */
+.home-section{padding:40px 48px 0;max-width:none}
 .home-section-header{display:flex;align-items:baseline;gap:16px;margin-bottom:20px}
 .home-section-title{font-size:22px;font-weight:700;color:#1D1D1F;letter-spacing:-0.5px}
 .home-see-all{font-size:13px;color:#0071E3;border:none;background:none;cursor:pointer;font-family:inherit;padding:0}
@@ -222,122 +172,134 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 .featured-card-name{font-size:14px;font-weight:600;color:#1D1D1F;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .featured-card-sup{font-size:12px;color:#86868B;margin-bottom:6px}
 .featured-card-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-
-/* ── Category thumbnail row ── */
-.cat-thumb-row{display:flex;justify-content:center;gap:40px;padding:32px 48px 0}
+.cat-thumb-row{display:flex;justify-content:center;gap:40px;padding:32px 48px 0;flex-wrap:wrap}
 .cat-thumb-item{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;flex-shrink:0}
 .cat-thumb-img{width:120px;height:120px;border-radius:16px;object-fit:cover;background:#F5F5F7;display:block;transition:transform 0.12s,box-shadow 0.12s}
 .cat-thumb-item:hover .cat-thumb-img{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.12)}
 .cat-thumb-label{font-size:13px;font-weight:500;color:#1D1D1F;text-align:center}
 
-/* ── Search two-column layout ── */
-.search-layout{display:flex;align-items:flex-start;min-height:100vh}
+/* search 2-col */
+.search-layout{display:flex;align-items:flex-start}
 .cat-sidebar{width:188px;flex-shrink:0;padding:20px 12px;border-right:0.5px solid #D2D2D7;position:sticky;top:96px;max-height:calc(100vh - 96px);overflow-y:auto}
 .cat-sidebar-title{font-size:11px;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:0.07em;padding:0 8px;margin-bottom:8px}
 .cat-btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:9px 10px;border:none;background:none;color:#1D1D1F;font-size:14px;cursor:pointer;border-radius:8px;font-family:inherit;transition:background 0.1s;text-align:left}
 .cat-btn:hover{background:#F5F5F7}
 .cat-btn.active{background:#F0F7FF;color:#0071E3;font-weight:500}
 .cat-count{font-size:12px;color:#86868B;background:#F5F5F7;border-radius:10px;padding:1px 7px;flex-shrink:0}
-.cat-btn.active .cat-count{background:#D6E8FC;color:#0071E3}
 .cat-sep{height:0.5px;background:#E5E5EA;margin:8px 4px}
 .search-main{flex:1;min-width:0;padding:24px 40px 40px}
 
-/* ── Material card image ── */
-.mc-img-photo{width:100%;height:140px;object-fit:cover;display:block;background:#F5F5F7}
-.mat-card .mc-img{padding:0;height:140px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+/* requests / chat */
+.req-layout{display:flex;border:0.5px solid #E5E5EA;border-radius:14px;overflow:hidden;height:560px}
+.req-list{width:300px;border-right:0.5px solid #E5E5EA;overflow-y:auto;flex-shrink:0;background:#FAFAFA}
+.req-item{display:flex;gap:12px;padding:14px 16px;border-bottom:0.5px solid #F0F0F2;cursor:pointer}
+.req-item:hover{background:#F0F4FF}
+.req-item.active{background:#F0F7FF}
+.req-ava{width:38px;height:38px;border-radius:10px;background:#1D1D1F;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.req-meta{flex:1;min-width:0}
+.req-name{font-size:14px;font-weight:600;color:#1D1D1F;display:flex;align-items:center;gap:6px}
+.req-snippet{font-size:12px;color:#86868B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.req-dot{width:8px;height:8px;border-radius:50%;background:#0071E3;flex-shrink:0}
+.req-thread{flex:1;display:flex;flex-direction:column}
+.req-thread-hd{padding:14px 18px;border-bottom:0.5px solid #E5E5EA;font-size:14px;font-weight:600;color:#1D1D1F;display:flex;align-items:center;gap:8px}
+.req-msgs{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px;background:#FFFFFF}
+.msg{max-width:72%;padding:9px 13px;border-radius:14px;font-size:14px;line-height:1.5}
+.msg.them{align-self:flex-start;background:#F0F0F2;color:#1D1D1F;border-bottom-left-radius:4px}
+.msg.me{align-self:flex-end;background:#0071E3;color:#FFFFFF;border-bottom-right-radius:4px}
+.msg-time{font-size:10px;opacity:0.6;margin-top:3px;display:block}
+.msg-attach{display:inline-flex;align-items:center;gap:6px;font-size:12px;background:rgba(255,255,255,0.18);border-radius:7px;padding:5px 9px;margin-top:6px}
+.msg.them .msg-attach{background:#FFFFFF;border:0.5px solid #E5E5EA}
+.req-compose{display:flex;gap:8px;padding:12px;border-top:0.5px solid #E5E5EA;background:#FAFAFA}
+.req-compose input{flex:1;border:0.5px solid #D2D2D7;border-radius:18px;padding:9px 14px;font-size:14px;font-family:inherit;outline:none}
+.req-compose input:focus{border-color:#1D1D1F}
+.req-send{background:#0071E3;color:#FFFFFF;border:none;border-radius:18px;padding:0 18px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
+.icon-btn{width:34px;height:34px;border-radius:50%;border:0.5px solid #D2D2D7;background:#FFFFFF;cursor:pointer;font-size:15px;color:#86868B}
 
-/* ── FSM Modal ── */
-.fsm-modal{position:fixed;inset:0;z-index:500;display:flex;align-items:flex-end;justify-content:flex-end}
+/* account / settings */
+.account-hero{display:flex;align-items:center;gap:20px;padding-bottom:24px;border-bottom:0.5px solid #D2D2D7;margin-bottom:28px}
+.account-avatar{width:56px;height:56px;background:#1D1D1F;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-weight:700;font-size:18px;flex-shrink:0}
+.account-name{font-size:22px;font-weight:600;letter-spacing:-0.4px}
+.account-org{font-size:14px;color:#86868B;margin-top:3px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:0.5px solid #D2D2D7}
+.settings-row:last-child{border-bottom:none}
+.settings-label{font-size:15px;color:#1D1D1F}
+.settings-val{font-size:15px;color:#86868B}
+.toggle{width:36px;height:22px;background:#34C759;border-radius:11px;position:relative;cursor:pointer;flex-shrink:0}
+.toggle::after{content:'';position:absolute;top:3px;left:17px;width:16px;height:16px;border-radius:50%;background:#FFFFFF;transition:left 0.15s}
+.toggle.off{background:#D2D2D7}.toggle.off::after{left:3px}
+
+.fade-in{animation:fadeIn 0.15s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#D2D2D7;border-radius:3px}
+
+/* compare */
+.compare-table{width:100%;border-collapse:collapse}
+.compare-table th{font-size:15px;font-weight:600;color:#1D1D1F;padding:18px 16px;border-bottom:0.5px solid #D2D2D7;text-align:center;vertical-align:top;min-width:180px}
+.compare-table th:first-child{text-align:left;color:#86868B;font-weight:400;font-size:13px;min-width:160px}
+.compare-table th .cmp-img{width:72px;height:72px;border-radius:12px;margin:0 auto 10px;overflow:hidden}
+.compare-table th .cmp-img img{width:100%;height:100%;object-fit:cover}
+.compare-table td{font-size:14px;color:#1D1D1F;padding:13px 16px;border-bottom:0.5px solid #D2D2D7;text-align:center}
+.compare-table td:first-child{text-align:left;font-size:13px;color:#86868B;font-weight:500}
+.compare-better{color:#1D7340;font-weight:500}.compare-worse{color:#FF3B30}.compare-same{color:#86868B}
+
+/* fsm modal (in-page launcher; full search in new window) */
+.fsm-modal{position:fixed;inset:0;z-index:500;display:none;align-items:flex-end;justify-content:flex-end}
 .fsm-modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.35)}
 .fsm-modal-panel{position:relative;background:#FFFFFF;width:540px;height:100vh;overflow-y:auto;box-shadow:-4px 0 24px rgba(0,0,0,0.12);display:flex;flex-direction:column}
 .fsm-modal-header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:0.5px solid #D2D2D7;position:sticky;top:0;background:#FFFFFF;z-index:1}
 .fsm-modal-title{font-size:17px;font-weight:600;color:#1D1D1F;flex:1}
-.fsm-modal-close{width:28px;height:28px;border-radius:50%;border:none;background:#F5F5F7;color:#1D1D1F;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+.fsm-modal-close{width:28px;height:28px;border-radius:50%;border:none;background:#F5F5F7;color:#1D1D1F;cursor:pointer;font-size:14px}
 .fsm-modal-body{padding:20px 24px;flex:1}
 </style>
 </head>
 <body>
 
-<!-- ══ TOP NAVIGATION ══ -->
+<!-- TOP NAV -->
 <nav class="topnav">
-  <span class="nav-brand">SmartPN Atlas</span>
+  <span class="nav-brand" onclick="showPage('home')">SmartPN Atlas</span>
   <div class="nav-search-wrap" onclick="document.getElementById('nav-search-input').focus()">
     <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="#FFF" stroke-width="1.2"/><path d="M9.5 9.5L12.5 12.5" stroke="#FFF" stroke-width="1.2" stroke-linecap="round"/></svg>
     <input type="text" id="nav-search-input" placeholder="Search materials, suppliers, codes…" oninput="handleNavSearch(this.value)"/>
   </div>
   <div class="nav-spacer"></div>
   <div class="nav-actions">
-    <button class="nav-btn" onclick="showPage('favorites')">
-      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 13.5S2 9.5 2 5.5A3.5 3.5 0 018 3a3.5 3.5 0 016 2c0 4-6 8.5-6 8.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
-      My Favorites
-    </button>
-    <button class="nav-btn" onclick="showPage('library')">
-      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 7h6M5 10h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      My Library <span class="nav-count">12</span>
-    </button>
-    <button class="nav-btn" onclick="showPage('account')">
-      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 14c0-3 2.5-5 5.5-5s5.5 2 5.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      My Account
-    </button>
-    <button class="nav-btn" onclick="showPage('settings')">
-      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.9 2.9l1.4 1.4M11.7 11.7l1.4 1.4M11.7 4.3l-1.4 1.4M4.3 11.7l-1.4 1.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      Settings
-    </button>
+    <button class="nav-btn" onclick="showPage('favorites')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 13.5S2 9.5 2 5.5A3.5 3.5 0 018 3a3.5 3.5 0 016 2c0 4-6 8.5-6 8.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span data-i18n="favorites">My Favorites</span></button>
+    <button class="nav-btn" onclick="showPage('library')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 7h6M5 10h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span data-i18n="library">My Library</span> <span class="nav-count" id="lib-count">12</span></button>
+    <button class="nav-btn" onclick="showPage('requests')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 4.5A1.5 1.5 0 013.5 3h9A1.5 1.5 0 0114 4.5v6A1.5 1.5 0 0112.5 12H6l-3 2.5V12H3.5A1.5 1.5 0 012 10.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span data-i18n="requests">Requests</span> <span class="nav-count alert" id="req-count">2</span></button>
+    <button class="nav-btn" onclick="showPage('account')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 14c0-3 2.5-5 5.5-5s5.5 2 5.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span data-i18n="account">My Account</span></button>
+    <button class="nav-btn" onclick="showPage('settings')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.9 2.9l1.4 1.4M11.7 11.7l1.4 1.4M11.7 4.3l-1.4 1.4M4.3 11.7l-1.4 1.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span data-i18n="settings">Settings</span></button>
     <div style="width:0.5px;height:16px;background:rgba(255,255,255,0.15);margin:0 4px"></div>
     <button id="lang-toggle" class="nav-btn" onclick="toggleLang()" style="font-weight:700;font-size:11px;letter-spacing:0.04em;background:rgba(255,255,255,0.08);border-radius:6px;padding:5px 10px">中文</button>
   </div>
 </nav>
 
-<!-- ══ FILTER BAR ══ -->
+<!-- FILTER BAR -->
 <div class="filter-bar" id="filter-bar">
-  <button class="fc active" onclick="setTypeFilter('all',this)">All</button>
-  <button class="fc" onclick="setTypeFilter('raw',this)">Raw Material</button>
-  <button class="fc" onclick="setTypeFilter('secondary',this)">Secondary</button>
-  <button class="fc dpp" onclick="toggleDppFilter(this)" id="dpp-fc">DPP-ready</button>
+  <button class="fc active" onclick="setTypeFilter('all',this)" data-i18n="f_all">All</button>
+  <button class="fc" onclick="setTypeFilter('raw',this)" data-i18n="f_raw">Raw Material</button>
+  <button class="fc" onclick="setTypeFilter('secondary',this)" data-i18n="f_sec">Secondary</button>
+  <button class="fc dpp" onclick="toggleDppFilter(this)">DPP-ready</button>
   <div class="filter-sep"></div>
-  <span class="filter-label">Price / m</span>
+  <span class="filter-label" data-i18n="f_price">Price / m</span>
   <div class="price-range-wrap">
     <input type="number" class="price-input" id="price-min" placeholder="Min" oninput="applyFilters()">
     <span style="font-size:12px;color:#86868B">–</span>
     <input type="number" class="price-input" id="price-max" placeholder="Max" oninput="applyFilters()">
   </div>
   <div class="filter-sep"></div>
-  <span class="filter-label">Max LT (days)</span>
+  <span class="filter-label" data-i18n="f_lt">Max LT (days)</span>
   <input type="number" class="price-input" id="lt-max" placeholder="Any" style="width:50px" oninput="applyFilters()">
   <div class="filter-sep"></div>
-  <span class="filter-label">Sort</span>
+  <span class="filter-label" data-i18n="f_sort">Sort</span>
   <button class="fc" id="sort-lt" onclick="toggleSort('lt',this)">LT ↕</button>
   <button class="fc" id="sort-price" onclick="toggleSort('price',this)">Price ↕</button>
   <div class="filter-sep"></div>
-  <button class="fc" id="ext-view-btn" onclick="toggleExtView(this)" data-i18n="extView" title="Simulate external visitor view — PRIVATE materials hidden">External View</button>
+  <button class="fc" id="ext-view-btn" onclick="toggleExtView(this)" title="Simulate external visitor — PRIVATE materials hidden" data-i18n="extView">External View</button>
 </div>
 
-<!-- ══ PAGES ══ -->
-
-<!-- ── HOMEPAGE ── -->
+<!-- HOME -->
 <div class="page active fade-in" id="page-home" style="max-width:none;padding:0">
-  <div class="cat-thumb-row">
-    <div class="cat-thumb-item" onclick="toggleCat('紡織',document.getElementById('cat-紡織'))">
-      <img class="cat-thumb-img" data-pat="textile" alt="Textile">
-      <span class="cat-thumb-label" data-i18n="cat_textile">Textile</span>
-    </div>
-    <div class="cat-thumb-item" onclick="toggleCat('人造皮',document.getElementById('cat-人造皮'))">
-      <img class="cat-thumb-img" data-pat="synleather" alt="Synthetic Leather">
-      <span class="cat-thumb-label" data-i18n="cat_synleather">Synthetic Leather</span>
-    </div>
-    <div class="cat-thumb-item" onclick="toggleCat('皮料',document.getElementById('cat-皮料'))">
-      <img class="cat-thumb-img" data-pat="leather" alt="Leather">
-      <span class="cat-thumb-label" data-i18n="cat_leather">Leather</span>
-    </div>
-    <div class="cat-thumb-item" onclick="toggleCat('薄膜',document.getElementById('cat-薄膜'))">
-      <img class="cat-thumb-img" data-pat="film" alt="Film">
-      <span class="cat-thumb-label" data-i18n="cat_film">Film</span>
-    </div>
-    <div class="cat-thumb-item" onclick="toggleCat('二次加工',document.getElementById('cat-二次加工'))">
-      <img class="cat-thumb-img" data-pat="secondary" alt="Secondary">
-      <span class="cat-thumb-label" data-i18n="cat_secondary">Secondary</span>
-    </div>
-  </div>
+  <div class="cat-thumb-row" id="cat-thumb-row"></div>
   <div class="home-section">
     <div class="home-section-header">
       <div class="home-section-title" data-i18n="latest">Latest</div>
@@ -354,18 +316,18 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
   </div>
 </div>
 
-<!-- ── SEARCH ── -->
+<!-- SEARCH -->
 <div class="page" id="page-search" style="max-width:none;padding:0">
   <div class="search-layout">
     <div class="cat-sidebar">
       <div class="cat-sidebar-title" data-i18n="category">Category</div>
-      <button class="cat-btn active" id="cat-all" onclick="toggleCat(null,this)">All <span class="cat-count" id="cnt-all">16</span></button>
+      <button class="cat-btn active" id="cat-all" onclick="toggleCat(null,this)">All <span class="cat-count" id="cnt-all">0</span></button>
       <div class="cat-sep"></div>
-      <button class="cat-btn" id="cat-皮料" onclick="toggleCat('皮料',this)"><span data-i18n="cat_leather">Leather</span> <span class="cat-count" id="cnt-皮料">2</span></button>
-      <button class="cat-btn" id="cat-人造皮" onclick="toggleCat('人造皮',this)"><span data-i18n="cat_synleather">Synthetic Leather</span> <span class="cat-count" id="cnt-人造皮">2</span></button>
-      <button class="cat-btn" id="cat-紡織" onclick="toggleCat('紡織',this)"><span data-i18n="cat_textile">Textile</span> <span class="cat-count" id="cnt-紡織">2</span></button>
-      <button class="cat-btn" id="cat-薄膜" onclick="toggleCat('薄膜',this)"><span data-i18n="cat_film">Film</span> <span class="cat-count" id="cnt-薄膜">4</span></button>
-      <button class="cat-btn" id="cat-二次加工" onclick="toggleCat('二次加工',this)"><span data-i18n="cat_secondary">Secondary</span> <span class="cat-count" id="cnt-二次加工">3</span></button>
+      <button class="cat-btn" id="cat-皮料" onclick="toggleCat('皮料',this)"><span data-i18n="cat_leather">Leather</span> <span class="cat-count" id="cnt-皮料">0</span></button>
+      <button class="cat-btn" id="cat-人造皮" onclick="toggleCat('人造皮',this)"><span data-i18n="cat_synleather">Synthetic Leather</span> <span class="cat-count" id="cnt-人造皮">0</span></button>
+      <button class="cat-btn" id="cat-紡織" onclick="toggleCat('紡織',this)"><span data-i18n="cat_textile">Textile</span> <span class="cat-count" id="cnt-紡織">0</span></button>
+      <button class="cat-btn" id="cat-薄膜" onclick="toggleCat('薄膜',this)"><span data-i18n="cat_film">Film</span> <span class="cat-count" id="cnt-薄膜">0</span></button>
+      <button class="cat-btn" id="cat-二次加工" onclick="toggleCat('二次加工',this)"><span data-i18n="cat_secondary">Secondary</span> <span class="cat-count" id="cnt-二次加工">0</span></button>
     </div>
     <div class="search-main">
       <div id="fsm-banner-area"></div>
@@ -375,122 +337,89 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
   </div>
 </div>
 
-<!-- ── SPU DETAIL (Product Homepage) ── -->
+<!-- SPU -->
 <div class="page fade-in" id="page-spu">
-  <button class="detail-back" onclick="backToSearch()">‹ Material Search</button>
+  <button class="detail-back" onclick="backToSearch()">‹ <span data-i18n="materialSearch">Material Search</span></button>
   <div class="spu-hero" id="spu-hero"></div>
   <div id="spu-spec-body"></div>
   <div id="spu-reviews-body"></div>
 </div>
 
-<!-- ── SKU DETAIL (Product + Spec page) ── -->
-<div class="page fade-in" id="page-sku">
-  <button class="detail-back" id="sku-back-btn" onclick="backToSpu()">‹ Back</button>
-  <div class="spu-hero" id="sku-hero"></div>
-  <div id="sku-spec-body"></div>
-</div>
-
-<!-- ── COMPANY PROFILE ── -->
+<!-- COMPANY -->
 <div class="page fade-in" id="page-company">
-  <button class="detail-back" id="company-back-btn" onclick="backFromCompany()">‹ Back</button>
+  <button class="detail-back" onclick="backFromCompany()">‹ <span data-i18n="back">Back</span></button>
   <div id="company-content"></div>
 </div>
 
-<!-- ── MY FAVORITES ── -->
+<!-- FAVORITES -->
 <div class="page fade-in" id="page-favorites">
-  <div class="section-title">My Favorites</div>
-  <div class="lib-grid">
-    <div class="lib-card" onclick="openMaterial('SPA-MAT-0001')"><div class="lib-img"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 12 Q10 6 16 12 Q22 18 28 12" stroke="#1D1D1F" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg></div><div class="lib-info"><div class="lib-name">Recycled Polyester Mesh 220g</div><div class="lib-sub">Formosa Vietnam · Raw</div><div class="lib-meta"><span class="badge b-open">OPEN</span><span class="b-dpp">DPP-ready</span></div></div><span class="lib-chev">›</span></div>
-    <div class="lib-card" onclick="openMaterial('SPA-MAT-0004')"><div class="lib-img"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 16 Q12 6 20 16" stroke="#1D1D1F" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg></div><div class="lib-info"><div class="lib-name">Full Grain Cow Leather</div><div class="lib-sub">Apex Textile · Raw</div><div class="lib-meta"><span class="badge b-open">OPEN</span><span class="b-dpp">DPP-ready</span></div></div><span class="lib-chev">›</span></div>
-    <div class="lib-card" onclick="openMaterial('SPA-COMP-0101')"><div class="lib-img"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="8" width="16" height="8" rx="2" stroke="#1D1D1F" stroke-width="1.2"/></svg></div><div class="lib-info"><div class="lib-name">Laminated Black Mesh (2nd)</div><div class="lib-sub">Formosa Indonesia · Secondary</div><div class="lib-meta"><span class="badge b-open">OPEN</span><span class="b-dpp">DPP-ready</span></div></div><span class="lib-chev">›</span></div>
-  </div>
+  <div class="section-title" data-i18n="favorites">My Favorites</div>
+  <div class="lib-grid" id="favorites-list"></div>
 </div>
 
-<!-- ── MY LIBRARY ── -->
+<!-- LIBRARY -->
 <div class="page fade-in" id="page-library">
-  <div class="section-title">My Library <span style="font-size:13px;color:#86868B;font-weight:400">(12 materials)</span></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid #D2D2D7;padding-bottom:12px;margin-bottom:20px">
+    <div style="font-size:17px;font-weight:600"><span data-i18n="library">My Library</span> <span style="font-size:13px;color:#86868B;font-weight:400">(12)</span></div>
+    <button class="btn-blue-ghost" style="padding:8px 18px;font-size:13px" onclick="alert('Share My Library with colleagues at NexBrand Co. — pick accounts to grant read access.')">＋ <span data-i18n="shareLib">Share with my company</span></button>
+  </div>
+  <div style="font-size:12px;color:#86868B;margin:-8px 0 18px" data-i18n="libNote">Personal library — private to your account. Sharing grants read access to selected colleagues in your company.</div>
   <div class="lib-grid" id="library-list"></div>
 </div>
 
-<!-- ── COMPARE ── -->
-<div class="page fade-in full-w" id="page-compare" style="padding:0">
-  <div style="max-width:1080px;margin:0 auto;padding:0 40px">
-    <div class="compare-page-header">
-      <div class="compare-page-title">Compare Materials</div>
-      <div class="compare-page-sub">Side-by-side comparison · 3 materials</div>
+<!-- REQUESTS -->
+<div class="page fade-in" id="page-requests">
+  <div class="section-title" data-i18n="requests">Requests</div>
+  <div class="req-layout">
+    <div class="req-list" id="req-list"></div>
+    <div class="req-thread">
+      <div class="req-thread-hd" id="req-thread-hd"></div>
+      <div class="req-msgs" id="req-msgs"></div>
+      <div class="req-compose">
+        <button class="icon-btn" title="Attach" onclick="alert('Attach file (spec / DPP doc / image)')">＋</button>
+        <input id="req-input" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendMsg()">
+        <button class="req-send" onclick="sendMsg()" data-i18n="send">Send</button>
+      </div>
     </div>
-  </div>
-  <div class="compare-wrapper" style="max-width:1080px;margin:0 auto;padding:0 40px 40px">
-    <table class="compare-table">
-      <thead>
-        <tr>
-          <th></th>
-          <th>
-            <div class="compare-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M4 14 Q10 8 16 14 Q22 20 28 14" stroke="#1D1D1F" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg></div>
-            Recycled Mesh 220g<br><span class="compare-supplier">Formosa Vietnam (DPP)</span>
-          </th>
-          <th>
-            <div class="compare-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M4 14 Q10 8 16 14 Q22 20 28 14" stroke="#86868B" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg></div>
-            Recycled Mesh 220g<br><span class="compare-supplier">Sunrise Synthetics</span>
-          </th>
-          <th>
-            <div class="compare-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M4 14 Q10 8 16 14 Q22 20 28 14" stroke="#1D1D1F" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg></div>
-            Full Grain Cow Leather<br><span class="compare-supplier">Apex Textile</span>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>SmartPN ID</td><td style="font-size:12px;color:#86868B">SPA-MAT-0001</td><td style="font-size:12px;color:#86868B">SPA-MAT-0007</td><td style="font-size:12px;color:#86868B">SPA-MAT-0004</td></tr>
-        <tr><td>Category</td><td class="compare-same">紡織</td><td class="compare-same">紡織</td><td>皮料</td></tr>
-        <tr><td>GRS 認證</td><td class="compare-better">52% post-consumer</td><td class="compare-worse">—（未認證）</td><td style="color:#86868B">N/A</td></tr>
-        <tr><td>Price / m</td><td>USD 2.00</td><td class="compare-better">USD 1.85</td><td>USD 8.50/sqft</td></tr>
-        <tr><td>Lead time</td><td class="compare-better">30 days</td><td class="compare-worse">50 days</td><td>45 days</td></tr>
-        <tr><td>DPP-ready</td><td><span class="b-dpp">✓ DPP-ready</span></td><td style="color:#86868B">—</td><td><span class="b-dpp">✓ DPP-ready</span></td></tr>
-        <tr><td>Permission</td><td><span class="badge b-open">OPEN</span></td><td><span class="badge b-open">OPEN</span></td><td><span class="badge b-open">OPEN</span></td></tr>
-        <tr><td>Updated</td><td>Jun 13, 2026</td><td>Jun 9, 2026</td><td>Jun 13, 2026</td></tr>
-        <tr class="compare-add-row"><td></td><td><button class="btn-compare-add">Add to Library</button></td><td><button class="btn-compare-add">Add to Library</button></td><td><button class="btn-compare-add">Add to Library</button></td></tr>
-      </tbody>
-    </table>
-    <div style="font-size:12px;color:#86868B;padding:16px 0 0">Highlighted values indicate the best in each row. Data sourced from supplier-maintained records.</div>
   </div>
 </div>
 
-<!-- ── MY ACCOUNT ── -->
+<!-- COMPARE -->
+<div class="page fade-in" id="page-compare">
+  <div class="section-title" data-i18n="compare">Compare Materials</div>
+  <div id="compare-body"></div>
+</div>
+
+<!-- ACCOUNT -->
 <div class="page fade-in" id="page-account">
   <div class="account-hero">
     <div class="account-avatar">JL</div>
-    <div>
-      <div class="account-name">James Liu</div>
-      <div class="account-org">NexBrand Co. · R&D Procurement · james.liu@nexbrand.com</div>
-    </div>
+    <div><div class="account-name">James Liu</div><div class="account-org">NexBrand Co. · R&amp;D Procurement · james.liu@nexbrand.com</div></div>
   </div>
   <div class="section-title">Access &amp; Permissions</div>
   <div class="settings-row"><span class="settings-label">OPEN materials</span><span class="settings-val">All — 1,284 items</span></div>
-  <div class="settings-row"><span class="settings-label">Granted by Formosa Vietnam Co.</span><span class="settings-val">Material spec folder · DPP folder</span></div>
+  <div class="settings-row"><span class="settings-label">Granted by Formosa Vietnam Co.</span><span class="settings-val">Ripstop Nylon 70D (PRIVATE) · DPP folder</span></div>
   <div class="settings-row"><span class="settings-label">Granted by Apex Textile Co.</span><span class="settings-val">Technical folder · Certification folder</span></div>
   <div class="settings-row"><span class="settings-label">Pending requests</span><span class="settings-val" style="color:#F5A623">2 requests pending</span></div>
 </div>
 
-<!-- ── SETTINGS ── -->
+<!-- SETTINGS -->
 <div class="page fade-in" id="page-settings">
-  <div class="section-title">Settings</div>
-  <div class="settings-row"><span class="settings-label">Language</span><span class="settings-val">English</span></div>
+  <div class="section-title" data-i18n="settings">Settings</div>
+  <div class="settings-row"><span class="settings-label">Language</span><span class="settings-val">English / 中文</span></div>
   <div class="settings-row"><span class="settings-label">Default search results</span><span class="settings-val">All (OPEN + my access)</span></div>
   <div class="settings-row"><span class="settings-label">DPP-ready filter</span><div class="toggle"></div></div>
   <div class="settings-row"><span class="settings-label">Email on permission changes</span><div class="toggle"></div></div>
   <div class="settings-row"><span class="settings-label">Show LT in search results</span><div class="toggle"></div></div>
 </div>
 
-<!-- ══ FSM MODAL ══ -->
-<div class="fsm-modal" id="fsm-modal" style="display:none">
+<!-- FSM MODAL -->
+<div class="fsm-modal" id="fsm-modal">
   <div class="fsm-modal-backdrop" onclick="closeFsmModal()"></div>
   <div class="fsm-modal-panel">
     <div class="fsm-modal-header">
-      <div>
-        <div class="fsm-modal-title">Find Same Material</div>
-        <div id="fsm-modal-context" style="font-size:12px;color:#86868B;margin-top:2px"></div>
-      </div>
-      <button onclick="openFsmInNewWindow()" style="background:#F0F7FF;color:#0071E3;border:0.5px solid #BDD7F7;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">⬡ 開新視窗</button>
+      <div><div class="fsm-modal-title">Find Same Material</div><div id="fsm-modal-context" style="font-size:12px;color:#86868B;margin-top:2px"></div></div>
+      <button onclick="openFsmInNewWindow()" style="background:#F0F7FF;color:#0071E3;border:0.5px solid #BDD7F7;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">⬡ New window</button>
       <button class="fsm-modal-close" onclick="closeFsmModal()">✕</button>
     </div>
     <div class="fsm-modal-body" id="fsm-modal-body"></div>
@@ -498,325 +427,7 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 </div>
 
 <script>
-/* ═══════════════════════
-   MOCK DATA
-═══════════════════════ */
-const SUPPLIERS = {
-  FV: { id:'FV', name:'Formosa Vietnam Co.', short:'FV', location:'Ho Chi Minh City, Vietnam', category:'Textiles & Synthetics', desc:'Formosa Materials Group subsidiary. Specializes in recycled mesh textiles, PU synthetic leather, and specialty fabrics. GRS and ISO 9001 certified.', certs:['ISO 9001','GRS-certified','DPP-ready'], materials:4, open:2, dpp:true },
-  FI: { id:'FI', name:'Formosa Indonesia Co.', short:'FI', location:'Jakarta, Indonesia', category:'Films & Secondary Processing', desc:'Formosa Materials Group subsidiary. Specializes in TPU laminating films and secondary processing. ISO 9001 certified.', certs:['ISO 9001','DPP-ready'], materials:3, open:2, dpp:true },
-  AP: { id:'AP', name:'Apex Textile Co.', short:'AP', location:'Taipei, Taiwan', category:'Textiles & Leather', desc:'DPP-ready textile specialist. Full grain leather, jacquard knit, and microfiber suede for global footwear brands. Company review (Brand-C): "DPP 資料配合度高，配合速度業界最快。" ★★★★★', certs:['ISO 9001','DPP-ready','OEKO-TEX'], materials:3, open:3, dpp:true },
-  SS: { id:'SS', name:'Sunrise Synthetics', short:'SS', location:'Da Nang, Vietnam', category:'Commodity Textiles', desc:'Regional supplier. Competitive pricing with longer lead times. REACH compliant. Note: LT reliability has been flagged by buyers (see material reviews).', certs:['ISO 9001','REACH'], materials:2, open:2, dpp:false },
-};
-
-const MATERIALS = [
-  // ── #1 Formosa VN — Recycled Mesh (FSM Identical: #7 same SPU+SKU, diff supplier)
-  { id:'SPA-MAT-0001', name:'Recycled Polyester Mesh 220g', sup:'FV', type:'raw', spuCode:'RPET-MESH-220', skuKey:'BLK-58', imgShape:'wave', cat:'紡織', views:203,
-    price:2.00, priceUnit:'m', lt:30, perm:'OPEN', dpp:true, updated:'Jun 13',
-    spuFields:{ Category:'Textile', Fiber:'Recycled PET 220g/m²', Construction:'Knit mesh', Standard:'ISO 105-B02', 'GRS Content':'≥50% post-consumer' },
-    skuVariants:[
-      { key:'BLK-58', label:'Black · 58" wide', price:2.00, lt:30, fields:{ Color:'Black', Width:'58"','Weight':'220 g/m²','GRS recycled':'52%','Colorfastness':'≥4' } },
-      { key:'WHT-58', label:'White · 58" wide', price:2.05, lt:30, fields:{ Color:'White', Width:'58"','Weight':'220 g/m²','GRS recycled':'52%','Colorfastness':'≥4' } },
-      { key:'BLK-44', label:'Black · 44" wide', price:1.90, lt:28, fields:{ Color:'Black', Width:'44"','Weight':'220 g/m²','GRS recycled':'52%','Colorfastness':'≥4' } },
-    ],
-    reviews:[
-      { initials:'BA', name:'Brand-A 開發部', org:'Brand-A', date:'Jun 10', stars:5, text:'品質穩定，交期準。每批次品質一致性高，推薦。', perm:'SHARED' },
-    ]
-  },
-  // ── #2 Formosa ID — TPU Film
-  { id:'SPA-MAT-0002', name:'TPU Laminating Film 0.15mm', sup:'FI', type:'raw', spuCode:'TPU-FILM-015', skuKey:'CLR-015', imgShape:'rect', cat:'薄膜', views:87,
-    price:1.45, priceUnit:'m', lt:25, perm:'OPEN', dpp:true, updated:'Jun 12',
-    spuFields:{ Category:'Film', 'Base resin':'Thermoplastic polyurethane', Thickness:'0.15mm', Standard:'ASTM D412' },
-    skuVariants:[
-      { key:'CLR-015', label:'Clear · 0.15mm', price:1.45, lt:25, fields:{ Thickness:'0.15mm',Color:'Clear',Hardness:'85 Shore A','Tensile strength':'40 MPa' } },
-    ],
-    reviews:[]
-  },
-  // ── #3 Formosa VN — PU Synthetic Leather
-  { id:'SPA-MAT-0003', name:'PU Synthetic Leather 1.2mm', sup:'FV', type:'raw', spuCode:'PU-SL-12', skuKey:'BLK-MAT', imgShape:'rect', cat:'人造皮', views:118,
-    price:3.80, priceUnit:'m', lt:35, perm:'OPEN', dpp:false, updated:'Jun 11',
-    spuFields:{ Category:'Synthetic Leather', Base:'Woven polyester', Coating:'PU top coat', Standard:'QB/T 2729' },
-    skuVariants:[
-      { key:'BLK-MAT', label:'Black · Matt', price:3.80, lt:35, fields:{ Thickness:'1.2mm',Color:'Black',Finish:'Matt','Peel strength':'≥30 N/cm','Abrasion':'20,000 cycles' } },
-      { key:'WHT-GLO', label:'White · Gloss', price:3.95, lt:35, fields:{ Thickness:'1.2mm',Color:'White',Finish:'High gloss','Peel strength':'≥30 N/cm','Abrasion':'20,000 cycles' } },
-    ],
-    reviews:[]
-  },
-  // ── #4 Apex — Full Grain Cow Leather (OPEN review from Brand-B)
-  { id:'SPA-MAT-0004', name:'Full Grain Cow Leather', sup:'AP', type:'raw', spuCode:'FGCL-NATURAL', skuKey:'1.2-NAT', imgShape:'wave', cat:'皮料', views:142,
-    price:8.50, priceUnit:'sqft', lt:45, perm:'OPEN', dpp:true, updated:'Jun 13',
-    spuFields:{ Category:'Leather', Origin:'South America', Tannage:'Chrome-free vegetable', Standard:'IUF 450' },
-    skuVariants:[
-      { key:'1.2-NAT', label:'1.2mm · Natural Tan', price:8.50, lt:45, fields:{ Thickness:'1.2mm',Color:'Natural Tan',Finish:'Full grain','Tensile strength':'≥200 N/cm²','Tear strength':'≥60 N/cm' } },
-      { key:'1.4-BLK', label:'1.4mm · Black',       price:9.00, lt:45, fields:{ Thickness:'1.4mm',Color:'Black',Finish:'Full grain','Tensile strength':'≥200 N/cm²','Tear strength':'≥65 N/cm' } },
-    ],
-    reviews:[
-      { initials:'BB', name:'Brand-B 材料部', org:'Brand-B', date:'Jun 8', stars:4, text:'認證齊全，DPP 文件完整，適合高端品牌需求。認證回覆速度快。', perm:'OPEN' },
-    ]
-  },
-  // ── #5 Apex — Jacquard Knit Upper
-  { id:'SPA-MAT-0005', name:'Jacquard Knit Upper 380g', sup:'AP', type:'raw', spuCode:'JKU-380', skuKey:'BLK-JQ', imgShape:'wave', cat:'紡織', views:76,
-    price:4.20, priceUnit:'m', lt:28, perm:'OPEN', dpp:true, updated:'Jun 12',
-    spuFields:{ Category:'Textile', Fiber:'Polyester/Nylon blend 380g/m²', Construction:'Jacquard knit', Standard:'ISO 13934' },
-    skuVariants:[
-      { key:'BLK-JQ', label:'Black · Jacquard', price:4.20, lt:28, fields:{ Color:'Black','Weight':'380 g/m²',Width:'52"','Burst strength':'≥500 kPa','Pilling':'≥4' } },
-      { key:'GRY-JQ', label:'Grey · Jacquard',  price:4.20, lt:28, fields:{ Color:'Grey','Weight':'380 g/m²',Width:'52"','Burst strength':'≥500 kPa','Pilling':'≥4' } },
-    ],
-    reviews:[]
-  },
-  // ── #6 Sunrise — EVA Foam Sheet
-  { id:'SPA-MAT-0006', name:'EVA Foam Sheet 4mm', sup:'SS', type:'raw', spuCode:'EVA-FOAM-4', skuKey:'WHT-4MM', imgShape:'rect', cat:'薄膜', views:55,
-    price:1.10, priceUnit:'m', lt:40, perm:'OPEN', dpp:false, updated:'Jun 10',
-    spuFields:{ Category:'Foam', Material:'Ethylene vinyl acetate', Thickness:'4mm', Standard:'ASTM D1056' },
-    skuVariants:[
-      { key:'WHT-4MM', label:'White · 4mm', price:1.10, lt:40, fields:{ Thickness:'4mm',Color:'White',Density:'0.20 g/cm³','Compression set':'≤30%','Hardness':'35 Shore C' } },
-    ],
-    reviews:[]
-  },
-  // ── #7 Sunrise — Recycled Mesh (FSM Identical match with #1: cheaper $1.85 but LT 50d, no DPP)
-  { id:'SPA-MAT-0007', name:'Recycled Polyester Mesh 220g', sup:'SS', type:'raw', spuCode:'RPET-MESH-220', skuKey:'BLK-58', imgShape:'wave', cat:'紡織', views:89,
-    price:1.85, priceUnit:'m', lt:50, perm:'OPEN', dpp:false, updated:'Jun 9',
-    spuFields:{ Category:'Textile', Fiber:'Recycled PET 220g/m²', Construction:'Knit mesh', Standard:'ISO 105-B02', 'GRS Content':'Not certified' },
-    skuVariants:[
-      { key:'BLK-58', label:'Black · 58" wide', price:1.85, lt:50, fields:{ Color:'Black', Width:'58"','Weight':'220 g/m²','GRS recycled':'—','Colorfastness':'≥3' } },
-    ],
-    reviews:[
-      { initials:'BA2', name:'Brand-A 採購部', org:'Brand-A', date:'Jun 5', stars:2, text:'兩次延誤交期，LT 不穩定。報價便宜但實際綜合成本不低。不建議用於急單。', perm:'SHARED' },
-    ]
-  },
-  // ── #8 Apex — Microfiber Suede
-  { id:'SPA-MAT-0008', name:'Microfiber Suede 0.8mm', sup:'AP', type:'raw', spuCode:'MFS-08', skuKey:'GRY-08', imgShape:'wave', cat:'人造皮', views:62,
-    price:5.60, priceUnit:'m', lt:32, perm:'OPEN', dpp:true, updated:'Jun 11',
-    spuFields:{ Category:'Synthetic Leather', Material:'Microfiber suede', Thickness:'0.8mm', Standard:'QB/T 2726' },
-    skuVariants:[
-      { key:'GRY-08', label:'Grey · 0.8mm', price:5.60, lt:32, fields:{ Thickness:'0.8mm',Color:'Grey',Finish:'Suede','Peel strength':'≥25 N/cm','Abrasion':'15,000 cycles' } },
-      { key:'BLK-08', label:'Black · 0.8mm', price:5.60, lt:32, fields:{ Thickness:'0.8mm',Color:'Black',Finish:'Suede','Peel strength':'≥25 N/cm','Abrasion':'15,000 cycles' } },
-    ],
-    reviews:[]
-  },
-  // ── #9 Formosa ID — Laminated Black Mesh (2nd process)
-  { id:'SPA-COMP-0101', name:'Laminated Black Mesh (2nd)', sup:'FI', type:'secondary', spuCode:'COMP-LBM', skuKey:'BLK-LT', imgShape:'wave', cat:'二次加工', views:133,
-    price:3.30, priceUnit:'m', lt:38, perm:'OPEN', dpp:true, updated:'Jun 12',
-    spuFields:{ Category:'Secondary Process', 'Process type':'Lamination', Materials:'Mesh + TPU film', Standard:'Internal QC-2101' },
-    skuVariants:[
-      { key:'BLK-LT', label:'Black · LT bond', price:3.30, lt:38, fields:{ Color:'Black',Bonding:'Low-temp TPU','Total thickness':'2.2mm','Peel strength':'≥35 N/cm','Width':'54"' } },
-    ],
-    reviews:[]
-  },
-  // ── #10 PRIVATE — Ripstop Nylon (External view cannot see)
-  { id:'SPA-MAT-0010', name:'Ripstop Nylon 70D', sup:'FV', type:'raw', spuCode:'RSN-70D', skuKey:'BLK-70', imgShape:'wave', cat:'紡織', views:27,
-    price:2.75, priceUnit:'m', lt:30, perm:'PRIVATE', dpp:false, updated:'Jun 10',
-    spuFields:{ Category:'Textile', Fiber:'Nylon 70D', Construction:'Ripstop weave', Standard:'ISO 13934' },
-    skuVariants:[
-      { key:'BLK-70', label:'Black · 70D', price:2.75, lt:30, fields:{ Color:'Black',Denier:'70D',Weave:'Ripstop','Tensile strength':'≥400 N','Weight':'70 g/m²' } },
-    ],
-    reviews:[]
-  },
-  // ── #11 PRIVATE — Bio-based TPU Film (External view cannot see)
-  { id:'SPA-MAT-0011', name:'Bio-based TPU Film', sup:'FI', type:'raw', spuCode:'BIO-TPU', skuKey:'CLR-020', imgShape:'rect', cat:'薄膜', views:19,
-    price:2.90, priceUnit:'m', lt:42, perm:'PRIVATE', dpp:true, updated:'Jun 13',
-    spuFields:{ Category:'Film', 'Base resin':'Bio-based TPU', 'Bio content':'≥30%', Thickness:'0.20mm', Standard:'EN 14067' },
-    skuVariants:[
-      { key:'CLR-020', label:'Clear · 0.20mm', price:2.90, lt:42, fields:{ Thickness:'0.20mm',Color:'Clear','Bio content':'30%','Tensile strength':'38 MPa',Elongation:'≥450%' } },
-    ],
-    reviews:[]
-  },
-  // ── #12 PRIVATE — Bonded Knit + Foam (External view cannot see)
-  { id:'SPA-COMP-0102', name:'Bonded Knit + Foam (2nd)', sup:'FV', type:'secondary', spuCode:'COMP-BKF', skuKey:'BLK-BKF', imgShape:'wave', cat:'二次加工', views:31,
-    price:4.85, priceUnit:'m', lt:36, perm:'PRIVATE', dpp:false, updated:'Jun 11',
-    spuFields:{ Category:'Secondary Process', 'Process type':'Bonding', Materials:'Jacquard knit + EVA foam', Standard:'Internal QC-0102' },
-    skuVariants:[
-      { key:'BLK-BKF', label:'Black · Bonded', price:4.85, lt:36, fields:{ Color:'Black','Total thickness':'4.5mm',Bonding:'Hot melt','Delamination':'≥20 N','Width':'52"' } },
-    ],
-    reviews:[]
-  },
-];
-
-/* ═══════════════════════
-   STATE
-═══════════════════════ */
-let currentPage = 'home';
-let typeFilter = 'all';
-let dppFilter = false;
-let catFilter = null;
-let fsmContext = null;
-let externalView = false;
-let currentMat = null;
-let currentSku = null;
-let prevPage = 'home';
-let sortMode = null; // 'lt-asc','lt-desc','price-asc','price-desc'
-let companyReturnPage = null;
-let companyReturnMat = null;
-
-/* ═══════════════════════
-   NAVIGATION
-═══════════════════════ */
-function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
-  const fb = document.getElementById('filter-bar');
-  fb.style.display = (id === 'search' || id === 'home') ? '' : 'none';
-  currentPage = id;
-  window.scrollTo(0, 0);
-}
-
-function backToSearch() {
-  fsmContext = null;
-  renderGrid();
-  showPage('search');
-}
-
-function backToSpu() {
-  if (!currentMat) { showPage('search'); return; }
-  renderSpuPage(currentMat);
-  showPage('spu');
-}
-
-function backFromCompany() {
-  if (companyReturnPage === 'spu' && companyReturnMat) {
-    renderSpuPage(companyReturnMat);
-    showPage('spu');
-  } else if (companyReturnPage === 'sku' && companyReturnMat) {
-    renderSkuPage(companyReturnMat, currentSku);
-    showPage('sku');
-  } else {
-    showPage('search');
-  }
-}
-
-/* ═══════════════════════
-   FILTERS
-═══════════════════════ */
-function setTypeFilter(t, el) {
-  typeFilter = t;
-  document.querySelectorAll('.fc').forEach(b => { if (!b.id) b.classList.remove('active'); });
-  el.classList.add('active');
-  applyFilters();
-}
-
-function toggleDppFilter(el) {
-  dppFilter = !dppFilter;
-  el.classList.toggle('active', dppFilter);
-  applyFilters();
-}
-
-function toggleExtView(el) {
-  externalView = !externalView;
-  el.classList.toggle('active', externalView);
-  el.textContent = externalView ? T('extView') + ' ●' : T('extView');
-  el.title = externalView ? 'External View: PRIVATE hidden (#10-12 not visible)' : 'Simulate external visitor — PRIVATE materials hidden';
-  applyFilters();
-}
-
-function handleNavSearch(v) {
-  if (currentPage !== 'search') { showPage('search'); }
-  applyFilters();
-}
-
-function applyFilters() {
-  fsmContext = null;
-  document.getElementById('fsm-banner-area').innerHTML = '';
-  renderGrid();
-}
-
-function toggleCat(cat, el) {
-  catFilter = cat;
-  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  showPage('search');
-  applyFilters();
-}
-
-function renderHomepage() {
-  const latest = [...MATERIALS].sort((a,b) => b.updated.localeCompare(a.updated)).slice(0,4);
-  const popular = [...MATERIALS].sort((a,b) => (b.views||0) - (a.views||0)).slice(0,4);
-  const card = m => {
-    const sup = SUPPLIERS[m.sup];
-    const avg = avgStars(m.reviews);
-    return `<div class="featured-card" onclick="openSpu('${m.id}')">
-      <img class="featured-card-img" src="${matURI(m,300)}" alt="${m.name}">
-      <div class="featured-card-body">
-        <div class="featured-card-name">${m.name}</div>
-        <div class="featured-card-sup">${sup.name}</div>
-        <div class="featured-card-meta">
-          <span class="badge b-${m.perm.toLowerCase()}">${m.perm}</span>
-          ${m.dpp ? '<span class="b-dpp">DPP</span>' : ''}
-          ${avg ? `<span style="font-size:11px;color:#F5A623">${'★'.repeat(Math.floor(avg))}${' '.repeat(5-Math.floor(avg))} ${avg.toFixed(1)}</span>` : ''}
-        </div>
-      </div>
-    </div>`;
-  };
-  document.getElementById('home-latest').innerHTML = latest.map(card).join('');
-  document.getElementById('home-popular').innerHTML = popular.map(card).join('');
-}
-
-function closeFsmModal() {
-  document.getElementById('fsm-modal').style.display = 'none';
-  document.body.style.overflow = '';
-}
-
-function toggleSort(field, el) {
-  const asc = field + '-asc', desc = field + '-desc';
-  const other = field === 'lt' ? 'sort-price' : 'sort-lt';
-  document.getElementById(other).classList.remove('active');
-  document.getElementById(other).textContent = field === 'lt' ? 'Price ↕' : 'LT ↕';
-  if (sortMode === asc) {
-    sortMode = desc;
-    el.classList.add('active');
-    el.textContent = (field === 'lt' ? 'LT' : 'Price') + ' ↓';
-  } else if (sortMode === desc) {
-    sortMode = null;
-    el.classList.remove('active');
-    el.textContent = (field === 'lt' ? 'LT' : 'Price') + ' ↕';
-  } else {
-    sortMode = asc;
-    el.classList.add('active');
-    el.textContent = (field === 'lt' ? 'LT' : 'Price') + ' ↑';
-  }
-  applyFilters();
-}
-
-function getFiltered() {
-  const q = (document.getElementById('nav-search-input').value || '').toLowerCase();
-  const priceMin = parseFloat(document.getElementById('price-min').value) || 0;
-  const priceMax = parseFloat(document.getElementById('price-max').value) || Infinity;
-  const ltMax = parseFloat(document.getElementById('lt-max').value) || Infinity;
-  let result = MATERIALS.filter(m => {
-    if (externalView && m.perm === 'PRIVATE') return false;
-    if (typeFilter !== 'all' && m.type !== typeFilter) return false;
-    if (dppFilter && !m.dpp) return false;
-    if (catFilter && m.cat !== catFilter) return false;
-    if (m.price !== null && (m.price < priceMin || m.price > priceMax)) return false;
-    if (m.lt > ltMax) return false;
-    if (q && !m.name.toLowerCase().includes(q) && !SUPPLIERS[m.sup].name.toLowerCase().includes(q) && !m.id.toLowerCase().includes(q)) return false;
-    return true;
-  });
-  if (sortMode) {
-    const [field, dir] = sortMode.split('-');
-    result.sort((a, b) => {
-      const va = field === 'lt' ? a.lt : (a.price ?? Infinity);
-      const vb = field === 'lt' ? b.lt : (b.price ?? Infinity);
-      return dir === 'asc' ? va - vb : vb - va;
-    });
-  }
-  return result;
-}
-
-/* ═══════════════════════
-   RENDER GRID
-═══════════════════════ */
-function imgSVG(shape) {
-  const svgs = {
-    circle: `<svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="14" stroke="#1D1D1F" stroke-width="1.2"/><circle cx="20" cy="20" r="7" stroke="#1D1D1F" stroke-width="0.8" stroke-dasharray="3 2"/></svg>`,
-    rect:   `<svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect x="8" y="10" width="24" height="20" rx="3" stroke="#1D1D1F" stroke-width="1.2"/><line x1="8" y1="17" x2="32" y2="17" stroke="#1D1D1F" stroke-width="0.8"/></svg>`,
-    diamond:`<svg width="40" height="40" viewBox="0 0 40 40" fill="none"><path d="M20 8L32 20L20 32L8 20Z" stroke="#1D1D1F" stroke-width="1.2"/></svg>`,
-    wave:   `<svg width="40" height="40" viewBox="0 0 40 40" fill="none"><path d="M8 20 Q14 12 20 20 Q26 28 32 20" stroke="#1D1D1F" stroke-width="1.4" stroke-linecap="round" fill="none"/><path d="M8 26 Q14 18 20 26 Q26 34 32 26" stroke="#1D1D1F" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.4"/></svg>`,
-  };
-  return svgs[shape] || svgs.circle;
-}
-
-/* ═══════════════════════
-   SVG MATERIAL TEXTURES (inline, no external URL)
-═══════════════════════ */
+/* ═══ SVG MATERIAL TEXTURES (inline, no external URL) ═══ */
 const TEX_MAP = {
   textile:    { bg:'#f0ede8', tile:8,  cell:"<path d='M0 0H8M0 0V8' stroke='#a8a09a' stroke-width='0.6'/><circle cx='4' cy='4' r='0.7' fill='#a8a09a'/>" },
   synleather: { bg:'#3d2e24', tile:16, cell:"<path d='M8 1L15 8L8 15L1 8Z' fill='none' stroke='#5a4035' stroke-width='1.2'/>" },
@@ -851,442 +462,437 @@ function texturePattern(m) {
   return 'textile';
 }
 function matURI(m, size) { return texURI(texturePattern(m), size || 300); }
-function catPatternByName(alt) {
-  const a = (alt || '').toLowerCase();
-  if (a.includes('synthetic')) return 'synleather';
-  if (a.includes('leather'))   return 'leather';
-  if (a.includes('film'))      return 'film';
-  if (a.includes('secondary')) return 'secondary';
-  return 'textile';
+
+/* ═══ MOCK DATA (37_DEMO_MOCK_DATA.md) ═══ */
+const SUPPLIERS = {
+  FV: { id:'FV', name:'Formosa Vietnam Co.', short:'FV', country:'Vietnam', location:'Ho Chi Minh City, Vietnam', category:'Textiles & Synthetics', desc:'Formosa Materials Group subsidiary. Recycled mesh textiles, PU synthetic leather and specialty fabrics. GRS and ISO 9001 certified.', dpp:true,
+    certs:[{name:'ISO 9001',by:'TÜV Rheinland',exp:'2027-03-31'},{name:'GRS (Global Recycled Standard)',by:'Control Union',exp:'2026-11-30'},{name:'DPP-ready',by:'SmartPN Verified',exp:'2026-12-31'}],
+    reviews:[] },
+  FI: { id:'FI', name:'Formosa Indonesia Co.', short:'FI', country:'Indonesia', location:'Jakarta, Indonesia', category:'Films & Secondary Processing', desc:'Formosa Materials Group subsidiary. TPU laminating films and secondary processing. ISO 9001 certified.', dpp:true,
+    certs:[{name:'ISO 9001',by:'SGS',exp:'2027-01-15'},{name:'DPP-ready',by:'SmartPN Verified',exp:'2026-12-31'}],
+    reviews:[] },
+  AP: { id:'AP', name:'Apex Textile Co.', short:'AP', country:'Taiwan', location:'Taipei, Taiwan', category:'Textiles & Leather', desc:'DPP-ready textile specialist. Full grain leather, jacquard knit and microfiber suede for global footwear brands.', dpp:true,
+    certs:[{name:'ISO 9001',by:'BSI',exp:'2027-06-30'},{name:'OEKO-TEX Standard 100',by:'OEKO-TEX',exp:'2026-09-30'},{name:'DPP-ready',by:'SmartPN Verified',exp:'2026-12-31'}],
+    reviews:[{initials:'BC',name:'Brand-C',org:'Brand-C',date:'Jun 9',stars:5,text:'DPP 資料配合度高，配合速度業界最快。',perm:'OPEN'}] },
+  SS: { id:'SS', name:'Sunrise Synthetics', short:'SS', country:'Vietnam', location:'Da Nang, Vietnam', category:'Commodity Textiles', desc:'Regional supplier. Competitive pricing with longer lead times. REACH compliant.', dpp:false,
+    certs:[{name:'ISO 9001',by:'Intertek',exp:'2026-10-31'},{name:'REACH',by:'Self-declared',exp:'2026-12-31'}],
+    reviews:[] },
+};
+
+const MATERIALS = [
+  { id:'SPA-MAT-0001', spn:'SPA-MAT-7K9X', gs1:'4711234500017', name:'Recycled Polyester Mesh 220g', sup:'FV', type:'raw', cat:'紡織', views:203, spuCode:'RPET-MESH-220', skuKey:'BLK-58',
+    price:2.00, priceUnit:'m', lt:30, perm:'OPEN', dpp:true, updated:'Jun 13',
+    spuFields:{ Category:'Textile', Fiber:'Recycled PET 220g/m²', Construction:'Knit mesh', Standard:'ISO 105-B02', 'GRS content':'≥50% post-consumer' },
+    skuVariants:[
+      { key:'BLK-58', label:'Black · 58"', price:2.00, lt:30, fields:{Color:'Black',Width:'58"',Weight:'220 g/m²','GRS recycled':'52%',Colorfastness:'≥4'} },
+      { key:'WHT-58', label:'White · 58"', price:2.05, lt:30, fields:{Color:'White',Width:'58"',Weight:'220 g/m²','GRS recycled':'52%',Colorfastness:'≥4'} },
+      { key:'BLK-44', label:'Black · 44"', price:1.90, lt:28, fields:{Color:'Black',Width:'44"',Weight:'220 g/m²','GRS recycled':'52%',Colorfastness:'≥4'} },
+    ],
+    reviews:[{initials:'BA',name:'Brand-A 開發部',org:'Brand-A',date:'Jun 10',stars:5,text:'品質穩定，交期準。每批次一致性高。',perm:'SHARED'}] },
+  { id:'SPA-MAT-0002', spn:'SPA-MAT-VRT4', gs1:'4711234500024', name:'TPU Laminating Film 0.15mm', sup:'FI', type:'raw', cat:'薄膜', views:87, spuCode:'TPU-FILM-015', skuKey:'CLR-015',
+    price:1.45, priceUnit:'m', lt:25, perm:'OPEN', dpp:true, updated:'Jun 12',
+    spuFields:{ Category:'Film', 'Base resin':'Thermoplastic polyurethane', Thickness:'0.15mm', Standard:'ASTM D412' },
+    skuVariants:[{ key:'CLR-015', label:'Clear · 0.15mm', price:1.45, lt:25, fields:{Thickness:'0.15mm',Color:'Clear',Hardness:'85 Shore A','Tensile strength':'40 MPa'} }],
+    reviews:[] },
+  { id:'SPA-MAT-0003', spn:'SPA-MAT-9HFK', gs1:null, name:'PU Synthetic Leather 1.2mm', sup:'FV', type:'raw', cat:'人造皮', views:118, spuCode:'PU-SL-12', skuKey:'BLK-MAT',
+    price:3.80, priceUnit:'m', lt:35, perm:'OPEN', dpp:false, updated:'Jun 11',
+    spuFields:{ Category:'Synthetic Leather', Base:'Woven polyester', Coating:'PU top coat', Standard:'QB/T 2729' },
+    skuVariants:[
+      { key:'BLK-MAT', label:'Black · Matt', price:3.80, lt:35, fields:{Thickness:'1.2mm',Color:'Black',Finish:'Matt','Peel strength':'≥30 N/cm',Abrasion:'20,000 cycles'} },
+      { key:'WHT-GLO', label:'White · Gloss', price:3.95, lt:35, fields:{Thickness:'1.2mm',Color:'White',Finish:'High gloss','Peel strength':'≥30 N/cm',Abrasion:'20,000 cycles'} },
+    ],
+    reviews:[] },
+  { id:'SPA-MAT-0004', spn:'SPA-MAT-4XBV', gs1:'4719876500041', name:'Full Grain Cow Leather', sup:'AP', type:'raw', cat:'皮料', views:142, spuCode:'FGCL-NATURAL', skuKey:'1.2-NAT',
+    price:8.50, priceUnit:'sqft', lt:45, perm:'OPEN', dpp:true, updated:'Jun 13',
+    spuFields:{ Category:'Leather', Origin:'South America', Tannage:'Chrome-free vegetable', Standard:'IUF 450' },
+    skuVariants:[
+      { key:'1.2-NAT', label:'1.2mm · Natural', price:8.50, lt:45, fields:{Thickness:'1.2mm',Color:'Natural Tan',Finish:'Full grain','Tensile strength':'≥200 N/cm²'} },
+      { key:'1.4-BLK', label:'1.4mm · Black', price:9.00, lt:45, fields:{Thickness:'1.4mm',Color:'Black',Finish:'Full grain','Tensile strength':'≥200 N/cm²'} },
+    ],
+    reviews:[{initials:'BB',name:'Brand-B 材料部',org:'Brand-B',date:'Jun 8',stars:4,text:'認證齊全，DPP 文件完整，適合高端品牌。',perm:'OPEN'}] },
+  { id:'SPA-MAT-0005', spn:'SPA-MAT-K7HR', gs1:'4719876500058', name:'Jacquard Knit Upper 380g', sup:'AP', type:'raw', cat:'紡織', views:76, spuCode:'JKU-380', skuKey:'BLK-JQ',
+    price:4.20, priceUnit:'m', lt:28, perm:'OPEN', dpp:true, updated:'Jun 12',
+    spuFields:{ Category:'Textile', Fiber:'Polyester/Nylon blend 380g/m²', Construction:'Jacquard knit', Standard:'ISO 13934' },
+    skuVariants:[
+      { key:'BLK-JQ', label:'Black · Jacquard', price:4.20, lt:28, fields:{Color:'Black',Weight:'380 g/m²',Width:'52"','Burst strength':'≥500 kPa'} },
+      { key:'GRY-JQ', label:'Grey · Jacquard', price:4.20, lt:28, fields:{Color:'Grey',Weight:'380 g/m²',Width:'52"','Burst strength':'≥500 kPa'} },
+    ],
+    reviews:[] },
+  { id:'SPA-MAT-0006', spn:'SPA-MAT-3FN8', gs1:null, name:'EVA Foam Sheet 4mm', sup:'SS', type:'raw', cat:'薄膜', views:55, spuCode:'EVA-FOAM-4', skuKey:'WHT-4MM',
+    price:1.10, priceUnit:'m', lt:40, perm:'OPEN', dpp:false, updated:'Jun 10',
+    spuFields:{ Category:'Foam', Material:'Ethylene vinyl acetate', Thickness:'4mm', Standard:'ASTM D1056' },
+    skuVariants:[{ key:'WHT-4MM', label:'White · 4mm', price:1.10, lt:40, fields:{Thickness:'4mm',Color:'White',Density:'0.20 g/cm³',Hardness:'35 Shore C'} }],
+    reviews:[] },
+  { id:'SPA-MAT-0007', spn:'SPA-MAT-XV44', gs1:null, name:'Recycled Polyester Mesh 220g', sup:'SS', type:'raw', cat:'紡織', views:89, spuCode:'RPET-MESH-220', skuKey:'BLK-58',
+    price:1.85, priceUnit:'m', lt:50, perm:'OPEN', dpp:false, updated:'Jun 9',
+    spuFields:{ Category:'Textile', Fiber:'Recycled PET 220g/m²', Construction:'Knit mesh', Standard:'ISO 105-B02', 'GRS content':'Not certified' },
+    skuVariants:[{ key:'BLK-58', label:'Black · 58"', price:1.85, lt:50, fields:{Color:'Black',Width:'58"',Weight:'220 g/m²','GRS recycled':'—',Colorfastness:'≥3'} }],
+    reviews:[{initials:'BA',name:'Brand-A 採購部',org:'Brand-A',date:'Jun 5',stars:2,text:'兩次延誤交期，LT 不穩定。報價便宜但綜合成本不低。',perm:'SHARED'}] },
+  { id:'SPA-MAT-0008', spn:'SPA-MAT-7RKT', gs1:'4719876500089', name:'Microfiber Suede 0.8mm', sup:'AP', type:'raw', cat:'人造皮', views:62, spuCode:'MFS-08', skuKey:'GRY-08',
+    price:5.60, priceUnit:'m', lt:32, perm:'OPEN', dpp:true, updated:'Jun 11',
+    spuFields:{ Category:'Synthetic Leather', Material:'Microfiber suede', Thickness:'0.8mm', Standard:'QB/T 2726' },
+    skuVariants:[
+      { key:'GRY-08', label:'Grey · 0.8mm', price:5.60, lt:32, fields:{Thickness:'0.8mm',Color:'Grey',Finish:'Suede','Peel strength':'≥25 N/cm'} },
+      { key:'BLK-08', label:'Black · 0.8mm', price:5.60, lt:32, fields:{Thickness:'0.8mm',Color:'Black',Finish:'Suede','Peel strength':'≥25 N/cm'} },
+    ],
+    reviews:[] },
+  { id:'SPA-COMP-0101', spn:'SPA-COMP-V9K4', gs1:null, name:'Laminated Black Mesh (2nd)', sup:'FI', type:'secondary', cat:'二次加工', views:133, spuCode:'COMP-LBM', skuKey:'BLK-LT',
+    price:3.30, priceUnit:'m', lt:38, perm:'OPEN', dpp:true, updated:'Jun 12',
+    spuFields:{ Category:'Secondary Process', 'Process type':'Lamination', Materials:'Mesh + TPU film', Standard:'Internal QC-2101' },
+    skuVariants:[{ key:'BLK-LT', label:'Black · LT bond', price:3.30, lt:38, fields:{Color:'Black',Bonding:'Low-temp TPU','Total thickness':'2.2mm','Peel strength':'≥35 N/cm'} }],
+    reviews:[] },
+  { id:'SPA-MAT-0010', spn:'SPA-MAT-RN7D', gs1:null, name:'Ripstop Nylon 70D', sup:'FV', type:'raw', cat:'紡織', views:27, spuCode:'RSN-70D', skuKey:'BLK-70',
+    price:2.75, priceUnit:'m', lt:30, perm:'PRIVATE', dpp:false, updated:'Jun 10',
+    spuFields:{ Category:'Textile', Fiber:'Nylon 70D', Construction:'Ripstop weave', Standard:'ISO 13934' },
+    skuVariants:[{ key:'BLK-70', label:'Black · 70D', price:2.75, lt:30, fields:{Color:'Black',Denier:'70D',Weave:'Ripstop','Tensile strength':'≥400 N'} }],
+    reviews:[] },
+  { id:'SPA-MAT-0011', spn:'SPA-MAT-B2TU', gs1:'4711234500116', name:'Bio-based TPU Film', sup:'FI', type:'raw', cat:'薄膜', views:19, spuCode:'BIO-TPU', skuKey:'CLR-020',
+    price:2.90, priceUnit:'m', lt:42, perm:'PRIVATE', dpp:true, updated:'Jun 13',
+    spuFields:{ Category:'Film', 'Base resin':'Bio-based TPU', 'Bio content':'≥30%', Thickness:'0.20mm', Standard:'EN 14067' },
+    skuVariants:[{ key:'CLR-020', label:'Clear · 0.20mm', price:2.90, lt:42, fields:{Thickness:'0.20mm',Color:'Clear','Bio content':'30%','Tensile strength':'38 MPa'} }],
+    reviews:[] },
+  { id:'SPA-COMP-0102', spn:'SPA-COMP-BKF7', gs1:null, name:'Bonded Knit + Foam (2nd)', sup:'FV', type:'secondary', cat:'二次加工', views:31, spuCode:'COMP-BKF', skuKey:'BLK-BKF',
+    price:4.85, priceUnit:'m', lt:36, perm:'PRIVATE', dpp:false, updated:'Jun 11',
+    spuFields:{ Category:'Secondary Process', 'Process type':'Bonding', Materials:'Jacquard knit + EVA foam', Standard:'Internal QC-0102' },
+    skuVariants:[{ key:'BLK-BKF', label:'Black · Bonded', price:4.85, lt:36, fields:{Color:'Black','Total thickness':'4.5mm',Bonding:'Hot melt',Delamination:'≥20 N'} }],
+    reviews:[] },
+];
+
+// Materials this account (NexBrand · James Liu) is explicitly authorized to see beyond OPEN
+const AUTHORIZED = new Set(['SPA-MAT-0010']);
+function isVisible(m) { return m.perm !== 'PRIVATE' || AUTHORIZED.has(m.id); }
+function inFsmScope(m) { return m.perm === 'OPEN' || AUTHORIZED.has(m.id); }
+
+/* ═══ REQUESTS (chat) ═══ */
+const THREADS = [
+  { id:'t1', sup:'FV', subject:'Recycled Polyester Mesh 220g', unread:true, msgs:[
+    {who:'them',t:'Hi James — thanks for your interest in Recycled Mesh 220g. How can we help?',time:'09:12'},
+    {who:'me',t:'Could you confirm GRS lead time for 5,000m black 58"?',time:'09:20'},
+    {who:'them',t:'30 days ex-works HCMC. GRS scope certificate attached.',time:'09:24',att:'GRS-Scope-Cert.pdf'},
+  ]},
+  { id:'t2', sup:'AP', subject:'Full Grain Cow Leather — DPP docs', unread:true, msgs:[
+    {who:'them',t:'DPP compliance folder is ready to share once you accept our invite.',time:'Yesterday'},
+    {who:'me',t:'Accepted. Please send the chrome-free tannage report.',time:'Yesterday'},
+  ]},
+  { id:'t3', sup:'FI', subject:'TPU Film 0.15mm sample', unread:false, msgs:[
+    {who:'me',t:'Requesting a clear 0.15mm sample swatch.',time:'Jun 10'},
+    {who:'them',t:'Sample dispatched, tracking attached.',time:'Jun 11',att:'DHL-Tracking.pdf'},
+  ]},
+];
+let activeThread = 't1';
+
+/* ═══ STATE ═══ */
+let currentPage='home', typeFilter='all', dppFilter=false, catFilter=null, fsmContext=null, externalView=false;
+let currentMat=null, currentSku=null, companyReturnPage=null, companyReturnMat=null, sortMode=null, reviewPerm='OPEN';
+
+/* ═══ NAV ═══ */
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.getElementById('filter-bar').style.display=(id==='search'||id==='home')?'':'none';
+  currentPage=id; window.scrollTo(0,0);
+  if(id==='favorites') renderFavorites();
+  if(id==='library') renderLibrary();
+  if(id==='requests') renderRequests();
+  if(id==='compare') renderCompare();
+}
+function backToSearch(){ fsmContext=null; renderGrid(); showPage('search'); }
+function backFromCompany(){
+  if(companyReturnPage==='spu'&&companyReturnMat){ renderSpuPage(companyReturnMat); showPage('spu'); }
+  else showPage('search');
 }
 
-function permLabel(p) {
-  if (p === 'OPEN') return '<span class="mc-perm open">OPEN</span>';
-  if (p === 'SHARED') return '<span class="mc-perm shared">SHARED</span>';
-  return '<span class="mc-perm priv">PRIVATE</span>';
+/* ═══ FILTERS ═══ */
+function setTypeFilter(t,el){ typeFilter=t; document.querySelectorAll('.fc').forEach(b=>{if(!b.id&&!b.classList.contains('dpp'))b.classList.remove('active');}); el.classList.add('active'); applyFilters(); }
+function toggleDppFilter(el){ dppFilter=!dppFilter; el.classList.toggle('active',dppFilter); applyFilters(); }
+function toggleExtView(el){ externalView=!externalView; el.classList.toggle('active',externalView); el.textContent=externalView?T('extView')+' ●':T('extView'); applyFilters(); renderHomepage(); }
+function handleNavSearch(){ if(currentPage!=='search'){ showPage('search'); } applyFilters(); }
+function applyFilters(){ fsmContext=null; document.getElementById('fsm-banner-area').innerHTML=''; renderGrid(); }
+function toggleCat(cat,el){ catFilter=cat; document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); showPage('search'); applyFilters(); }
+function toggleSort(field,el){
+  const asc=field+'-asc',desc=field+'-desc',other=field==='lt'?'sort-price':'sort-lt';
+  document.getElementById(other).classList.remove('active'); document.getElementById(other).textContent=field==='lt'?'Price ↕':'LT ↕';
+  if(sortMode===asc){sortMode=desc;el.classList.add('active');el.textContent=(field==='lt'?'LT':'Price')+' ↓';}
+  else if(sortMode===desc){sortMode=null;el.classList.remove('active');el.textContent=(field==='lt'?'LT':'Price')+' ↕';}
+  else{sortMode=asc;el.classList.add('active');el.textContent=(field==='lt'?'LT':'Price')+' ↑';}
+  applyFilters();
+}
+function getFiltered(){
+  const q=(document.getElementById('nav-search-input').value||'').toLowerCase();
+  const pMin=parseFloat(document.getElementById('price-min').value)||0;
+  const pMax=parseFloat(document.getElementById('price-max').value)||Infinity;
+  const ltMax=parseFloat(document.getElementById('lt-max').value)||Infinity;
+  let r=MATERIALS.filter(m=>{
+    if(!isVisible(m)) return false;
+    if(externalView && m.perm==='PRIVATE') return false;
+    if(typeFilter!=='all'&&m.type!==typeFilter) return false;
+    if(dppFilter&&!m.dpp) return false;
+    if(catFilter&&m.cat!==catFilter) return false;
+    if(m.price<pMin||m.price>pMax) return false;
+    if(m.lt>ltMax) return false;
+    if(q&&!m.name.toLowerCase().includes(q)&&!SUPPLIERS[m.sup].name.toLowerCase().includes(q)&&!m.id.toLowerCase().includes(q)&&!(m.gs1||'').includes(q)) return false;
+    return true;
+  });
+  if(sortMode){ const[f,d]=sortMode.split('-'); r.sort((a,b)=>{const va=f==='lt'?a.lt:a.price,vb=f==='lt'?b.lt:b.price;return d==='asc'?va-vb:vb-va;}); }
+  return r;
 }
 
-function renderGrid(mats, fsm) {
-  const list = mats || getFiltered();
-  const wrap = document.getElementById('mat-grid-wrap');
-  const countEl = document.getElementById('result-count');
-
-  if (fsm) {
-    const identBanner = fsmContext ? `
-      <div class="fsm-banner">
-        <span class="fsm-banner-label">Find Same Material</span>
-        <span class="fsm-tag">${T('product')}: ${fsmContext.spuCode}</span>
-        <span class="fsm-tag">${T('option')}: ${fsmContext.skuKey}</span>
-        <span class="fsm-clear" onclick="clearFsm()">Clear</span>
-      </div>` : '';
-    document.getElementById('fsm-banner-area').innerHTML = identBanner;
-
-    const identical = list.filter(m => m.spuCode === fsmContext.spuCode && m.skuKey === fsmContext.skuKey && m.id !== fsmContext.fromId);
-    const alt = list.filter(m => m.spuCode === fsmContext.spuCode && m.skuKey !== fsmContext.skuKey && m.id !== fsmContext.fromId);
-
-    let html = '';
-    if (identical.length) {
-      html += `<div class="fsm-section-hdr"><span class="fsm-section-label">Identical</span><span class="fsm-section-count">${identical.length}</span><span class="fsm-line"></span></div>`;
-      html += `<div class="mat-grid fsm-ident">${identical.map(cardHtml).join('')}</div>`;
-    }
-    if (alt.length) {
-      html += `<div class="fsm-section-hdr"><span class="fsm-section-label">Alternative</span><span class="fsm-section-count">${alt.length}</span><span class="fsm-line"></span></div>`;
-      html += `<div class="mat-grid fsm-alt">${alt.map(cardHtml).join('')}</div>`;
-    }
-    if (!identical.length && !alt.length) html = '<div class="mat-grid"><div class="no-results">No matching materials found.</div></div>';
-    countEl.textContent = `${identical.length + alt.length} results`;
-    wrap.innerHTML = html;
-    return;
-  }
-
-  document.getElementById('fsm-banner-area').innerHTML = '';
-  countEl.textContent = `${list.length} material${list.length !== 1 ? 's' : ''}`;
-  if (!list.length) { wrap.innerHTML = '<div class="mat-grid"><div class="no-results">No materials match your filters.</div></div>'; return; }
-  wrap.innerHTML = `<div class="mat-grid">${list.map(cardHtml).join('')}</div>`;
-}
-
-function avgStars(reviews) {
-  if (!reviews || !reviews.length) return null;
-  const sum = reviews.reduce((s, r) => s + r.stars, 0);
-  return Math.round(sum / reviews.length * 2) / 2; // half-star precision
-}
-
-function starsHtml(avg) {
-  if (avg === null) return '';
-  const full = Math.floor(avg), half = avg % 1 >= 0.5 ? 1 : 0, empty = 5 - full - half;
-  return `<div class="review-stars" style="font-size:11px;margin-top:4px;letter-spacing:0.5px">${'★'.repeat(full)}${'½'.repeat(half)}${'☆'.repeat(empty)} <span style="color:#86868B;font-weight:400">${avg.toFixed(1)}</span></div>`;
-}
-
-function cardHtml(m) {
-  const sup = SUPPLIERS[m.sup];
-  const priceStr = m.price !== null ? `<span class="mc-price-val">USD ${m.price.toFixed(2)}</span>` : `<span style="color:#86868B">—</span>`;
-  const stars = starsHtml(avgStars(m.reviews));
-  return `
-  <div class="mat-card" onclick="openSpu('${m.id}')">
-    <div class="mc-img" style="position:relative;height:140px;overflow:hidden;padding:0">
-      <img src="${matURI(m,300)}" alt="${m.name}" style="width:100%;height:140px;object-fit:cover;display:block;background:#F5F5F7">
-      ${m.dpp ? '<div class="dpp-badge" style="position:absolute;top:8px;left:8px">DPP-ready</div>' : ''}
-      ${m.type === 'secondary' ? '<div class="secondary-tag" style="position:absolute;top:8px;right:8px">Secondary</div>' : ''}
+/* ═══ GRID ═══ */
+function permLabel(p){ return p==='OPEN'?'<span class="mc-perm open">OPEN</span>':p==='SHARED'?'<span class="mc-perm shared">SHARED</span>':'<span class="mc-perm priv">PRIVATE</span>'; }
+function avgStars(rv){ if(!rv||!rv.length)return null; return Math.round(rv.reduce((s,r)=>s+r.stars,0)/rv.length*2)/2; }
+function starsHtml(avg){ if(avg===null)return''; const f=Math.floor(avg),h=avg%1>=0.5?1:0,e=5-f-h; return `<div class="review-stars" style="margin-top:4px">${'★'.repeat(f)}${'½'.repeat(h)}${'☆'.repeat(e)} <span style="color:#86868B">${avg.toFixed(1)}</span></div>`; }
+function cardHtml(m){
+  const sup=SUPPLIERS[m.sup];
+  return `<div class="mat-card" onclick="openSpu('${m.id}')">
+    <div class="mc-img"><img src="${matURI(m,300)}" alt="${m.name}">
+      ${m.dpp?'<div class="dpp-badge">DPP-ready</div>':''}
+      ${m.type==='secondary'?'<div class="secondary-tag">Secondary</div>':''}
     </div>
     <div class="mc-name">${m.name}</div>
     <button class="mc-supplier-link" onclick="event.stopPropagation();openCompanyFromCard('${m.sup}')">${sup.name}</button>
-    ${stars}
-    <div class="mc-price-row">
-      <span>Price / ${m.priceUnit||'m'} ${priceStr}</span>
-      <span>LT <span class="mc-price-val">${m.lt}d</span></span>
-    </div>
+    ${starsHtml(avgStars(m.reviews))}
+    <div class="mc-price-row"><span>Price / ${m.priceUnit} <span class="mc-price-val">USD ${m.price.toFixed(2)}</span></span><span>LT <span class="mc-price-val">${m.lt}d</span></span></div>
     ${permLabel(m.perm)}
   </div>`;
 }
-
-function clearFsm() {
-  fsmContext = null;
-  document.getElementById('fsm-banner-area').innerHTML = '';
-  renderGrid();
+function renderGrid(mats){
+  const list=mats||getFiltered();
+  const wrap=document.getElementById('mat-grid-wrap'), countEl=document.getElementById('result-count');
+  updateCatCounts();
+  countEl.textContent=`${list.length} material${list.length!==1?'s':''}`+(externalView?' · External View (PRIVATE hidden)':'');
+  wrap.innerHTML=list.length?`<div class="mat-grid">${list.map(cardHtml).join('')}</div>`:'<div class="mat-grid"><div class="no-results">No materials match your filters.</div></div>';
+}
+function updateCatCounts(){
+  const vis=MATERIALS.filter(m=>isVisible(m)&&!(externalView&&m.perm==='PRIVATE'));
+  document.getElementById('cnt-all').textContent=vis.length;
+  ['皮料','人造皮','紡織','薄膜','二次加工'].forEach(c=>{const el=document.getElementById('cnt-'+c);if(el)el.textContent=vis.filter(m=>m.cat===c).length;});
+}
+function renderHomepage(){
+  const vis=MATERIALS.filter(m=>isVisible(m)&&!(externalView&&m.perm==='PRIVATE'));
+  const latest=[...vis].sort((a,b)=>b.updated.localeCompare(a.updated)).slice(0,4);
+  const popular=[...vis].sort((a,b)=>b.views-a.views).slice(0,4);
+  const card=m=>{const sup=SUPPLIERS[m.sup],avg=avgStars(m.reviews);
+    return `<div class="featured-card" onclick="openSpu('${m.id}')">
+      <img class="featured-card-img" src="${matURI(m,300)}" alt="${m.name}">
+      <div class="featured-card-body"><div class="featured-card-name">${m.name}</div><div class="featured-card-sup">${sup.name}</div>
+      <div class="featured-card-meta"><span class="badge b-${m.perm.toLowerCase()}">${m.perm}</span>${m.dpp?'<span class="b-dpp">DPP</span>':''}${avg?`<span style="font-size:11px;color:#F5A623">${avg.toFixed(1)}★</span>`:''}</div></div></div>`;};
+  document.getElementById('home-latest').innerHTML=latest.map(card).join('');
+  document.getElementById('home-popular').innerHTML=popular.map(card).join('');
+}
+function renderCatThumbs(){
+  const cats=[['紡織','textile','cat_textile'],['人造皮','synleather','cat_synleather'],['皮料','leather','cat_leather'],['薄膜','film','cat_film'],['二次加工','secondary','cat_secondary']];
+  document.getElementById('cat-thumb-row').innerHTML=cats.map(([cat,pat,i18n])=>
+    `<div class="cat-thumb-item" onclick="toggleCat('${cat}',document.getElementById('cat-${cat}'))">
+      <img class="cat-thumb-img" src="${texURI(pat,120)}" alt=""><span class="cat-thumb-label" data-i18n="${i18n}">${T(i18n)}</span></div>`).join('');
 }
 
-/* ═══════════════════════
-   SPU PAGE
-═══════════════════════ */
-function openSpu(id) {
-  prevPage = currentPage;
-  currentMat = MATERIALS.find(m => m.id === id);
-  if (!currentMat) return;
-  currentSku = currentMat.skuVariants[0];
-  renderSpuPage(currentMat);
-  showPage('spu');
-}
-
-function openMaterial(id) { openSpu(id); }
-
-function renderSpuPage(m) {
-  const sup = SUPPLIERS[m.sup];
-  const priceStr = m.price !== null ? `USD ${m.price.toFixed(2)} / ${m.priceUnit||'m'}` : '—';
-  document.getElementById('spu-hero').innerHTML = `
-    <div class="spu-img">
-      <img src="${matURI(m,300)}" alt="${m.name}" style="width:100%;height:100%;object-fit:cover">
-      ${m.dpp ? '<div class="spu-dpp-badge">DPP-ready</div>' : ''}
-    </div>
+/* ═══ SPU ═══ */
+function openSpu(id){ currentMat=MATERIALS.find(m=>m.id===id); if(!currentMat)return; currentSku=currentMat.skuVariants[0]; reviewPerm='OPEN'; renderSpuPage(currentMat); showPage('spu'); }
+function openMaterial(id){ openSpu(id); }
+function selectOpt(key){ currentSku=currentMat.skuVariants.find(v=>v.key===key)||currentSku; renderSpuPage(currentMat); }
+function renderSpuPage(m){
+  const sup=SUPPLIERS[m.sup], sku=currentSku;
+  document.getElementById('spu-hero').innerHTML=`
+    <div class="spu-img"><img src="${matURI(m,400)}" alt="${m.name}">${m.dpp?'<div class="spu-dpp-badge">DPP-ready</div>':''}</div>
     <div class="spu-info">
-      <div class="spu-type-tag">${m.type === 'secondary' ? 'Secondary Process' : 'Raw Material'}</div>
+      <div class="spu-type-tag">${m.type==='secondary'?'Secondary Process':'Raw Material'}</div>
       <div class="spu-title">${m.name}</div>
-      <div class="spu-code">${m.id} · ${T("product")}: ${m.spuCode}</div>
-      <div class="spu-perm ${m.perm.toLowerCase()}">${m.perm}</div>
+      <div class="spu-code">SmartPN ID · <b>${m.spn}</b></div>
+      <div class="spu-code">GS1 · <b>${m.gs1?m.gs1:'—'}</b></div>
+      <div class="spu-perm ${m.perm.toLowerCase()}">${m.perm}${avgStars(m.reviews)?`　·　★ ${avgStars(m.reviews).toFixed(1)}`:''}</div>
       <div>Maintained by <button class="supplier-link" onclick="openCompanyFromSpu('${m.sup}')">${sup.name}</button></div>
       <div class="spu-maintained">${sup.location}</div>
+      <div class="opt-row">
+        <div class="opt-label" data-i18n="options">Options</div>
+        <div class="opt-list">${m.skuVariants.map(v=>`<button class="opt-btn ${v.key===sku.key?'selected':''}" onclick="selectOpt('${v.key}')"><img src="${matURI(m,80)}" alt="">${v.label}</button>`).join('')}</div>
+      </div>
       <div class="spu-price-block">
-        <div class="spu-price-item"><div class="spu-price-label">Price / ${m.priceUnit||'m'}</div><div class="spu-price-val">${priceStr}</div><div class="spu-price-sub">Base SKU · excl. duties</div></div>
-        <div class="spu-price-item"><div class="spu-price-label">Lead time</div><div class="spu-price-val">${m.lt} days</div><div class="spu-price-sub">Standard order</div></div>
-        ${m.dpp ? '<div class="spu-price-item"><div class="spu-price-label">DPP data</div><div class="spu-price-val" style="color:#1D7340;font-size:16px">Available</div><div class="spu-price-sub">Compliance docs on request</div></div>' : ''}
+        <div><div class="spu-price-label" data-i18n="price">Price / ${m.priceUnit}</div><div class="spu-price-val">USD ${sku.price.toFixed(2)}</div><div class="spu-price-sub">${sku.label}</div></div>
+        <div><div class="spu-price-label" data-i18n="leadtime">Lead time</div><div class="spu-price-val">${sku.lt} days</div></div>
+        ${m.dpp?'<div><div class="spu-price-label">DPP data</div><div class="spu-price-val" style="color:#1D7340;font-size:16px">Available</div></div>':''}
       </div>
-      <button class="view-specs-btn" onclick="openSkuFromSpu()">View Specs &amp; Select Variant</button>
-      <button class="fav-btn" onclick="alert('Added to My Favorites')">♡ Favorite</button>
-    </div>`;
-
-  // SPU fields
-  let specHtml = `<div class="spec-section-title">Material Overview</div>`;
-  for (const [k, v] of Object.entries(m.spuFields)) {
-    specHtml += `<div class="spec-row"><span class="spec-label">${k}</span><span class="spec-val">${v}</span><span class="spec-plus">+</span></div>`;
-  }
-  document.getElementById('spu-spec-body').innerHTML = specHtml;
-
-  // Reviews — split 同公司 (SHARED) vs 公開 (OPEN)
-  const sameCoRev = m.reviews.filter(r => r.perm === 'SHARED');
-  const publicRev = m.reviews.filter(r => r.perm !== 'SHARED');
-  function permBadge(r) {
-    const isPublic = r.perm !== 'SHARED';
-    return isPublic
-      ? `<span class="review-perm" style="color:#1D7340;background:#F0FFF4">🌐 公開 · 供應商可見</span>`
-      : `<span class="review-perm" style="color:#0071E3;background:#F0F7FF">🔒 私密 · 僅同公司</span>`;
-  }
-  function revCard(r) {
-    return `<div class="review-item">
-      <div class="review-header">
-        <div class="review-avatar">${r.initials}</div>
-        <div>
-          <div class="review-name">${r.name}</div>
-          <div style="font-size:12px;color:#86868B">${r.org}</div>
-        </div>
-        ${permBadge(r)}
-        <div class="review-date">${r.date}</div>
-      </div>
-      <div class="review-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</div>
-      <div class="review-text" style="margin-top:8px">${r.text}</div>
-    </div>`;
-  }
-  function revSection(label, color, bgColor, reviews) {
-    if (!reviews.length) return '';
-    return `<div style="font-size:11px;font-weight:600;color:${color};background:${bgColor};border-radius:6px;padding:4px 10px;display:inline-block;margin:16px 0 8px;letter-spacing:0.05em">${label} (${reviews.length})</div>
-    <div class="review-list">${reviews.map(revCard).join('')}</div>`;
-  }
-  let revHtml = `<div class="spec-section-title" style="margin-top:28px">Reviews <span style="font-size:13px;color:#86868B;font-weight:400">(${m.reviews.length})</span></div>`;
-  revHtml += `<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:4px 0 4px">
-    <button class="view-specs-btn" style="padding:8px 20px;font-size:13px" onclick="alert('撰寫評論：可選擇「公開（供應商可見）」或「私密（僅同公司）」')">＋ 撰寫評論</button>
-    <span style="font-size:12px;color:#86868B">🌐 公開評論供應商也看得到；🔒 私密評論僅同公司成員可見。</span>
-  </div>`;
-  if (m.reviews.length) {
-    revHtml += revSection('🔒 同公司（私密）', '#0071E3', '#F0F7FF', sameCoRev);
-    revHtml += revSection('🌐 公開（供應商可見）', '#1D7340', '#F0FFF4', publicRev);
-  } else {
-    revHtml += `<div style="padding:20px 0;color:#86868B;font-size:14px">No reviews yet for this material.</div>`;
-  }
-  document.getElementById('spu-reviews-body').innerHTML = revHtml;
-}
-
-function openSkuFromSpu() {
-  renderSkuPage(currentMat, currentSku);
-  showPage('sku');
-}
-
-/* ═══════════════════════
-   SKU PAGE
-═══════════════════════ */
-function renderSkuPage(m, sku) {
-  currentMat = m;
-  currentSku = sku;
-  const sup = SUPPLIERS[m.sup];
-  const priceStr = sku.price !== null ? `USD ${sku.price.toFixed(2)} / ${m.priceUnit||'m'}` : '—';
-
-  document.getElementById('sku-back-btn').textContent = '‹ ' + m.name;
-  document.getElementById('sku-hero').innerHTML = `
-    <div class="spu-img">
-      <img src="${matURI(m,300)}" alt="${m.name}" style="width:100%;height:100%;object-fit:cover">
-      ${m.dpp ? '<div class="spu-dpp-badge">DPP-ready</div>' : ''}
-    </div>
-    <div class="spu-info">
-      <div class="spu-type-tag">${m.type === 'secondary' ? 'Secondary Process' : 'Raw Material'} · Variant</div>
-      <div class="spu-title">${m.name}</div>
-      <div class="spu-code">${m.id} · ${T("option")}: ${sku.key}</div>
-      <div class="spu-perm ${m.perm.toLowerCase()}">${m.perm}</div>
-      <div>Maintained by <button class="supplier-link" onclick="openCompanyFromSku('${m.sup}')">${sup.name}</button></div>
-      <div class="spu-maintained">Updated ${m.updated}</div>
-
-      <div class="sku-picker-section">
-        <div class="sku-picker-label">Select Variant</div>
-        <div class="sku-options" id="sku-opts-wrap">
-          ${m.skuVariants.map(v => `<button class="sku-opt ${v.key === sku.key ? 'selected' : ''}" onclick="selectSku('${m.id}','${v.key}')"><img src="${matURI(m,80)}" style="width:18px;height:18px;border-radius:4px;object-fit:cover;vertical-align:middle;margin-right:6px" alt="">${v.label}</button>`).join('')}
-        </div>
-      </div>
-
-      <div class="spu-price-block">
-        <div class="spu-price-item"><div class="spu-price-label">Price / ${m.priceUnit||'m'}</div><div class="spu-price-val">${priceStr}</div></div>
-        <div class="spu-price-item"><div class="spu-price-label">Lead time</div><div class="spu-price-val">${sku.lt} days</div></div>
-      </div>
-
-      <div class="detail-cta-area">
-        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
-          <button class="btn-add" onclick="alert('Added to My Library')">Add to My Library</button>
-          <button class="btn-fsm" onclick="findSameMaterial('${m.id}','${m.spuCode}','${sku.key}')">Find Same Material</button>
-          <button class="btn-compare" onclick="showPage('compare')">Compare</button>
-        </div>
-
+      <div class="btn-row">
+        <button class="btn-add" onclick="alert('Added to My Library')" data-i18n="addLib">Add to My Library</button>
+        <button class="btn-ghost" onclick="showPage('compare')" data-i18n="compare">Compare</button>
+        <button class="btn-blue-ghost" onclick="findSameMaterial('${m.id}','${m.spuCode}','${sku.key}')" data-i18n="fsm">Find Same Material</button>
+        <button class="btn-blue-ghost" onclick="openRequestFor('${m.sup}','${m.name.replace(/'/g,"")}')" data-i18n="request">Request</button>
       </div>
     </div>`;
-
-  // SKU spec fields
-  let specHtml = `<div class="spec-section-title">Specifications — ${sku.label}</div>`;
-  for (const [k, v] of Object.entries(sku.fields)) {
-    specHtml += `<div class="spec-row"><span class="spec-label">${k}</span><span class="spec-val">${v}</span><span class="spec-plus">+</span></div>`;
-  }
-  document.getElementById('sku-spec-body').innerHTML = specHtml;
+  let spec=`<div class="spec-section-title" data-i18n="overview">Material Overview</div>`;
+  for(const[k,v] of Object.entries(m.spuFields)) spec+=`<div class="spec-row"><span class="spec-label">${k}</span><span class="spec-val">${v}</span></div>`;
+  for(const[k,v] of Object.entries(sku.fields)) spec+=`<div class="spec-row"><span class="spec-label">${k}</span><span class="spec-val">${v}</span></div>`;
+  document.getElementById('spu-spec-body').innerHTML=spec;
+  document.getElementById('spu-reviews-body').innerHTML=reviewsHtml(m);
 }
-
-function selectSku(matId, skuKey) {
-  currentMat = MATERIALS.find(m => m.id === matId);
-  currentSku = currentMat.skuVariants.find(v => v.key === skuKey);
-  renderSkuPage(currentMat, currentSku);
+function permBadge(r){ return r.perm!=='SHARED'
+  ? `<span class="review-perm" style="color:#1D7340;background:#F0FFF4">🌐 Public · supplier-visible</span>`
+  : `<span class="review-perm" style="color:#0071E3;background:#F0F7FF">🔒 Private · same company</span>`; }
+function revCard(r){ return `<div class="review-item"><div class="review-header"><div class="review-avatar">${r.initials}</div><div><div class="review-name">${r.name}</div><div style="font-size:12px;color:#86868B">${r.org}</div></div>${permBadge(r)}<div class="review-date">${r.date}</div></div><div class="review-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</div><div class="review-text">${r.text}</div></div>`; }
+function reviewsHtml(m){
+  const pub=m.reviews.filter(r=>r.perm!=='SHARED'), priv=m.reviews.filter(r=>r.perm==='SHARED');
+  let h=`<div class="spec-section-title">Reviews <span style="font-size:13px;color:#86868B;font-weight:400">(${m.reviews.length})</span></div>`;
+  h+=`<div class="comment-box">
+    <textarea id="review-input" placeholder="Write a review…"></textarea>
+    <div class="comment-actions">
+      <div class="seg"><button id="rp-pub" class="on" onclick="setReviewPerm('OPEN')">🌐 Public</button><button id="rp-priv" onclick="setReviewPerm('SHARED')">🔒 Private (same company)</button></div>
+      <button class="btn-add" style="padding:8px 20px;font-size:13px" onclick="submitReview()" data-i18n="postReview">Post review</button>
+      <span style="font-size:12px;color:#86868B" data-i18n="reviewNote">Public reviews are visible to the supplier; private reviews only to your company.</span>
+    </div></div>`;
+  if(pub.length){ h+=`<div style="font-size:11px;font-weight:600;color:#1D7340;background:#F0FFF4;border-radius:6px;padding:4px 10px;display:inline-block;margin:8px 0">🌐 Public (${pub.length})</div>`+pub.map(revCard).join(''); }
+  if(priv.length){ h+=`<div style="font-size:11px;font-weight:600;color:#0071E3;background:#F0F7FF;border-radius:6px;padding:4px 10px;display:inline-block;margin:8px 0">🔒 Same company (${priv.length})</div>`+priv.map(revCard).join(''); }
+  if(!m.reviews.length) h+=`<div style="padding:16px 0;color:#86868B;font-size:14px">No reviews yet.</div>`;
+  return h;
 }
+function setReviewPerm(p){ reviewPerm=p; document.getElementById('rp-pub').classList.toggle('on',p==='OPEN'); document.getElementById('rp-priv').classList.toggle('on',p==='SHARED'); }
+function submitReview(){ const v=document.getElementById('review-input').value.trim(); if(!v){alert('Please write a review first.');return;} alert(`Review posted as ${reviewPerm==='OPEN'?'🌐 Public (supplier-visible)':'🔒 Private (same company)'}.`); document.getElementById('review-input').value=''; }
 
-/* ═══════════════════════
-   FIND SAME MATERIAL
-═══════════════════════ */
-function openFsmInNewWindow() {
-  const body = document.getElementById('fsm-modal-body').innerHTML;
-  const ctx = document.getElementById('fsm-modal-context').textContent;
-  const w = window.open('', '_blank', 'width=620,height=820,scrollbars=yes');
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Find Same Material</title>
-<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,'SF Pro Text',Arial,sans-serif;background:#fff;color:#1D1D1F;padding:24px 28px;font-size:14px}
-h2{font-size:20px;font-weight:600;margin-bottom:4px;letter-spacing:-0.3px}
-.sub{font-size:13px;color:#86868B;margin-bottom:20px}
-img{width:56px;height:56px;border-radius:8px;object-fit:cover;background:#F5F5F7}
-.b-dpp{font-size:11px;font-weight:500;color:#1D7340;background:#F0FFF4;border:0.5px solid #1D7340;border-radius:6px;padding:2px 8px}
-.b-open{color:#1D7340;font-weight:500}.b-shared{color:#0071E3;font-weight:500}
-</style></head><body>
-<h2>Find Same Material</h2><div class="sub">${ctx}</div>${body}</body></html>`);
-  w.document.close();
-}
-
-function findSameMaterial(fromId, spuCode, skuKey) {
-  fsmContext = { fromId, spuCode, skuKey };
-  const identical = MATERIALS.filter(m => m.spuCode === spuCode && m.skuKey === skuKey && m.id !== fromId);
-  const alt = MATERIALS.filter(m => m.spuCode === spuCode && m.skuKey !== skuKey && m.id !== fromId);
-
-  let html = `<div style="font-size:13px;color:#86868B;margin-bottom:16px">${T("product")}: <strong>${spuCode}</strong> · ${T("option")}: <strong>${skuKey}</strong></div>`;
-
-  if (identical.length) {
-    html += `<div style="font-size:12px;font-weight:600;color:#1D7340;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">Identical (${identical.length})</div>`;
-    html += identical.map(m => fsmCardHtml(m)).join('');
-  }
-  if (alt.length) {
-    html += `<div style="font-size:12px;font-weight:600;color:#0071E3;text-transform:uppercase;letter-spacing:0.06em;margin:16px 0 10px">Alternative (${alt.length})</div>`;
-    html += alt.map(m => fsmCardHtml(m)).join('');
-  }
-  if (!identical.length && !alt.length) {
-    html += `<div style="text-align:center;padding:48px 0;color:#86868B;font-size:14px">No matching materials found in the same SPU family.</div>`;
-  }
-
-  document.getElementById('fsm-modal-body').innerHTML = html;
-  document.getElementById('fsm-modal').style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-}
-
-function fsmCardHtml(m) {
-  const sup = SUPPLIERS[m.sup];
-  return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:0.5px solid #F5F5F7;cursor:pointer" onclick="closeFsmModal();openSpu('${m.id}')">
-    <img src="${matURI(m,120)}" style="width:56px;height:56px;border-radius:8px;object-fit:cover;flex-shrink:0;background:#F5F5F7">
-    <div style="flex:1;min-width:0">
-      <div style="font-size:14px;font-weight:500;color:#1D1D1F">${m.name}</div>
-      <div style="font-size:12px;color:#86868B;margin-top:2px">${sup.name}</div>
-      <div style="display:flex;gap:8px;margin-top:4px;align-items:center">
-        <span class="badge b-${m.perm.toLowerCase()}">${m.perm}</span>
-        ${m.dpp ? '<span class="b-dpp" style="font-size:11px">DPP-ready</span>' : ''}
-      </div>
-    </div>
-    <div style="text-align:right;flex-shrink:0">
-      <div style="font-size:14px;font-weight:600;color:#1D1D1F">${m.price !== null ? `USD ${m.price.toFixed(2)}` : '—'}</div>
-      <div style="font-size:12px;color:#86868B">${m.lt}d LT</div>
-    </div>
-  </div>`;
-}
-
-/* ═══════════════════════
-   COMPANY PROFILE
-═══════════════════════ */
-function openCompanyFromCard(supId) {
-  companyReturnPage = 'search';
-  companyReturnMat = null;
-  renderCompanyPage(supId);
-  showPage('company');
-}
-
-function openCompanyFromSpu(supId) {
-  companyReturnPage = 'spu';
-  companyReturnMat = currentMat;
-  renderCompanyPage(supId);
-  showPage('company');
-}
-
-function openCompanyFromSku(supId) {
-  companyReturnPage = 'sku';
-  companyReturnMat = currentMat;
-  renderCompanyPage(supId);
-  showPage('company');
-}
-
-function renderCompanyPage(supId) {
-  const s = SUPPLIERS[supId];
-  const mats = MATERIALS.filter(m => m.sup === supId);
-  const html = `
-    <div class="company-hero">
-      <div class="company-avatar">${s.short}</div>
-      <div>
-        <div class="company-name">${s.name}</div>
-        <div class="company-meta">${s.location} · ${s.category}</div>
-        <div class="company-desc">${s.desc}</div>
-        <div class="cert-list">
-          ${s.certs.map(c => c === 'DPP-ready' ? `<span class="cert-chip dpp-chip">✓ DPP-ready</span>` : `<span class="cert-chip">${c}</span>`).join('')}
-        </div>
-      </div>
-    </div>
+/* ═══ COMPANY ═══ */
+function openCompanyFromCard(s){ companyReturnPage='search'; renderCompanyPage(s); showPage('company'); }
+function openCompanyFromSpu(s){ companyReturnPage='spu'; companyReturnMat=currentMat; renderCompanyPage(s); showPage('company'); }
+function renderCompanyPage(supId){
+  const s=SUPPLIERS[supId], mats=MATERIALS.filter(m=>m.sup===supId&&isVisible(m)&&!(externalView&&m.perm==='PRIVATE'));
+  document.getElementById('company-content').innerHTML=`
+    <div class="company-hero"><div class="company-avatar">${s.short}</div>
+      <div><div class="company-name">${s.name}</div><div class="company-meta">${s.country} · ${s.category}</div>
+      <div class="company-desc">${s.desc}</div>
+      ${s.dpp?'<div class="dpp-hero-badge">✓ DPP-ready supplier — compliance docs available on request</div>':''}</div></div>
     <div class="info-grid">
-      <div class="info-card"><div class="info-card-label">Total Materials</div><div class="info-card-val">${s.materials}</div></div>
-      <div class="info-card"><div class="info-card-label">OPEN Materials</div><div class="info-card-val">${s.open}</div></div>
+      <div class="info-card"><div class="info-card-label">Country</div><div class="info-card-val">${s.country}</div></div>
+      <div class="info-card"><div class="info-card-label">Materials in Demo</div><div class="info-card-val">${mats.length}</div></div>
       <div class="info-card"><div class="info-card-label">DPP Data</div><div class="info-card-val" style="color:${s.dpp?'#1D7340':'#86868B'}">${s.dpp?'Available':'Not available'}</div></div>
     </div>
-    <div class="section-title">Materials from ${s.name} (${mats.length} in Demo)</div>
-    <div class="lib-grid">
-      ${mats.map(m => `
-      <div class="lib-card" onclick="openSpu('${m.id}')">
-        <div class="lib-img" style="overflow:hidden;padding:0"><img src="${matURI(m,120)}" alt="" style="width:100%;height:100%;object-fit:cover"></div>
-        <div class="lib-info">
-          <div class="lib-name">${m.name}</div>
-          <div class="lib-sub">${m.type === 'secondary' ? 'Secondary Process' : 'Raw Material'} · ${m.id}</div>
-          <div class="lib-meta">
-            <span class="badge b-${m.perm.toLowerCase()}">${m.perm}</span>
-            ${m.dpp ? '<span class="b-dpp">DPP-ready</span>' : ''}
-            ${m.price !== null ? `<span style="font-size:12px;color:#86868B">USD ${m.price.toFixed(2)}/${m.priceUnit||'m'} · ${m.lt}d</span>` : `<span style="font-size:12px;color:#86868B">LT ${m.lt}d</span>`}
-          </div>
-        </div>
-        <span class="lib-chev">›</span>
-      </div>`).join('')}
-    </div>`;
-  document.getElementById('company-content').innerHTML = html;
+    <div class="section-title" data-i18n="certs">Certifications</div>
+    <table class="cert-table"><thead><tr><th>Certification</th><th>Issued by</th><th>Valid until</th></tr></thead><tbody>
+      ${s.certs.map(c=>`<tr><td>${c.name==='DPP-ready'?'<span class="b-dpp">✓ DPP-ready</span>':c.name}</td><td>${c.by}</td><td>${c.exp}</td></tr>`).join('')}
+    </tbody></table>
+    <div class="section-title">Materials from ${s.name}</div>
+    <div class="lib-grid">${mats.map(m=>libRow(m,true)).join('')||'<div style="color:#86868B;font-size:14px;padding:12px 0">No visible materials.</div>'}</div>
+    <div class="section-title" style="margin-top:28px">Public Reviews</div>
+    ${s.reviews.length?s.reviews.map(revCard).join(''):'<div style="color:#86868B;font-size:14px;padding:12px 0">No public reviews yet.</div>'}`;
 }
 
-/* ═══════════════════════
-   LIBRARY
-═══════════════════════ */
-function renderLibrary() {
-  const libMats = MATERIALS.slice(0, 12);
-  document.getElementById('library-list').innerHTML = libMats.map(m => `
-    <div class="lib-card" onclick="openSpu('${m.id}')">
-      <div class="lib-img" style="overflow:hidden;padding:0"><img src="${matURI(m,120)}" alt="" style="width:100%;height:100%;object-fit:cover"></div>
-      <div class="lib-info">
-        <div class="lib-name">${m.name}</div>
-        <div class="lib-sub">${SUPPLIERS[m.sup].name} · ${m.type === 'secondary' ? 'Secondary' : 'Raw'}</div>
-        <div class="lib-meta">
-          <span class="badge b-${m.perm.toLowerCase()}">${m.perm}</span>
-          ${m.dpp ? '<span class="b-dpp">DPP-ready</span>' : ''}
-        </div>
-      </div>
-      <span class="lib-chev">›</span>
-    </div>`).join('');
+/* ═══ FAVORITES / LIBRARY ═══ */
+function libRow(m,withSup){ const sup=SUPPLIERS[m.sup];
+  return `<div class="lib-card" onclick="openSpu('${m.id}')"><div class="lib-img"><img src="${matURI(m,120)}" alt=""></div>
+    <div class="lib-info"><div class="lib-name">${m.name}</div><div class="lib-sub">${withSup?sup.name+' · ':''}${m.type==='secondary'?'Secondary':'Raw'} · ${m.spn}</div>
+    <div class="lib-meta"><span class="badge b-${m.perm.toLowerCase()}">${m.perm}</span>${m.dpp?'<span class="b-dpp">DPP-ready</span>':''}<span style="font-size:12px;color:#86868B">USD ${m.price.toFixed(2)}/${m.priceUnit} · ${m.lt}d</span></div></div><span class="lib-chev">›</span></div>`; }
+function renderFavorites(){ const f=['SPA-MAT-0001','SPA-MAT-0004','SPA-COMP-0101'].map(id=>MATERIALS.find(m=>m.id===id)); document.getElementById('favorites-list').innerHTML=f.map(m=>libRow(m,true)).join(''); }
+function renderLibrary(){ const lib=MATERIALS.filter(isVisible).slice(0,12); document.getElementById('library-list').innerHTML=lib.map(m=>libRow(m,true)).join(''); document.getElementById('lib-count').textContent=lib.length; }
+
+/* ═══ REQUESTS ═══ */
+function renderRequests(){
+  document.getElementById('req-list').innerHTML=THREADS.map(t=>{const s=SUPPLIERS[t.sup];const last=t.msgs[t.msgs.length-1];
+    return `<div class="req-item ${t.id===activeThread?'active':''}" onclick="openThread('${t.id}')"><div class="req-ava">${s.short}</div>
+      <div class="req-meta"><div class="req-name">${s.name.replace(' Co.','')} ${t.unread?'<span class="req-dot"></span>':''}</div><div class="req-snippet">${t.subject}</div><div class="req-snippet">${last.t}</div></div></div>`;}).join('');
+  openThread(activeThread,true);
+}
+function openThread(id,keep){
+  activeThread=id; const t=THREADS.find(x=>x.id===id); if(!t)return; t.unread=false;
+  const s=SUPPLIERS[t.sup];
+  document.getElementById('req-thread-hd').innerHTML=`<div class="req-ava" style="width:30px;height:30px">${s.short}</div> ${s.name} · <span style="color:#86868B;font-weight:400">${t.subject}</span>`;
+  document.getElementById('req-msgs').innerHTML=t.msgs.map(msgHtml).join('');
+  if(!keep) renderRequests();
+  const box=document.getElementById('req-msgs'); box.scrollTop=box.scrollHeight;
+  document.querySelectorAll('.req-item').forEach(el=>el.classList.remove('active'));
+}
+function msgHtml(m){ return `<div class="msg ${m.who}">${m.t}${m.att?`<span class="msg-attach">📎 ${m.att}</span>`:''}<span class="msg-time">${m.time}</span></div>`; }
+function sendMsg(){ const inp=document.getElementById('req-input'); const v=inp.value.trim(); if(!v)return; const t=THREADS.find(x=>x.id===activeThread); t.msgs.push({who:'me',t:v,time:'Now'}); inp.value=''; const box=document.getElementById('req-msgs'); box.innerHTML=t.msgs.map(msgHtml).join(''); box.scrollTop=box.scrollHeight; }
+function openRequestFor(supId,name){ const ex=THREADS.find(t=>t.sup===supId); if(ex){activeThread=ex.id;} else { const nid='t'+(THREADS.length+1); THREADS.push({id:nid,sup:supId,subject:name,unread:false,msgs:[{who:'me',t:`Hi, I'd like to request information about ${name}.`,time:'Now'}]}); activeThread=nid; } showPage('requests'); }
+
+/* ═══ FIND SAME MATERIAL ═══ */
+function findSameMaterial(fromId,spuCode,skuKey){
+  fsmContext={fromId,spuCode,skuKey};
+  renderFsmBody();
+  document.getElementById('fsm-modal').style.display='flex'; document.body.style.overflow='hidden';
+}
+function renderFsmBody(){
+  const{fromId,spuCode,skuKey}=fsmContext;
+  const scope=MATERIALS.filter(inFsmScope);
+  const identical=scope.filter(m=>m.spuCode===spuCode&&m.skuKey===skuKey&&m.id!==fromId);
+  const alt=scope.filter(m=>m.spuCode===spuCode&&m.skuKey!==skuKey&&m.id!==fromId);
+  document.getElementById('fsm-modal-context').textContent=`Scope: OPEN + materials granted to your account`;
+  let h=`<div style="font-size:13px;color:#86868B;margin-bottom:16px">Product: <strong>${spuCode}</strong> · Option: <strong>${skuKey}</strong></div>`;
+  if(identical.length){ h+=`<div style="font-size:12px;font-weight:600;color:#1D7340;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">Identical (${identical.length})</div>`+identical.map(fsmCard).join(''); }
+  if(alt.length){ h+=`<div style="font-size:12px;font-weight:600;color:#0071E3;text-transform:uppercase;letter-spacing:0.06em;margin:16px 0 10px">Alternative (${alt.length})</div>`+alt.map(fsmCard).join(''); }
+  if(!identical.length&&!alt.length) h+=`<div style="text-align:center;padding:48px 0;color:#86868B">No matching materials in scope.</div>`;
+  document.getElementById('fsm-modal-body').innerHTML=h;
+}
+function fsmCard(m){ const sup=SUPPLIERS[m.sup];
+  return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:0.5px solid #F5F5F7;cursor:pointer" onclick="closeFsmModal();openSpu('${m.id}')">
+    <img src="${matURI(m,120)}" style="width:56px;height:56px;border-radius:8px;object-fit:cover;flex-shrink:0">
+    <div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:500">${m.name}</div><div style="font-size:12px;color:#86868B;margin-top:2px">${sup.name}</div>
+    <div style="display:flex;gap:8px;margin-top:4px"><span class="badge b-${m.perm.toLowerCase()}">${m.perm}</span>${m.dpp?'<span class="b-dpp">DPP-ready</span>':''}</div></div>
+    <div style="text-align:right"><div style="font-size:14px;font-weight:600">USD ${m.price.toFixed(2)}</div><div style="font-size:12px;color:#86868B">${m.lt}d LT</div></div></div>`; }
+function closeFsmModal(){ document.getElementById('fsm-modal').style.display='none'; document.body.style.overflow=''; }
+function openFsmInNewWindow(){
+  const{fromId,spuCode,skuKey}=fsmContext; const scope=MATERIALS.filter(inFsmScope);
+  const identical=scope.filter(m=>m.spuCode===spuCode&&m.skuKey===skuKey&&m.id!==fromId);
+  const alt=scope.filter(m=>m.spuCode===spuCode&&m.skuKey!==skuKey&&m.id!==fromId);
+  const row=m=>{const sup=SUPPLIERS[m.sup];return `<div class="card"><img src="${matURI(m,120)}"><div style="flex:1"><div class="nm">${m.name}</div><div class="sb">${sup.name} · ${m.perm}${m.dpp?' · DPP-ready':''}</div></div><div style="text-align:right"><div class="pr">USD ${m.price.toFixed(2)}</div><div class="sb">${m.lt}d</div></div></div>`;};
+  const w=window.open('','_blank','width=640,height=840,scrollbars=yes');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Find Same Material</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,'SF Pro Text',Arial,sans-serif;background:#fff;color:#1D1D1F;padding:24px 28px;font-size:14px}
+h2{font-size:20px;font-weight:600;margin-bottom:4px}.sub{font-size:12px;color:#86868B;margin-bottom:6px}
+.cond{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 18px}.cond input{border:0.5px solid #D2D2D7;border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit}
+.cond button{background:#1D1D1F;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;font-family:inherit}
+.hd{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin:16px 0 8px}.hd.id{color:#1D7340}.hd.al{color:#0071E3}
+.card{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:0.5px solid #F5F5F7}.card img{width:52px;height:52px;border-radius:8px;object-fit:cover}
+.nm{font-weight:500}.sb{font-size:12px;color:#86868B}.pr{font-weight:600}</style></head><body>
+<h2>Find Same Material</h2><div class="sub">Scope: OPEN + materials granted to your account</div>
+<div class="cond"><input value="Product: ${spuCode}"><input value="Option: ${skuKey}"><button onclick="alert('Re-search with edited conditions')">Search</button></div>
+${identical.length?`<div class="hd id">Identical (${identical.length})</div>`+identical.map(row).join(''):''}
+${alt.length?`<div class="hd al">Alternative (${alt.length})</div>`+alt.map(row).join(''):''}
+${(!identical.length&&!alt.length)?'<div style="padding:40px 0;text-align:center;color:#86868B">No matches in scope.</div>':''}
+</body></html>`); w.document.close();
 }
 
-/* ═══════════════════════
-   INIT
-═══════════════════════ */
+/* ═══ COMPARE ═══ */
+function renderCompare(){
+  const ids=['SPA-MAT-0001','SPA-MAT-0007','SPA-MAT-0004']; const ms=ids.map(id=>MATERIALS.find(m=>m.id===id));
+  const rows=[
+    ['SmartPN ID',m=>m.spn],['GS1',m=>m.gs1||'—'],['Category',m=>m.cat],
+    ['Price',m=>`USD ${m.price.toFixed(2)}/${m.priceUnit}`],['Lead time',m=>`${m.lt} days`],
+    ['DPP-ready',m=>m.dpp?'<span class="b-dpp">✓</span>':'<span class="compare-same">—</span>'],
+    ['Permission',m=>`<span class="badge b-${m.perm.toLowerCase()}">${m.perm}</span>`],['Updated',m=>m.updated],
+  ];
+  document.getElementById('compare-body').innerHTML=`<div style="overflow-x:auto"><table class="compare-table"><thead><tr><th></th>
+    ${ms.map(m=>`<th><div class="cmp-img"><img src="${matURI(m,120)}"></div>${m.name}<br><span style="font-size:12px;color:#86868B;font-weight:400">${SUPPLIERS[m.sup].name}</span></th>`).join('')}</tr></thead>
+    <tbody>${rows.map(([lbl,fn])=>`<tr><td>${lbl}</td>${ms.map(m=>`<td>${fn(m)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    <div style="font-size:12px;color:#86868B;padding:16px 0 0">Apple-style comparison · up to 3 materials. Data sourced from supplier-maintained records.</div>`;
+}
 
-/* ═══════════════════════
-   I18N
-═══════════════════════ */
-let LANG = 'en';
-const STRINGS = {
-  product:       { en:'Product',           zh:'商品' },
-  option:        { en:'Option',            zh:'規格' },
-  latest:        { en:'Latest',            zh:'最新上架' },
-  popular:       { en:'Most Popular',      zh:'最多人使用' },
-  seeAll:        { en:'See All',           zh:'全部查看' },
-  category:      { en:'Category',          zh:'材料分類' },
-  extView:       { en:'External View',     zh:'外部視角' },
-  cat_leather:   { en:'Leather',           zh:'皮料' },
-  cat_synleather:{ en:'Synthetic Leather', zh:'人造皮' },
-  cat_textile:   { en:'Textile',           zh:'紡織' },
-  cat_film:      { en:'Film',              zh:'薄膜' },
-  cat_secondary: { en:'Secondary',         zh:'二次加工' },
+/* ═══ I18N ═══ */
+let LANG='en';
+const STRINGS={
+  favorites:{en:'My Favorites',zh:'我的最愛'},library:{en:'My Library',zh:'我的材料庫'},requests:{en:'Requests',zh:'對話'},
+  account:{en:'My Account',zh:'我的帳戶'},settings:{en:'Settings',zh:'設定'},
+  f_all:{en:'All',zh:'全部'},f_raw:{en:'Raw Material',zh:'原物料'},f_sec:{en:'Secondary',zh:'二次加工'},
+  f_price:{en:'Price / m',zh:'單價 / m'},f_lt:{en:'Max LT (days)',zh:'最長交期'},f_sort:{en:'Sort',zh:'排序'},
+  extView:{en:'External View',zh:'外部視角'},latest:{en:'Latest',zh:'最新上架'},popular:{en:'Most Popular',zh:'最多人使用'},
+  seeAll:{en:'See All',zh:'全部查看'},category:{en:'Category',zh:'材料分類'},
+  cat_leather:{en:'Leather',zh:'皮料'},cat_synleather:{en:'Synthetic Leather',zh:'人造皮'},cat_textile:{en:'Textile',zh:'紡織'},cat_film:{en:'Film',zh:'薄膜'},cat_secondary:{en:'Secondary',zh:'二次加工'},
+  materialSearch:{en:'Material Search',zh:'材料搜尋'},back:{en:'Back',zh:'返回'},options:{en:'Options',zh:'規格選項'},
+  price:{en:'Price',zh:'單價'},leadtime:{en:'Lead time',zh:'交期'},addLib:{en:'Add to My Library',zh:'加入材料庫'},
+  compare:{en:'Compare',zh:'比較'},fsm:{en:'Find Same Material',zh:'尋找相同材料'},request:{en:'Request',zh:'發起對話'},
+  overview:{en:'Material Overview',zh:'材料總覽'},certs:{en:'Certifications',zh:'認證'},
+  shareLib:{en:'Share with my company',zh:'分享給同公司'},libNote:{en:'Personal library — private to your account. Sharing grants read access to selected colleagues.',zh:'個人材料庫，帳號獨立。分享後可讓同公司指定同事讀取。'},
+  send:{en:'Send',zh:'送出'},postReview:{en:'Post review',zh:'發表評論'},reviewNote:{en:'Public reviews are visible to the supplier; private only to your company.',zh:'公開評論供應商可見；私密評論僅同公司可見。'},
 };
-function T(key) { return (STRINGS[key] || {})[LANG] || key; }
-function toggleLang() {
-  LANG = LANG === 'en' ? 'zh' : 'en';
-  const btn = document.getElementById('lang-toggle');
-  if (btn) btn.textContent = LANG === 'en' ? '中文' : 'EN';
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.dataset.i18n;
-    if (STRINGS[key]) el.textContent = T(key);
-  });
-  renderHomepage();
-  if (currentPage === 'search') renderGrid();
-  if (currentPage === 'spu' && currentMat) renderSpuPage(currentMat);
-  if (currentPage === 'sku' && currentMat && currentSku) renderSkuPage(currentMat, currentSku);
+function T(k){ return (STRINGS[k]||{})[LANG]||k; }
+function toggleLang(){
+  LANG=LANG==='en'?'zh':'en';
+  document.getElementById('lang-toggle').textContent=LANG==='en'?'中文':'EN';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.dataset.i18n;if(STRINGS[k])el.textContent=T(k);});
+  renderHomepage(); renderCatThumbs();
+  if(currentPage==='search') renderGrid();
+  if(currentPage==='spu'&&currentMat) renderSpuPage(currentMat);
 }
 
-renderGrid();
-renderLibrary();
+/* ═══ INIT ═══ */
+renderCatThumbs();
 renderHomepage();
-// Fill category thumbnails with inline SVG textures (no external URL)
-document.querySelectorAll('.cat-thumb-img').forEach(img => { img.src = texURI(img.dataset.pat || catPatternByName(img.alt), 120); });
-// show home by default; filter bar visible
-document.getElementById('filter-bar').style.display = '';
+renderGrid();
+document.getElementById('filter-bar').style.display='';
 </script>
 </body>
 </html>
