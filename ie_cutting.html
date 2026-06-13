@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IE · 裁斷機區流程</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background:#f0f2f5;color:#1a1a2e;min-height:100vh}
+:root{--ph-h:40px;--tb-h:44px;--stat-h:52px}
+
+.page-header{background:#1a2744;color:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.page-header h1{font-size:15px;font-weight:600}
+.header-right{display:flex;gap:8px;align-items:center}
+.version{font-size:11px;color:#7a9bcc;background:#243356;padding:3px 8px;border-radius:4px}
+.btn-link{background:#5c6bc0;color:#fff;text-decoration:none;padding:5px 12px;border-radius:5px;font-size:12px;font-weight:500}.btn-link:hover{background:#3949ab}
+
+/* Stats bar */
+.stat-bar{background:#fff;border-bottom:1px solid #e4e9f2;padding:8px 20px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.stat-card{display:flex;flex-direction:column;align-items:center;min-width:72px}
+.stat-label{font-size:10px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.stat-val{font-size:18px;font-weight:700;color:#1a2744;line-height:1.2}
+.stat-val.orange{color:#c84b00}.stat-val.green{color:#276e2a}.stat-val.red{color:#cc2222}
+.stat-divider{width:1px;background:#e4e9f2;height:36px;flex-shrink:0}
+
+/* Toolbar */
+.toolbar{background:#fff;border-bottom:1px solid #e4e9f2;padding:7px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;position:sticky;top:var(--ph-h);z-index:90;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.search-inp{border:1px solid #d0d5e0;border-radius:5px;padding:5px 10px;font-size:12px;width:220px;outline:none}
+.search-inp:focus{border-color:#4a6cf7;box-shadow:0 0 0 2px rgba(74,108,247,.12)}
+.filter-group{display:flex;gap:2px;background:#f0f2f5;border-radius:5px;padding:2px}
+.filter-btn{background:transparent;border:none;border-radius:3px;padding:4px 10px;font-size:11px;font-weight:600;color:#666;cursor:pointer;transition:background .12s,color .12s;white-space:nowrap}
+.filter-btn:hover{background:#e4e9f2;color:#1a2744}
+.filter-btn.active{background:#4a6cf7;color:#fff}
+.filter-btn.pending.active{background:#c84b00}
+.filter-btn.formula.active{background:#276e2a}
+.art-sel{border:1px solid #d0d5e0;border-radius:5px;padding:5px 8px;font-size:12px;outline:none;max-width:180px}
+.art-sel:focus{border-color:#4a6cf7}
+.count-badge{font-size:11px;color:#888;margin-left:4px}
+
+/* Table */
+.table-wrap{overflow:auto;margin:12px 20px;border-radius:8px;box-shadow:0 1px 8px rgba(0,0,0,.1);max-height:calc(100vh - var(--ph-h) - var(--tb-h) - var(--stat-h) - 44px)}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:12px;min-width:800px}
+thead th{background:#1a2744;color:#fff;padding:7px 8px;text-align:left;font-weight:700;font-size:11px;white-space:nowrap;border-right:1px solid #2e3d5c;position:sticky;top:0;z-index:5}
+thead th:last-child{border-right:none}
+thead th.num{text-align:right}
+tbody tr{border-bottom:1px solid #edf0f7}
+tbody tr:hover td{background:#eef2ff!important}
+tbody tr.row-even td{background:#f8faff}
+td{padding:5px 8px;border-right:1px solid #f0f2f5;vertical-align:middle;font-size:11px}
+td:last-child{border-right:none}
+td.num{text-align:right;font-variant-numeric:tabular-nums;color:#1a4a7a;font-weight:600}
+td.art-td{font-weight:700;color:#1a2744;white-space:nowrap}
+td.proc-td{max-width:260px;word-break:break-word;line-height:1.4}
+td.part-td{max-width:160px;word-break:break-word;font-size:10px;color:#555}
+.badge{display:inline-block;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge-formula{background:#e8f5e9;color:#276e2a}
+.badge-manual{background:#fff3e0;color:#c84b00}
+.badge-pending{background:#ffebee;color:#cc2222;border:1px solid #ffcdd2}
+.tct-val{font-size:12px;font-weight:700;color:#1a4a7a}
+.tct-null{font-size:11px;color:#ccc}
+
+.loading{text-align:center;padding:40px;color:#888}
+.empty{text-align:center;padding:30px;color:#aaa;font-size:12px}
+
+/* formula tooltip on hover */
+.formula-cell{position:relative;cursor:help;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#276e2a;font-size:10px}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>IE · 裁斷機區流程 (Cutting)</h1>
+  <div class="header-right">
+    <a href="/ie/matrix" class="btn-link" style="background:#0e7490">矩陣</a>
+    <a href="/ie" class="btn-link">← IE 列表</a>
+    <div id="status-dot" title="伺服器狀態" style="width:8px;height:8px;border-radius:50%;background:#aaa;display:inline-block;flex-shrink:0"></div>
+    <span class="version">v1.0</span>
+  </div>
+</div>
+
+<div class="stat-bar" id="stat-bar">
+  <div class="stat-card"><div class="stat-label">ART 數</div><div class="stat-val" id="s-arts">—</div></div>
+  <div class="stat-divider"></div>
+  <div class="stat-card"><div class="stat-label">流程行數</div><div class="stat-val" id="s-total">—</div></div>
+  <div class="stat-divider"></div>
+  <div class="stat-card"><div class="stat-label">Formula</div><div class="stat-val green" id="s-formula">—</div></div>
+  <div class="stat-divider"></div>
+  <div class="stat-card"><div class="stat-label">Manual</div><div class="stat-val orange" id="s-manual">—</div></div>
+  <div class="stat-divider"></div>
+  <div class="stat-card"><div class="stat-label">Formula 比</div><div class="stat-val" id="s-ratio">—</div></div>
+  <div class="stat-divider"></div>
+  <div class="stat-card"><div class="stat-label">待分區</div><div class="stat-val red" id="s-pending">—</div></div>
+</div>
+
+<div class="toolbar">
+  <input id="search" class="search-inp" type="text" placeholder="搜尋流程名 / ART..." oninput="applyFilters()">
+  <select id="art-sel" class="art-sel" onchange="applyFilters()">
+    <option value="">全部 ART</option>
+  </select>
+  <div class="filter-group">
+    <button class="filter-btn active" data-filter="all"     onclick="setFilter('all',this)">全部</button>
+    <button class="filter-btn pending" data-filter="pending" onclick="setFilter('pending',this)">待分區</button>
+    <button class="filter-btn formula" data-filter="formula" onclick="setFilter('formula',this)">Formula</button>
+    <button class="filter-btn"         data-filter="manual"  onclick="setFilter('manual',this)">Manual</button>
+  </div>
+  <span id="count-badge" class="count-badge">—</span>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th style="min-width:90px">ART</th>
+        <th style="min-width:130px">材料/零件</th>
+        <th class="num" style="width:48px">Seq</th>
+        <th style="min-width:220px">流程名稱</th>
+        <th class="num" style="width:72px">TCT (s)</th>
+        <th style="width:80px">類型</th>
+        <th style="width:72px">Flag</th>
+        <th style="min-width:160px">Formula</th>
+      </tr>
+    </thead>
+    <tbody id="tbl-body">
+      <tr><td colspan="8" class="loading">載入中...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+let allRecords = [];
+let activeFilter = 'all';
+
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function renderStats(stats){
+  if(!stats) return;
+  document.getElementById('s-arts').textContent    = stats.arts    ?? '—';
+  document.getElementById('s-total').textContent   = stats.total   ?? '—';
+  document.getElementById('s-formula').textContent = stats.formula_cnt ?? '—';
+  document.getElementById('s-manual').textContent  = stats.manual_cnt  ?? '—';
+  const ratio = stats.total > 0 ? (stats.formula_cnt / stats.total * 100).toFixed(1)+'%' : '—';
+  document.getElementById('s-ratio').textContent   = ratio;
+  document.getElementById('s-pending').textContent = stats.pending_cnt ?? '—';
+}
+
+function populateArtFilter(records){
+  const sel = document.getElementById('art-sel');
+  const arts = [...new Set(records.map(r=>r.art))].sort();
+  arts.forEach(a=>{
+    const opt = document.createElement('option');
+    opt.value = a; opt.textContent = a;
+    sel.appendChild(opt);
+  });
+}
+
+function setFilter(f, btn){
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function applyFilters(){
+  const q    = document.getElementById('search').value.toLowerCase().trim();
+  const art  = document.getElementById('art-sel').value;
+  let rows = allRecords;
+
+  if(art) rows = rows.filter(r=>r.art===art);
+  if(activeFilter==='pending') rows = rows.filter(r=>r.flag==='待分區');
+  if(activeFilter==='formula') rows = rows.filter(r=>r.value_type==='formula');
+  if(activeFilter==='manual')  rows = rows.filter(r=>r.value_type==='manual');
+  if(q) rows = rows.filter(r=>
+    (r.process_name||'').toLowerCase().includes(q)||
+    (r.art||'').toLowerCase().includes(q)||
+    (r.part_name||'').toLowerCase().includes(q)
+  );
+
+  renderTable(rows);
+  document.getElementById('count-badge').textContent = `顯示 ${rows.length} 行`;
+}
+
+function renderTable(rows){
+  const tbody = document.getElementById('tbl-body');
+  if(!rows.length){
+    tbody.innerHTML='<tr><td colspan="8" class="empty">無符合記錄</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map((r,i)=>{
+    const typeBadge = r.value_type==='formula'
+      ? '<span class="badge badge-formula">formula</span>'
+      : '<span class="badge badge-manual">manual</span>';
+    const flagCell = r.flag
+      ? '<span class="badge badge-pending">待分區</span>'
+      : '<span style="color:#ccc;font-size:10px">—</span>';
+    const tctCell = (r.tct!==null && r.tct!==undefined && r.tct>0)
+      ? `<span class="tct-val">${parseFloat(r.tct).toFixed(2)}</span>`
+      : '<span class="tct-null">—</span>';
+    const formulaCell = r.formula
+      ? `<span class="formula-cell" title="${esc(r.formula)}">${esc(r.formula.substring(0,60))}${r.formula.length>60?'…':''}</span>`
+      : '<span style="color:#ddd">—</span>';
+    const rowCls = i%2===1?'row-even':'';
+    return `<tr class="${rowCls}">
+      <td class="art-td">${esc(r.art)}</td>
+      <td class="part-td">${esc(r.part_name||'—')}</td>
+      <td class="num">${r.seq??'—'}</td>
+      <td class="proc-td">${esc(r.process_name||'—')}</td>
+      <td class="num">${tctCell}</td>
+      <td>${typeBadge}</td>
+      <td>${flagCell}</td>
+      <td>${formulaCell}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadData(){
+  try{
+    const res  = await fetch('/api/ie/cutting');
+    const data = await res.json();
+    if(!data.ok){ throw new Error(data.error||'error'); }
+    allRecords = data.records || [];
+    renderStats(data.stats);
+    populateArtFilter(allRecords);
+    applyFilters();
+    const dot = document.getElementById('status-dot');
+    dot.style.background='#22c55e'; dot.title='伺服器正常';
+  }catch(e){
+    document.getElementById('tbl-body').innerHTML=
+      `<tr><td colspan="8" class="empty" style="color:#e05252">載入失敗：${esc(String(e))}</td></tr>`;
+    const dot = document.getElementById('status-dot');
+    dot.style.background='#ef4444'; dot.title='伺服器離線';
+  }
+}
+
+loadData();
+</script>
+</body>
+</html>

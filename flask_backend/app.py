@@ -118,6 +118,10 @@ def ie_detail(header_id):
 def ie_matrix_page():
     return send_from_directory('..', 'ie_matrix.html')
 
+@app.route('/ie/cutting')
+def ie_cutting_page():
+    return send_from_directory('..', 'ie_cutting.html')
+
 # ── IE Interface API ─────────────────────────────────────────────────────────
 
 @app.route('/api/ie/list', methods=['GET'])
@@ -250,6 +254,16 @@ def ie_export(header_id):
     return send_file(buf, as_attachment=True, download_name=filename,
                      mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
+
+@app.route('/api/ie/cutting', methods=['GET'])
+def ie_cutting_api():
+    art  = request.args.get('art', '').strip() or None
+    flag = request.args.get('flag', '').strip() or None
+    return jsonify(db.get_ie_cutting_process(art=art, flag=flag))
+
+@app.route('/api/ie/cutting/arts', methods=['GET'])
+def ie_cutting_arts_api():
+    return jsonify(db.get_ie_cutting_arts())
 
 @app.route('/api/ie/matrix', methods=['GET'])
 def ie_matrix_api():

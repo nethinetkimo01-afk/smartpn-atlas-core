@@ -699,6 +699,62 @@ def list_ds01_records(limit=200, offset=0):
         conn.close()
 
 
+def get_ie_cutting_process(art=None, flag=None, limit=2000):
+    conn = get_conn()
+    try:
+        where_parts = ["segment='cutting'"]
+        params = []
+        if art:
+            where_parts.append("art=?")
+            params.append(art)
+        if flag:
+            where_parts.append("flag=?")
+            params.append(flag)
+        where = ' AND '.join(where_parts)
+        rows = conn.execute(
+            f'''SELECT id, header_id, art, zone, seq, process_name, part_name,
+                       tct, value_type, formula, source_sheet, source_row, flag
+               FROM ie_process WHERE {where}
+               ORDER BY art, source_row LIMIT ?''',
+            params + [limit]).fetchall()
+        # Stats
+        stats_row = conn.execute(
+            '''SELECT COUNT(*) as total,
+                      COUNT(DISTINCT art) as arts,
+                      SUM(CASE WHEN value_type='formula' THEN 1 ELSE 0 END) as formula_cnt,
+                      SUM(CASE WHEN value_type='manual' THEN 1 ELSE 0 END) as manual_cnt,
+                      SUM(CASE WHEN flag='待分區' THEN 1 ELSE 0 END) as pending_cnt,
+                      SUM(CASE WHEN tct IS NOT NULL AND tct > 0 THEN 1 ELSE 0 END) as tct_cnt
+               FROM ie_process WHERE segment='cutting' ''').fetchone()
+        stats = dict(stats_row) if stats_row else {}
+        return {
+            'ok': True,
+            'records': [dict(r) for r in rows],
+            'stats': stats,
+        }
+    except Exception as e:
+        return {'ok': False, 'error': str(e), 'records': [], 'stats': {}}
+    finally:
+        conn.close()
+
+
+def get_ie_cutting_arts():
+    conn = get_conn()
+    try:
+        rows = conn.execute(
+            '''SELECT art, COUNT(*) as row_cnt,
+                      SUM(CASE WHEN value_type='formula' THEN 1 ELSE 0 END) as formula_cnt,
+                      SUM(CASE WHEN flag='待分區' THEN 1 ELSE 0 END) as pending_cnt,
+                      SUM(CASE WHEN tct IS NOT NULL AND tct > 0 THEN 1 ELSE 0 END) as tct_cnt
+               FROM ie_process WHERE segment='cutting'
+               GROUP BY art ORDER BY art''').fetchall()
+        return {'ok': True, 'arts': [dict(r) for r in rows]}
+    except Exception as e:
+        return {'ok': False, 'error': str(e), 'arts': []}
+    finally:
+        conn.close()
+
+
 def get_db_stats():
     conn = get_conn()
     try:
