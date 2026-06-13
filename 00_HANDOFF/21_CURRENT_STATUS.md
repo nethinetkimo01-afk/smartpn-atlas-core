@@ -1,6 +1,6 @@
 # Current Status
 
-Last updated: 2026-06-12
+Last updated: 2026-06-13
 
 ---
 
@@ -143,6 +143,19 @@ Last updated: 2026-06-12
 - [x] S01–S17 PPT HTML：DONE（docs/preview/S01_PPT.html ~ S17_PPT.html，共 17 個靜態投影片）
 - [x] Outreach work package: DONE（29_OUTREACH_WORK_PACKAGE.md）
 - [x] 00_ENTRY_POINT.md Layer 3：加入 29 號文件索引
+
+### 完成（2026-06-13）
+- [x] 任務板機制建立：35_TASK_BOARD.md，永久任務追蹤（排隊中/進行中/✅完成/❌失敗）
+- [x] DATA SYSTEM Cutting/裁斷機區 IE Process 導入完成
+  - ie_import_cutting.py：建立 ie_process table，172 ARTs 全部導入，8081 行流程資料
+  - flask_backend/test_output/cutting裁斷區_缺口清單.xlsx：完全缺=0 / 可疑=0 / 待分區=1476
+  - formula 比例 67.7% / manual 32.3%
+- [x] /ie/cutting 界面：Cutting 段流程檢視頁（stats bar / ART選擇 / 全部/待分區/Formula/Manual 篩選）
+- [x] 34_MASTER_WORK_ORDER.md 入庫 + 00_ENTRY_POINT.md 索引更新
+- [x] SMARTPN_DEMO.html 補漏：
+  - Find Same Material：新增「⬡ 開新視窗」按鈕（openFsmInNewWindow），在新分頁開結果
+  - 評論區：改為同公司(SHARED)/公開(OPEN) 兩段式顯示，附彩色 section header
+- [x] SMARTPN_DEMO_SUPPLIER.html 補漏確認：母子公司樹/關務稅務分頁/GS1-SmartPN/SPU物性鎖定/二次加工編碼規則 全部已存在
 
 ### 完成（2026-06-12）
 - [x] 31_DEMO_INTERFACE_SPEC_v1.md：Jim 確認版（8問答覆）入庫，取代 30 號草稿。唯一 Demo 開發依據。
