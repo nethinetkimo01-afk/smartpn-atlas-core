@@ -112,3 +112,32 @@ Brand / Factory 看到的不是管理系統——是一個 **Apple 風格的購�
 
 # 8. 邊界（不變）
 - 不存 BOM / 不做交易金流（報價記錄交換 ≠ 交易）/ 不做登入頁 / Scenario 不進選單 / 不發 unified code
+
+---
+
+## 補充確認（2026-06-13）
+
+編碼規則：
+- 每個材料有兩個號碼：GS1 code（可能有）+ SmartPN code（一定有）
+- SmartPN 編碼排除字元：0（像O）/ 1（像I）/ I / O / E
+- 純序號或亂碼，不帶任何資訊意義
+
+單向可見性（核心設計）：
+- Supplier 看不到 Brand/Factory 的資料
+- Supplier 不能主動搜尋 Brand/Factory
+- 只有 Brand/Factory 能發出好友邀請
+- Supplier 接受邀請後才能互看、互聯絡
+- 目的：保護 Brand/Factory 不被 Supplier 騷擾
+
+My Library：
+- 個人材料庫，每個帳號各自獨立
+- 有分享給同公司其他帳號的功能
+
+Requests：
+- 即時對話功能（像購物網客服）
+- Send Request 功能
+- Supplier 在 Dashboard 收到通知
+
+Find Same Material 搜尋範圍：
+- OPEN 材料 + 已授權給這個帳號的材料
+- 不是全平台搜尋
