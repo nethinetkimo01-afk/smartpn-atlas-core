@@ -157,6 +157,24 @@ Last updated: 2026-06-12
   - 評論區：改為同公司(SHARED)/公開(OPEN) 兩段式顯示，附彩色 section header
 - [x] SMARTPN_DEMO_SUPPLIER.html 補漏確認：母子公司樹/關務稅務分頁/GS1-SmartPN/SPU物性鎖定/二次加工編碼規則 全部已存在
 
+### 完成（2026-06-13 晚）— Demo 全面重建 v3
+- [x] 31_DEMO_INTERFACE_SPEC_v1.md：加入「補充確認（2026-06-13）」— 編碼規則(GS1+SmartPN,排除0/1/I/O/E)、單向可見性(只有Brand/Factory能發邀請,保護不被Supplier騷擾)、My Library個人庫+同公司分享、Requests即時對話、Find Same範圍(OPEN+已授權)
+- [x] 兩個 Demo 全部材料圖改 **inline SVG 紋理**（8種 pattern，零外部 URL；先前 unsplash 全部移除）
+- [x] SMARTPN_DEMO.html（Brand）完整重建：
+  - 首頁(分類縮圖×5/Latest/Most Popular) → 搜尋(側欄分類+filter bar+External View) → 產品主頁(SmartPN ID+GS1+Options切換+成分/認證+Add/Compare/Find Same/Request) → 公司主頁(認證含到期日+DPP標示+產品列表+公開評論)
+  - **Find Same Material 新視窗**：條件帶入(Product+Option)、範圍=OPEN+已授權、Identical/Alternative 分區、條件可改重搜
+  - **My Library**：個人庫 + 分享給同公司按鈕
+  - **Requests**：即時對話列表(像客服)+訊息+附件
+  - 評論區：公開(Supplier可見)/私密(同公司) 標示 + 留言框含公開/私密切換
+- [x] SMARTPN_DEMO_SUPPLIER.html 完整重建：
+  - 選單兩項：公司建立(5 tab：基本/認證含上傳/財務資料夾🔒/關務資料夾🔒/子公司樹) + SmartPN建立(原物料/二次加工/權限/單價/誰看過)
+  - 原物料：GS1選填 + SmartPN自動碼(排除0/1/I/O/E,可重產) + SPU物性鎖定黃警示 + Options可新增(顏色/幅寬/重量/單價/LT/SVG圖)
+  - 二次加工：Input選現有Product+加工方式+比例+Output新碼(順序編碼)
+  - 權限管理：4預設資料夾(財務/關務/DPP/材料)+勾選欄位+授權(公司·單位·帳號)+新材料預設PRIVATE
+  - 單價管理：報價三層級+授權帳號+有效期紅黃綠
+  - Boss BI 8 指標 + 誰看過(公司名+次數↔模糊,永不個資) + Requests(收到的對話可回覆)
+- [x] 數據全部對齊 37_DEMO_MOCK_DATA.md（12材料/4供應商/BI $4.08M 互相對得上）
+
 ### 完成（2026-06-12）
 - [x] 31_DEMO_INTERFACE_SPEC_v1.md：Jim 確認版（8問答覆）入庫，取代 30 號草稿。唯一 Demo 開發依據。
 - [x] 33_DEMO_SPEC_v1_2_ADDENDUM.md：v1.2 增補確認版入庫。Boss BI 8 KPIs、誰看過我的材料隱私分級、角色測試項目全部採納。

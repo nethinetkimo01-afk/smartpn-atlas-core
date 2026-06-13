@@ -68,6 +68,11 @@ Version: v1.0 | 建立: 2026-06-13
 | 042 | IE 細表界面全面修正（10項） | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | ie_cell_detail.html 重寫：+/× row, 分組modal, 雙欄理/實, 水蜘蛛, 中/越toggle |
 | 043 | IE 主表列表頁修正（EOLR分行） | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | ie_interface.html: 生產季度|鞋型+細表|ART|材料|EOLR行|4MP; rowspan=2雙EOLR |
 
+| 044 | 兩 Demo 材料圖改 inline SVG 紋理（8 pattern，零外部 URL） | Brand+Supplier Demo | ✅完成 | 2026-06-13 | 2026-06-13 | SMARTPN_DEMO.html + SUPPLIER：8 種 SVG pattern 生成器；移除全部 unsplash |
+| 045 | 31_DEMO_INTERFACE_SPEC_v1.md 補充確認（編碼/單向可見/Library/Requests/FSM範圍） | Spec | ✅完成 | 2026-06-13 | 2026-06-13 | 文末新增「補充確認（2026-06-13）」段 |
+| 046 | SMARTPN_DEMO.html（Brand）完整重建 v3 | Brand Demo | ✅完成 | 2026-06-13 | 2026-06-13 | 首頁/搜尋/產品/公司/Find Same新視窗/My Library分享/Requests即時對話/External View；GS1+SmartPN碼；評論公開私密切換 |
+| 047 | SMARTPN_DEMO_SUPPLIER.html 完整重建 v4 | Supplier Demo | ✅完成 | 2026-06-13 | 2026-06-13 | 兩選單：公司建立(5tab)/SmartPN建立(原物料/二次/權限/單價/誰看過)+Boss BI 8指標+Requests；SmartPN碼排除0/1/I/O/E |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |
