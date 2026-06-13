@@ -76,6 +76,41 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background
 .error-box{background:#fff3f3;border:1px solid #ffcccc;border-radius:8px;padding:20px;color:#cc2222;font-size:13px}
 .placeholder-box{background:#fff;border:1px dashed #c0c8d8;border-radius:8px;padding:30px;display:flex;flex-direction:column;align-items:center;gap:6px;color:#aaa;text-align:center}
 .ph-title{font-size:13px;font-weight:600;color:#666}.ph-sub{font-size:12px}
+
+/* ── View toggle ─────────────────────────────────── */
+.view-toggle-bar{background:#fff;border-bottom:1px solid #e4e9f2;padding:6px 20px;display:flex;gap:4px;align-items:center}
+.vt-btn{padding:4px 14px;border:1px solid #d0d5e0;border-radius:4px;background:#fff;color:#666;font-size:11px;font-weight:600;cursor:pointer;transition:all .12s}
+.vt-btn.active{background:#4a6cf7;color:#fff;border-color:#4a6cf7}
+.vt-hint{font-size:10px;color:#bbb;margin-left:10px}
+
+/* ── Segment tabs ────────────────────────────────── */
+.seg-bar{background:#fff;border-bottom:2px solid #e4e9f2;padding:0 20px;display:flex;overflow-x:auto}
+.seg-tab{padding:9px 16px;border:none;background:transparent;font-size:12px;font-weight:600;color:#999;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:color .12s,border-color .12s}
+.seg-tab:hover{color:#4a6cf7}
+.seg-tab.active{color:#4a6cf7;border-bottom-color:#4a6cf7}
+.seg-tab.seg-pending{color:#ccc}
+
+/* ── Zone sections ───────────────────────────────── */
+.zone-section{background:#fff;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.06);margin-bottom:10px;overflow:hidden}
+.zone-header{display:flex;align-items:center;gap:8px;padding:9px 16px;background:#f7f9fc;border-bottom:1px solid #edf0f7}
+.zone-name{font-size:12px;font-weight:700;min-width:70px}
+.zone-count{font-size:11px;color:#888;background:#e8ecf4;padding:1px 7px;border-radius:10px;font-weight:600}
+.zone-empty-note{font-size:11px;color:#bbb;font-style:italic}
+.zone-pending-note{font-size:11px;color:#e65100;background:#fff3e0;padding:1px 7px;border-radius:10px;font-weight:600}
+.zone-table{width:100%;border-collapse:collapse;font-size:11px}
+.zone-table th{background:#f0f4ff;color:#4a6cf7;font-size:10px;font-weight:700;text-align:left;padding:5px 8px;border-bottom:1px solid #e4e9f2;white-space:nowrap}
+.zone-table td{padding:4px 8px;border-bottom:1px solid #f2f4f8;vertical-align:top;color:#333}
+.zone-table tr:last-child td{border-bottom:none}
+.zone-table tr:hover td{background:#f8faff}
+.badge-formula{background:#fffde7;color:#f9a825;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px}
+.badge-manual{background:#f3f4f8;color:#777;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px}
+.badge-pending{background:#fff3e0;color:#e65100;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px}
+
+/* ── Segment placeholder ─────────────────────────── */
+.seg-placeholder{padding:50px 20px;text-align:center;color:#aaa}
+.seg-ph-icon{font-size:36px;margin-bottom:10px}
+.seg-ph-title{font-size:15px;font-weight:700;color:#bbb;margin-bottom:6px}
+.seg-ph-sub{font-size:12px;color:#ccc}
 </style>
 </head>
 <body>
@@ -114,10 +149,37 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background
   </div>
 </div>
 
-<!-- TAB BAR (dynamic) -->
+<!-- VIEW TOGGLE (shown after load) -->
+<div class="view-toggle-bar" id="view-toggle-bar" style="display:none">
+  <button class="vt-btn active" id="vt-seg-btn" onclick="setView('segment')">4段流程 (新)</button>
+  <button class="vt-btn"       id="vt-sheet-btn" onclick="setView('sheet')">原始 Sheet</button>
+  <span class="vt-hint">原始Sheet供對照原始Excel用</span>
+</div>
+
+<!-- SEGMENT VIEW (4段流程) -->
+<div id="segment-view" style="display:none">
+  <div class="seg-bar">
+    <button class="seg-tab active"    data-seg="cutting"   onclick="switchSeg(this,'cutting')">裁斷 Cutting</button>
+    <button class="seg-tab seg-pending" data-seg="stitching" onclick="switchSeg(this,'stitching')">針車 Stitching</button>
+    <button class="seg-tab seg-pending" data-seg="assembly"  onclick="switchSeg(this,'assembly')">成型 Assembly</button>
+    <button class="seg-tab seg-pending" data-seg="stf"       onclick="switchSeg(this,'stf')">STF</button>
+  </div>
+  <div class="content">
+    <div id="seg-panel-cutting"><div class="grid-loading">載入中...</div></div>
+    <div id="seg-panel-stitching" style="display:none"></div>
+    <div id="seg-panel-assembly"  style="display:none"></div>
+    <div id="seg-panel-stf"       style="display:none"></div>
+    <div class="mp-summary">
+      <div class="section-title">MP 彙總（唯讀 · 來自 ob_epph）</div>
+      <div class="mp-grid" id="seg-mp-grid">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB BAR (原始Sheet模式, dynamic) -->
 <div class="tab-bar" id="tab-bar" style="display:none"></div>
 
-<!-- CONTENT -->
+<!-- CONTENT (原始Sheet模式) -->
 <div class="content" id="content" style="display:none">
   <!-- Active sheet grid -->
   <div class="grid-panel" id="grid-panel">
@@ -175,29 +237,167 @@ function cleanModel(name){
   return (name||'').replace(/\s+Target Output.*$/i,'').replace(/\s{2,}/g,' ').trim() || '—';
 }
 
+// ── View mode ─────────────────────────────────────
+let currentView = 'segment';
+
+function setView(mode){
+  currentView = mode;
+  const isSeg = mode === 'segment';
+  document.getElementById('vt-seg-btn').classList.toggle('active', isSeg);
+  document.getElementById('vt-sheet-btn').classList.toggle('active', !isSeg);
+  document.getElementById('segment-view').style.display = isSeg ? 'block' : 'none';
+  document.getElementById('tab-bar').style.display = isSeg ? 'none' : 'flex';
+  document.getElementById('content').style.display = isSeg ? 'none' : 'flex';
+  if(!isSeg && !Object.keys(sheetCache).length){
+    const firstTab = document.querySelector('#tab-bar .tab-btn[data-sheet]');
+    if(firstTab){
+      firstTab.classList.add('active');
+      loadSheet(firstTab.dataset.sheet);
+      document.getElementById('grid-panel').style.display='block';
+      document.getElementById('mp-grid').closest('.mp-summary').style.display='none';
+    }
+  }
+}
+
+// ── Segment view ──────────────────────────────────
+let processCache = {};
+
+const CUTTING_ZONES = [
+  { key:'裁斷機', label:'裁斷機', color:'#1a2744' },
+  { key:'ATOM',   label:'ATOM',   color:'#7b1fa2' },
+  { key:'Laser',  label:'Laser',  color:'#0277bd' },
+  { key:'EMMA',   label:'EMMA',   color:'#00695c' },
+  { key:'YINGHUI',label:'YINGHUI',color:'#e65100' },
+  { key:'移印',   label:'移印',   color:'#c62828' },
+  { key:'轉印',   label:'轉印',   color:'#4e342e' },
+];
+
+function switchSeg(btn, seg){
+  document.querySelectorAll('.seg-bar .seg-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  ['cutting','stitching','assembly','stf'].forEach(s=>{
+    document.getElementById('seg-panel-'+s).style.display = s===seg ? 'block' : 'none';
+  });
+  if(seg==='cutting'){ if(!processCache.cutting) loadCuttingProcess(); }
+  else renderSegPlaceholder(seg);
+}
+
+async function loadCuttingProcess(){
+  const panel = document.getElementById('seg-panel-cutting');
+  panel.innerHTML = '<div class="grid-loading">載入裁斷段資料...</div>';
+  try{
+    const res = await fetch('/api/ie/'+headerId+'/process?segment=cutting');
+    const data = await res.json();
+    processCache.cutting = data;
+    renderCuttingZones(data);
+  }catch(e){
+    panel.innerHTML = '<div class="grid-loading" style="color:#e05252">載入失敗，請確認Flask服務正在運行</div>';
+  }
+}
+
+function renderCuttingZones(data){
+  const panel = document.getElementById('seg-panel-cutting');
+  if(!data.ok){ panel.innerHTML=`<div class="error-box">${esc(data.error||'未知錯誤')}</div>`; return; }
+  const zones = data.zones||{};
+  const st = data.stats||{};
+  let html = '';
+  if(st.total){
+    html += `<div style="display:flex;gap:14px;padding:10px 0;align-items:center;flex-wrap:wrap;font-size:11px;color:#888">
+      共 <b style="color:#1a2744">${st.total}</b> 行
+      &nbsp; ƒ公式 <b style="color:#f9a825">${st.formula_cnt||0}</b>
+      &nbsp; 手動 <b style="color:#666">${st.manual_cnt||0}</b>
+      ${st.pending_cnt ? `&nbsp; <b style="color:#e65100">待分區 ${st.pending_cnt}</b>` : ''}
+    </div>`;
+  }
+  for(const zone of CUTTING_ZONES){
+    const rows = zones[zone.key]||[];
+    html += buildZoneSection(zone, rows);
+  }
+  const pending = zones['待分區']||[];
+  if(pending.length) html += buildPendingSection(pending);
+  if(!st.total) html += '<div class="grid-loading" style="color:#aaa">此鞋型無裁斷段資料</div>';
+  panel.innerHTML = html;
+}
+
+function buildZoneSection(zone, rows){
+  const hasData = rows.length>0;
+  return `<div class="zone-section">
+    <div class="zone-header">
+      <span class="zone-name" style="color:${zone.color}">${esc(zone.label)}</span>
+      ${hasData
+        ? `<span class="zone-count">${rows.length} 行</span>`
+        : `<span class="zone-empty-note">暫無資料 · 結構已建立</span>`}
+    </div>
+    ${hasData?'<div class="zone-body">'+buildZoneTable(rows)+'</div>':''}
+  </div>`;
+}
+
+function buildPendingSection(rows){
+  return `<div class="zone-section" style="border:1px solid #ffe0b2">
+    <div class="zone-header" style="background:#fff8f0">
+      <span class="zone-name" style="color:#e65100">待分區確認</span>
+      <span class="zone-pending-note">${rows.length} 行</span>
+      <span style="font-size:11px;color:#bbb;margin-left:4px">ATOM/Laser/EMMA 等待確認後移入對應區</span>
+    </div>
+    <div class="zone-body">${buildZoneTable(rows, true)}</div>
+  </div>`;
+}
+
+function buildZoneTable(rows, isPending){
+  let html = `<table class="zone-table"><thead><tr>
+    <th style="width:40px;text-align:center">Seq</th>
+    <th style="min-width:100px">材料/零件</th>
+    <th style="min-width:140px">流程名稱</th>
+    <th style="width:68px;text-align:right">TCT(s)</th>
+    <th style="width:60px">類型</th>
+    <th style="min-width:80px">來源Sheet</th>
+  </tr></thead><tbody>`;
+  for(const r of rows){
+    const tctStr = (r.tct!=null&&r.tct!=='') ? parseFloat(r.tct).toFixed(1) : '—';
+    const badge = isPending
+      ? '<span class="badge-pending">待分區</span>'
+      : r.value_type==='formula'
+        ? '<span class="badge-formula">ƒ公式</span>'
+        : '<span class="badge-manual">手動</span>';
+    html += `<tr>
+      <td style="text-align:center;color:#aaa">${esc(r.seq||'')}</td>
+      <td>${esc(r.part_name||'—')}</td>
+      <td>${esc(r.process_name||'')}</td>
+      <td style="text-align:right;color:#1a4a7a">${tctStr}</td>
+      <td>${badge}</td>
+      <td style="color:#bbb;font-size:10px">${esc(r.source_sheet||'')}</td>
+    </tr>`;
+  }
+  return html+'</tbody></table>';
+}
+
+function renderSegPlaceholder(seg){
+  const panel = document.getElementById('seg-panel-'+seg);
+  if(panel.dataset.rendered) return;
+  panel.dataset.rendered='1';
+  const names={stitching:'針車 Stitching',assembly:'成型 Assembly',stf:'STF'};
+  panel.innerHTML=`<div class="seg-placeholder">
+    <div class="seg-ph-icon">⏳</div>
+    <div class="seg-ph-title">${esc(names[seg]||seg)}</div>
+    <div class="seg-ph-sub">資料待導入</div>
+    <div style="font-size:11px;color:#ddd;margin-top:8px">IE Process 匯入後此段將自動顯示</div>
+  </div>`;
+}
+
 // ── Tab management ────────────────────────────────
 function buildTabBar(sheets){
   const bar = document.getElementById('tab-bar');
-  // Two groups: "IE Sheets" and "MP Summary"
   let html = '';
   sheets.forEach((sn, i)=>{
     const label = sn.trim() || `Sheet${i+1}`;
     html += `<button class="tab-btn${i===0?' active':''}" data-sheet="${esc(sn)}" onclick="switchTab(this)">${esc(label)}</button>`;
   });
-  // Divider + MP summary tab
   if(sheets.length){
     html += '<div class="tab-divider"></div>';
   }
   html += `<button class="tab-btn${!sheets.length?' active':''}" data-tab="mp" onclick="switchTabMP(this)">MP 彙總</button>`;
   bar.innerHTML = html;
-  bar.style.display = 'flex';
-
-  // Auto-load first sheet
-  if(sheets.length){
-    loadSheet(sheets[0]);
-    document.getElementById('grid-panel').style.display='block';
-    document.getElementById('mp-grid').closest('.mp-summary').style.display='none';
-  }
+  // bar visibility is controlled by setView(); don't show here
 }
 
 function switchTab(btn){
@@ -317,20 +517,20 @@ async function loadDetail(){
     document.getElementById('info-eolr').innerHTML = eolrBadge(h.eolr);
     renderArts(detail);
     renderMPSummary(detail);
+    // Mirror MP to segment view
+    document.getElementById('seg-mp-grid').innerHTML = document.getElementById('mp-grid').innerHTML;
 
     const sheets = h.sheets || [];
     buildTabBar(sheets);
 
-    if(!sheets.length){
-      document.getElementById('grid-panel').style.display='none';
-      document.getElementById('mp-grid').closest('.mp-summary').style.display='block';
-    }
-
-    document.getElementById('loading').style.display     = 'none';
-    document.getElementById('info-bar').style.display    = 'flex';
-    document.getElementById('art-add-area').style.display= 'flex';
-    document.getElementById('content').style.display     = 'flex';
-    document.getElementById('btn-export').style.display  = 'inline-flex';
+    document.getElementById('loading').style.display         = 'none';
+    document.getElementById('info-bar').style.display        = 'flex';
+    document.getElementById('art-add-area').style.display    = 'flex';
+    document.getElementById('view-toggle-bar').style.display = 'flex';
+    document.getElementById('btn-export').style.display      = 'inline-flex';
+    // Start in segment view; load cutting process data
+    setView('segment');
+    loadCuttingProcess();
 
     const ph = document.getElementById('page-header').getBoundingClientRect().height;
     document.documentElement.style.setProperty('--ph-h', Math.round(ph)+'px');

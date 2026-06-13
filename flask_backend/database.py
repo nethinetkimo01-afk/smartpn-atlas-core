@@ -755,6 +755,36 @@ def get_ie_cutting_arts():
         conn.close()
 
 
+def get_ie_process_by_header(header_id, segment='cutting'):
+    conn = get_conn()
+    try:
+        rows = conn.execute(
+            '''SELECT zone, seq, process_name, part_name, tct, value_type, formula, flag, source_sheet
+               FROM ie_process
+               WHERE header_id=? AND segment=?
+               ORDER BY zone, seq, source_sheet, id''',
+            (header_id, segment)).fetchall()
+        zones = {}
+        for r in rows:
+            z = r['zone'] if not r['flag'] else '待分區'
+            if z not in zones:
+                zones[z] = []
+            zones[z].append(dict(r))
+        stats_row = conn.execute(
+            '''SELECT COUNT(*) as total,
+                      SUM(CASE WHEN value_type='formula' THEN 1 ELSE 0 END) as formula_cnt,
+                      SUM(CASE WHEN value_type='manual'  THEN 1 ELSE 0 END) as manual_cnt,
+                      SUM(CASE WHEN flag='待分區'        THEN 1 ELSE 0 END) as pending_cnt
+               FROM ie_process WHERE header_id=? AND segment=?''',
+            (header_id, segment)).fetchone()
+        stats = dict(stats_row) if stats_row else {}
+        return {'ok': True, 'segment': segment, 'zones': zones, 'stats': stats}
+    except Exception as e:
+        return {'ok': False, 'error': str(e), 'zones': {}, 'stats': {}}
+    finally:
+        conn.close()
+
+
 def get_db_stats():
     conn = get_conn()
     try:

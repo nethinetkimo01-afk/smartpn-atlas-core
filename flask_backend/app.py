@@ -265,6 +265,11 @@ def ie_cutting_api():
 def ie_cutting_arts_api():
     return jsonify(db.get_ie_cutting_arts())
 
+@app.route('/api/ie/<int:header_id>/process', methods=['GET'])
+def ie_process_by_header(header_id):
+    segment = request.args.get('segment', 'cutting')
+    return jsonify(db.get_ie_process_by_header(header_id, segment))
+
 @app.route('/api/ie/matrix', methods=['GET'])
 def ie_matrix_api():
     return jsonify(db.get_ie_matrix())

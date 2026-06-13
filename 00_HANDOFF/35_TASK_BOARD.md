@@ -35,6 +35,12 @@ Version: v1.0 | 建立: 2026-06-13
 | 015 | 36 測試/Boss演示腳本 入庫 | 交接文件 | ✅完成 | 2026-06-13 | 2026-06-13 | 00_HANDOFF/36_UX_TEST_AND_BOSS_DEMO_SCRIPT.md + 索引更新 |
 | 016 | ie_process去重重導（方案1+2） | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | 8081行乾淨，UNIQUE INDEX防重，ie_import_cutting.py INSERT OR IGNORE |
 | 017 | Cutting段收尾掃描（待分區統計+L欄清單） | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | ATOM87/自動化651/L欄68種值，數字=刀數標準，見報告 |
+| 018 | /ie/<id>詳細頁 4段結構重構 | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | 4段tabs+7區zone+原始sheet切換+/api/ie/<id>/process |
+| 019 | 37_DEMO_MOCK_DATA.md 入庫+索引 | 交接文件 | 進行中 | 2026-06-13 | — | 複製到00_HANDOFF/，更新索引和任務板 |
+| 020 | SMARTPN_DEMO.html 替換37號數據世界 | Brand Demo | 排隊中 | — | — | 12材料/4供應商/4評論/FindSameMaterial/External view |
+| 021 | SMARTPN_DEMO_SUPPLIER.html 替換37號數據 | Supplier Demo | 排隊中 | — | — | Formosa母子結構/8材料/Boss BI全數字 |
+| 022 | docs/preview/INDEX.html 審查中心 | 交接文件 | 排隊中 | — | — | Apple風格清單，連結所有Demo+PPT |
+| 023 | 任務板最終回報 | 管理 | 排隊中 | — | — | 收斂後輸出 |
 
 ---
 
