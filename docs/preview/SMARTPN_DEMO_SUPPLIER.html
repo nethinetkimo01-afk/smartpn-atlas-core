@@ -8,250 +8,198 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',Arial,sans-serif;background:#FFFFFF;color:#1D1D1F;-webkit-font-smoothing:antialiased;font-size:15px;display:flex;flex-direction:column}
 .topbar{display:flex;align-items:center;gap:16px;padding:0 24px;height:52px;border-bottom:0.5px solid #D2D2D7;flex-shrink:0;background:#FFFFFF;position:sticky;top:0;z-index:100}
-.brand{font-size:17px;font-weight:600;color:#1D1D1F;letter-spacing:-0.3px;white-space:nowrap}
+.brand{font-size:17px;font-weight:600;letter-spacing:-0.3px;white-space:nowrap}
 .brand-role{font-size:13px;color:#86868B;margin-left:4px;font-weight:400}
 .topbar-spacer{flex:1}
 .sup-identity{display:flex;align-items:center;gap:10px}
 .sup-avatar{width:30px;height:30px;background:#1D1D1F;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-weight:700;font-size:11px;flex-shrink:0}
-.sup-name{font-size:14px;font-weight:500;color:#1D1D1F}
+.sup-name{font-size:14px;font-weight:500}
 .sup-role-tag{font-size:12px;color:#86868B}
 .layout{display:flex;flex:1;overflow:hidden}
-
-/* ── Sidebar ── */
-.sidebar{width:240px;border-right:0.5px solid #D2D2D7;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;background:#FAFAFA}
-.sidebar-section{padding:20px 16px 6px;font-size:11px;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:0.07em}
+.sidebar{width:248px;border-right:0.5px solid #D2D2D7;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;background:#FAFAFA}
+.sidebar-section{padding:18px 16px 6px;font-size:11px;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:0.07em}
 .nav-group{margin:0 8px 4px;background:#FFFFFF;border-radius:12px;overflow:hidden;border:0.5px solid #E5E5EA}
 .nav-item{display:flex;align-items:center;gap:10px;padding:12px 16px;font-size:14px;color:#1D1D1F;cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:background 0.1s;font-family:inherit;border-bottom:0.5px solid #E5E5EA}
 .nav-item:last-child{border-bottom:none}
 .nav-item:hover{background:#F5F5F7}
 .nav-item.active{background:#F0F7FF;color:#0071E3}
-.nav-icon-wrap{width:28px;height:28px;border-radius:7px;background:#636366;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.nav-item.active .nav-icon-wrap{background:#0071E3}
-.nav-label{flex:1;font-size:14px}
-.nav-chev{font-size:16px;color:#C7C7CC;font-weight:300;flex-shrink:0}
-.nav-sub-item{display:flex;align-items:center;gap:10px;padding:11px 16px 11px 54px;font-size:13px;color:#1D1D1F;cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:background 0.1s;font-family:inherit;border-bottom:0.5px solid #E5E5EA}
-.nav-sub-item:last-child{border-bottom:none}
-.nav-sub-item:hover{background:#F5F5F7}
-.nav-sub-item.active{background:#F0F7FF;color:#0071E3}
-.nav-sub-dot{width:6px;height:6px;border-radius:50%;background:#C7C7CC;flex-shrink:0;margin-right:2px}
-.nav-sub-item.active .nav-sub-dot{background:#0071E3}
-
-/* ── Main ── */
+.nav-icon{width:28px;height:28px;border-radius:7px;background:#636366;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-item.active .nav-icon{background:#0071E3}
+.nav-label{flex:1}
+.nav-chev{font-size:16px;color:#C7C7CC;flex-shrink:0}
+.nav-sub{display:flex;align-items:center;gap:10px;padding:11px 16px 11px 50px;font-size:13px;color:#1D1D1F;cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:background 0.1s;font-family:inherit;border-bottom:0.5px solid #E5E5EA}
+.nav-sub:last-child{border-bottom:none}
+.nav-sub:hover{background:#F5F5F7}
+.nav-sub.active{background:#F0F7FF;color:#0071E3}
+.nav-sub-dot{width:6px;height:6px;border-radius:50%;background:#C7C7CC;flex-shrink:0}
+.nav-sub.active .nav-sub-dot{background:#0071E3}
+.nav-badge{font-size:10px;font-weight:700;background:#FF3B30;color:#fff;border-radius:8px;padding:1px 6px;margin-left:auto}
 .main{flex:1;overflow-y:auto;background:#FFFFFF}
-.view{display:none;padding:32px 40px;max-width:960px}
+.view{display:none;padding:32px 40px;max-width:980px}
 .view.active{display:block}
-.page-header{padding-bottom:20px;border-bottom:0.5px solid #D2D2D7;margin-bottom:28px}
-.page-title{font-size:28px;font-weight:600;color:#1D1D1F;letter-spacing:-0.6px}
+.page-header{padding-bottom:20px;border-bottom:0.5px solid #D2D2D7;margin-bottom:24px}
+.page-title{font-size:28px;font-weight:600;letter-spacing:-0.6px}
 .page-sub{font-size:14px;color:#86868B;margin-top:6px}
-.section-title{font-size:17px;font-weight:600;color:#1D1D1F;padding-bottom:12px;border-bottom:0.5px solid #D2D2D7;margin-bottom:16px;letter-spacing:-0.2px}
+.section-title{font-size:17px;font-weight:600;padding-bottom:12px;border-bottom:0.5px solid #D2D2D7;margin-bottom:16px;letter-spacing:-0.2px}
 
-/* ── BI Dashboard ── */
-.bi-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:8px}
-.bi-card{background:#FFFFFF;border:0.5px solid #E5E5EA;border-radius:16px;padding:24px;position:relative;overflow:hidden}
-.bi-card.full{grid-column:1/-1}
-.bi-card-label{font-size:12px;font-weight:500;color:#86868B;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px}
-.bi-card-val{font-size:36px;font-weight:700;color:#1D1D1F;letter-spacing:-1.5px;line-height:1}
-.bi-card-sub{font-size:13px;color:#86868B;margin-top:8px;line-height:1.5}
-.bi-delta{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;padding:3px 8px;border-radius:8px;margin-top:10px}
-.bi-delta.up{color:#1D7340;background:#F0FFF4}
-.bi-delta.down{color:#FF3B30;background:#FFF0F0}
-.bi-delta-neutral{color:#86868B;background:#F5F5F7}
-.bi-period-toggle{display:flex;gap:0;background:#F5F5F7;border-radius:8px;padding:3px;margin-bottom:20px;width:fit-content}
-.bi-period-btn{font-size:12px;padding:5px 14px;border-radius:5px;border:none;background:transparent;color:#86868B;cursor:pointer;font-family:inherit;transition:all 0.12s}
-.bi-period-btn.active{background:#FFFFFF;color:#1D1D1F;font-weight:500;box-shadow:0 0.5px 2px rgba(0,0,0,0.10)}
+.tab-bar{display:flex;border-bottom:0.5px solid #D2D2D7;margin-bottom:24px;overflow-x:auto}
+.tab-btn{font-size:14px;padding:10px 18px;border:none;background:none;color:#86868B;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-0.5px;white-space:nowrap}
+.tab-btn.active{color:#1D1D1F;border-bottom-color:#1D1D1F;font-weight:500}
+.tab-panel{display:none}.tab-panel.active{display:block}
 
-/* Horizontal bar chart */
-.hbar-list{display:flex;flex-direction:column;gap:12px}
-.hbar-item{display:flex;flex-direction:column;gap:5px}
-.hbar-row{display:flex;align-items:center;gap:10px}
-.hbar-label{font-size:13px;color:#1D1D1F;width:130px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hbar-track{flex:1;height:8px;background:#F5F5F7;border-radius:4px;overflow:hidden}
-.hbar-fill{height:100%;border-radius:4px;transition:width 0.4s ease}
-.hbar-val{font-size:13px;color:#86868B;width:52px;text-align:right;flex-shrink:0}
-.hbar-pct{font-size:11px;color:#86868B;text-align:right;margin-top:1px}
-
-/* Cash flow table */
-.cf-table{width:100%;border-collapse:collapse}
-.cf-table th{font-size:12px;font-weight:500;color:#86868B;text-align:left;padding:8px 0;border-bottom:0.5px solid #D2D2D7}
-.cf-table td{font-size:14px;color:#1D1D1F;padding:12px 0;border-bottom:0.5px solid #F5F5F7;vertical-align:middle}
-.cf-table tr:last-child td{border-bottom:none}
-.cf-in{color:#1D7340;font-weight:500}
-.cf-out{color:#FF3B30;font-weight:500}
-.cf-date-chip{font-size:11px;background:#F0F7FF;color:#0071E3;border-radius:6px;padding:2px 8px;white-space:nowrap}
-
-/* Aging buckets */
-.aging-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:4px}
-.aging-bucket{background:#FAFAFA;border:0.5px solid #E5E5EA;border-radius:10px;padding:16px;text-align:center}
-.aging-bucket-label{font-size:11px;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px}
-.aging-bucket-val{font-size:26px;font-weight:700;letter-spacing:-0.8px}
-.aging-bucket-sub{font-size:11px;color:#86868B;margin-top:4px}
-.aging-bucket.ok .aging-bucket-val{color:#1D7340}
-.aging-bucket.warn .aging-bucket-val{color:#F5A623}
-.aging-bucket.danger .aging-bucket-val{color:#FF3B30}
-
-/* Donut ring (CSS conic-gradient) */
-.donut-wrap{display:flex;align-items:center;gap:24px;margin-top:8px}
-.donut{width:90px;height:90px;border-radius:50%;flex-shrink:0}
-.donut-legend{display:flex;flex-direction:column;gap:8px;flex:1}
-.donut-legend-item{display:flex;align-items:center;gap:8px;font-size:13px;color:#1D1D1F}
-.donut-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.donut-pct{color:#86868B;font-size:12px;margin-left:auto}
-
-/* Win rate ring */
-.win-ring-wrap{display:flex;align-items:center;gap:20px;margin-top:8px}
-.win-ring{width:80px;height:80px;border-radius:50%;background:conic-gradient(#1D7340 0% 37.5%, #F5F5F7 37.5% 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
-.win-ring::after{content:'';position:absolute;width:56px;height:56px;background:#FFFFFF;border-radius:50%}
-.win-ring-label{font-size:18px;font-weight:700;color:#F5A623;position:relative;z-index:1}
-.win-ring-text{font-size:13px;color:#86868B;line-height:1.6}
-
-/* ── Who Viewed ── */
-.privacy-toggle{display:flex;gap:0;background:#F5F5F7;border-radius:8px;padding:3px;width:fit-content;margin-bottom:20px}
-.privacy-btn{font-size:12px;padding:5px 14px;border-radius:5px;border:none;background:transparent;color:#86868B;cursor:pointer;font-family:inherit;transition:all 0.12s;white-space:nowrap}
-.privacy-btn.active{background:#FFFFFF;color:#1D1D1F;font-weight:500;box-shadow:0 0.5px 2px rgba(0,0,0,0.10)}
-.privacy-notice{background:#F0F7FF;border:0.5px solid #BDD7F7;border-radius:10px;padding:12px 16px;font-size:13px;color:#1D1D1F;margin-bottom:20px;line-height:1.6}
-.view-list{display:flex;flex-direction:column;gap:0;border:0.5px solid #E5E5EA;border-radius:12px;overflow:hidden}
-.view-row{display:flex;align-items:center;padding:14px 16px;border-bottom:0.5px solid #F5F5F7;gap:12px}
-.view-row:last-child{border-bottom:none}
-.view-row-avatar{width:36px;height:36px;background:#F5F5F7;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#86868B;flex-shrink:0}
-.view-row-name{font-size:14px;font-weight:500;color:#1D1D1F;flex:1}
-.view-row-sub{font-size:12px;color:#86868B;margin-top:2px}
-.view-row-count{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
-.view-count-num{font-size:17px;font-weight:600;color:#1D1D1F}
-.view-count-label{font-size:11px;color:#86868B}
-.view-row-material{font-size:12px;color:#0071E3;margin-top:2px}
-.view-never-notice{display:flex;align-items:center;gap:8px;margin-top:16px;padding:10px 14px;background:#F5F5F7;border-radius:8px;font-size:12px;color:#86868B}
-
-/* ── Completeness ── */
-.completeness-card{border:0.5px solid #E5E5EA;border-radius:12px;padding:16px 20px;margin-bottom:10px}
-.completeness-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.completeness-name{font-size:15px;font-weight:500;color:#1D1D1F;flex:1}
-.completeness-score{font-size:15px;font-weight:700;color:#1D1D1F}
-.completeness-track{width:100%;height:6px;background:#F5F5F7;border-radius:3px;overflow:hidden;margin-bottom:8px}
-.completeness-fill{height:100%;border-radius:3px;transition:width 0.4s}
-.completeness-missing{display:flex;flex-wrap:wrap;gap:6px}
-.missing-tag{font-size:11px;color:#F5A623;background:#FFF8E7;border:0.5px solid #F5A623;border-radius:5px;padding:2px 8px}
-.missing-tag.good{color:#86868B;background:#F5F5F7;border-color:#E5E5EA}
-
-/* ── Quotation expiry ── */
-.expiry-card{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;margin-bottom:8px}
-.expiry-card.danger{background:#FFF0F0;border:0.5px solid #FFB8B8}
-.expiry-card.warn{background:#FFF8E7;border:0.5px solid #F5A623}
-.expiry-card.ok{background:#F0FFF4;border:0.5px solid #A0D9B5}
-.expiry-icon{font-size:20px;flex-shrink:0}
-.expiry-info{flex:1}
-.expiry-id{font-size:14px;font-weight:600;color:#1D1D1F}
-.expiry-detail{font-size:12px;color:#86868B;margin-top:2px}
-.expiry-days{font-size:13px;font-weight:600;white-space:nowrap}
-.expiry-days.danger{color:#FF3B30}
-.expiry-days.warn{color:#F5A623}
-.expiry-days.ok{color:#1D7340}
-
-/* ── Existing styles ── */
-.step-wrap{display:flex;align-items:center;gap:0;margin-bottom:28px}
-.step-item{display:flex;align-items:center;gap:8px;font-size:13px;color:#86868B}
-.step-num{width:22px;height:22px;border-radius:50%;background:#F5F5F7;border:0.5px solid #D2D2D7;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#86868B;flex-shrink:0}
-.step-item.active .step-num{background:#1D1D1F;color:#FFFFFF;border-color:#1D1D1F}
-.step-item.active{color:#1D1D1F;font-weight:500}
-.step-item.done .step-num{background:#1D7340;color:#FFFFFF;border-color:#1D7340}
-.step-item.done{color:#1D7340}
-.step-line{flex:1;height:0.5px;background:#D2D2D7;margin:0 8px}
 .form-card{background:#FAFAFA;border:0.5px solid #E5E5EA;border-radius:12px;padding:24px;margin-bottom:20px}
-.form-card-title{font-size:15px;font-weight:600;color:#1D1D1F;margin-bottom:16px;padding-bottom:12px;border-bottom:0.5px solid #E5E5EA}
+.form-card-title{font-size:15px;font-weight:600;margin-bottom:16px;padding-bottom:12px;border-bottom:0.5px solid #E5E5EA;display:flex;align-items:center;gap:8px}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .form-full{grid-column:1/-1}
 .form-group{display:flex;flex-direction:column;gap:5px}
 .form-label{font-size:12px;font-weight:500;color:#86868B;text-transform:uppercase;letter-spacing:0.04em}
-.form-input{border:none;border-bottom:0.5px solid #D2D2D7;padding:10px 0;font-size:15px;color:#1D1D1F;background:transparent;outline:none;font-family:inherit;width:100%;transition:border-bottom-color 0.15s}
+.form-input{border:none;border-bottom:0.5px solid #D2D2D7;padding:10px 0;font-size:15px;color:#1D1D1F;background:transparent;outline:none;font-family:inherit;width:100%}
 .form-input:focus{border-bottom-color:#1D1D1F}
-.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2386868B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0 center;padding-right:20px;background-color:transparent}
-.form-actions{display:flex;gap:12px;margin-top:28px;padding-top:20px;border-top:0.5px solid #D2D2D7}
-.btn-primary{background:#1D1D1F;color:#FFFFFF;border:none;border-radius:20px;padding:10px 28px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity 0.15s}
-.btn-primary:hover{opacity:0.8}
-.btn-secondary{background:#FFFFFF;color:#1D1D1F;border:0.5px solid #D2D2D7;border-radius:20px;padding:10px 24px;font-size:14px;cursor:pointer;font-family:inherit}
-.tab-bar{display:flex;border-bottom:0.5px solid #D2D2D7;margin-bottom:28px}
-.tab-btn{font-size:14px;padding:10px 20px;border:none;background:none;color:#86868B;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-0.5px;white-space:nowrap}
-.tab-btn.active{color:#1D1D1F;border-bottom-color:#1D1D1F;font-weight:500}
-.tab-panel{display:none}
-.tab-panel.active{display:block}
-.company-tree{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
-.company-node{display:flex;align-items:center;gap:12px;padding:14px 16px;border:0.5px solid #E5E5EA;border-radius:10px;cursor:pointer;transition:background 0.12s}
-.company-node:hover{background:#F5F5F7}
-.company-node.child{margin-left:32px;border-style:dashed}
-.company-node-avatar{width:36px;height:36px;background:#1D1D1F;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-size:11px;font-weight:700;flex-shrink:0}
-.company-node.child .company-node-avatar{background:#86868B}
-.company-node-name{font-size:15px;font-weight:500;color:#1D1D1F;flex:1}
-.company-node-meta{font-size:12px;color:#86868B;margin-top:2px}
-.company-node-chev{font-size:18px;color:#D2D2D7;margin-left:auto}
-.add-node-btn{display:flex;align-items:center;gap:8px;padding:12px 16px;border:0.5px dashed #D2D2D7;border-radius:10px;color:#0071E3;font-size:14px;cursor:pointer;background:none;font-family:inherit}
-.add-node-btn:hover{background:#F0F7FF}
-.add-node-btn.child{margin-left:32px}
-.private-notice{background:#FFF8E7;border:0.5px solid #F5A623;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:24px}
-.private-notice-icon{font-size:16px;flex-shrink:0}
-.private-notice-text{font-size:13px;color:#1D1D1F;line-height:1.5}
-.folder-list{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
-.folder-card{border:0.5px solid #E5E5EA;border-radius:12px;overflow:hidden}
-.folder-header{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;background:#FAFAFA;transition:background 0.12s}
-.folder-header:hover{background:#F5F5F7}
-.folder-icon{width:32px;height:32px;background:#F5F5F7;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
-.folder-name{font-size:15px;font-weight:500;color:#1D1D1F;flex:1}
-.folder-count{font-size:12px;color:#86868B;margin-right:8px}
-.folder-chev{font-size:16px;color:#C7C7CC;transition:transform 0.2s}
-.folder-card.open .folder-chev{transform:rotate(90deg)}
-.folder-body{display:none;padding:12px 16px 16px;border-top:0.5px solid #E5E5EA}
-.folder-card.open .folder-body{display:block}
-.field-check-list{display:flex;flex-direction:column}
-.field-check{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid #F5F5F7;cursor:pointer}
-.field-check:last-child{border-bottom:none}
-.checkbox{width:18px;height:18px;border:1px solid #D2D2D7;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:transparent;transition:all 0.12s}
-.checkbox.checked{background:#1D1D1F;border-color:#1D1D1F;color:#FFFFFF}
-.field-check-label{font-size:14px;color:#1D1D1F;flex:1}
-.field-check-type{font-size:11px;color:#86868B;background:#F5F5F7;border-radius:4px;padding:2px 7px}
-.grant-table{width:100%;border-collapse:collapse;margin-top:16px}
-.grant-table th{font-size:12px;font-weight:500;color:#86868B;text-align:left;padding:8px 12px;border-bottom:0.5px solid #D2D2D7}
-.grant-table td{font-size:14px;color:#1D1D1F;padding:12px;border-bottom:0.5px solid #F5F5F7;vertical-align:middle}
-.grant-table tr:last-child td{border-bottom:none}
-.grant-company{font-size:14px;font-weight:500}
-.grant-unit{font-size:12px;color:#86868B}
-.grant-status{font-size:12px;font-weight:500;color:#1D7340}
-.btn-revoke{font-size:12px;color:#FF3B30;border:none;background:none;cursor:pointer;font-family:inherit;padding:0}
-.btn-grant-add{background:none;border:0.5px dashed #0071E3;color:#0071E3;border-radius:20px;padding:6px 16px;font-size:13px;cursor:pointer;font-family:inherit;margin-top:12px}
-.mat-list{display:flex;flex-direction:column;border:0.5px solid #E5E5EA;border-radius:12px;overflow:hidden;margin-bottom:20px}
-.mat-row{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:0.5px solid #F5F5F7;cursor:pointer;transition:background 0.1s}
-.mat-row:last-child{border-bottom:none}
-.mat-row:hover{background:#F5F5F7}
-.mat-row-img{width:36px;height:36px;background:#F5F5F7;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.mat-row-name{font-size:14px;font-weight:500;color:#1D1D1F;flex:1}
-.mat-row-code{font-size:12px;color:#86868B;margin-top:2px}
-.mat-row-chev{font-size:16px;color:#D2D2D7;flex-shrink:0}
-.perm-open{color:#1D7340;font-size:12px;font-weight:500}
-.perm-shared{color:#0071E3;font-size:12px;font-weight:500}
-.perm-priv{color:#86868B;font-size:12px;font-weight:500}
-.tag{display:inline-flex;align-items:center;font-size:11px;font-weight:600;border-radius:6px;padding:2px 7px}
-.tag-private{background:#F5F5F7;color:#86868B}
-.level-select-wrap{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-.level-btn{font-size:13px;padding:8px 18px;border-radius:20px;border:0.5px solid #D2D2D7;background:#FFFFFF;color:#1D1D1F;cursor:pointer;font-family:inherit}
-.level-btn.active{background:#1D1D1F;color:#FFFFFF;border-color:#1D1D1F}
-.quote-card{border:0.5px solid #E5E5EA;border-radius:12px;overflow:hidden;margin-bottom:12px}
-.quote-card-header{display:flex;align-items:center;gap:12px;padding:14px 16px;background:#FAFAFA;border-bottom:0.5px solid #E5E5EA}
-.quote-card-id{font-size:14px;font-weight:600;color:#1D1D1F;flex:1}
-.quote-card-date{font-size:12px;color:#86868B}
-.quote-card-status{font-size:12px;font-weight:500;color:#1D7340;background:#F0FFF4;border-radius:6px;padding:3px 8px}
-.quote-card-body{padding:14px 16px;display:flex;flex-direction:column;gap:8px}
-.quote-detail-row{display:flex;gap:8px;font-size:13px;color:#86868B;align-items:flex-start}
-.quote-detail-val{color:#1D1D1F;font-weight:500;margin-left:4px}
-.fade-in{animation:fadeIn 0.15s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
-::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#D2D2D7;border-radius:3px}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2386868B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0 center;padding-right:20px}
+.form-actions{display:flex;gap:12px;margin-top:24px;padding-top:18px;border-top:0.5px solid #D2D2D7}
+.btn-primary{background:#1D1D1F;color:#FFFFFF;border:none;border-radius:20px;padding:10px 26px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
+.btn-primary:hover{opacity:0.85}
+.btn-secondary{background:#FFFFFF;color:#1D1D1F;border:0.5px solid #D2D2D7;border-radius:20px;padding:10px 22px;font-size:14px;cursor:pointer;font-family:inherit}
+.btn-dashed{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border:0.5px dashed #0071E3;border-radius:10px;color:#0071E3;font-size:14px;cursor:pointer;background:none;font-family:inherit}
+.btn-dashed:hover{background:#F0F7FF}
 
-/* ── Option (規格) cards ── */
-.option-card{display:flex;align-items:flex-start;gap:16px;border:0.5px solid #E5E5EA;border-radius:12px;padding:16px;margin-bottom:12px;background:#FFFFFF;position:relative}
+.priv-tag{font-size:11px;font-weight:600;color:#86868B;background:#F5F5F7;border:0.5px solid #E5E5EA;border-radius:6px;padding:2px 8px}
+.warn-box{background:#FFF8E7;border:0.5px solid #F5A623;border-radius:10px;padding:12px 16px;font-size:13px;line-height:1.6;margin-bottom:18px;display:flex;gap:10px}
+.info-box{background:#F0F7FF;border:0.5px solid #BDD7F7;border-radius:10px;padding:12px 16px;font-size:13px;line-height:1.7;margin-bottom:18px}
+code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
+
+/* company tree */
+.company-tree{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.company-node{display:flex;align-items:center;gap:12px;padding:14px 16px;border:0.5px solid #E5E5EA;border-radius:10px;background:#fff}
+.company-node.child{margin-left:32px;border-style:dashed}
+.company-node-ava{width:36px;height:36px;background:#1D1D1F;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;flex-shrink:0}
+.company-node.child .company-node-ava{background:#86868B}
+.company-node-name{font-size:15px;font-weight:500}
+.company-node-meta{font-size:12px;color:#86868B;margin-top:2px}
+.verified{font-size:11px;background:#F0FFF4;color:#1D7340;border-radius:6px;padding:3px 8px;font-weight:600}
+
+/* cert / grant tables */
+.gtable{width:100%;border-collapse:collapse;margin-bottom:12px}
+.gtable th{font-size:12px;font-weight:500;color:#86868B;text-align:left;padding:8px 12px;border-bottom:0.5px solid #D2D2D7}
+.gtable td{font-size:14px;padding:12px;border-bottom:0.5px solid #F5F5F7;vertical-align:middle}
+.gtable tr:last-child td{border-bottom:none}
+.status-ok{color:#1D7340;font-weight:500}
+.btn-link-red{font-size:12px;color:#FF3B30;border:none;background:none;cursor:pointer;font-family:inherit;padding:0}
+
+/* options */
+.option-card{display:flex;align-items:flex-start;gap:16px;border:0.5px solid #E5E5EA;border-radius:12px;padding:16px;margin-bottom:12px;background:#fff;position:relative}
 .option-swatch{width:64px;height:64px;border-radius:10px;object-fit:cover;flex-shrink:0;background:#F5F5F7;border:0.5px solid #E5E5EA}
 .option-fields{flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
-.option-del{position:absolute;top:10px;right:12px;width:24px;height:24px;border:none;background:#F5F5F7;color:#86868B;border-radius:50%;cursor:pointer;font-size:14px;line-height:1}
+.option-del{position:absolute;top:10px;right:12px;width:24px;height:24px;border:none;background:#F5F5F7;color:#86868B;border-radius:50%;cursor:pointer;font-size:14px}
 .option-del:hover{background:#FFF0F0;color:#FF3B30}
-.btn-add-option{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border:0.5px dashed #0071E3;border-radius:10px;color:#0071E3;font-size:14px;cursor:pointer;background:none;font-family:inherit}
-.btn-add-option:hover{background:#F0F7FF}
-@media(max-width:760px){.option-fields{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:780px){.option-fields{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}}
+
+/* permission folders */
+.folder{border:0.5px solid #E5E5EA;border-radius:12px;overflow:hidden;margin-bottom:10px}
+.folder-hd{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;background:#FAFAFA}
+.folder-hd:hover{background:#F5F5F7}
+.folder-ico{width:32px;height:32px;background:#F5F5F7;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.folder-name{font-size:15px;font-weight:500;flex:1}
+.folder-count{font-size:12px;color:#86868B;margin-right:8px}
+.folder-chev{font-size:16px;color:#C7C7CC;transition:transform 0.2s}
+.folder.open .folder-chev{transform:rotate(90deg)}
+.folder-body{display:none;padding:14px 16px;border-top:0.5px solid #E5E5EA}
+.folder.open .folder-body{display:block}
+.field-check{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:0.5px solid #F5F5F7;cursor:pointer}
+.field-check:last-child{border-bottom:none}
+.cbox{width:18px;height:18px;border:1px solid #D2D2D7;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:transparent}
+.cbox.on{background:#1D1D1F;border-color:#1D1D1F;color:#fff}
+.field-label{font-size:14px;flex:1}
+.field-type{font-size:11px;color:#86868B;background:#F5F5F7;border-radius:4px;padding:2px 7px}
+
+/* pricing / expiry */
+.level-wrap{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.level-btn{font-size:13px;padding:8px 18px;border-radius:20px;border:0.5px solid #D2D2D7;background:#fff;cursor:pointer;font-family:inherit}
+.level-btn.active{background:#1D1D1F;color:#fff;border-color:#1D1D1F}
+.expiry-card{display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:12px;margin-bottom:8px}
+.expiry-card.danger{background:#FFF0F0;border:0.5px solid #FFB8B8}
+.expiry-card.warn{background:#FFF8E7;border:0.5px solid #F5A623}
+.expiry-card.ok{background:#F0FFF4;border:0.5px solid #A0D9B5}
+.expiry-info{flex:1}
+.expiry-id{font-size:14px;font-weight:600}
+.expiry-detail{font-size:12px;color:#86868B;margin-top:2px}
+.expiry-days{font-size:13px;font-weight:600;white-space:nowrap}
+.expiry-days.danger{color:#FF3B30}.expiry-days.warn{color:#F5A623}.expiry-days.ok{color:#1D7340}
+
+/* material list */
+.mat-list{border:0.5px solid #E5E5EA;border-radius:12px;overflow:hidden}
+.mat-row{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:0.5px solid #F5F5F7}
+.mat-row:last-child{border-bottom:none}
+.mat-row-img{width:38px;height:38px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#F5F5F7}
+.mat-row-img img{width:100%;height:100%;object-fit:cover}
+.mat-row-name{font-size:14px;font-weight:500;flex:1}
+.mat-row-code{font-size:12px;color:#86868B;margin-top:2px}
+.perm-open{color:#1D7340;font-size:12px;font-weight:500}
+
+/* BI */
+.bi-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.bi-card{background:#fff;border:0.5px solid #E5E5EA;border-radius:16px;padding:22px}
+.bi-card.full{grid-column:1/-1}
+.bi-label{font-size:12px;font-weight:500;color:#86868B;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px}
+.bi-val{font-size:34px;font-weight:700;letter-spacing:-1.4px;line-height:1}
+.bi-sub{font-size:13px;color:#86868B;margin-top:8px;line-height:1.5}
+.bi-delta{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;padding:3px 8px;border-radius:8px;margin-top:8px}
+.bi-delta.up{color:#1D7340;background:#F0FFF4}
+.hbar{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.hbar-row{display:flex;align-items:center;gap:10px}
+.hbar-label{font-size:13px;width:140px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hbar-track{flex:1;height:8px;background:#F5F5F7;border-radius:4px;overflow:hidden}
+.hbar-fill{height:100%;border-radius:4px}
+.hbar-val{font-size:13px;color:#86868B;width:80px;text-align:right;flex-shrink:0}
+.win-ring{width:80px;height:80px;border-radius:50%;background:conic-gradient(#1D7340 0% 37.5%,#F5F5F7 37.5% 100%);display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0}
+.win-ring::after{content:'';position:absolute;width:56px;height:56px;background:#fff;border-radius:50%}
+.win-lbl{font-size:17px;font-weight:700;color:#1D7340;position:relative;z-index:1}
+.aging-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:6px}
+.aging{background:#FAFAFA;border:0.5px solid #E5E5EA;border-radius:10px;padding:14px;text-align:center}
+.aging-lbl{font-size:11px;font-weight:600;color:#86868B;text-transform:uppercase;margin-bottom:6px}
+.aging-val{font-size:22px;font-weight:700}
+.aging.ok .aging-val{color:#1D7340}.aging.warn .aging-val{color:#F5A623}.aging.danger .aging-val{color:#FF3B30}
+.cf-table{width:100%;border-collapse:collapse;margin-top:8px}
+.cf-table th{font-size:12px;color:#86868B;text-align:left;padding:8px 0;border-bottom:0.5px solid #D2D2D7;font-weight:500}
+.cf-table td{font-size:14px;padding:11px 0;border-bottom:0.5px solid #F5F5F7}
+.cf-in{color:#1D7340;font-weight:500}
+.chip{font-size:11px;background:#F0F7FF;color:#0071E3;border-radius:6px;padding:2px 8px;white-space:nowrap}
+
+/* who viewed */
+.privacy-toggle{display:inline-flex;background:#EFEFF0;border-radius:8px;padding:3px;margin-bottom:18px}
+.privacy-toggle button{font-size:12px;padding:5px 14px;border:none;background:none;color:#86868B;cursor:pointer;font-family:inherit;border-radius:6px}
+.privacy-toggle button.on{background:#fff;color:#1D1D1F;font-weight:500;box-shadow:0 0.5px 2px rgba(0,0,0,0.1)}
+.view-row{display:flex;align-items:center;padding:14px 16px;border-bottom:0.5px solid #F5F5F7;gap:12px}
+.view-row:last-child{border-bottom:none}
+.view-ava{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.view-name{font-size:14px;font-weight:500;flex:1}
+.view-cnt{font-size:17px;font-weight:600}
+.privacy-notice{background:#F0F7FF;border:0.5px solid #BDD7F7;border-radius:10px;padding:12px 16px;font-size:13px;line-height:1.6;margin-bottom:18px}
+
+/* requests */
+.req-layout{display:flex;border:0.5px solid #E5E5EA;border-radius:14px;overflow:hidden;height:540px}
+.req-list{width:290px;border-right:0.5px solid #E5E5EA;overflow-y:auto;flex-shrink:0;background:#FAFAFA}
+.req-item{display:flex;gap:12px;padding:14px 16px;border-bottom:0.5px solid #F0F0F2;cursor:pointer}
+.req-item:hover{background:#F0F4FF}.req-item.active{background:#F0F7FF}
+.req-ava{width:38px;height:38px;border-radius:10px;background:#1D1D1F;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.req-name{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+.req-snippet{font-size:12px;color:#86868B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.req-dot{width:8px;height:8px;border-radius:50%;background:#0071E3}
+.req-thread{flex:1;display:flex;flex-direction:column}
+.req-hd{padding:14px 18px;border-bottom:0.5px solid #E5E5EA;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.req-msgs{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:72%;padding:9px 13px;border-radius:14px;font-size:14px;line-height:1.5}
+.msg.them{align-self:flex-start;background:#F0F0F2;border-bottom-left-radius:4px}
+.msg.me{align-self:flex-end;background:#0071E3;color:#fff;border-bottom-right-radius:4px}
+.msg-time{font-size:10px;opacity:0.6;margin-top:3px;display:block}
+.msg-attach{display:inline-flex;align-items:center;gap:6px;font-size:12px;background:rgba(255,255,255,0.18);border-radius:7px;padding:5px 9px;margin-top:6px}
+.msg.them .msg-attach{background:#fff;border:0.5px solid #E5E5EA}
+.req-compose{display:flex;gap:8px;padding:12px;border-top:0.5px solid #E5E5EA;background:#FAFAFA}
+.req-compose input{flex:1;border:0.5px solid #D2D2D7;border-radius:18px;padding:9px 14px;font-size:14px;font-family:inherit;outline:none}
+.req-send{background:#0071E3;color:#fff;border:none;border-radius:18px;padding:0 18px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
+.fade-in{animation:fadeIn 0.15s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#D2D2D7;border-radius:3px}
 </style>
 </head>
 <body>
@@ -259,727 +207,425 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 <div class="topbar">
   <span class="brand">SmartPN Atlas <span class="brand-role">Supplier Portal</span></span>
   <div class="topbar-spacer"></div>
-  <div class="sup-identity">
-    <div class="sup-avatar">FMG</div>
-    <div>
-      <div class="sup-name">Formosa Materials Group</div>
-      <div class="sup-role-tag">Data Creator · Lisa Chen</div>
-    </div>
-  </div>
-  <button id="lang-toggle-sup" onclick="toggleLangSup()" style="background:none;border:0.5px solid #D2D2D7;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;color:#1D1D1F;cursor:pointer;letter-spacing:0.04em;margin-left:8px">中文</button>
+  <div class="sup-identity"><div class="sup-avatar">FMG</div>
+    <div><div class="sup-name">Formosa Materials Group</div><div class="sup-role-tag">Data Creator · Lisa Chen</div></div></div>
+  <button id="lang-toggle" onclick="toggleLang()" style="background:none;border:0.5px solid #D2D2D7;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.04em;margin-left:8px">中文</button>
 </div>
 
 <div class="layout">
   <div class="sidebar">
-    <div class="sidebar-section">公司管理</div>
+    <div class="sidebar-section" data-i18n="s_company">Company</div>
     <div class="nav-group">
-      <button class="nav-item active" onclick="showView('company-main');setActive(this)">
-        <div class="nav-icon-wrap">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="5" width="12" height="9" rx="1.5" stroke="white" stroke-width="1.3"/><path d="M5 5V4a3 3 0 016 0v1" stroke="white" stroke-width="1.3" stroke-linecap="round"/></svg>
-        </div>
-        <span class="nav-label">公司建立</span>
-        <span class="nav-chev">›</span>
+      <button class="nav-item active" onclick="showView('company',this)">
+        <div class="nav-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="5" width="12" height="9" rx="1.5" stroke="white" stroke-width="1.3"/><path d="M5 5V4a3 3 0 016 0v1" stroke="white" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+        <span class="nav-label" data-i18n="m_company">公司建立</span><span class="nav-chev">›</span>
       </button>
-      <button class="nav-sub-item" onclick="showView('company-main');setActive(this);switchTab('ctab','parent')"><span class="nav-sub-dot"></span>母公司</button>
-      <button class="nav-sub-item" onclick="showView('company-main');setActive(this);switchTab('ctab','child')"><span class="nav-sub-dot"></span>子公司</button>
-      <button class="nav-sub-item" onclick="showView('company-customs');setActive(this)"><span class="nav-sub-dot"></span>關務資訊</button>
-      <button class="nav-sub-item" onclick="showView('company-tax');setActive(this)"><span class="nav-sub-dot"></span>稅務資訊</button>
-      <button class="nav-sub-item" onclick="showView('company-matinfo');setActive(this)"><span class="nav-sub-dot"></span>材料訊息</button>
     </div>
-
-    <div class="sidebar-section">SmartPN</div>
+    <div class="sidebar-section" data-i18n="s_smartpn">SmartPN</div>
     <div class="nav-group">
-      <button class="nav-item" onclick="showView('raw');setActive(this)">
-        <div class="nav-icon-wrap" style="background:#007AFF">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="white" stroke-width="1.3"/><path d="M8 5v3l2 1.5" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
-        </div>
-        <span class="nav-label">SmartPN 建立</span>
-        <span class="nav-chev">›</span>
+      <button class="nav-item" onclick="showView('raw',this)">
+        <div class="nav-icon" style="background:#007AFF"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="white" stroke-width="1.3"/><path d="M8 5v3l2 1.5" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+        <span class="nav-label" data-i18n="m_smartpn">SmartPN 建立</span><span class="nav-chev">›</span>
       </button>
-      <button class="nav-sub-item" onclick="showView('raw');setActive(this)"><span class="nav-sub-dot"></span>原物料</button>
-      <button class="nav-sub-item" onclick="showView('secondary');setActive(this)"><span class="nav-sub-dot"></span>二次加工</button>
-      <button class="nav-sub-item" onclick="showView('permission');setActive(this)"><span class="nav-sub-dot"></span>權限管理</button>
-      <button class="nav-sub-item" onclick="showView('quotation');setActive(this)"><span class="nav-sub-dot"></span>單價管理</button>
-      <button class="nav-sub-item" onclick="showView('who-viewed');setActive(this)"><span class="nav-sub-dot"></span>誰看過我的材料</button>
-      <button class="nav-sub-item" onclick="showView('completeness');setActive(this)"><span class="nav-sub-dot"></span>資料完整度</button>
+      <button class="nav-sub" onclick="showView('raw',this)"><span class="nav-sub-dot"></span><span data-i18n="m_raw">原物料</span></button>
+      <button class="nav-sub" onclick="showView('secondary',this)"><span class="nav-sub-dot"></span><span data-i18n="m_secondary">二次加工</span></button>
+      <button class="nav-sub" onclick="showView('permission',this)"><span class="nav-sub-dot"></span><span data-i18n="m_permission">權限管理</span></button>
+      <button class="nav-sub" onclick="showView('pricing',this)"><span class="nav-sub-dot"></span><span data-i18n="m_pricing">單價管理</span></button>
+      <button class="nav-sub" onclick="showView('who',this)"><span class="nav-sub-dot"></span><span data-i18n="m_who">誰看過我的材料</span></button>
     </div>
-
     <div class="sidebar-section">Boss BI</div>
     <div class="nav-group">
-      <button class="nav-item" onclick="showView('boss-bi');setActive(this)">
-        <div class="nav-icon-wrap" style="background:#5856D6">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l3-4 3 2 3-5 3 3" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <span class="nav-label">經營儀表板</span>
-        <span class="nav-chev">›</span>
+      <button class="nav-item" onclick="showView('bi',this)">
+        <div class="nav-icon" style="background:#5856D6"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l3-4 3 2 3-5 3 3" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="nav-label" data-i18n="m_bi">經營儀表板</span><span class="nav-chev">›</span>
       </button>
     </div>
-
-    <div style="flex:1;min-height:24px"></div>
-    <div style="padding:12px 16px;border-top:0.5px solid #E5E5EA;font-size:11px;color:#86868B;line-height:1.7">
-      Formosa Materials Group<br>
-      lisa.chen@formosa-mat.com<br>
-      <span style="color:#0071E3;cursor:pointer">Switch account</span>
+    <div class="sidebar-section" data-i18n="s_inbox">Inbox</div>
+    <div class="nav-group">
+      <button class="nav-item" onclick="showView('requests',this)">
+        <div class="nav-icon" style="background:#34C759"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4.5A1.5 1.5 0 013.5 3h9A1.5 1.5 0 0114 4.5v6A1.5 1.5 0 0112.5 12H6l-3 2.5V12H3.5A1.5 1.5 0 012 10.5z" stroke="white" stroke-width="1.3" stroke-linejoin="round"/></svg></div>
+        <span class="nav-label" data-i18n="m_requests">Requests</span><span class="nav-badge">2</span>
+      </button>
     </div>
+    <div style="flex:1;min-height:24px"></div>
+    <div style="padding:12px 16px;border-top:0.5px solid #E5E5EA;font-size:11px;color:#86868B;line-height:1.7">Formosa Materials Group<br>lisa.chen@formosa-mat.com</div>
   </div>
 
   <div class="main">
 
-    <!-- ══ 公司建立 ══ -->
-    <div class="view active fade-in" id="view-company-main">
-      <div class="page-header"><div class="page-title">公司建立</div><div class="page-sub">母公司與子公司架構管理</div></div>
+    <!-- 公司建立 -->
+    <div class="view active fade-in" id="view-company">
+      <div class="page-header"><div class="page-title" data-i18n="m_company">公司建立</div><div class="page-sub">母公司 / 子公司 · 基本 · 認證 · 財務 · 關務</div></div>
       <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab('ctab','parent');setTabBtn(this)">母公司</button>
-        <button class="tab-btn" onclick="switchTab('ctab','child');setTabBtn(this)">子公司</button>
+        <button class="tab-btn active" onclick="switchTab(this,'c-basic')" data-i18n="t_basic">基本資料</button>
+        <button class="tab-btn" onclick="switchTab(this,'c-cert')" data-i18n="t_cert">認證</button>
+        <button class="tab-btn" onclick="switchTab(this,'c-fin')" data-i18n="t_fin">財務資料夾</button>
+        <button class="tab-btn" onclick="switchTab(this,'c-customs')" data-i18n="t_customs">關務資料夾</button>
+        <button class="tab-btn" onclick="switchTab(this,'c-sub')" data-i18n="t_sub">子公司</button>
       </div>
-      <div class="tab-panel active" id="ctab-parent">
-        <div class="company-tree">
-          <div class="company-node"><div class="company-node-avatar">FMG</div><div style="flex:1"><div class="company-node-name">Formosa Materials Group</div><div class="company-node-meta">Taipei, Taiwan · 母公司</div></div><span style="font-size:11px;background:#F0FFF4;color:#1D7340;border-radius:6px;padding:3px 8px;font-weight:600;margin-right:8px">Verified</span><span class="company-node-chev">›</span></div>
-        </div>
-        <div class="form-card">
-          <div class="form-card-title">母公司基本資料</div>
+
+      <div class="tab-panel active" id="c-basic">
+        <div class="form-card"><div class="form-card-title">基本資料 Basic Information</div>
           <div class="form-grid">
-            <div class="form-group"><label class="form-label">公司名稱（中）</label><input class="form-input" value="台灣材料集團股份有限公司" readonly></div>
-            <div class="form-group"><label class="form-label">Company Name (EN)</label><input class="form-input" value="Formosa Materials Group Co., Ltd." readonly></div>
-            <div class="form-group"><label class="form-label">統一編號</label><input class="form-input" value="03017001" readonly></div>
-            <div class="form-group"><label class="form-label">DUNS Number</label><input class="form-input" value="540012345" readonly></div>
-            <div class="form-group form-full"><label class="form-label">公司地址</label><input class="form-input" value="台北市松山區民生東路二段166號" readonly></div>
-            <div class="form-group"><label class="form-label">產業類別</label><input class="form-input" value="Textile &amp; Film Materials" readonly></div>
-            <div class="form-group"><label class="form-label">聯絡人</label><input class="form-input" value="Lisa Chen · lisa.chen@formosa-mat.com" readonly></div>
+            <div class="form-group"><label class="form-label">公司名稱 (中)</label><input class="form-input" value="台灣材料集團股份有限公司"></div>
+            <div class="form-group"><label class="form-label">Company Name (EN)</label><input class="form-input" value="Formosa Materials Group Co., Ltd."></div>
+            <div class="form-group"><label class="form-label">國家 Country</label><input class="form-input" value="Taiwan"></div>
+            <div class="form-group"><label class="form-label">DUNS</label><input class="form-input" value="540012345"></div>
+            <div class="form-group form-full"><label class="form-label">地址 Address</label><input class="form-input" value="台北市松山區民生東路二段166號"></div>
+            <div class="form-group form-full"><label class="form-label">簡介 Description</label><input class="form-input" value="Recycled mesh, PU synthetic leather, TPU film & secondary processing. ISO 9001 / GRS / DPP-ready."></div>
           </div>
-          <div class="form-actions"><button class="btn-primary">儲存變更</button><button class="btn-secondary">取消</button></div>
+          <div class="form-actions"><button class="btn-primary" data-i18n="save">儲存</button><button class="btn-secondary" data-i18n="cancel">取消</button></div>
         </div>
       </div>
-      <div class="tab-panel" id="ctab-child">
+
+      <div class="tab-panel" id="c-cert">
+        <div class="form-card"><div class="form-card-title">認證 Certifications</div>
+          <table class="gtable"><thead><tr><th>認證名稱</th><th>發證單位</th><th>到期日</th><th>文件</th><th></th></tr></thead><tbody>
+            <tr><td>ISO 9001</td><td>TÜV Rheinland</td><td>2027-03-31</td><td><span class="chip">ISO9001.pdf</span></td><td><button class="btn-link-red">移除</button></td></tr>
+            <tr><td>GRS (Global Recycled Standard)</td><td>Control Union</td><td>2026-11-30</td><td><span class="chip">GRS-Scope.pdf</span></td><td><button class="btn-link-red">移除</button></td></tr>
+            <tr><td><span class="verified">✓ DPP-ready</span></td><td>SmartPN Verified</td><td>2026-12-31</td><td><span class="chip">DPP-cert.pdf</span></td><td><button class="btn-link-red">移除</button></td></tr>
+          </tbody></table>
+          <button class="btn-dashed" onclick="alert('新增認證：名稱 / 發證單位 / 到期日 / 上傳文件')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>新增認證 + 上傳文件</button>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="c-fin">
+        <div class="form-card"><div class="form-card-title">財務資料夾 Financial <span class="priv-tag">🔒 PRIVATE 預設</span></div>
+          <div class="form-grid">
+            <div class="form-group"><label class="form-label">銀行名稱 Bank Name</label><input class="form-input" placeholder="例：CTBC Bank"></div>
+            <div class="form-group"><label class="form-label">銀行帳號 Account No.</label><input class="form-input" placeholder="例：0000-0000-00000"></div>
+            <div class="form-group"><label class="form-label">Swift Code / BIC</label><input class="form-input" placeholder="例：CTCBTWTP"></div>
+            <div class="form-group"><label class="form-label">收款幣別 Currency</label><select class="form-input form-select"><option>USD</option><option>TWD</option><option>EUR</option><option>VND</option><option>IDR</option></select></div>
+            <div class="form-group form-full"><label class="form-label">發票抬頭 Invoice Title</label><input class="form-input" value="台灣材料集團股份有限公司 / Formosa Materials Group Co., Ltd."></div>
+          </div>
+          <div class="warn-box"><span>🔒</span><span>財務資料夾預設全私密，需在「權限管理」以資料夾為單位授權給特定帳號才可見。</span></div>
+          <div class="form-actions"><button class="btn-primary" data-i18n="save">儲存</button></div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="c-customs">
+        <div class="form-card"><div class="form-card-title">關務資料夾 Customs <span class="priv-tag">🔒 PRIVATE 預設</span></div>
+          <div class="form-grid">
+            <div class="form-group"><label class="form-label">稅號 / VAT No.</label><input class="form-input" value="03017001"></div>
+            <div class="form-group"><label class="form-label">主要輸出 HS Code</label><input class="form-input" value="3901.10 / 3902.10 / 3907.91"></div>
+            <div class="form-group"><label class="form-label">原產地 Country of Origin</label><input class="form-input" value="Taiwan, R.O.C."></div>
+            <div class="form-group"><label class="form-label">EORI Number</label><input class="form-input" placeholder="例：TW0000123456789"></div>
+          </div>
+          <div class="warn-box"><span>🔒</span><span>關務資料夾預設全私密，需主動授權。</span></div>
+          <div class="form-actions"><button class="btn-primary" data-i18n="save">儲存</button></div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="c-sub">
         <div class="company-tree">
-          <div class="company-node"><div class="company-node-avatar">FMG</div><div style="flex:1"><div class="company-node-name">Formosa Materials Group</div><div class="company-node-meta">母公司 · Taipei, Taiwan</div></div></div>
-          <div class="company-node child"><div class="company-node-avatar">FV</div><div style="flex:1"><div class="company-node-name">Formosa Vietnam Co.</div><div class="company-node-meta">子公司 · Ho Chi Minh City, Vietnam · 網布/合成皮</div></div><span class="company-node-chev">›</span></div>
-          <div class="company-node child"><div class="company-node-avatar">FI</div><div style="flex:1"><div class="company-node-name">Formosa Indonesia Co.</div><div class="company-node-meta">子公司 · Jakarta, Indonesia · 薄膜/二次加工</div></div><span class="company-node-chev">›</span></div>
-          <button class="add-node-btn child" onclick="alert('新增子公司')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>新增子公司</button>
+          <div class="company-node"><div class="company-node-ava">FMG</div><div style="flex:1"><div class="company-node-name">Formosa Materials Group</div><div class="company-node-meta">母公司 · Taipei, Taiwan</div></div><span class="verified">Verified</span></div>
+          <div class="company-node child"><div class="company-node-ava">FV</div><div style="flex:1"><div class="company-node-name">Formosa Vietnam Co.</div><div class="company-node-meta">子公司 · Ho Chi Minh City, Vietnam · 網布 / 合成皮</div></div><span class="nav-chev">›</span></div>
+          <div class="company-node child"><div class="company-node-ava">FI</div><div style="flex:1"><div class="company-node-name">Formosa Indonesia Co.</div><div class="company-node-meta">子公司 · Jakarta, Indonesia · 薄膜 / 二次加工</div></div><span class="nav-chev">›</span></div>
         </div>
+        <button class="btn-dashed" style="margin-left:32px" onclick="alert('新增子公司')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>新增子公司</button>
       </div>
     </div>
 
-    <!-- ══ 關務資訊 ══ -->
-    <div class="view fade-in" id="view-company-customs">
-      <div class="page-header"><div class="page-title">關務資訊</div><div class="page-sub">Customs &amp; Trade Compliance</div></div>
-      <div class="form-card">
-        <div class="form-card-title">台灣總部</div>
-        <div class="form-grid">
-          <div class="form-group"><label class="form-label">稅號 / VAT No.</label><input class="form-input" value="03017001"></div>
-          <div class="form-group"><label class="form-label">EORI Number</label><input class="form-input" placeholder="例：TW0000123456789"></div>
-          <div class="form-group"><label class="form-label">AEO 認證號</label><input class="form-input" placeholder="例：TW-AEO-XXXXX"></div>
-          <div class="form-group"><label class="form-label">報關行</label><input class="form-input" placeholder="Custom broker name"></div>
-          <div class="form-group"><label class="form-label">主要輸出 HS Code</label><input class="form-input" value="3901.10 / 3902.10 / 3907.91"></div>
-          <div class="form-group"><label class="form-label">REACH 符合聲明</label><select class="form-input form-select"><option>REACH compliant — no SVHC</option><option>REACH compliant — with SVHC list</option></select></div>
-          <div class="form-group form-full"><label class="form-label">Country of Origin</label><input class="form-input" value="Taiwan, R.O.C."></div>
-          <div class="form-group"><label class="form-label">DPP 資料接口</label><select class="form-input form-select"><option>SmartPN 平台直連</option><option>PDF 上傳</option><option>API 串接</option></select></div>
-          <div class="form-group"><label class="form-label">DPP 回應時效（工作天）</label><input class="form-input" placeholder="例：2"></div>
-        </div>
-        <div class="form-actions"><button class="btn-primary">儲存</button></div>
-      </div>
-    </div>
-
-    <!-- ══ 稅務資訊 ══ -->
-    <div class="view fade-in" id="view-company-tax">
-      <div class="page-header"><div class="page-title">稅務資訊</div><div class="page-sub">Tax &amp; VAT Registration</div></div>
-      <div class="form-card">
-        <div class="form-card-title">台灣總部</div>
-        <div class="form-grid">
-          <div class="form-group"><label class="form-label">統一編號</label><input class="form-input" value="03017001" readonly></div>
-          <div class="form-group"><label class="form-label">營業稅率</label><input class="form-input" value="5%" readonly></div>
-          <div class="form-group"><label class="form-label">發票類型</label><select class="form-input form-select"><option>三聯式發票（VAT invoice）</option><option>電子發票</option></select></div>
-          <div class="form-group"><label class="form-label">銀行帳戶（報價用）</label><input class="form-input" placeholder="Bank / Account no."></div>
-          <div class="form-group form-full"><label class="form-label">付款條件（預設）</label><select class="form-input form-select"><option>Net 30</option><option>Net 45</option><option>Net 60</option></select></div>
-        </div>
-        <div class="form-actions"><button class="btn-primary">儲存</button></div>
-      </div>
-      <div class="form-card">
-        <div class="form-card-title">財務資料（報價收款用）</div>
-        <div class="form-grid">
-          <div class="form-group"><label class="form-label">銀行名稱 Bank Name</label><input class="form-input" placeholder="例：CTBC Bank"></div>
-          <div class="form-group"><label class="form-label">銀行帳號 Account No.</label><input class="form-input" placeholder="例：0000-0000-00000"></div>
-          <div class="form-group"><label class="form-label">Swift Code / BIC</label><input class="form-input" placeholder="例：CTCBTWTP"></div>
-          <div class="form-group"><label class="form-label">收款幣別 Currency</label><select class="form-input form-select"><option>USD</option><option>TWD</option><option>EUR</option><option>VND</option><option>IDR</option></select></div>
-          <div class="form-group form-full"><label class="form-label">發票抬頭 Invoice Title</label><input class="form-input" value="台灣材料集團股份有限公司 / Formosa Materials Group Co., Ltd."></div>
-        </div>
-        <div class="form-actions"><button class="btn-primary">儲存</button></div>
-      </div>
-    </div>
-
-    <!-- ══ 材料訊息 ══ -->
-    <div class="view fade-in" id="view-company-matinfo">
-      <div class="page-header"><div class="page-title">材料訊息</div><div class="page-sub">公司材料概覽與預設設定</div></div>
-      <div class="form-card">
-        <div class="form-card-title">材料管理設定</div>
-        <div class="form-grid">
-          <div class="form-group"><label class="form-label">材料命名規則</label><input class="form-input" value="[Material Family]-[Grade]-[Suffix]"></div>
-          <div class="form-group"><label class="form-label">新材料預設權限</label><select class="form-input form-select"><option selected>PRIVATE（全私密，需主動授權）</option><option>SHARED</option><option>OPEN</option></select></div>
-          <div class="form-group form-full"><label class="form-label">DPP 資料維護週期</label><select class="form-input form-select"><option>每季更新</option><option>每半年更新</option><option>每年更新</option></select></div>
-          <div class="form-group"><label class="form-label">材料分類（主）</label><input class="form-input" value="Engineering Polymer"></div>
-          <div class="form-group"><label class="form-label">材料分類（次）</label><input class="form-input" value="Commodity Polymer, Metal"></div>
-        </div>
-        <div class="form-actions"><button class="btn-primary">儲存</button></div>
-      </div>
-    </div>
-
-    <!-- ══ 原物料建立 ══ -->
+    <!-- 原物料建立 -->
     <div class="view fade-in" id="view-raw">
-      <div class="page-header"><div class="page-title">原物料建立</div><div class="page-sub">Raw Material — SPU + SKU</div></div>
-      <div class="step-wrap">
-        <div class="step-item done"><div class="step-num">✓</div>SPU 主體</div><div class="step-line"></div>
-        <div class="step-item active"><div class="step-num">2</div>SKU 變體</div><div class="step-line"></div>
-        <div class="step-item"><div class="step-num">3</div>權限設定</div><div class="step-line"></div>
-        <div class="step-item"><div class="step-num">4</div>確認送出</div>
-      </div>
-      <div class="private-notice"><span class="private-notice-icon">🔒</span><span class="private-notice-text">新建材料預設為 <strong>PRIVATE</strong>。送出後可在「權限管理」以欄位資料夾為單位授權給特定帳號。</span></div>
-      <!-- Step 1 — 產品(SPU)主體建立 -->
-      <div class="form-card">
-        <div class="form-card-title">產品 (SPU) 主體建立</div>
+      <div class="page-header"><div class="page-title" data-i18n="m_raw">原物料建立</div><div class="page-sub">Product (SPU) → Options</div></div>
+      <div class="form-card"><div class="form-card-title">料號 Part Numbers</div>
         <div class="form-grid">
-          <div class="form-group"><label class="form-label">材料名稱 Name</label><input class="form-input" value="Ripstop Nylon 70D"></div>
-          <div class="form-group"><label class="form-label">分類 Category</label><select class="form-input form-select"><option>紡織 · Textile</option><option>人造皮 · Synthetic Leather</option><option>皮料 · Leather</option><option>薄膜 · Film</option><option>二次加工 · Secondary</option></select></div>
-          <div class="form-group form-full"><label class="form-label">成分 Composition</label><input class="form-input" placeholder="例：100% Nylon 70D, ripstop weave"></div>
+          <div class="form-group"><label class="form-label">GS1 Code（選填）</label><input class="form-input" placeholder="例：4711234500017"></div>
+          <div class="form-group"><label class="form-label">SmartPN Code（自動產生）</label>
+            <div style="display:flex;align-items:center;gap:10px;padding-top:8px">
+              <input class="form-input" id="spn-code" value="SPA-MAT-7K9X" readonly style="border:none;font-weight:600;width:auto">
+              <button class="btn-secondary" style="padding:5px 12px;font-size:12px" onclick="regenSpn()">重新產生</button>
+            </div>
+            <div style="font-size:11px;color:#86868B;margin-top:4px">純序號 / 亂碼，不帶意義；排除 0 / 1 / I / O / E（避免誤認）。</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-card"><div class="form-card-title">產品 (SPU) 主體</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">產品名稱 Name</label><input class="form-input" value="Ripstop Nylon 70D"></div>
+          <div class="form-group"><label class="form-label">分類 Category</label><select class="form-input form-select" id="raw-cat" onchange="syncOptionPattern()"><option value="textile">紡織 · Textile</option><option value="synleather">人造皮 · Synthetic Leather</option><option value="leather">皮料 · Leather</option><option value="film">薄膜 · Film</option><option value="secondary">二次加工 · Secondary</option></select></div>
+          <div class="form-group form-full"><label class="form-label">成分 Composition</label><input class="form-input" value="100% Nylon 70D, ripstop weave"></div>
           <div class="form-group"><label class="form-label">版本 Version</label><input class="form-input" value="v1.0"></div>
-          <div class="form-group"><label class="form-label">料號來源 PN Source</label>
-            <div style="display:flex;gap:14px;padding-top:8px">
-              <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:14px"><input type="radio" name="spu-source" value="smartpn" checked style="accent-color:#1D1D1F"> SmartPN 自動生成</label>
-              <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:14px"><input type="radio" name="spu-source" value="gs1" style="accent-color:#1D1D1F"> GS1 帶入</label>
-            </div>
-          </div>
         </div>
-        <div style="margin-top:14px;padding:10px 14px;background:#FFF8E7;border:0.5px solid #F5A623;border-radius:8px;font-size:12px;color:#1D1D1F;line-height:1.6">
-          🔒 <strong>SPU 物性鎖定：</strong>名稱 / 分類 / 成分 等物性欄位，一旦第一個 Option 確認送出即<strong>鎖定不可修改</strong>。如需更動須撤回所有已授權版本後重建。
-        </div>
-        <div class="form-actions"><button class="btn-primary">儲存 SPU 主體</button></div>
+        <div class="warn-box"><span>🔒</span><span><strong>SPU 物性鎖定：</strong>名稱 / 分類 / 成分 等物性欄位，第一個 Option 送出後即<strong>鎖定不可修改</strong>。</span></div>
       </div>
-      <!-- Step 1 Summary (已完成) -->
-      <div style="background:#F0FFF4;border:0.5px solid #A0D9B5;border-radius:12px;padding:16px 20px;margin-bottom:20px">
-        <div style="font-size:13px;font-weight:600;color:#1D7340;margin-bottom:10px">Step 1 已完成 — SPU 主體</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px">
-          <div style="font-size:12px;color:#86868B">SmartPN ID <span style="color:#1D1D1F;font-weight:500;margin-left:8px">SPA-MAT-0010（系統自動）</span></div>
-          <div style="font-size:12px;color:#86868B">料號來源 <span style="color:#1D1D1F;font-weight:500;margin-left:8px">SmartPN 自動生成</span></div>
-          <div style="font-size:12px;color:#86868B">材料名稱 <span style="color:#1D1D1F;font-weight:500;margin-left:8px">Ripstop Nylon 70D</span></div>
-          <div style="font-size:12px;color:#86868B">版本 <span style="color:#1D1D1F;font-weight:500;margin-left:8px">v1.0</span></div>
-          <div style="font-size:12px;color:#86868B">SPU 類別 <span style="color:#1D1D1F;font-weight:500;margin-left:8px">紡織 · Textile</span></div>
-          <div style="font-size:12px;color:#86868B">子公司 <span style="color:#1D1D1F;font-weight:500;margin-left:8px">Formosa Vietnam Co.</span></div>
-        </div>
-        <div style="margin-top:10px;padding-top:10px;border-top:0.5px solid #A0D9B5;font-size:12px;color:#1D7340">
-          ⚠ SPU 物性欄位（Category / Base resin / Standard）一旦第一個 SKU 確認送出，即鎖定。如需修改請撤回所有已授權版本。
-        </div>
-      </div>
-      <div class="form-card">
-        <div class="form-card-title">Step 2 — SKU 變體</div>
-        <div style="background:#F5F5F7;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#1D1D1F;line-height:1.6">
-          <strong>料號來源選擇：</strong>
-          <label style="display:inline-flex;align-items:center;gap:6px;margin-left:16px;cursor:pointer"><input type="radio" name="spn-source" value="smartpn" checked style="accent-color:#1D1D1F"> SmartPN 自動生成（推薦）</label>
-          <label style="display:inline-flex;align-items:center;gap:6px;margin-left:16px;cursor:pointer"><input type="radio" name="spn-source" value="gs1"> GS1 / 外部料號帶入</label>
-          <div style="font-size:11px;color:#86868B;margin-top:6px">SmartPN 生成：系統自動指派唯一 SPN-XXX 編號。GS1 帶入：可填入現有 GTIN/GLN，系統建立對照關係。</div>
-        </div>
-        <div class="form-grid">
-          <div class="form-group"><label class="form-label">SKU Key</label><input class="form-input" placeholder="例：BLK-58"></div>
-          <div class="form-group"><label class="form-label">版本 (Version)</label><input class="form-input" value="v1.0" placeholder="例：v1.0"></div>
-          <div class="form-group"><label class="form-label">Color</label><select class="form-input form-select"><option>Black</option><option>White</option><option>Natural</option></select></div>
-          <div class="form-group"><label class="form-label">Width (inches)</label><select class="form-input form-select"><option>58"</option><option>44"</option><option>72"</option></select></div>
-          <div class="form-group"><label class="form-label">Weight (g/m²)</label><input class="form-input" placeholder="例：70"></div>
-          <div class="form-group"><label class="form-label">Denier</label><input class="form-input" placeholder="例：70D"></div>
-          <div class="form-group"><label class="form-label">Price / m (USD)</label><input class="form-input" placeholder="例：2.75"></div>
-          <div class="form-group"><label class="form-label">Lead Time (days)</label><input class="form-input" placeholder="例：30"></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:16px;padding-top:14px;border-top:0.5px solid #E5E5EA">
-          <button style="background:none;border:0.5px dashed #0071E3;color:#0071E3;border-radius:8px;padding:7px 16px;font-size:13px;cursor:pointer;font-family:inherit">+ 新增 SKU 變體</button>
-          <span style="font-size:12px;color:#86868B">已新增 2 個 SKU</span>
-        </div>
-        <div class="form-actions"><button class="btn-primary">下一步：權限設定</button><button class="btn-secondary">上一步</button></div>
-      </div>
-      <!-- Step 3 — 規格 (Option) 建立 -->
-      <div style="margin-top:24px">
-        <div class="section-title">規格 Option（每個 Option 一組顏色/幅寬/重量/單價/LT）</div>
-        <div id="option-cards" data-pat="textile">
-          <div class="option-card">
-            <img class="option-swatch" data-pat="textile" data-size="80" alt="">
-            <div class="option-fields">
-              <div class="form-group"><label class="form-label">顏色 Color</label><input class="form-input" value="Black"></div>
-              <div class="form-group"><label class="form-label">幅寬 Width</label><input class="form-input" value='58"'></div>
-              <div class="form-group"><label class="form-label">重量 Weight</label><input class="form-input" value="70 g/m²"></div>
-              <div class="form-group"><label class="form-label">單價 Price (USD)</label><input class="form-input" value="2.75"></div>
-              <div class="form-group"><label class="form-label">LT (days)</label><input class="form-input" value="30"></div>
-            </div>
-            <button class="option-del" title="刪除 Option" onclick="this.closest('.option-card').remove()">×</button>
-          </div>
-          <div class="option-card">
-            <img class="option-swatch" data-pat="textile" data-size="80" alt="">
-            <div class="option-fields">
-              <div class="form-group"><label class="form-label">顏色 Color</label><input class="form-input" value="Navy"></div>
-              <div class="form-group"><label class="form-label">幅寬 Width</label><input class="form-input" value='44"'></div>
-              <div class="form-group"><label class="form-label">重量 Weight</label><input class="form-input" value="70 g/m²"></div>
-              <div class="form-group"><label class="form-label">單價 Price (USD)</label><input class="form-input" value="2.70"></div>
-              <div class="form-group"><label class="form-label">LT (days)</label><input class="form-input" value="28"></div>
-            </div>
-            <button class="option-del" title="刪除 Option" onclick="this.closest('.option-card').remove()">×</button>
-          </div>
-        </div>
-        <button class="btn-add-option" onclick="addOption()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>新增 Option</button>
-      </div>
-      <div style="margin-top:24px">
-        <div class="section-title">現有原物料</div>
-        <div class="mat-list">
-          <div class="mat-row"><div class="mat-row-img"><img class="mat-row-img-tex" data-pat="textile" data-size="80" style="width:36px;height:36px;border-radius:8px;object-fit:cover;display:block" alt=""></div><div style="flex:1"><div class="mat-row-name">Recycled Polyester Mesh 220g</div><div class="mat-row-code">SPA-MAT-0001 · FV · 3 SKUs · DPP ✅</div></div><span class="perm-open">OPEN</span><span class="mat-row-chev">›</span></div>
-          <div class="mat-row"><div class="mat-row-img"><img class="mat-row-img-tex" data-pat="film" data-size="80" style="width:36px;height:36px;border-radius:8px;object-fit:cover;display:block" alt=""></div><div style="flex:1"><div class="mat-row-name">TPU Laminating Film 0.15mm</div><div class="mat-row-code">SPA-MAT-0002 · FI · 2 SKUs · DPP ✅</div></div><span class="perm-open">OPEN</span><span class="mat-row-chev">›</span></div>
-          <div class="mat-row"><div class="mat-row-img"><img class="mat-row-img-tex" data-pat="synleather" data-size="80" style="width:36px;height:36px;border-radius:8px;object-fit:cover;display:block" alt=""></div><div style="flex:1"><div class="mat-row-name">PU Synthetic Leather 1.2mm</div><div class="mat-row-code">SPA-MAT-0003 · FV · 2 SKUs</div></div><span class="perm-open">OPEN</span><span class="mat-row-chev">›</span></div>
-          <div class="mat-row"><div class="mat-row-img"><img class="mat-row-img-tex" data-pat="secondary" data-size="80" style="width:36px;height:36px;border-radius:8px;object-fit:cover;display:block" alt=""></div><div style="flex:1"><div class="mat-row-name">Laminated Black Mesh (2nd)</div><div class="mat-row-code">SPA-COMP-0101 · FI · 2 SKUs · DPP ✅</div></div><span class="perm-open">OPEN</span><span class="mat-row-chev">›</span></div>
-          <div class="mat-row"><div class="mat-row-img"><img class="mat-row-img-tex" data-pat="textile" data-size="80" style="width:36px;height:36px;border-radius:8px;object-fit:cover;display:block" alt=""></div><div style="flex:1"><div class="mat-row-name">Ripstop Nylon 70D <span class="tag tag-private">PRIVATE</span></div><div class="mat-row-code">SPA-MAT-0010 · FV · 2 SKUs · 新建中</div></div><span class="mat-row-chev">›</span></div>
-          <div class="mat-row"><div class="mat-row-img"><img class="mat-row-img-tex" data-pat="film" data-size="80" style="width:36px;height:36px;border-radius:8px;object-fit:cover;display:block" alt=""></div><div style="flex:1"><div class="mat-row-name">Bio-based TPU Film <span class="tag tag-private">PRIVATE</span></div><div class="mat-row-code">SPA-MAT-0011 · FI · 1 SKU · DPP ✅</div></div><span class="mat-row-chev">›</span></div>
-          <div class="mat-row"><div class="mat-row-img"><img class="mat-row-img-tex" data-pat="secondary" data-size="80" style="width:36px;height:36px;border-radius:8px;object-fit:cover;display:block" alt=""></div><div style="flex:1"><div class="mat-row-name">Bonded Knit + Foam (2nd) <span class="tag tag-private">PRIVATE</span></div><div class="mat-row-code">SPA-COMP-0102 · FV · 1 SKU</div></div><span class="mat-row-chev">›</span></div>
-        </div>
-      </div>
+      <div class="section-title">規格 Options（每個 = 顏色 + 幅寬 + 重量 + 單價 + LT + 材料圖）</div>
+      <div id="option-cards" data-pat="textile"></div>
+      <button class="btn-dashed" onclick="addOption()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>新增 Option</button>
+      <div class="warn-box" style="margin-top:18px;background:#FFF8E7"><span>🔒</span><span>新建材料預設 <strong>PRIVATE</strong>。送出後於「權限管理」以資料夾為單位授權。</span></div>
+      <div style="margin-top:24px"><div class="section-title">現有原物料</div><div class="mat-list" id="raw-list"></div></div>
     </div>
 
-    <!-- ══ 二次加工建立 ══ -->
+    <!-- 二次加工 -->
     <div class="view fade-in" id="view-secondary">
-      <div class="page-header"><div class="page-title">二次加工建立</div><div class="page-sub">Secondary Processing — Input / Output / Ratio</div></div>
-      <div class="private-notice"><span class="private-notice-icon">🔒</span><span class="private-notice-text">新建加工記錄預設為 <strong>PRIVATE</strong>。</span></div>
-      <div style="background:#F0F7FF;border:0.5px solid #BDD7F7;border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:13px;color:#1D1D1F;line-height:1.7">
-        <strong>順序編碼規則：</strong> 二次加工 SmartPN ID 格式為 <code style="background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px">SPN-[母材ID]-P[順序]</code><br>
-        例：ABS 母材 SPN-006 → 電鍍 <code style="background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px">SPN-006-P01</code>，再陽極氧化 <code style="background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px">SPN-006-P02</code><br>
-        <span style="font-size:12px;color:#86868B">順序號 P01/P02… 代表加工先後次序，由系統自動遞增，可手動修改。無法在同一 SPU 家族內重複。</span>
-      </div>
-      <div class="form-card">
-        <div class="form-card-title">加工基本資料</div>
+      <div class="page-header"><div class="page-title" data-i18n="m_secondary">二次加工建立</div><div class="page-sub">Input → Process → Output</div></div>
+      <div class="info-box"><strong>順序編碼：</strong>二次加工 SmartPN Code 格式 <code>SPA-COMP-XXXX</code>，無規則、純序號；分類靠屬性判斷。</div>
+      <div class="form-card"><div class="form-card-title">加工設定</div>
         <div class="form-grid">
-          <div class="form-group"><label class="form-label">加工名稱</label><input class="form-input" placeholder="例：Electroplating Chrome"></div>
-          <div class="form-group"><label class="form-label">加工類型</label><select class="form-input form-select"><option>Electroplating</option><option>Powder Coating</option><option>Anodising</option><option>Heat Treatment</option><option>Other</option></select></div>
-          <div class="form-group"><label class="form-label">Input 材料</label><input class="form-input" placeholder="例：ABS substrate"></div>
-          <div class="form-group"><label class="form-label">Output 規格</label><input class="form-input" placeholder="例：Chrome-plated ABS"></div>
-          <div class="form-group"><label class="form-label">Processing Ratio</label><input class="form-input" placeholder="例：1:1 (surface area based)"></div>
-          <div class="form-group"><label class="form-label">Coating Thickness</label><input class="form-input" placeholder="例：10–25 µm"></div>
-          <div class="form-group"><label class="form-label">Lead Time (days)</label><input class="form-input" placeholder="例：14"></div>
-          <div class="form-group"><label class="form-label">Standard / Test Method</label><input class="form-input" placeholder="例：ISO 2409"></div>
+          <div class="form-group"><label class="form-label">Input 材料（從現有 Product 選）</label><select class="form-input form-select"><option>Recycled Polyester Mesh 220g (SPA-MAT-7K9X)</option><option>Jacquard Knit Upper 380g (SPA-MAT-K7HR)</option><option>EVA Foam Sheet 4mm (SPA-MAT-3FN8)</option></select></div>
+          <div class="form-group"><label class="form-label">加工方式 Process</label><select class="form-input form-select"><option>Lamination 貼合</option><option>Bonding 黏合</option><option>Coating 塗佈</option><option>Heat press 熱壓</option></select></div>
+          <div class="form-group"><label class="form-label">比例 Ratio</label><input class="form-input" placeholder="例：1:1 (面積)"></div>
+          <div class="form-group"><label class="form-label">Output 材料名稱</label><input class="form-input" value="Laminated Black Mesh (2nd)"></div>
+          <div class="form-group"><label class="form-label">新 SmartPN Code（自動）</label><input class="form-input" value="SPA-COMP-V9K4" readonly style="font-weight:600"></div>
+          <div class="form-group"><label class="form-label">Lead Time (days)</label><input class="form-input" placeholder="例：38"></div>
         </div>
+        <div class="warn-box"><span>🔒</span><span>新建加工記錄預設 <strong>PRIVATE</strong>。</span></div>
         <div class="form-actions"><button class="btn-primary">儲存 — 設定權限</button><button class="btn-secondary">取消</button></div>
       </div>
     </div>
 
-    <!-- ══ 權限管理 ══ -->
+    <!-- 權限管理 -->
     <div class="view fade-in" id="view-permission">
-      <div class="page-header"><div class="page-title">權限管理</div><div class="page-sub">欄位資料夾建立 · 打勾選欄位 · 授權給公司 · 單位 · 姓名</div></div>
-      <div class="private-notice"><span class="private-notice-icon">🔒</span><span class="private-notice-text">所有新材料預設 <strong>PRIVATE</strong>。授權流程：1) 建立資料夾並命名&nbsp; 2) 打勾選欄位&nbsp; 3) 以資料夾為單位授權給「公司 · 單位 · 姓名」</span></div>
-      <div class="folder-list">
-        <div class="folder-card open">
-          <div class="folder-header" onclick="toggleFolder(this.parentElement)">
-            <div class="folder-icon">📁</div><div class="folder-name">關務資料夾</div><span class="folder-count">3 欄位已選</span><span class="folder-chev">›</span>
-          </div>
-          <div class="folder-body">
-            <div style="font-size:12px;color:#86868B;margin-bottom:10px">勾選哪些欄位屬於此資料夾：</div>
-            <div class="field-check-list">
-              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox checked">✓</div><span class="field-check-label">Composition</span><span class="field-check-type">SPU</span></div>
-              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox checked">✓</div><span class="field-check-label">HS Code</span><span class="field-check-type">SPU</span></div>
-              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox checked">✓</div><span class="field-check-label">Country of Origin</span><span class="field-check-type">SPU</span></div>
-              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox"></div><span class="field-check-label">REACH Status</span><span class="field-check-type">SPU</span></div>
-              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox"></div><span class="field-check-label">Price / kg</span><span class="field-check-type">SKU</span></div>
-            </div>
-            <div style="margin-top:16px;font-size:13px;font-weight:600;color:#1D1D1F;margin-bottom:10px">已授權帳號</div>
-            <table class="grant-table">
-              <thead><tr><th>公司</th><th>單位</th><th>姓名</th><th>狀態</th><th></th></tr></thead>
-              <tbody>
-                <tr><td><div class="grant-company">NexBrand Co.</div></td><td><div class="grant-unit">關務部</div></td><td>James Liu</td><td><span class="grant-status">Active</span></td><td><button class="btn-revoke">Revoke</button></td></tr>
-                <tr><td><div class="grant-company">Apex Factory</div></td><td><div class="grant-unit">Compliance</div></td><td>K. Matsuda</td><td><span class="grant-status">Active</span></td><td><button class="btn-revoke">Revoke</button></td></tr>
-              </tbody>
-            </table>
-            <button class="btn-grant-add" onclick="alert('授權新帳號')">+ 授權新帳號（公司 · 單位 · 姓名）</button>
-          </div>
-        </div>
-        <div class="folder-card">
-          <div class="folder-header" onclick="toggleFolder(this.parentElement)">
-            <div class="folder-icon">📁</div><div class="folder-name">財務資料夾</div><span class="folder-count">2 欄位已選</span><span class="folder-chev">›</span>
-          </div>
-          <div class="folder-body">
-            <div class="field-check-list">
-              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox checked">✓</div><span class="field-check-label">Price / kg</span><span class="field-check-type">SKU</span></div>
-              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox checked">✓</div><span class="field-check-label">MOQ (kg)</span><span class="field-check-type">SKU</span></div>
-              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox"></div><span class="field-check-label">Lead Time</span><span class="field-check-type">SKU</span></div>
-            </div>
-            <div style="margin-top:16px;font-size:13px;font-weight:600;color:#1D1D1F;margin-bottom:10px">已授權帳號</div>
-            <table class="grant-table">
-              <thead><tr><th>公司</th><th>單位</th><th>姓名</th><th>狀態</th><th></th></tr></thead>
-              <tbody><tr><td><div class="grant-company">NexBrand Co.</div></td><td><div class="grant-unit">採購部</div></td><td>Rachel L.</td><td><span class="grant-status">Active</span></td><td><button class="btn-revoke">Revoke</button></td></tr></tbody>
-            </table>
-            <button class="btn-grant-add" onclick="alert('授權新帳號')">+ 授權新帳號（公司 · 單位 · 姓名）</button>
-          </div>
-        </div>
-        <div class="folder-card">
-          <div class="folder-header" onclick="toggleFolder(this.parentElement)">
-            <div class="folder-icon">📁</div><div class="folder-name">原物料資料夾</div><span class="folder-count">4 欄位已選</span><span class="folder-chev">›</span>
-          </div>
-          <div class="folder-body">
-            <div class="field-check-list">
-              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox checked">✓</div><span class="field-check-label">Tensile Strength</span><span class="field-check-type">SKU</span></div>
-              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox checked">✓</div><span class="field-check-label">Melt Flow Index</span><span class="field-check-type">SKU</span></div>
-              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox checked">✓</div><span class="field-check-label">Density</span><span class="field-check-type">SKU</span></div>
-              <div class="field-check" onclick="toggleCheck(this)"><div class="checkbox checked">✓</div><span class="field-check-label">Flexural Modulus</span><span class="field-check-type">SKU</span></div>
-            </div>
-            <div style="margin-top:16px;font-size:13px;font-weight:600;color:#1D1D1F;margin-bottom:10px">已授權帳號</div>
-            <table class="grant-table">
-              <thead><tr><th>公司</th><th>單位</th><th>姓名</th><th>狀態</th><th></th></tr></thead>
-              <tbody><tr><td><div class="grant-company">GlobalBrand R&amp;D</div></td><td><div class="grant-unit">Material Eng.</div></td><td>T. Kim</td><td><span class="grant-status">Active</span></td><td><button class="btn-revoke">Revoke</button></td></tr></tbody>
-            </table>
-            <button class="btn-grant-add" onclick="alert('授權新帳號')">+ 授權新帳號（公司 · 單位 · 姓名）</button>
-          </div>
-        </div>
-        <button class="add-node-btn" onclick="alert('新增欄位資料夾')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>新增欄位資料夾</button>
-      </div>
+      <div class="page-header"><div class="page-title" data-i18n="m_permission">權限管理</div><div class="page-sub">資料夾 → 勾選欄位 → 授權給（公司 · 單位 · 帳號）</div></div>
+      <div class="warn-box"><span>🔒</span><span>所有新材料預設 <strong>PRIVATE</strong>。授權以「資料夾」為單位，授權對象 = 公司 + 單位 + 個人帳號。</span></div>
+      <div id="folders"></div>
+      <button class="btn-dashed" onclick="alert('新增欄位資料夾（命名）→ 勾選欄位 → 授權')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>新增欄位資料夾</button>
     </div>
 
-    <!-- ══ 單價管理 ══ -->
-    <div class="view fade-in" id="view-quotation">
-      <div class="page-header"><div class="page-title">單價管理</div><div class="page-sub">報價單建立 · 授權帳號查看</div></div>
-      <!-- Expiry alerts -->
-      <div style="margin-bottom:24px">
-        <div class="section-title">有效期提醒</div>
-        <div class="expiry-card danger"><span class="expiry-icon">🔴</span><div class="expiry-info"><div class="expiry-id">Q-2026-018 · Recycled Polyester Mesh 220g</div><div class="expiry-detail">Brand-A · 開發部 · 授權查看</div></div><span class="expiry-days danger">7 天內到期（6/20）</span></div>
-        <div class="expiry-card warn"><span class="expiry-icon">🟡</span><div class="expiry-info"><div class="expiry-id">Q-2026-021 · TPU Laminating Film 0.15mm</div><div class="expiry-detail">Factory Group B · 採購部</div></div><span class="expiry-days warn">22 天後到期（7/05）</span></div>
-        <div class="expiry-card ok"><span class="expiry-icon">🟢</span><div class="expiry-info"><div class="expiry-id">Q-2026-023 · PU Synthetic Leather 1.2mm</div><div class="expiry-detail">Brand-C · 材料部</div></div><span class="expiry-days ok">60 天後到期（8/12）</span></div>
+    <!-- 單價管理 -->
+    <div class="view fade-in" id="view-pricing">
+      <div class="page-header"><div class="page-title" data-i18n="m_pricing">單價管理</div><div class="page-sub">報價單建立 · 授權帳號查看 · 有效期</div></div>
+      <div class="section-title">有效期提醒</div>
+      <div class="expiry-card danger"><span style="font-size:18px">🔴</span><div class="expiry-info"><div class="expiry-id">Q-2026-018 · Recycled Polyester Mesh 220g</div><div class="expiry-detail">Brand-A · 開發部</div></div><span class="expiry-days danger">7 天內到期 (6/20)</span></div>
+      <div class="expiry-card warn"><span style="font-size:18px">🟡</span><div class="expiry-info"><div class="expiry-id">Q-2026-021 · TPU Laminating Film 0.15mm</div><div class="expiry-detail">Factory Group B · 採購部</div></div><span class="expiry-days warn">30 天內到期 (7/05)</span></div>
+      <div class="expiry-card ok"><span style="font-size:18px">🟢</span><div class="expiry-info"><div class="expiry-id">Q-2026-023 · PU Synthetic Leather 1.2mm</div><div class="expiry-detail">Brand-C · 材料部</div></div><span class="expiry-days ok">8/12 到期</span></div>
+      <div class="level-wrap" style="margin-top:20px">
+        <button class="level-btn active" onclick="setLevel(this)">Product</button>
+        <button class="level-btn" onclick="setLevel(this)">Product + Option</button>
+        <button class="level-btn" onclick="setLevel(this)">Product + Option + 備註</button>
       </div>
-      <div class="level-select-wrap">
-        <button class="level-btn active" onclick="setLevelBtn(this)">SPU</button>
-        <button class="level-btn" onclick="setLevelBtn(this)">SPU + SKU</button>
-        <button class="level-btn" onclick="setLevelBtn(this)">SPU + SKU + 備註</button>
-      </div>
-      <div style="font-size:13px;color:#86868B;line-height:1.6;margin-bottom:20px">本期範圍：報價記錄交換（Record exchange）。最終成交單價暫不記錄，未來依需求決定。</div>
-      <div class="form-card">
-        <div class="form-card-title">新增報價單</div>
+      <div class="form-card"><div class="form-card-title">新增報價單</div>
         <div class="form-grid">
-          <div class="form-group"><label class="form-label">報價材料 (SPU)</label><select class="form-input form-select"><option>Recycled Polyester Mesh 220g (SPA-MAT-0001)</option><option>TPU Laminating Film 0.15mm (SPA-MAT-0002)</option><option>PU Synthetic Leather 1.2mm (SPA-MAT-0003)</option><option>Laminated Black Mesh (SPA-COMP-0101)</option></select></div>
-          <div class="form-group"><label class="form-label">SKU 變體</label><select class="form-input form-select"><option>BLK-58 — Black 58"</option><option>WHT-58 — White 58"</option><option>BLK-44 — Black 44"</option></select></div>
-          <div class="form-group"><label class="form-label">報價單價 (USD / kg)</label><input class="form-input" placeholder="例：2.00"></div>
+          <div class="form-group"><label class="form-label">報價材料 (Product)</label><select class="form-input form-select"><option>Recycled Polyester Mesh 220g</option><option>TPU Laminating Film 0.15mm</option><option>PU Synthetic Leather 1.2mm</option></select></div>
+          <div class="form-group"><label class="form-label">Option</label><select class="form-input form-select"><option>Black · 58"</option><option>White · 58"</option><option>Black · 44"</option></select></div>
+          <div class="form-group"><label class="form-label">報價單價 (USD / m)</label><input class="form-input" placeholder="例：2.00"></div>
           <div class="form-group"><label class="form-label">有效期限</label><input class="form-input" type="date" value="2026-09-30"></div>
-          <div class="form-group form-full"><label class="form-label">備註</label><input class="form-input" placeholder="例：Min order 500kg. DDP Taipei."></div>
-          <div class="form-group form-full"><label class="form-label">授權帳號</label>
-            <input class="form-input" placeholder="搜尋公司 / 帳號…" style="margin-bottom:8px">
-            <div style="display:flex;flex-wrap:wrap;gap:6px"><span style="font-size:12px;background:#F0F7FF;color:#0071E3;border:0.5px solid #BDD7F7;border-radius:14px;padding:4px 12px">NexBrand · Rachel L. <span style="cursor:pointer;opacity:0.6">×</span></span></div>
-          </div>
+          <div class="form-group form-full"><label class="form-label">授權帳號（公司 · 單位 · 帳號）</label><input class="form-input" placeholder="例：NexBrand · 採購部 · Rachel L."></div>
         </div>
-        <div class="form-actions"><button class="btn-primary">建立報價單</button><button class="btn-secondary">取消</button></div>
-      </div>
-      <div class="section-title">現有報價單</div>
-      <div class="quote-card"><div class="quote-card-header"><div class="quote-card-id">Q-2026-018 · Recycled Polyester Mesh 220g</div><div class="quote-card-date">Valid until Jun 20, 2026</div><div class="quote-card-status" style="background:#FFF0F0;color:#FF3B30">Expiring</div></div><div class="quote-card-body"><div class="quote-detail-row">Level: <span class="quote-detail-val">SPU + SKU</span></div><div class="quote-detail-row">Quoted price: <span class="quote-detail-val">USD 2.00 / m (BLK-58) · USD 1.90 / m (BLK-44)</span></div><div class="quote-detail-row">Authorized to: <span class="quote-detail-val">Brand-A · 開發部</span></div></div></div>
-      <div class="quote-card"><div class="quote-card-header"><div class="quote-card-id">Q-2026-021 · TPU Laminating Film 0.15mm</div><div class="quote-card-date">Valid until Jul 5, 2026</div><div class="quote-card-status">Active</div></div><div class="quote-card-body"><div class="quote-detail-row">Level: <span class="quote-detail-val">SPU + SKU</span></div><div class="quote-detail-row">Quoted price: <span class="quote-detail-val">USD 1.45 / m</span></div><div class="quote-detail-row">Authorized to: <span class="quote-detail-val">Factory Group B · 採購部</span></div></div></div>
-      <div class="quote-card"><div class="quote-card-header"><div class="quote-card-id">Q-2026-023 · PU Synthetic Leather 1.2mm</div><div class="quote-card-date">Valid until Aug 12, 2026</div><div class="quote-card-status">Active</div></div><div class="quote-card-body"><div class="quote-detail-row">Level: <span class="quote-detail-val">SPU + SKU + 備註</span></div><div class="quote-detail-row">Quoted price: <span class="quote-detail-val">USD 3.80 / m</span></div><div class="quote-detail-row">Authorized to: <span class="quote-detail-val">Brand-C · 材料部</span></div></div></div>
-    </div>
-
-    <!-- ══ 誰看過我的材料 ══ -->
-    <div class="view fade-in" id="view-who-viewed">
-      <div class="page-header"><div class="page-title">誰看過我的材料</div><div class="page-sub">瀏覽者隱私分級 — 公開又隱私</div></div>
-      <div class="privacy-notice">
-        <strong>GRANT 哲學：</strong>瀏覽者的隱私也是隱私。Brand 查看材料，不會被供應商業務追殺。<br>
-        供應商得到誘因（知道有人在看）；Brand 得到安全（不會被騷擾）。
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-        <div style="font-size:15px;font-weight:600;color:#1D1D1F">顯示層級</div>
-        <div class="privacy-toggle">
-          <button class="privacy-btn active" onclick="setPrivacy('company',this)">公司名 + 查看次數</button>
-          <button class="privacy-btn" onclick="setPrivacy('fuzzy',this)">行業 / 地區模糊</button>
-        </div>
-      </div>
-      <!-- Company view -->
-      <div id="privacy-company">
-        <div class="view-list">
-          <div class="view-row"><div class="view-row-avatar" style="background:#E8F0FE;color:#0071E3">BA</div><div><div class="view-row-name">Brand-A</div><div class="view-row-material">最近查看：Recycled Polyester Mesh 220g · PU Synthetic Leather</div></div><div class="view-row-count"><div class="view-count-num">12</div><div class="view-count-label">次查看</div></div></div>
-          <div class="view-row"><div class="view-row-avatar" style="background:#F0FFF4;color:#1D7340">BB</div><div><div class="view-row-name">Brand-B</div><div class="view-row-material">最近查看：TPU Laminating Film · Laminated Black Mesh</div></div><div class="view-row-count"><div class="view-count-num">7</div><div class="view-count-label">次查看</div></div></div>
-          <div class="view-row"><div class="view-row-avatar" style="background:#FFF8E7;color:#F5A623">FD</div><div><div class="view-row-name">Factory Group D</div><div class="view-row-material">最近查看：Recycled Polyester Mesh 220g</div></div><div class="view-row-count"><div class="view-count-num">3</div><div class="view-count-label">次查看</div></div></div>
-        </div>
-      </div>
-      <!-- Fuzzy view -->
-      <div id="privacy-fuzzy" style="display:none">
-        <div class="view-list">
-          <div class="view-row"><div class="view-row-avatar" style="background:#F0F7FF;color:#0071E3;font-size:16px">👟</div><div><div class="view-row-name">歐洲運動品牌 × 2</div><div class="view-row-sub">有 2 個帳號查看過紡織 / 薄膜類材料</div></div><div class="view-row-count"><div class="view-count-num">19</div><div class="view-count-label">次查看</div></div></div>
-          <div class="view-row"><div class="view-row-avatar" style="background:#F5F5F7;color:#86868B;font-size:16px">🏭</div><div><div class="view-row-name">亞洲代工集團 × 1</div><div class="view-row-sub">有 1 個帳號查看過網布類材料</div></div><div class="view-row-count"><div class="view-count-num">3</div><div class="view-count-label">次查看</div></div></div>
-        </div>
-      </div>
-      <div class="view-never-notice">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#86868B" stroke-width="1.2"/><path d="M8 5v4M8 11v0.5" stroke="#86868B" stroke-width="1.3" stroke-linecap="round"/></svg>
-        永不顯示個人姓名、帳號或聯絡方式。個人資料受 SmartPN GRANT 規則保護。
-      </div>
-      <div style="margin-top:24px">
-        <div class="section-title">最多人看的材料 TOP 5</div>
-        <div class="hbar-list" style="max-width:500px">
-          <div class="hbar-item"><div class="hbar-row"><span class="hbar-label">Recycled Mesh 220g</span><div class="hbar-track"><div class="hbar-fill" style="width:100%;background:#1D1D1F"></div></div><span class="hbar-val">12 次</span></div></div>
-          <div class="hbar-item"><div class="hbar-row"><span class="hbar-label">TPU Film 0.15mm</span><div class="hbar-track"><div class="hbar-fill" style="width:75%;background:#1D1D1F"></div></div><span class="hbar-val">9 次</span></div></div>
-          <div class="hbar-item"><div class="hbar-row"><span class="hbar-label">PU Leather 1.2mm</span><div class="hbar-track"><div class="hbar-fill" style="width:58%;background:#1D1D1F"></div></div><span class="hbar-val">7 次</span></div></div>
-          <div class="hbar-item"><div class="hbar-row"><span class="hbar-label">Laminated Black Mesh</span><div class="hbar-track"><div class="hbar-fill" style="width:33%;background:#86868B"></div></div><span class="hbar-val">4 次</span></div></div>
-          <div class="hbar-item"><div class="hbar-row"><span class="hbar-label">Ripstop Nylon 70D</span><div class="hbar-track"><div class="hbar-fill" style="width:0%;background:#D2D2D7"></div></div><span class="hbar-val">0 次（PRIVATE）</span></div></div>
-        </div>
+        <div style="font-size:12px;color:#86868B;margin-top:10px">本期範圍：報價記錄交換；最終成交單價暫不記錄。</div>
+        <div class="form-actions"><button class="btn-primary">建立報價單</button></div>
       </div>
     </div>
 
-    <!-- ══ 資料完整度 ══ -->
-    <div class="view fade-in" id="view-completeness">
-      <div class="page-header"><div class="page-title">資料完整度</div><div class="page-sub">補齊欄位，提升 DPP-ready 曝光機會</div></div>
-      <div style="display:flex;gap:24px;margin-bottom:28px;padding-bottom:24px;border-bottom:0.5px solid #D2D2D7">
-        <div style="text-align:center"><div style="font-size:36px;font-weight:700;letter-spacing:-1px;color:#F5A623">78<span style="font-size:20px">%</span></div><div style="font-size:12px;color:#86868B;margin-top:4px">整體完整度</div></div>
-        <div style="flex:1">
-          <div style="height:8px;background:#F5F5F7;border-radius:4px;margin-top:18px;overflow:hidden"><div style="width:78%;height:100%;background:linear-gradient(90deg,#1D7340,#34C759);border-radius:4px"></div></div>
-          <div style="font-size:12px;color:#86868B;margin-top:8px">3 筆材料待補齊 · 欄位完整度達 85%+ 可標示 DPP-ready</div>
-        </div>
+    <!-- 誰看過我的材料 -->
+    <div class="view fade-in" id="view-who">
+      <div class="page-header"><div class="page-title" data-i18n="m_who">誰看過我的材料</div><div class="page-sub">瀏覽者隱私分級 — 公開又隱私</div></div>
+      <div class="privacy-notice"><strong>GRANT 哲學：</strong>瀏覽者的隱私也是隱私。供應商得到誘因（知道有人在看），Brand 得到安全（不被騷擾）。永不顯示個人姓名 / 帳號 / 聯絡方式。</div>
+      <div class="privacy-toggle"><button class="on" onclick="setWho('company',this)">公司名 + 次數</button><button onclick="setWho('fuzzy',this)">行業 / 地區模糊</button></div>
+      <div id="who-company" class="mat-list">
+        <div class="view-row"><div class="view-ava" style="background:#E8F0FE;color:#0071E3">BA</div><div class="view-name">Brand-A</div><div class="view-cnt">12</div></div>
+        <div class="view-row"><div class="view-ava" style="background:#F0FFF4;color:#1D7340">BB</div><div class="view-name">Brand-B</div><div class="view-cnt">7</div></div>
+        <div class="view-row"><div class="view-ava" style="background:#FFF8E7;color:#F5A623">FD</div><div class="view-name">Factory Group D</div><div class="view-cnt">3</div></div>
       </div>
-      <div class="section-title">各材料完整度</div>
-      <div class="completeness-card">
-        <div class="completeness-header"><div class="completeness-name">Recycled Polyester Mesh 220g <span style="font-size:11px;background:#F0FFF4;color:#1D7340;border-radius:5px;padding:2px 7px;font-weight:600">DPP-ready</span></div><div class="completeness-score" style="color:#1D7340">97%</div></div>
-        <div class="completeness-track"><div class="completeness-fill" style="width:97%;background:#34C759"></div></div>
-        <div class="completeness-missing"><span class="missing-tag good">基本資料 ✓</span><span class="missing-tag good">SKU 規格 ✓</span><span class="missing-tag good">DPP 文件 ✓</span><span class="missing-tag good">回收含量認證 ✓</span></div>
-      </div>
-      <div class="completeness-card">
-        <div class="completeness-header"><div class="completeness-name">TPU Laminating Film 0.15mm <span style="font-size:11px;background:#F0FFF4;color:#1D7340;border-radius:5px;padding:2px 7px;font-weight:600">DPP-ready</span></div><div class="completeness-score" style="color:#1D7340">92%</div></div>
-        <div class="completeness-track"><div class="completeness-fill" style="width:92%;background:#34C759"></div></div>
-        <div class="completeness-missing"><span class="missing-tag good">基本資料 ✓</span><span class="missing-tag good">DPP 文件 ✓</span><span class="missing-tag">厚度公差規格待補</span></div>
-      </div>
-      <div class="completeness-card">
-        <div class="completeness-header"><div class="completeness-name">PU Synthetic Leather 1.2mm</div><div class="completeness-score" style="color:#F5A623">78%</div></div>
-        <div class="completeness-track"><div class="completeness-fill" style="width:78%;background:#F5A623"></div></div>
-        <div class="completeness-missing"><span class="missing-tag good">基本資料 ✓</span><span class="missing-tag">DPP 文件未上傳</span><span class="missing-tag">REACH 符合聲明待補</span></div>
-      </div>
-      <div class="completeness-card">
-        <div class="completeness-header"><div class="completeness-name">Laminated Black Mesh (2nd) <span style="font-size:11px;background:#F0FFF4;color:#1D7340;border-radius:5px;padding:2px 7px;font-weight:600">DPP-ready</span></div><div class="completeness-score" style="color:#1D7340">89%</div></div>
-        <div class="completeness-track"><div class="completeness-fill" style="width:89%;background:#34C759"></div></div>
-        <div class="completeness-missing"><span class="missing-tag good">基本資料 ✓</span><span class="missing-tag good">DPP 文件 ✓</span><span class="missing-tag">貼合比例公式待確認</span></div>
-      </div>
-      <div class="completeness-card">
-        <div class="completeness-header"><div class="completeness-name">Ripstop Nylon 70D <span class="tag tag-private">PRIVATE</span></div><div class="completeness-score" style="color:#F5A623">55%</div></div>
-        <div class="completeness-track"><div class="completeness-fill" style="width:55%;background:#F5A623"></div></div>
-        <div class="completeness-missing"><span class="missing-tag good">基本資料 ✓</span><span class="missing-tag">SKU 建立中</span><span class="missing-tag">DPP 文件未上傳</span><span class="missing-tag">強度測試待提交</span></div>
-      </div>
-      <div class="completeness-card">
-        <div class="completeness-header"><div class="completeness-name">Bio-based TPU Film <span class="tag tag-private">PRIVATE</span> <span style="font-size:11px;background:#F0FFF4;color:#1D7340;border-radius:5px;padding:2px 7px;font-weight:600">DPP-ready</span></div><div class="completeness-score" style="color:#1D7340">85%</div></div>
-        <div class="completeness-track"><div class="completeness-fill" style="width:85%;background:#34C759"></div></div>
-        <div class="completeness-missing"><span class="missing-tag good">基本資料 ✓</span><span class="missing-tag good">DPP 文件 ✓</span><span class="missing-tag">生物基含量認證進行中</span></div>
-      </div>
-      <div class="completeness-card">
-        <div class="completeness-header"><div class="completeness-name">Bonded Knit + Foam (2nd) <span class="tag tag-private">PRIVATE</span></div><div class="completeness-score" style="color:#FF3B30">42%</div></div>
-        <div class="completeness-track"><div class="completeness-fill" style="width:42%;background:#FF3B30"></div></div>
-        <div class="completeness-missing"><span class="missing-tag good">基本資料 ✓</span><span class="missing-tag">SKU 未建立</span><span class="missing-tag">DPP 文件未上傳</span><span class="missing-tag">剝離強度數據缺失</span><span class="missing-tag">REACH 未填</span></div>
+      <div id="who-fuzzy" class="mat-list" style="display:none">
+        <div class="view-row"><div class="view-ava" style="background:#F0F7FF">👟</div><div class="view-name">歐洲運動品牌 × 2</div><div class="view-cnt">19</div></div>
+        <div class="view-row"><div class="view-ava" style="background:#F5F5F7">🏭</div><div class="view-name">亞洲代工集團 × 1</div><div class="view-cnt">3</div></div>
       </div>
     </div>
 
-    <!-- ══ BOSS BI DASHBOARD ══ -->
-    <div class="view fade-in" id="view-boss-bi" style="max-width:1040px">
-      <div class="page-header">
-        <div class="page-title">經營儀表板</div>
-        <div class="page-sub">Formosa Materials Group · FV + FI 合併 · 數據僅供決策參考</div>
-      </div>
-      <div class="bi-period-toggle">
-        <button class="bi-period-btn active" onclick="setPeriod('month',this)">本月</button>
-        <button class="bi-period-btn" onclick="setPeriod('quarter',this)">本季</button>
-        <button class="bi-period-btn" onclick="setPeriod('year',this)">本年度</button>
-      </div>
-
+    <!-- Boss BI -->
+    <div class="view fade-in" id="view-bi" style="max-width:1040px">
+      <div class="page-header"><div class="page-title" data-i18n="m_bi">經營儀表板</div><div class="page-sub">Formosa Materials Group · FV + FI 合併 · 決策參考</div></div>
       <div class="bi-grid">
-
-        <!-- KPI 1: 總營業額 -->
-        <div class="bi-card">
-          <div class="bi-card-label">① 總營業額</div>
-          <div class="bi-card-val">$4.08M</div>
-          <div style="display:flex;gap:10px;margin-top:10px">
-            <div class="bi-delta up">↑ 12% 同比</div>
-            <div class="bi-delta up">↑ 3% 環比</div>
-          </div>
-          <div class="bi-card-sub">Formosa Vietnam $2.45M (60%) · Formosa Indonesia $1.63M (40%)</div>
-        </div>
-
-        <!-- KPI 8: 報價成交率 -->
-        <div class="bi-card">
-          <div class="bi-card-label">⑧ 報價成交率</div>
-          <div style="display:flex;align-items:center;gap:20px;margin-top:8px">
-            <div class="win-ring-wrap">
-              <div class="win-ring"><span class="win-ring-label">37.5%</span></div>
-              <div class="win-ring-text">本季報價 24 張<br>成交 9 張<br>流失 15 張<br><span style="color:#F5A623;font-size:12px">⚠ 低於目標 50%</span></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- KPI 2: 產品銷售佔比 -->
-        <div class="bi-card">
-          <div class="bi-card-label">② 產品銷售佔比</div>
-          <div class="hbar-list" style="margin-top:12px">
-            <div class="hbar-item"><div class="hbar-row"><span class="hbar-label">Recycled Mesh (0001)</span><div class="hbar-track"><div class="hbar-fill" style="width:100%;background:#1D1D1F"></div></div><span class="hbar-val">31%</span></div></div>
-            <div class="hbar-item"><div class="hbar-row"><span class="hbar-label">PU Leather (0003)</span><div class="hbar-track"><div class="hbar-fill" style="width:71%;background:#86868B"></div></div><span class="hbar-val">22%</span></div></div>
-            <div class="hbar-item"><div class="hbar-row"><span class="hbar-label">TPU Film (0002)</span><div class="hbar-track"><div class="hbar-fill" style="width:58%;background:#C7C7CC"></div></div><span class="hbar-val">18%</span></div></div>
-            <div class="hbar-item"><div class="hbar-row"><span class="hbar-label">Laminated Mesh (0101)</span><div class="hbar-track"><div class="hbar-fill" style="width:45%;background:#D2D2D7"></div></div><span class="hbar-val">14%</span></div></div>
-            <div class="hbar-item"><div class="hbar-row"><span class="hbar-label">其他</span><div class="hbar-track"><div class="hbar-fill" style="width:48%;background:#F5F5F7"></div></div><span class="hbar-val">15%</span></div></div>
-          </div>
-        </div>
-
-        <!-- KPI 3: 各公司營收佔比 -->
-        <div class="bi-card">
-          <div class="bi-card-label">③ 各公司營收佔比（母/子公司）</div>
-          <div class="hbar-list" style="margin-top:12px">
-            <div class="hbar-item"><div class="hbar-row"><span class="hbar-label">Formosa Vietnam (FV)</span><div class="hbar-track"><div class="hbar-fill" style="width:100%;background:#1D1D1F"></div></div><span class="hbar-val">$2.45M · 60%</span></div><div class="hbar-pct">↑ 主力成長</div></div>
-            <div class="hbar-item"><div class="hbar-row"><span class="hbar-label">Formosa Indonesia (FI)</span><div class="hbar-track"><div class="hbar-fill" style="width:67%;background:#86868B"></div></div><span class="hbar-val">$1.63M · 40%</span></div></div>
-          </div>
-        </div>
-
-        <!-- KPI 4: 利潤比 -->
-        <div class="bi-card">
-          <div class="bi-card-label">④ 各產品利潤比（毛利率）</div>
-          <div class="hbar-list" style="margin-top:12px">
-            <div class="hbar-item"><div class="hbar-row"><span class="hbar-label">Laminated Mesh（二次）</span><div class="hbar-track"><div class="hbar-fill" style="width:100%;background:#1D7340"></div></div><span class="hbar-val" style="color:#1D7340">28%</span></div><div class="hbar-pct" style="color:#1D7340">★ 最高利潤 — 主力推</div></div>
-            <div class="hbar-item"><div class="hbar-row"><span class="hbar-label">PU Leather</span><div class="hbar-track"><div class="hbar-fill" style="width:68%;background:#1D7340"></div></div><span class="hbar-val" style="color:#1D7340">19%</span></div></div>
-            <div class="hbar-item"><div class="hbar-row"><span class="hbar-label">Recycled Mesh</span><div class="hbar-track"><div class="hbar-fill" style="width:54%;background:#F5A623"></div></div><span class="hbar-val" style="color:#F5A623">15%</span></div></div>
-            <div class="hbar-item"><div class="hbar-row"><span class="hbar-label">TPU Film</span><div class="hbar-track"><div class="hbar-fill" style="width:39%;background:#FF3B30"></div></div><span class="hbar-val" style="color:#FF3B30">11%</span></div></div>
-          </div>
-        </div>
-
-        <!-- KPI 7: 客戶集中度 -->
-        <div class="bi-card">
-          <div class="bi-card-label">⑦ 客戶集中度（前三大佔比）</div>
-          <div class="hbar-list" style="margin-top:12px">
-            <div class="hbar-item"><div class="hbar-row"><span class="hbar-label">Factory Group A</span><div class="hbar-track"><div class="hbar-fill" style="width:100%;background:#1D1D1F"></div></div><span class="hbar-val">35%</span></div></div>
-            <div class="hbar-item"><div class="hbar-row"><span class="hbar-label">Factory Group B</span><div class="hbar-track"><div class="hbar-fill" style="width:60%;background:#86868B"></div></div><span class="hbar-val">21%</span></div></div>
-            <div class="hbar-item"><div class="hbar-row"><span class="hbar-label">Factory Group C</span><div class="hbar-track"><div class="hbar-fill" style="width:34%;background:#C7C7CC"></div></div><span class="hbar-val">12%</span></div></div>
-            <div class="hbar-item"><div class="hbar-row"><span class="hbar-label">其他</span><div class="hbar-track"><div class="hbar-fill" style="width:91%;background:#F5F5F7"></div></div><span class="hbar-val">32%</span></div></div>
-          </div>
-          <div style="font-size:12px;color:#F5A623;margin-top:10px">⚠ 前三大合計 68% — 集中度偏高，建議分散</div>
-        </div>
-
-        <!-- KPI 6: 應收帳款帳齡 -->
-        <div class="bi-card full">
-          <div class="bi-card-label">⑥ 應收帳款帳齡（Aging）</div>
-          <div style="display:flex;gap:20px;margin-top:4px;margin-bottom:20px;flex-wrap:wrap">
-            <div><div style="font-size:28px;font-weight:700;color:#1D1D1F;letter-spacing:-0.8px">$737K</div><div style="font-size:12px;color:#86868B;margin-top:4px">應收帳款總額</div></div>
-          </div>
-          <div class="aging-grid" style="grid-template-columns:repeat(4,1fr)">
-            <div class="aging-bucket ok"><div class="aging-bucket-label">0–30 天</div><div class="aging-bucket-val">$310K</div><div class="aging-bucket-sub">Factory A/B<br>正常範圍</div></div>
-            <div class="aging-bucket ok"><div class="aging-bucket-label">31–60 天</div><div class="aging-bucket-val">$260K</div><div class="aging-bucket-sub">Factory C<br>正常範圍</div></div>
-            <div class="aging-bucket warn"><div class="aging-bucket-label">61–90 天</div><div class="aging-bucket-val">$125K</div><div class="aging-bucket-sub">已發催款通知</div></div>
-            <div class="aging-bucket danger"><div class="aging-bucket-label">&gt;90 天</div><div class="aging-bucket-val">$42K</div><div class="aging-bucket-sub">⚠ 紅色警示<br>需法務介入</div></div>
-          </div>
-        </div>
-
-        <!-- KPI 5: 現金流明細 -->
-        <div class="bi-card full">
-          <div class="bi-card-label">⑤ 現金流明細（含入帳預計日期）</div>
-          <div style="display:flex;gap:24px;margin:12px 0 20px;flex-wrap:wrap">
-            <div><div style="font-size:22px;font-weight:700;color:#1D7340;letter-spacing:-0.5px">+$737K</div><div style="font-size:12px;color:#86868B;margin-top:2px">預計入帳（本季）</div></div>
-          </div>
-          <table class="cf-table">
-            <thead><tr><th>說明</th><th>客戶</th><th>金額</th><th>條件</th><th>預計入帳</th></tr></thead>
-            <tbody>
-              <tr><td>Recycled Mesh 出貨</td><td>Factory Group A (VN)</td><td class="cf-in">+$380K</td><td><span class="cf-date-chip">Net 60</span></td><td><span class="cf-date-chip">2026-07-15</span></td></tr>
-              <tr><td>TPU Film 出貨</td><td>Factory Group B (ID)</td><td class="cf-in">+$215K</td><td><span class="cf-date-chip">Net 45</span></td><td><span class="cf-date-chip">2026-06-28</span></td></tr>
-              <tr><td>PU Leather 出貨</td><td>Factory Group C (VN)</td><td class="cf-in">+$142K</td><td><span class="cf-date-chip">Net 90</span></td><td><span class="cf-date-chip">2026-08-20</span></td></tr>
-              <tr><td style="font-weight:600">本季應收總計</td><td></td><td style="font-weight:700;color:#1D7340">+$737K</td><td></td><td></td></tr>
-            </tbody>
-          </table>
-        </div>
-
-      </div><!-- /bi-grid -->
-    </div><!-- /view-boss-bi -->
-
-  </div><!-- /main -->
-</div><!-- /layout -->
-
-<script>
-function showView(id) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById('view-' + id).classList.add('active');
-  window.scrollTo(0,0);
-}
-function setActive(el) {
-  document.querySelectorAll('.nav-item,.nav-sub-item').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-}
-function switchTab(prefix, tab) {
-  document.querySelectorAll(`[id^="${prefix}-"]`).forEach(p => p.classList.remove('active'));
-  document.getElementById(`${prefix}-${tab}`).classList.add('active');
-}
-function setTabBtn(el) {
-  el.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-}
-function toggleFolder(card) { card.classList.toggle('open'); }
-function toggleCheck(row) {
-  const cb = row.querySelector('.checkbox');
-  cb.classList.toggle('checked');
-  cb.textContent = cb.classList.contains('checked') ? '✓' : '';
-}
-function setLevelBtn(el) {
-  el.closest('.level-select-wrap').querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-}
-function setPeriod(p, el) {
-  el.closest('.bi-period-toggle').querySelectorAll('.bi-period-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-}
-function setPrivacy(mode, el) {
-  el.closest('.privacy-toggle').querySelectorAll('.privacy-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('privacy-company').style.display = mode === 'company' ? '' : 'none';
-  document.getElementById('privacy-fuzzy').style.display = mode === 'fuzzy' ? '' : 'none';
-}
-
-/* ─── SVG material textures (inline, no external URL) ─── */
-const TEX_MAP = {
-  textile:    { bg:'#f0ede8', tile:8,  cell:"<path d='M0 0H8M0 0V8' stroke='#a8a09a' stroke-width='0.6'/><circle cx='4' cy='4' r='0.7' fill='#a8a09a'/>" },
-  synleather: { bg:'#3d2e24', tile:16, cell:"<path d='M8 1L15 8L8 15L1 8Z' fill='none' stroke='#5a4035' stroke-width='1.2'/>" },
-  leather:    { bg:'#8b6340', tile:20, cell:"<circle cx='5' cy='6' r='1.6' fill='#7a5534'/><circle cx='13' cy='4' r='1.1' fill='#9b7050'/><circle cx='9' cy='13' r='1.8' fill='#7a5534'/><circle cx='16' cy='15' r='1.2' fill='#9b7050'/><circle cx='3' cy='16' r='1' fill='#9b7050'/>" },
-  secondary:  { bg:'#2c3e35', tile:12, cell:"<path d='M0 0L12 12M12 0L0 12' stroke='#3d5248' stroke-width='1.1'/>" },
-  jacquard:   { bg:'#1a3a5c', tile:10, cell:"<path d='M-2 8L8 -2M3 13L13 3' stroke='#243f6b' stroke-width='2'/>" },
-  eva:        { bg:'#f5f0e8', tile:20, cell:"<path d='M10 2 L17 6 L17 14 L10 18 L3 14 L3 6 Z' fill='none' stroke='#d4c9b8' stroke-width='1'/>" },
-  microfiber: { bg:'#6b4c3b', tile:6,  cell:"<circle cx='3' cy='3' r='0.9' fill='#7d5a48'/><circle cx='0' cy='0' r='0.9' fill='#7d5a48'/><circle cx='6' cy='6' r='0.9' fill='#7d5a48'/>" },
-};
-function texSVG(key, size) {
-  if (key === 'film') {
-    return `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 300 300'>`
-      + `<defs><linearGradient id='fg' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#e8eef5'/><stop offset='0.5' stop-color='#f5f8fa'/><stop offset='1' stop-color='#d8e4ee'/></linearGradient>`
-      + `<pattern id='fp' width='30' height='30' patternUnits='userSpaceOnUse'><path d='M0 0H30M0 0V30' stroke='#c8d8e8' stroke-width='0.7' fill='none'/></pattern></defs>`
-      + `<rect width='300' height='300' fill='url(#fg)'/><rect width='300' height='300' fill='url(#fp)'/></svg>`;
-  }
-  const t = TEX_MAP[key] || TEX_MAP.textile;
-  return `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 300 300'>`
-    + `<defs><pattern id='p' width='${t.tile}' height='${t.tile}' patternUnits='userSpaceOnUse'><rect width='${t.tile}' height='${t.tile}' fill='${t.bg}'/>${t.cell}</pattern></defs>`
-    + `<rect width='300' height='300' fill='${t.bg}'/><rect width='300' height='300' fill='url(#p)'/></svg>`;
-}
-function texURI(key, size) { return 'data:image/svg+xml,' + encodeURIComponent(texSVG(key, size)); }
-function fillTextures() {
-  document.querySelectorAll('img[data-pat]').forEach(img => { img.src = texURI(img.dataset.pat, parseInt(img.dataset.size) || 120); });
-}
-function addOption() {
-  const wrap = document.getElementById('option-cards');
-  if (!wrap) return;
-  const n = wrap.querySelectorAll('.option-card').length + 1;
-  const pat = wrap.dataset.pat || 'textile';
-  const div = document.createElement('div');
-  div.className = 'option-card';
-  div.innerHTML = `<img class="option-swatch" data-pat="${pat}" data-size="80" alt="">
-    <div class="option-fields">
-      <div class="form-group"><label class="form-label">顏色 Color</label><input class="form-input" placeholder="例：Black"></div>
-      <div class="form-group"><label class="form-label">幅寬 Width</label><input class="form-input" placeholder='例：58"'></div>
-      <div class="form-group"><label class="form-label">重量 Weight</label><input class="form-input" placeholder="例：220 g/m²"></div>
-      <div class="form-group"><label class="form-label">單價 Price (USD)</label><input class="form-input" placeholder="例：2.00"></div>
-      <div class="form-group"><label class="form-label">LT (days)</label><input class="form-input" placeholder="例：30"></div>
+        <div class="bi-card"><div class="bi-label">① 總營業額</div><div class="bi-val">$4.08M</div><div style="display:flex;gap:8px"><span class="bi-delta up">↑ 12% 同比</span><span class="bi-delta up">↑ 3% 環比</span></div><div class="bi-sub">FV $2.45M (60%) · FI $1.63M (40%)</div></div>
+        <div class="bi-card"><div class="bi-label">⑧ 報價成交率</div><div style="display:flex;align-items:center;gap:18px;margin-top:8px"><div class="win-ring"><span class="win-lbl">37.5%</span></div><div class="bi-sub">本季 24 張 · 成交 9 張 · 流失 15 張<br><span style="color:#F5A623">⚠ 低於目標 50%</span></div></div></div>
+        <div class="bi-card"><div class="bi-label">② 產品銷售佔比</div><div class="hbar">
+          <div class="hbar-row"><span class="hbar-label">Recycled Mesh (0001)</span><div class="hbar-track"><div class="hbar-fill" style="width:100%;background:#1D1D1F"></div></div><span class="hbar-val">31%</span></div>
+          <div class="hbar-row"><span class="hbar-label">PU Leather (0003)</span><div class="hbar-track"><div class="hbar-fill" style="width:71%;background:#86868B"></div></div><span class="hbar-val">22%</span></div>
+          <div class="hbar-row"><span class="hbar-label">TPU Film (0002)</span><div class="hbar-track"><div class="hbar-fill" style="width:58%;background:#C7C7CC"></div></div><span class="hbar-val">18%</span></div>
+          <div class="hbar-row"><span class="hbar-label">Laminated Mesh (0101)</span><div class="hbar-track"><div class="hbar-fill" style="width:45%;background:#D2D2D7"></div></div><span class="hbar-val">14%</span></div>
+          <div class="hbar-row"><span class="hbar-label">其他</span><div class="hbar-track"><div class="hbar-fill" style="width:48%;background:#F5F5F7"></div></div><span class="hbar-val">15%</span></div></div></div>
+        <div class="bi-card"><div class="bi-label">③ 各公司營收佔比</div><div class="hbar">
+          <div class="hbar-row"><span class="hbar-label">Formosa Vietnam</span><div class="hbar-track"><div class="hbar-fill" style="width:100%;background:#1D1D1F"></div></div><span class="hbar-val">$2.45M·60%</span></div>
+          <div class="hbar-row"><span class="hbar-label">Formosa Indonesia</span><div class="hbar-track"><div class="hbar-fill" style="width:67%;background:#86868B"></div></div><span class="hbar-val">$1.63M·40%</span></div></div></div>
+        <div class="bi-card"><div class="bi-label">④ 各產品利潤比（毛利率）</div><div class="hbar">
+          <div class="hbar-row"><span class="hbar-label">Laminated Mesh（二次）</span><div class="hbar-track"><div class="hbar-fill" style="width:100%;background:#1D7340"></div></div><span class="hbar-val" style="color:#1D7340">28%</span></div>
+          <div class="hbar-row"><span class="hbar-label">PU Leather</span><div class="hbar-track"><div class="hbar-fill" style="width:68%;background:#1D7340"></div></div><span class="hbar-val" style="color:#1D7340">19%</span></div>
+          <div class="hbar-row"><span class="hbar-label">Recycled Mesh</span><div class="hbar-track"><div class="hbar-fill" style="width:54%;background:#F5A623"></div></div><span class="hbar-val" style="color:#F5A623">15%</span></div>
+          <div class="hbar-row"><span class="hbar-label">TPU Film</span><div class="hbar-track"><div class="hbar-fill" style="width:39%;background:#FF3B30"></div></div><span class="hbar-val" style="color:#FF3B30">11%</span></div></div>
+          <div class="bi-sub" style="color:#1D7340">★ 二次加工最賺 — 主力推</div></div>
+        <div class="bi-card"><div class="bi-label">⑦ 客戶集中度（前三大）</div><div class="hbar">
+          <div class="hbar-row"><span class="hbar-label">Factory Group A</span><div class="hbar-track"><div class="hbar-fill" style="width:100%;background:#1D1D1F"></div></div><span class="hbar-val">35%</span></div>
+          <div class="hbar-row"><span class="hbar-label">Factory Group B</span><div class="hbar-track"><div class="hbar-fill" style="width:60%;background:#86868B"></div></div><span class="hbar-val">21%</span></div>
+          <div class="hbar-row"><span class="hbar-label">Factory Group C</span><div class="hbar-track"><div class="hbar-fill" style="width:34%;background:#C7C7CC"></div></div><span class="hbar-val">12%</span></div></div>
+          <div class="bi-sub" style="color:#F5A623">⚠ 前三大 68% — 集中度偏高</div></div>
+        <div class="bi-card full"><div class="bi-label">⑥ 應收帳款帳齡</div><div class="aging-grid">
+          <div class="aging ok"><div class="aging-lbl">0–30 天</div><div class="aging-val">$310K</div></div>
+          <div class="aging ok"><div class="aging-lbl">31–60 天</div><div class="aging-val">$260K</div></div>
+          <div class="aging warn"><div class="aging-lbl">61–90 天</div><div class="aging-val">$125K</div></div>
+          <div class="aging danger"><div class="aging-lbl">&gt;90 天</div><div class="aging-val">$42K</div></div></div></div>
+        <div class="bi-card full"><div class="bi-label">⑤ 現金流明細（含入帳預計日）</div>
+          <table class="cf-table"><thead><tr><th>客戶</th><th>金額</th><th>條件</th><th>預計入帳</th></tr></thead><tbody>
+            <tr><td>Factory Group A (VN)</td><td class="cf-in">+$380K</td><td><span class="chip">Net 60</span></td><td><span class="chip">2026-07-15</span></td></tr>
+            <tr><td>Factory Group B (ID)</td><td class="cf-in">+$215K</td><td><span class="chip">Net 45</span></td><td><span class="chip">2026-06-28</span></td></tr>
+            <tr><td>Factory Group C (VN)</td><td class="cf-in">+$142K</td><td><span class="chip">Net 90</span></td><td><span class="chip">2026-08-20</span></td></tr>
+            <tr><td style="font-weight:600">本季應收總計</td><td style="font-weight:700;color:#1D7340">+$737K</td><td></td><td></td></tr>
+          </tbody></table></div>
+      </div>
     </div>
-    <button class="option-del" title="刪除 Option" onclick="this.closest('.option-card').remove()">×</button>`;
-  wrap.appendChild(div);
-  fillTextures();
-}
-fillTextures();
-</script>
+
+    <!-- Requests (received) -->
+    <div class="view fade-in" id="view-requests">
+      <div class="page-header"><div class="page-title">Requests</div><div class="page-sub">Brand / Factory 發來的即時對話</div></div>
+      <div class="req-layout">
+        <div class="req-list" id="req-list"></div>
+        <div class="req-thread">
+          <div class="req-hd" id="req-hd"></div>
+          <div class="req-msgs" id="req-msgs"></div>
+          <div class="req-compose"><input id="req-input" placeholder="Reply…" onkeydown="if(event.key==='Enter')sendMsg()"><button class="req-send" onclick="sendMsg()">Send</button></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <script>
-/* ─── Supplier i18n ─── */
-let LANG_SUP = 'en';
-const SUP_STRINGS = {
-  product: { en:'Product', zh:'商品' },
-  option:  { en:'Option',  zh:'規格' },
+/* ─── SVG textures ─── */
+const TEX_MAP={
+  textile:{bg:'#f0ede8',tile:8,cell:"<path d='M0 0H8M0 0V8' stroke='#a8a09a' stroke-width='0.6'/><circle cx='4' cy='4' r='0.7' fill='#a8a09a'/>"},
+  synleather:{bg:'#3d2e24',tile:16,cell:"<path d='M8 1L15 8L8 15L1 8Z' fill='none' stroke='#5a4035' stroke-width='1.2'/>"},
+  leather:{bg:'#8b6340',tile:20,cell:"<circle cx='5' cy='6' r='1.6' fill='#7a5534'/><circle cx='13' cy='4' r='1.1' fill='#9b7050'/><circle cx='9' cy='13' r='1.8' fill='#7a5534'/><circle cx='16' cy='15' r='1.2' fill='#9b7050'/><circle cx='3' cy='16' r='1' fill='#9b7050'/>"},
+  secondary:{bg:'#2c3e35',tile:12,cell:"<path d='M0 0L12 12M12 0L0 12' stroke='#3d5248' stroke-width='1.1'/>"},
+  jacquard:{bg:'#1a3a5c',tile:10,cell:"<path d='M-2 8L8 -2M3 13L13 3' stroke='#243f6b' stroke-width='2'/>"},
+  eva:{bg:'#f5f0e8',tile:20,cell:"<path d='M10 2 L17 6 L17 14 L10 18 L3 14 L3 6 Z' fill='none' stroke='#d4c9b8' stroke-width='1'/>"},
+  microfiber:{bg:'#6b4c3b',tile:6,cell:"<circle cx='3' cy='3' r='0.9' fill='#7d5a48'/><circle cx='0' cy='0' r='0.9' fill='#7d5a48'/><circle cx='6' cy='6' r='0.9' fill='#7d5a48'/>"},
 };
-function TS(key) { return (SUP_STRINGS[key] || {})[LANG_SUP] || key; }
-function toggleLangSup() {
-  LANG_SUP = LANG_SUP === 'en' ? 'zh' : 'en';
-  const btn = document.getElementById('lang-toggle-sup');
-  if (btn) btn.textContent = LANG_SUP === 'en' ? '中文' : 'EN';
-  document.querySelectorAll('[data-i18n-sup]').forEach(el => {
-    const key = el.dataset.i18nSup;
-    if (SUP_STRINGS[key]) el.textContent = TS(key);
-  });
+function texSVG(key,size){
+  if(key==='film'){return `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 300 300'><defs><linearGradient id='fg' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#e8eef5'/><stop offset='0.5' stop-color='#f5f8fa'/><stop offset='1' stop-color='#d8e4ee'/></linearGradient><pattern id='fp' width='30' height='30' patternUnits='userSpaceOnUse'><path d='M0 0H30M0 0V30' stroke='#c8d8e8' stroke-width='0.7' fill='none'/></pattern></defs><rect width='300' height='300' fill='url(#fg)'/><rect width='300' height='300' fill='url(#fp)'/></svg>`;}
+  const t=TEX_MAP[key]||TEX_MAP.textile;
+  return `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 300 300'><defs><pattern id='p' width='${t.tile}' height='${t.tile}' patternUnits='userSpaceOnUse'><rect width='${t.tile}' height='${t.tile}' fill='${t.bg}'/>${t.cell}</pattern></defs><rect width='300' height='300' fill='${t.bg}'/><rect width='300' height='300' fill='url(#p)'/></svg>`;
 }
+function texURI(key,size){return 'data:image/svg+xml,'+encodeURIComponent(texSVG(key,size));}
+function fillTextures(){document.querySelectorAll('img[data-pat]').forEach(img=>{img.src=texURI(img.dataset.pat,parseInt(img.dataset.size)||120);});}
+
+/* ─── nav ─── */
+function showView(id,el){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item,.nav-sub').forEach(b=>b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='requests') renderRequests();
+}
+function switchTab(btn,panel){
+  btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#view-company .tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById(panel).classList.add('active');
+}
+function setLevel(el){el.parentElement.querySelectorAll('.level-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
+function setWho(mode,el){el.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));el.classList.add('on');document.getElementById('who-company').style.display=mode==='company'?'':'none';document.getElementById('who-fuzzy').style.display=mode==='fuzzy'?'':'none';}
+
+/* ─── SmartPN code generator (exclude 0/1/I/O/E) ─── */
+const SPN_CHARS='23456789ABCDFGHJKLMNPQRSTUVWXYZ'; // no 0,1,I,O,E
+let _spnSeed=7;
+function regenSpn(){ let s=''; for(let i=0;i<4;i++){ _spnSeed=(_spnSeed*33+7)%SPN_CHARS.length; s+=SPN_CHARS[_spnSeed]; } document.getElementById('spn-code').value='SPA-MAT-'+s; }
+
+/* ─── options ─── */
+function syncOptionPattern(){ const pat=document.getElementById('raw-cat').value; document.getElementById('option-cards').dataset.pat=pat; document.querySelectorAll('#option-cards img[data-pat]').forEach(i=>{i.dataset.pat=pat;}); fillTextures(); }
+function optionCard(pat,vals){
+  vals=vals||{c:'',w:'',g:'',p:'',l:''};
+  const d=document.createElement('div'); d.className='option-card';
+  d.innerHTML=`<img class="option-swatch" data-pat="${pat}" data-size="80" alt="">
+    <div class="option-fields">
+      <div class="form-group"><label class="form-label">顏色 Color</label><input class="form-input" value="${vals.c}" placeholder="Black"></div>
+      <div class="form-group"><label class="form-label">幅寬 Width</label><input class="form-input" value="${vals.w}" placeholder='58&quot;'></div>
+      <div class="form-group"><label class="form-label">重量 Weight</label><input class="form-input" value="${vals.g}" placeholder="220 g/m²"></div>
+      <div class="form-group"><label class="form-label">單價 Price</label><input class="form-input" value="${vals.p}" placeholder="2.00"></div>
+      <div class="form-group"><label class="form-label">LT (days)</label><input class="form-input" value="${vals.l}" placeholder="30"></div>
+    </div>
+    <button class="option-del" onclick="this.closest('.option-card').remove()">×</button>`;
+  return d;
+}
+function addOption(){ const wrap=document.getElementById('option-cards'); wrap.appendChild(optionCard(wrap.dataset.pat||'textile')); fillTextures(); }
+
+/* ─── raw material list ─── */
+const RAW=[
+  {n:'Recycled Polyester Mesh 220g',c:'SPA-MAT-7K9X · FV · 3 Options · DPP',pat:'textile',perm:'OPEN'},
+  {n:'TPU Laminating Film 0.15mm',c:'SPA-MAT-VRT4 · FI · 1 Option · DPP',pat:'film',perm:'OPEN'},
+  {n:'PU Synthetic Leather 1.2mm',c:'SPA-MAT-9HFK · FV · 2 Options',pat:'synleather',perm:'OPEN'},
+  {n:'Full Grain Cow Leather',c:'SPA-MAT-4XBV · AP · 2 Options · DPP',pat:'leather',perm:'OPEN'},
+  {n:'Jacquard Knit Upper 380g',c:'SPA-MAT-K7HR · AP · 2 Options · DPP',pat:'jacquard',perm:'OPEN'},
+  {n:'Ripstop Nylon 70D 🔒',c:'SPA-MAT-RN7D · FV · 新建中 · PRIVATE',pat:'textile',perm:''},
+];
+function renderRaw(){
+  document.getElementById('raw-list').innerHTML=RAW.map(r=>`<div class="mat-row"><div class="mat-row-img"><img data-pat="${r.pat}" data-size="80" alt=""></div><div style="flex:1"><div class="mat-row-name">${r.n}</div><div class="mat-row-code">${r.c}</div></div>${r.perm?`<span class="perm-open">${r.perm}</span>`:''}<span class="nav-chev">›</span></div>`).join('');
+}
+
+/* ─── permission folders ─── */
+const FOLDERS=[
+  {name:'財務資料夾',icon:'💰',fields:[['Price / kg','SKU',1],['MOQ','SKU',1],['Bank account','Company',0]],grants:[['NexBrand Co.','採購部','Rachel L.']]},
+  {name:'關務資料夾',icon:'📦',fields:[['HS Code','SPU',1],['Country of Origin','SPU',1],['EORI','Company',1],['REACH Status','SPU',0]],grants:[['NexBrand Co.','關務部','James Liu'],['Apex Factory','Compliance','K. Matsuda']]},
+  {name:'DPP 資料夾',icon:'🌱',fields:[['GRS Content','SPU',1],['Bio content','SPU',1],['Compliance docs','SPU',1]],grants:[['GlobalBrand R&D','Material Eng.','T. Kim']]},
+  {name:'材料資料夾',icon:'🧵',fields:[['Tensile Strength','SKU',1],['Density','SKU',1],['Composition','SPU',1]],grants:[['NexBrand Co.','R&D','James Liu']]},
+];
+function renderFolders(){
+  document.getElementById('folders').innerHTML=FOLDERS.map((f,i)=>`<div class="folder ${i===0?'open':''}">
+    <div class="folder-hd" onclick="this.parentElement.classList.toggle('open')"><div class="folder-ico">${f.icon}</div><div class="folder-name">${f.name} <span class="priv-tag">🔒 PRIVATE</span></div><span class="folder-count">${f.fields.filter(x=>x[2]).length} 欄位</span><span class="folder-chev">›</span></div>
+    <div class="folder-body">
+      <div style="font-size:12px;color:#86868B;margin-bottom:8px">勾選屬於此資料夾的欄位：</div>
+      ${f.fields.map(x=>`<div class="field-check" onclick="this.querySelector('.cbox').classList.toggle('on');this.querySelector('.cbox').textContent=this.querySelector('.cbox').classList.contains('on')?'✓':''"><div class="cbox ${x[2]?'on':''}">${x[2]?'✓':''}</div><span class="field-label">${x[0]}</span><span class="field-type">${x[1]}</span></div>`).join('')}
+      <div style="font-size:13px;font-weight:600;margin:16px 0 10px">已授權帳號（公司 · 單位 · 帳號）</div>
+      <table class="gtable"><thead><tr><th>公司</th><th>單位</th><th>帳號</th><th>狀態</th><th></th></tr></thead><tbody>
+      ${f.grants.map(g=>`<tr><td>${g[0]}</td><td style="color:#86868B">${g[1]}</td><td>${g[2]}</td><td><span class="status-ok">Active</span></td><td><button class="btn-link-red">Revoke</button></td></tr>`).join('')}
+      </tbody></table>
+      <button class="btn-dashed" style="margin-top:8px" onclick="alert('授權新帳號（公司 · 單位 · 帳號）')">+ 授權新帳號</button>
+    </div></div>`).join('');
+}
+
+/* ─── requests (received) ─── */
+const THREADS=[
+  {id:'t1',from:'BA',name:'Brand-A · 開發部',subject:'Recycled Polyester Mesh 220g',unread:true,msgs:[
+    {who:'them',t:'Hi — can you confirm GRS lead time for 5,000m black 58"?',time:'09:20'},
+    {who:'me',t:'30 days ex-works HCMC. GRS scope certificate attached.',time:'09:24',att:'GRS-Scope-Cert.pdf'},
+    {who:'them',t:'Great, please also share the DPP folder.',time:'09:31'},
+  ]},
+  {id:'t2',from:'BB',name:'Brand-B · 材料部',subject:'Full Grain Cow Leather — DPP docs',unread:true,msgs:[
+    {who:'them',t:'We accepted your invite. Please send the chrome-free tannage report.',time:'Yesterday'},
+  ]},
+  {id:'t3',from:'FB',name:'Factory Group B · 採購部',subject:'TPU Film sample',unread:false,msgs:[
+    {who:'them',t:'Received the 0.15mm sample, thanks.',time:'Jun 11'},
+    {who:'me',t:'Glad it arrived. Quotation Q-2026-021 is valid until Jul 5.',time:'Jun 11'},
+  ]},
+];
+let activeThread='t1';
+function renderRequests(){
+  document.getElementById('req-list').innerHTML=THREADS.map(t=>{const last=t.msgs[t.msgs.length-1];
+    return `<div class="req-item ${t.id===activeThread?'active':''}" onclick="openThread('${t.id}')"><div class="req-ava">${t.from}</div><div style="flex:1;min-width:0"><div class="req-name">${t.name} ${t.unread?'<span class="req-dot"></span>':''}</div><div class="req-snippet">${t.subject}</div><div class="req-snippet">${last.t}</div></div></div>`;}).join('');
+  const t=THREADS.find(x=>x.id===activeThread)||THREADS[0]; t.unread=false;
+  document.getElementById('req-hd').innerHTML=`<div class="req-ava" style="width:30px;height:30px">${t.from}</div> ${t.name} · <span style="color:#86868B;font-weight:400">${t.subject}</span>`;
+  const box=document.getElementById('req-msgs'); box.innerHTML=t.msgs.map(msgHtml).join(''); box.scrollTop=box.scrollHeight;
+}
+function openThread(id){activeThread=id;renderRequests();}
+function msgHtml(m){return `<div class="msg ${m.who}">${m.t}${m.att?`<span class="msg-attach">📎 ${m.att}</span>`:''}<span class="msg-time">${m.time}</span></div>`;}
+function sendMsg(){const inp=document.getElementById('req-input');const v=inp.value.trim();if(!v)return;const t=THREADS.find(x=>x.id===activeThread);t.msgs.push({who:'me',t:v,time:'Now'});inp.value='';const box=document.getElementById('req-msgs');box.innerHTML=t.msgs.map(msgHtml).join('');box.scrollTop=box.scrollHeight;}
+
+/* ─── i18n ─── */
+let LANG='en';
+const STR={
+  s_company:{en:'Company',zh:'公司管理'},s_smartpn:{en:'SmartPN',zh:'SmartPN'},s_inbox:{en:'Inbox',zh:'收件匣'},
+  m_company:{en:'Company Setup',zh:'公司建立'},m_smartpn:{en:'Create SmartPN',zh:'SmartPN 建立'},
+  m_raw:{en:'Raw Material',zh:'原物料'},m_secondary:{en:'Secondary',zh:'二次加工'},m_permission:{en:'Permissions',zh:'權限管理'},
+  m_pricing:{en:'Pricing',zh:'單價管理'},m_who:{en:'Who viewed my materials',zh:'誰看過我的材料'},m_bi:{en:'Business Dashboard',zh:'經營儀表板'},m_requests:{en:'Requests',zh:'對話'},
+  t_basic:{en:'Basic',zh:'基本資料'},t_cert:{en:'Certifications',zh:'認證'},t_fin:{en:'Financial',zh:'財務資料夾'},t_customs:{en:'Customs',zh:'關務資料夾'},t_sub:{en:'Subsidiaries',zh:'子公司'},
+  save:{en:'Save',zh:'儲存'},cancel:{en:'Cancel',zh:'取消'},
+};
+function T(k){return (STR[k]||{})[LANG]||k;}
+function toggleLang(){LANG=LANG==='en'?'zh':'en';document.getElementById('lang-toggle').textContent=LANG==='en'?'中文':'EN';document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.dataset.i18n;if(STR[k])el.textContent=T(k);});}
+
+/* ─── init ─── */
+addOption(); addOption();
+document.getElementById('option-cards').children[0] && (function(){
+  const w=document.getElementById('option-cards');
+  // seed first two options with sample values
+  const f=w.children[0].querySelectorAll('input'); if(f.length){f[0].value='Black';f[1].value='58"';f[2].value='70 g/m²';f[3].value='2.75';f[4].value='30';}
+  const g=w.children[1]&&w.children[1].querySelectorAll('input'); if(g&&g.length){g[0].value='Navy';g[1].value='44"';g[2].value='70 g/m²';g[3].value='2.70';g[4].value='28';}
+})();
+renderRaw();
+renderFolders();
+fillTextures();
 </script>
 </body>
 </html>
