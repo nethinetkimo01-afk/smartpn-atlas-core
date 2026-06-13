@@ -43,6 +43,7 @@ This is the ONLY source of truth. All sessions read from here. All sessions writ
 33_DEMO_SPEC_v1_2_ADDENDUM.md — v1.2 addendum: Boss BI 8 KPIs, "who viewed" privacy, role test items, CONFIRMED 2026-06-12
 34_MASTER_WORK_ORDER.md — 總工單 2026-06-12 v1.0: Jim 授權 Claude 全權安排，Code 執行順序與任務清單
 36_UX_TEST_AND_BOSS_DEMO_SCRIPT.md — 三角色測試腳本 + Boss 演示腳本 v1.0 (2026-06-13): Jim 走一遍 Demo 即可驗收
+37_DEMO_MOCK_DATA.md — Demo 唯一數據世界 v1.0 (2026-06-13): 12材料/4供應商/Boss BI 數字，Brand端+Supplier端共用同一套
 ### Layer 4 — Demo Screens (Read When Working on Demo)
 docs/preview/S01_DEMO.html through S17_DEMO.html — interactive demo screens for all 17 scenarios
 ### Layer 5 — New Projects (Add as Needed)
