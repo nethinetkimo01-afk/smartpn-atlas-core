@@ -2,149 +2,208 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>IE 細表</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background:#f0f2f5;color:#1a1a2e;min-height:100vh}
-
-/* ── Top bar ─────────────────────────────────────── */
-.topbar{background:#1a2744;color:#fff;padding:9px 18px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3);flex-wrap:wrap}
-.topbar-model{font-size:14px;font-weight:700;white-space:nowrap;flex-shrink:0}
-.topbar-meta{font-size:11px;color:#7a9bcc;white-space:nowrap;flex-shrink:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#f0f2f5;color:#1a1a2e;min-height:100vh}
+.topbar{background:#1a2744;color:#fff;padding:9px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3);flex-wrap:wrap}
+.topbar-model{font-size:14px;font-weight:700;white-space:nowrap}
+.topbar-meta{font-size:11px;color:#7a9bcc;white-space:nowrap}
 .topbar-spacer{flex:1}
-.eolr-toggle{display:flex;gap:2px;background:#0f1e38;border-radius:6px;padding:3px}
-.eolr-btn{background:transparent;color:#7a9bcc;border:none;border-radius:4px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s}
-.eolr-btn.active{background:#4a6cf7;color:#fff}
-.seg-select{background:#243356;color:#b0c4de;border:1px solid #3a4f72;border-radius:5px;padding:4px 8px;font-size:11px;cursor:pointer}
-.btn-sm{background:#1d9e6b;color:#fff;border:none;border-radius:5px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.toggle-group{display:flex;gap:2px;background:#0f1e38;border-radius:6px;padding:3px}
+.tg-btn{background:transparent;color:#7a9bcc;border:none;border-radius:4px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s}
+.tg-btn.active{background:#4a6cf7;color:#fff}
+.tg-btn.lang-active{background:#1d9e6b;color:#fff}
+.btn-sm{background:#1d9e6b;color:#fff;border:none;border-radius:5px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer}
 .btn-sm:hover{background:#178059}
 .btn-outline{background:transparent;color:#7a9bcc;border:1px solid #3a4f72;border-radius:5px;padding:5px 12px;font-size:12px;cursor:pointer}
 .btn-outline:hover{background:#243356;color:#fff}
-.stage-badge{background:#243356;color:#b0c4de;border-radius:4px;padding:3px 8px;font-size:11px;flex-shrink:0}
-
-/* ── Segment tabs ────────────────────────────────── */
+.stage-badge{background:#243356;color:#b0c4de;border-radius:4px;padding:3px 8px;font-size:11px}
+.back-link{color:#7a9bcc;text-decoration:none;font-size:11px;display:flex;align-items:center;gap:4px}
+.back-link:hover{color:#fff}
 .tab-bar{background:#fff;border-bottom:2px solid #e4e9f2;padding:0 18px;display:flex;overflow-x:auto;position:sticky;top:46px;z-index:90;box-shadow:0 1px 4px rgba(0,0,0,.05)}
 .tab-btn{padding:9px 16px;border:none;background:transparent;font-size:12px;font-weight:600;color:#777;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:color .12s,border-color .12s}
 .tab-btn:hover{color:#4a6cf7}.tab-btn.active{color:#4a6cf7;border-bottom-color:#4a6cf7}
-
-/* ── Content ─────────────────────────────────────── */
 .content{padding:16px 18px;display:flex;flex-direction:column;gap:14px}
-
-/* ── Zone card ───────────────────────────────────── */
 .zone-card{background:#fff;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.08);overflow:hidden}
 .zone-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#f5f7fc;border-bottom:1px solid #e4e9f2}
-.zone-name{font-size:12px;font-weight:700;color:#1a2744;display:flex;align-items:center;gap:8px}
-.zone-count{font-size:10px;color:#888;font-weight:400}
-.zone-locked{font-size:10px;background:#fff3e0;color:#e65100;border-radius:3px;padding:1px 6px;font-weight:600}
-.zone-pending{font-size:10px;background:#fce4ec;color:#c62828;border-radius:3px;padding:1px 6px;font-weight:600}
+.zone-header.ws{background:#e3f2fd;border-bottom-color:#90caf9}
+.zone-header.offline{background:#f3e5f5;border-bottom-color:#ce93d8}
+.zone-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.zone-name{font-size:12px;font-weight:700;color:#1a2744}
+.zone-header.ws .zone-name{color:#0d47a1}
+.zone-header.offline .zone-name{color:#6a1b9a}
+.zone-count{font-size:10px;color:#888}
+.badge{font-size:10px;border-radius:3px;padding:1px 6px;font-weight:600}
+.badge-lock{background:#fff3e0;color:#e65100}
+.badge-ws{background:#bbdefb;color:#0d47a1}
+.badge-off{background:#e8eaf6;color:#3949ab}
+.badge-pend{background:#fce4ec;color:#c62828}
+.zone-actions{display:flex;align-items:center;gap:6px}
+.btn-add{background:#1d9e6b;color:#fff;border:none;border-radius:4px;padding:3px 9px;font-size:11px;font-weight:700;cursor:pointer}
+.btn-add:hover{background:#178059}
+.btn-group{background:#4a6cf7;color:#fff;border:none;border-radius:4px;padding:3px 9px;font-size:11px;font-weight:600;cursor:pointer}
+.btn-group:hover{background:#3a5ce7}
 .zone-body{overflow-x:auto}
-
-/* ── Process table ───────────────────────────────── */
 .proc-table{border-collapse:collapse;width:100%;font-size:11px}
 .proc-table th{background:#1a2744;color:#c8d8f0;padding:5px 8px;text-align:center;font-size:10px;font-weight:600;white-space:nowrap;border:1px solid #253355}
 .proc-table th.left{text-align:left}
+.proc-table th.th-theory{background:#455a64;color:#cfd8dc}
+.proc-table th.th-actual{background:#1b6b47;color:#e8f5e9}
 .proc-table td{padding:4px 8px;border:1px solid #e8ecf4;vertical-align:middle;white-space:nowrap}
 .proc-table tr:hover td{background:#f5f8ff}
-.proc-table td.seq{text-align:center;color:#888;font-weight:600;min-width:32px}
-.proc-table td.name{text-align:left;min-width:180px;max-width:280px;white-space:normal;line-height:1.4}
-.proc-table td.num{text-align:right;min-width:72px;color:#1a4a7a;font-family:'Consolas','Courier New',monospace}
-.proc-table td.theory{text-align:right;min-width:72px;font-weight:700;color:#0d5e2e;font-family:'Consolas','Courier New',monospace}
-.theory-line{font-size:9px;color:#aaa;margin-bottom:2px;font-family:'Consolas','Courier New',monospace}
-.actual-display{font-family:'Consolas','Courier New',monospace;font-size:11px;color:#1a4a7a;font-weight:600}
-.proc-table td.flag-cell{text-align:center;color:#c62828;font-weight:600;font-size:10px}
-.proc-table td.formula-cell{background:#f5f5f5;color:#555}
-.proc-table td.locked-cell{background:#fff8e1;color:#795548;font-weight:600}
-.proc-table td.editable{background:#fff;cursor:text}
-.proc-table td.editable input{width:100%;border:1px solid #4a6cf7;border-radius:3px;padding:1px 4px;font-size:11px;font-family:'Consolas','Courier New',monospace;text-align:right;outline:none;background:#edf2ff}
-.proc-table tr.summary-row td{background:#e8f5e9;font-weight:700;color:#1a6e3c}
-
-/* ── Hand total bar ──────────────────────────────── */
-.hand-total{padding:10px 14px;background:#e8f5e9;border-top:2px solid #a5d6a7;display:flex;align-items:center;gap:10px}
+.proc-table tr:hover td.formula-cell{background:#eeeeee}
+.proc-table tr:hover td.locked-cell{background:#fff8e1}
+.proc-table td.seq{text-align:center;color:#888;font-weight:600;min-width:30px}
+.proc-table td.name{text-align:left;min-width:150px;max-width:260px;white-space:normal;line-height:1.4}
+.proc-table td.num{text-align:right;min-width:70px;color:#1a4a7a;font-family:Consolas,monospace}
+.formula-cell{background:#f5f5f5;color:#555;text-align:right;min-width:72px;font-family:Consolas,monospace}
+.actual-cell{background:#fff;color:#0d5e2e;text-align:right;min-width:72px;font-family:Consolas,monospace;font-weight:700}
+.actual-cell.clickable{cursor:text}
+.actual-cell.clickable:hover{background:#f0fff4;outline:1px dashed #1d9e6b}
+.actual-cell input{width:100%;border:1px solid #1d9e6b;border-radius:3px;padding:1px 4px;font-size:11px;font-family:Consolas,monospace;text-align:right;outline:none;background:#f0fff4}
+.locked-cell{background:#fff8e1;color:#795548;font-weight:600}
+.del-cell{width:22px;text-align:center;padding:2px 4px;border:1px solid #e8ecf4}
+.btn-del{background:transparent;border:none;color:#ccc;font-size:14px;cursor:pointer;padding:0 2px;border-radius:3px;line-height:1}
+.btn-del:hover{color:#c62828;background:#fce4ec}
+.group-cell{background:#e8f5e9;color:#1a6e3c;font-weight:700;text-align:right;font-family:Consolas,monospace}
+.group-badge{font-size:9px;background:#c8e6c9;color:#1b5e20;border-radius:3px;padding:0 4px;margin-left:4px;font-weight:600}
+.hand-total{padding:10px 14px;background:#e8f5e9;border-top:2px solid #a5d6a7;display:flex;align-items:center;gap:12px}
 .hand-total-label{font-size:12px;font-weight:700;color:#1a6e3c}
-.hand-total-val{font-size:18px;font-weight:700;color:#0d5e2e;font-family:'Consolas','Courier New',monospace}
-
-/* ── Save area ───────────────────────────────────── */
+.hand-total-val{font-size:18px;font-weight:700;color:#0d5e2e;font-family:Consolas,monospace}
 .save-bar{position:sticky;bottom:0;background:#fff;border-top:1px solid #e4e9f2;padding:10px 18px;display:flex;gap:10px;align-items:center;z-index:80;box-shadow:0 -2px 8px rgba(0,0,0,.06)}
 .save-bar-msg{flex:1;font-size:12px;color:#888}
-.pending-dot{display:inline-block;width:8px;height:8px;background:#f9a825;border-radius:50%;margin-right:4px}
+.pdot{display:inline-block;width:8px;height:8px;background:#f9a825;border-radius:50%;margin-right:4px}
 .btn-save-all{background:#4a6cf7;color:#fff;border:none;border-radius:6px;padding:7px 18px;font-size:12px;font-weight:700;cursor:pointer}
 .btn-save-all:hover{background:#3a5ce7}
 .btn-save-all:disabled{background:#c0c8d8;cursor:not-allowed}
-
-/* states */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:center;justify-content:center}
+.modal-box{background:#fff;border-radius:10px;padding:24px;min-width:380px;max-width:520px;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.modal-title{font-size:14px;font-weight:700;color:#1a2744;margin-bottom:16px}
+.modal-label{font-size:11px;color:#555;font-weight:600;margin-bottom:4px;display:block}
+.modal-input{width:100%;border:1px solid #ddd;border-radius:5px;padding:6px 10px;font-size:12px;margin-bottom:12px}
+.proc-check-list{border:1px solid #e4e9f2;border-radius:6px;padding:8px;max-height:220px;overflow-y:auto;margin-bottom:12px}
+.proc-check-item{display:flex;align-items:flex-start;gap:8px;padding:4px 0;border-bottom:1px solid #f0f2f5;font-size:11px}
+.proc-check-item:last-child{border-bottom:none}
+.proc-check-item input{margin-top:2px;flex-shrink:0}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.btn-mcancel{background:transparent;border:1px solid #ccc;border-radius:5px;padding:6px 14px;font-size:12px;cursor:pointer}
+.btn-mok{background:#4a6cf7;color:#fff;border:none;border-radius:5px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer}
 .loading-msg{padding:40px;text-align:center;color:#888;font-size:13px}
 .error-msg{padding:20px;color:#cc2222;font-size:12px}
-
-/* ── Back link ───────────────────────────────────── */
-.back-link{color:#7a9bcc;text-decoration:none;font-size:11px;display:flex;align-items:center;gap:4px;flex-shrink:0}
-.back-link:hover{color:#fff}
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
-<div class="topbar" id="topbar">
+<div class="topbar">
   <a class="back-link" id="backLink" href="/ie">← 返回列表</a>
   <div class="topbar-model" id="modelName">載入中…</div>
   <div class="topbar-meta" id="modelMeta"></div>
   <div class="topbar-spacer"></div>
   <div class="stage-badge" id="stageBadge">— 版本 —</div>
-  <div class="eolr-toggle">
-    <button class="eolr-btn" id="eolr60"  onclick="setEolr(60)">EOLR 60</button>
-    <button class="eolr-btn active" id="eolr120" onclick="setEolr(120)">EOLR 120</button>
+  <div class="toggle-group">
+    <button class="tg-btn" id="langZH" onclick="setLang('zh')">中</button>
+    <button class="tg-btn" id="langVI"  onclick="setLang('vi')">越</button>
+  </div>
+  <div class="toggle-group">
+    <button class="tg-btn" id="eolr60"  onclick="setEolr(60)">EOLR 60</button>
+    <button class="tg-btn active" id="eolr120" onclick="setEolr(120)">EOLR 120</button>
   </div>
   <button class="btn-sm" onclick="showSaveModal()">儲存修改</button>
   <button class="btn-outline" onclick="newStage()">新建版本</button>
 </div>
 
-<!-- SEGMENT TABS -->
-<div class="tab-bar" id="tabBar">
+<div class="tab-bar">
   <button class="tab-btn active" data-seg="cutting"  onclick="switchSeg('cutting')">裁斷 Cutting</button>
   <button class="tab-btn" data-seg="stitching" onclick="switchSeg('stitching')">針車 Stitching</button>
   <button class="tab-btn" data-seg="assembly"  onclick="switchSeg('assembly')">成型 Assembly</button>
   <button class="tab-btn" data-seg="stf"       onclick="switchSeg('stf')">STF</button>
 </div>
 
-<!-- MAIN CONTENT -->
 <div class="content" id="mainContent">
-  <div class="loading-msg" id="loadingMsg">載入中…</div>
+  <div class="loading-msg">載入中…</div>
 </div>
 
-<!-- SAVE BAR -->
 <div class="save-bar" id="saveBar" style="display:none">
-  <div class="save-bar-msg" id="saveBarMsg"><span class="pending-dot"></span>有 <span id="pendingCount">0</span> 項修改待確認</div>
+  <div class="save-bar-msg"><span class="pdot"></span>有 <span id="pendingCount">0</span> 項修改待確認</div>
   <button class="btn-save-all" id="btnSaveAll" onclick="submitAllEdits()">提交審核</button>
 </div>
 
-<script>
-const PATH   = window.location.pathname;           // /ie/32/detail
-const HID    = parseInt(PATH.split('/')[2]) || 0;
-let EOLR     = 120;
-let SEG      = 'cutting';
-let STAGE    = null;
-let DATA     = null;                               // current API response
-let EDITS    = {};                                 // {process_id: {field: value}}
+<div class="modal-overlay" id="groupModal">
+  <div class="modal-box">
+    <div class="modal-title" id="groupModalTitle">設定人力分組</div>
+    <label class="modal-label">選擇工序（同一組共用人力）</label>
+    <div class="proc-check-list" id="groupProcList"></div>
+    <label class="modal-label">實際人數（此組合計）</label>
+    <input class="modal-input" type="number" step="0.5" min="0.5" id="groupHeadcount" placeholder="例如: 2">
+    <label class="modal-label">備注（選填）</label>
+    <input class="modal-input" type="text" id="groupNote" placeholder="例如: 甲班配置">
+    <div class="modal-footer">
+      <button class="btn-mcancel" onclick="closeGroupModal()">取消</button>
+      <button class="btn-mok" onclick="submitGroup()">儲存分組</button>
+    </div>
+  </div>
+</div>
 
-// ── Bootstrap ────────────────────────────────────────────────────────────────
+<script>
+const PATH = window.location.pathname;
+const HID  = parseInt(PATH.split('/')[2]) || 0;
+let EOLR   = 120;
+let SEG    = 'cutting';
+let STAGE  = null;
+let DATA   = null;
+let EDITS  = {};
+let LANG   = localStorage.getItem('ie_lang') || 'zh';
+let ZONE_ROWS = {};
+let GROUP_ZONE = null;
+
+const MACHINE_ZONES = new Set(['裁斷機','ATOM','Laser','EMMA','YINGHUI','移印','轉印']);
+const WS = '水蜘蛛';
+const OFFLINE_MAP = {
+  cutting:   ['水蜘蛛'],
+  stitching: ['電腦針車','水蜘蛛'],
+  assembly:  ['水蜘蛛','成型UV'],
+  stf:       ['水蜘蛛'],
+};
+const COL_LABELS = {
+  seq:'#', process_name:'工序名稱', part_name:'部件/素材',
+  cut_per_hour:'刀數/H', qty_per_pair:'件數/雙(F)', layers_per_cut:'層數(E)',
+  normal_time:'正常時間', allowance_pct:'寬放%', standard_time:'標準時間',
+  theory_operators:'理論人數', actual_operators:'實際人數',
+};
+const EDITABLE_COLS = new Set(['standard_time','cut_per_hour','normal_time','qty_per_pair','layers_per_cut']);
+
+function getZoneCols(seg, zone) {
+  if (zone === '_summary') return null;
+  if (seg === 'cutting') {
+    if (zone === '裁斷機') {
+      return ['seq','process_name','part_name','cut_per_hour','qty_per_pair','layers_per_cut','standard_time','theory_operators','actual_operators'];
+    }
+    return ['seq','process_name','standard_time','theory_operators','actual_operators'];
+  }
+  const withTiming = (seg === 'stitching' || seg === 'assembly') && zone !== WS;
+  if (withTiming) {
+    return ['seq','process_name','normal_time','allowance_pct','standard_time','theory_operators','actual_operators'];
+  }
+  return ['seq','process_name','standard_time','theory_operators','actual_operators'];
+}
+
+// ── Bootstrap ─────────────────────────────────────────────────────────────────
 document.getElementById('backLink').href = '/ie/' + HID;
+applyLangUI(LANG);
 
 async function init() {
-  // Load stage info first
-  const sr = await fetch('/api/ie/stages/' + HID);
-  const sj = await sr.json();
-  if (sj.ok && sj.stages.length) {
-    STAGE = sj.stages[sj.stages.length - 1];
+  const [sr, lr] = await Promise.all([
+    fetch('/api/ie/stages/' + HID).then(r => r.json()).catch(() => ({})),
+    fetch('/api/ie/list').then(r => r.json()).catch(() => ({})),
+  ]);
+  if (sr.ok && sr.stages && sr.stages.length) {
+    STAGE = sr.stages[sr.stages.length - 1];
     document.getElementById('stageBadge').textContent = STAGE.stage_name;
   }
-
-  // Load header meta
-  const mr = await fetch('/api/ie/cell/' + HID + '?segment=cutting&eolr=120');
-  // Parallel: fetch model name from list API
-  const lr = await fetch('/api/ie/list');
-  const lj = await lr.json();
-  if (lj.ok) {
-    const rec = (lj.records || []).find(r => r.id === HID);
+  if (lr.ok) {
+    const rec = (lr.records || []).find(r => r.id === HID);
     if (rec) {
       document.getElementById('modelName').textContent = rec.model_name;
       document.getElementById('modelMeta').textContent =
@@ -152,7 +211,6 @@ async function init() {
       document.title = rec.model_name + ' — IE 細表';
     }
   }
-
   loadSegment('cutting');
 }
 
@@ -160,163 +218,177 @@ async function init() {
 async function loadSegment(seg) {
   EDITS = {};
   updateSaveBar();
-  document.getElementById('loadingMsg') && (document.getElementById('mainContent').innerHTML =
-    '<div class="loading-msg" id="loadingMsg">載入中…</div>');
-
-  const url = '/api/ie/cell/' + HID + '?segment=' + seg + '&eolr=' + EOLR;
-  const resp = await fetch(url);
-  DATA = await resp.json();
-
-  if (!DATA.ok) {
-    document.getElementById('mainContent').innerHTML =
-      '<div class="error-msg">載入失敗: ' + (DATA.error || '') + '</div>';
+  document.getElementById('mainContent').innerHTML = '<div class="loading-msg">載入中…</div>';
+  try {
+    const resp = await fetch('/api/ie/cell/' + HID + '?segment=' + seg + '&eolr=' + EOLR);
+    DATA = await resp.json();
+  } catch(e) {
+    document.getElementById('mainContent').innerHTML = '<div class="error-msg">網路錯誤</div>';
     return;
   }
-
+  if (!DATA.ok) {
+    document.getElementById('mainContent').innerHTML =
+      '<div class="error-msg">載入失敗: ' + esc(DATA.error || '') + '</div>';
+    return;
+  }
   renderZones(DATA);
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
-const SEG_COLS = {
-  cutting:   ['seq','process_name','part_name','cut_per_hour','qty_per_pair','standard_time','actual_operators','machine'],
-  stitching: ['seq','process_name','normal_time','allowance_pct','standard_time','actual_operators','machine'],
-  assembly:  ['seq','process_name','normal_time','allowance_pct','standard_time','actual_operators','machine'],
-  stf:       ['seq','process_name','standard_time','actual_operators','flag'],
-};
-const COL_LABELS = {
-  seq:'#', process_name:'工序名稱', part_name:'部件/素材',
-  cut_per_hour:'刀數/H', qty_per_pair:'量/雙',
-  normal_time:'正常時間', allowance_pct:'寬放%', standard_time:'標準時間',
-  actual_operators:'人數(理/實)',
-  machine:'機器', flag:'備注',
-};
-const EDITABLE_FIELDS = new Set(['standard_time','actual_operators','cut_per_hour','normal_time']);
-const FORMULA_READONLY = new Set(['theory_operators','allowance_pct']);
-
 function renderZones(data) {
-  const cols = SEG_COLS[data.segment] || SEG_COLS.stitching;
-  let html = '';
-
+  ZONE_ROWS = {};
   for (const z of data.zones) {
-    const isSpecial = z.zone === '_summary';
-    const hasFlag      = z.rows.some(r => r.flag && r.flag !== '待手工');
-    const hasPending   = z.rows.some(r => r.flag === '待手工');
-    const isLocked  = z.rows.every(r => r.is_locked);
-
-    html += `<div class="zone-card">
-  <div class="zone-header">
-    <div class="zone-name">
-      ${zoneLabel(z.zone)}
-      <span class="zone-count">${z.rows.length} 道工序</span>
-      ${isLocked ? '<span class="zone-locked">鎖定</span>' : ''}
-      ${hasFlag    ? '<span class="zone-pending">待補</span>'  : ''}
-      ${hasPending ? '<span class="zone-pending" style="background:#fff3e0;color:#e65100">待手工</span>' : ''}
-    </div>
-  </div>`;
-
-    if (isSpecial) {
-      // 手工總人數 summary
-      html += `<div class="hand-total">
-    <div class="hand-total-label">手工總人數（非裁斷機）</div>
-    <div class="hand-total-val" id="handTotalVal">${fmt(data.hand_total)}</div>
-  </div>`;
-    } else {
-      html += '<div class="zone-body"><table class="proc-table"><thead><tr>';
-      for (const col of cols) {
-        html += `<th class="${col==='process_name'||col==='part_name'?'left':''}">${COL_LABELS[col]||col}</th>`;
-      }
-      html += `<th></th></tr></thead><tbody>`;
-
-      for (const row of z.rows) {
-        html += '<tr>';
-        for (const col of cols) {
-          html += renderCell(row, col, data.segment, data.eolr);
-        }
-        // action cell
-        if (!row.is_locked) {
-          html += `<td style="width:24px"></td>`;
-        } else {
-          html += `<td></td>`;
-        }
-        html += '</tr>';
-      }
-      html += '</tbody></table></div>';
-    }
-    html += '</div>';
+    ZONE_ROWS[z.zone] = z.rows.map(r => ({
+      id: r.id,
+      name: (LANG === 'vi' && r.process_name_vi) ? r.process_name_vi : (r.process_name || ''),
+    }));
   }
-
+  let html = '';
+  for (const z of data.zones) html += renderZoneCard(z, data.segment, data.eolr);
   document.getElementById('mainContent').innerHTML = html;
 }
 
-function renderCell(row, col, seg, eolr) {
-  const val = row[col];
-  const pid = row.id;
+function renderZoneCard(z, seg, eolr) {
+  const zone = z.zone;
+  const cols = getZoneCols(seg, zone);
+  const isSummary = zone === '_summary';
+  const isWS      = zone === WS;
+  const offlines  = OFFLINE_MAP[seg] || [];
+  const isOffline = offlines.includes(zone) && !isWS;
+  const isLocked  = z.rows.length > 0 && z.rows.every(r => r.is_locked);
+  const hasPending = z.rows.some(r => r.flag === '待手工');
 
-  if (col === 'seq')          return `<td class="seq">${val ?? ''}</td>`;
-  if (col === 'process_name') return `<td class="name">${esc(val ?? '')}</td>`;
-  if (col === 'part_name')    return `<td class="name" style="color:#888;font-size:10px">${esc(val ?? '')}</td>`;
-  if (col === 'flag') {
-    if (val === '待手工') return `<td class="flag-cell" style="color:#e65100;background:#fff3e0">⚠ 待手工</td>`;
-    return `<td class="flag-cell">${esc(val ?? '')}</td>`;
+  const hdrCls = isWS ? 'zone-header ws' : isOffline ? 'zone-header offline' : 'zone-header';
+  const zLabel = esc(zoneLabel(zone));
+  const zoneJ  = esc(JSON.stringify(zone));
+
+  let h = `<div class="zone-card"><div class="${hdrCls}">
+    <div class="zone-left">
+      <span class="zone-name">${zLabel}</span>
+      <span class="zone-count">${z.rows.length} 道</span>
+      ${isLocked   ? '<span class="badge badge-lock">鎖定</span>' : ''}
+      ${isWS       ? '<span class="badge badge-ws">Water Spider</span>' : ''}
+      ${isOffline  ? '<span class="badge badge-off">離線統計</span>' : ''}
+      ${hasPending ? '<span class="badge badge-pend">待手工</span>' : ''}
+    </div>
+    <div class="zone-actions">`;
+
+  if (!isSummary) {
+    h += `<button class="btn-group" onclick="openGroupModal(${zoneJ})">分組</button>`;
+    h += `<button class="btn-add"   onclick="addRow(${zoneJ})">＋</button>`;
   }
-  if (col === 'machine')      return `<td class="num" style="color:#555;font-family:sans-serif">${esc(val ?? '')}</td>`;
+  h += `</div></div>`;
 
-  if (col === 'actual_operators') {
-    const theory = row.theory_operators;
-    const stdtime = row.standard_time ?? '';
-    const theoryStr = (theory !== null && theory !== undefined) ? fmt(theory) : '—';
-    const theoryLine = `<div class="theory-line" data-stdtime="${stdtime}" data-eolr="${eolr}">理 ${theoryStr}</div>`;
+  if (isSummary) {
+    const total = calcHandTotal(z);
+    h += `<div class="hand-total">
+      <div class="hand-total-label">∑ 手工理論人數（非裁斷機）</div>
+      <div class="hand-total-val" id="handTotalVal">${fmtNum(total)}</div>
+    </div>`;
+  } else {
+    h += '<div class="zone-body"><table class="proc-table"><thead><tr>';
+    for (const col of cols) {
+      const lbl = COL_LABELS[col] || col;
+      const isLeft = col === 'process_name' || col === 'part_name';
+      const cls = col === 'theory_operators' ? 'th-theory' : col === 'actual_operators' ? 'th-actual' : isLeft ? 'left' : '';
+      h += `<th${cls ? ` class="${cls}"` : ''}>${lbl}</th>`;
+    }
+    h += '<th style="width:22px"></th></tr></thead><tbody>';
 
-    if (row.is_locked) {
-      const display = val !== null && val !== undefined ? fmt(val) : '—';
-      return `<td class="num locked-cell" style="min-width:90px;padding:3px 8px">${theoryLine}<div class="actual-display">${display}</div></td>`;
+    for (const row of z.rows) {
+      h += '<tr>';
+      for (const col of cols) h += renderCell(row, col, zone, eolr);
+      h += row.is_locked
+        ? '<td class="del-cell"></td>'
+        : `<td class="del-cell"><button class="btn-del" onclick="deleteRow(${row.id})" title="刪除">×</button></td>`;
+      h += '</tr>';
     }
-    if (row.flag === '待手工') {
-      return `<td class="flag-cell" style="color:#e65100;background:#fff3e0;min-width:90px;padding:3px 8px">${theoryLine}<div>⚠ 待手工</div></td>`;
-    }
-    const display = val !== null && val !== undefined ? fmt(val) : '';
-    return `<td class="num editable" style="min-width:90px;padding:3px 8px" onclick="startEdit(this,${pid},'actual_operators')" title="點擊填寫實際人數">${theoryLine}<div class="actual-display">${display || '—'}</div></td>`;
+    h += '</tbody></table></div>';
   }
+  h += '</div>';
+  return h;
+}
+
+function renderCell(row, col, zone, eolr) {
+  const val    = row[col];
+  const pid    = row.id;
+  const locked = row.is_locked;
+
+  if (col === 'seq') return `<td class="seq">${val ?? ''}</td>`;
+
+  if (col === 'process_name') {
+    const isVi = LANG === 'vi' && row.process_name_vi;
+    const main = esc(isVi ? row.process_name_vi : (row.process_name || ''));
+    const sub  = isVi ? `<div style="font-size:9px;color:#aaa;margin-top:1px">${esc(row.process_name || '')}</div>` : '';
+    return `<td class="name">${main}${sub}</td>`;
+  }
+
+  if (col === 'part_name') return `<td class="name" style="color:#888;font-size:10px">${esc(val ?? '')}</td>`;
 
   if (col === 'theory_operators') {
-    const cls = row.is_locked ? 'locked-cell theory' : 'formula-cell theory';
-    const display = val !== null && val !== undefined ? fmt(val) : '—';
-    return `<td class="${cls}" data-pid="${pid}" data-eolr="${eolr}" data-stdtime="${row.standard_time ?? ''}">${display}</td>`;
+    const st = parseFloat(row.standard_time);
+    const th = (!isNaN(st) && st > 0) ? fmtNum(st / (3600 / eolr)) : '—';
+    return `<td class="formula-cell theory-cell" data-pid="${pid}" data-stdtime="${row.standard_time ?? ''}" data-zone="${esc(zone)}">${th}</td>`;
   }
 
-  if (FORMULA_READONLY.has(col)) {
-    const display = val !== null && val !== undefined ? fmt(val) : '—';
-    return `<td class="num formula-cell">${display}</td>`;
+  if (col === 'actual_operators') {
+    if (row.group_info) {
+      const gi = row.group_info;
+      return `<td class="actual-cell group-cell">${fmtNum(gi.headcount)}<span class="group-badge">組</span></td>`;
+    }
+    if (locked) return `<td class="actual-cell locked-cell">${val != null ? fmtNum(val) : '—'}</td>`;
+    if (row.flag === '待手工') return `<td class="actual-cell" style="background:#fff3e0;color:#e65100;text-align:center">⚠ 待手工</td>`;
+    return `<td class="actual-cell clickable" onclick="startEdit(this,${pid},'actual_operators')" title="點擊填寫實際人數">${val != null ? fmtNum(val) : '—'}</td>`;
   }
 
-  if (row.is_locked) {
-    const display = val !== null && val !== undefined ? fmt(val) : '—';
-    return `<td class="num locked-cell">${display}</td>`;
+  if (col === 'allowance_pct') return `<td class="formula-cell">${val != null ? fmtNum(val) : '—'}</td>`;
+
+  if (EDITABLE_COLS.has(col)) {
+    if (locked) return `<td class="num locked-cell">${val != null ? fmtNum(val) : '—'}</td>`;
+    return `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'${col}')" title="點擊編輯">${val != null ? fmtNum(val) : '—'}</td>`;
   }
 
-  if (EDITABLE_FIELDS.has(col)) {
-    const display = val !== null && val !== undefined ? fmt(val) : '';
-    return `<td class="num editable" onclick="startEdit(this, ${pid}, '${col}')" title="點擊編輯">${display}</td>`;
-  }
-
-  const display = val !== null && val !== undefined ? fmt(val) : '—';
-  return `<td class="num">${display}</td>`;
+  return `<td class="num">${val != null ? fmtNum(val) : '—'}</td>`;
 }
 
 function zoneLabel(z) {
-  const map = {'_summary':'∑ 手工小計', '待分區':'[待分區]'};
-  return esc(map[z] || z);
+  const m = {'_summary':'∑ 手工小計','待分區':'[待分區]','水蜘蛛':'水蜘蛛 (WS)'};
+  return m[z] || z;
 }
 
-function fmt(v) {
-  if (v === null || v === undefined) return '—';
-  if (typeof v === 'number') {
-    return Number.isInteger(v) ? String(v) : v.toFixed(4).replace(/\.?0+$/, '');
+function calcHandTotal(summaryZone) {
+  // summaryZone.rows contains the pre-calculated rows OR we compute from DATA
+  if (!DATA) return 0;
+  const divisor = 3600 / EOLR;
+  let total = 0;
+  for (const z of DATA.zones) {
+    if (z.zone === '_summary' || z.zone === '待分區' || MACHINE_ZONES.has(z.zone) || z.zone === WS) continue;
+    for (const row of z.rows) {
+      const st = parseFloat(row.standard_time);
+      if (!isNaN(st) && st > 0) total += st / divisor;
+    }
   }
-  return String(v);
+  return total;
 }
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+function updateTheoryAndTotal() {
+  const divisor = 3600 / EOLR;
+  let total = 0;
+  document.querySelectorAll('.theory-cell[data-stdtime]').forEach(el => {
+    const st = parseFloat(el.dataset.stdtime);
+    if (!isNaN(st) && st > 0) {
+      const th = st / divisor;
+      el.textContent = fmtNum(th);
+      const zone = el.dataset.zone;
+      if (zone && !MACHINE_ZONES.has(zone) && zone !== WS && zone !== '_summary' && zone !== '待分區') {
+        total += th;
+      }
+    } else {
+      el.textContent = '—';
+    }
+  });
+  const ht = document.getElementById('handTotalVal');
+  if (ht) ht.textContent = fmtNum(total);
 }
 
 // ── EOLR toggle ───────────────────────────────────────────────────────────────
@@ -325,32 +397,19 @@ function setEolr(v) {
   EOLR = v;
   document.getElementById('eolr60').classList.toggle('active', v === 60);
   document.getElementById('eolr120').classList.toggle('active', v === 120);
+  updateTheoryAndTotal();
+}
 
-  // Recalculate theory_operators in DOM without full reload
-  const divisor = 3600 / v;
-  document.querySelectorAll('[data-stdtime]').forEach(el => {
-    const st = parseFloat(el.dataset.stdtime);
-    if (!isNaN(st) && st > 0) {
-      const theory = (st / divisor).toFixed(4).replace(/\.?0+$/, '');
-      if (el.classList.contains('theory-line')) {
-        el.textContent = '理 ' + theory;   // dual-display cell
-      } else {
-        el.textContent = theory;           // standalone theory column
-      }
-    }
-  });
-
-  // Recalculate hand total
-  let handTotal = 0;
-  document.querySelectorAll('[data-stdtime]').forEach(el => {
-    const z = el.closest('.zone-card');
-    if (z && !z.querySelector('.zone-locked')) {
-      const st = parseFloat(el.dataset.stdtime);
-      if (!isNaN(st)) handTotal += st / divisor;
-    }
-  });
-  const ht = document.getElementById('handTotalVal');
-  if (ht) ht.textContent = handTotal.toFixed(4).replace(/\.?0+$/, '');
+// ── Language toggle ───────────────────────────────────────────────────────────
+function setLang(l) {
+  LANG = l;
+  localStorage.setItem('ie_lang', l);
+  applyLangUI(l);
+  if (DATA) renderZones(DATA);
+}
+function applyLangUI(l) {
+  document.getElementById('langZH').className = 'tg-btn' + (l === 'zh' ? ' lang-active' : '');
+  document.getElementById('langVI').className  = 'tg-btn' + (l === 'vi' ? ' lang-active' : '');
 }
 
 // ── Segment switch ────────────────────────────────────────────────────────────
@@ -360,62 +419,98 @@ function switchSeg(seg) {
   loadSegment(seg);
 }
 
+// ── Add / Delete row ──────────────────────────────────────────────────────────
+async function addRow(zone) {
+  const r = await fetch('/api/ie/cell/add_row', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({header_id:HID, segment:SEG, zone, stage_id:STAGE?.id, user:'demo'}),
+  });
+  const j = await r.json();
+  if (j.ok) loadSegment(SEG);
+  else alert('新增失敗: ' + (j.error || ''));
+}
+
+async function deleteRow(pid) {
+  if (!confirm('確認刪除此工序？')) return;
+  const r = await fetch('/api/ie/cell/delete_row', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({process_id:pid, stage_id:STAGE?.id, user:'demo'}),
+  });
+  const j = await r.json();
+  if (j.ok) loadSegment(SEG);
+  else alert('刪除失敗: ' + (j.error || ''));
+}
+
+// ── Group modal ───────────────────────────────────────────────────────────────
+function openGroupModal(zone) {
+  GROUP_ZONE = zone;
+  document.getElementById('groupModalTitle').textContent = '設定人力分組 — ' + zoneLabel(zone);
+  const rows = ZONE_ROWS[zone] || [];
+  const list = document.getElementById('groupProcList');
+  list.innerHTML = rows.length
+    ? rows.map((r,i) => `<div class="proc-check-item">
+        <input type="checkbox" id="gp${i}" value="${r.id}">
+        <label for="gp${i}" style="cursor:pointer">${esc(r.name || '工序 ' + r.id)}</label>
+      </div>`).join('')
+    : '<div style="color:#aaa;font-size:11px;padding:8px">此區暫無工序</div>';
+  document.getElementById('groupHeadcount').value = '';
+  document.getElementById('groupNote').value = '';
+  document.getElementById('groupModal').style.display = 'flex';
+}
+
+function closeGroupModal() {
+  document.getElementById('groupModal').style.display = 'none';
+  GROUP_ZONE = null;
+}
+
+async function submitGroup() {
+  const checked = [...document.querySelectorAll('#groupProcList input:checked')].map(cb => parseInt(cb.value));
+  const headcount = parseFloat(document.getElementById('groupHeadcount').value);
+  const note = document.getElementById('groupNote').value.trim();
+  if (!checked.length) { alert('請選擇至少一道工序'); return; }
+  if (isNaN(headcount) || headcount <= 0) { alert('請填寫正確人數'); return; }
+  const r = await fetch('/api/ie/cell/save_group', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({header_id:HID, segment:SEG, zone:GROUP_ZONE,
+      stage_id:STAGE?.id, process_ids:checked, headcount, note}),
+  });
+  const j = await r.json();
+  if (j.ok) { closeGroupModal(); loadSegment(SEG); }
+  else alert('分組失敗: ' + (j.error || ''));
+}
+
 // ── Inline editing ────────────────────────────────────────────────────────────
 function startEdit(td, pid, field) {
-  // For actual_operators dual-display cell: extract only the actual value
-  const theoryLine = td.querySelector('.theory-line');
-  const actualDiv  = td.querySelector('.actual-display');
-  let cur = '';
-  if (actualDiv) {
-    cur = actualDiv.textContent.trim();
-    if (cur === '—') cur = '';
-  } else {
-    cur = td.textContent.trim();
-  }
-  const theoryHTML = theoryLine ? theoryLine.outerHTML : '';
-  td.innerHTML = theoryHTML + `<input type="number" step="any" value="${cur}" onblur="commitEdit(this,${pid},'${field}')" onkeydown="editKey(event,this,${pid},'${field}')">`;
+  const cur = td.textContent.trim();
+  td.innerHTML = `<input type="number" step="any" value="${esc(cur === '—' ? '' : cur)}"
+    onblur="commitEdit(this,${pid},'${field}')"
+    onkeydown="editKey(event,this,${pid},'${field}')">`;
   td.querySelector('input').focus();
 }
 
 function editKey(e, inp, pid, field) {
-  if (e.key === 'Enter') commitEdit(inp, pid, field);
-  if (e.key === 'Escape') inp.closest('td').textContent = inp.value || '—';
+  if (e.key === 'Enter')  commitEdit(inp, pid, field);
+  if (e.key === 'Escape') { inp.closest('td').textContent = inp.value || '—'; }
 }
 
 function commitEdit(inp, pid, field) {
   const newVal = inp.value.trim();
   const td = inp.closest('td');
-
-  if (field === 'actual_operators') {
-    const theoryLine = td.querySelector('.theory-line');
-    const theoryHTML = theoryLine ? theoryLine.outerHTML : '';
-    td.innerHTML = theoryHTML + `<div class="actual-display">${newVal || '—'}</div>`;
-  } else {
-    td.textContent = newVal || '—';
-  }
-
+  td.textContent = newVal || '—';
   if (!EDITS[pid]) EDITS[pid] = {};
   EDITS[pid][field] = newVal;
-  td.style.background = '#fff3cd';
+  td.style.outline = '2px solid #f9a825';
 
-  // If editing standard_time, update theory-line divs in same row
   if (field === 'standard_time') {
     const tr = td.closest('tr');
-    const divisor = 3600 / EOLR;
-    const st = parseFloat(newVal);
-    tr.querySelectorAll('[data-stdtime]').forEach(el => {
-      el.dataset.stdtime = newVal;
-      if (!isNaN(st)) {
-        const theory = (st / divisor).toFixed(4).replace(/\.?0+$/, '');
-        if (el.classList.contains('theory-line')) {
-          el.textContent = '理 ' + theory;
-        } else {
-          el.textContent = theory;
-        }
-      }
-    });
+    const theoryCell = tr.querySelector('.theory-cell');
+    if (theoryCell) {
+      const st = parseFloat(newVal);
+      theoryCell.dataset.stdtime = newVal;
+      theoryCell.textContent = (!isNaN(st) && st > 0) ? fmtNum(st / (3600 / EOLR)) : '—';
+    }
+    if (SEG === 'cutting') updateTheoryAndTotal();
   }
-
   updateSaveBar();
 }
 
@@ -429,60 +524,52 @@ function updateSaveBar() {
 
 async function submitAllEdits() {
   const btn = document.getElementById('btnSaveAll');
-  btn.disabled = true;
-  btn.textContent = '提交中…';
+  btn.disabled = true; btn.textContent = '提交中…';
   const stageId = STAGE ? STAGE.id : null;
-  const user = 'demo_user';
   let ok = 0, fail = 0;
-
   for (const [pid, fields] of Object.entries(EDITS)) {
     for (const [field, value] of Object.entries(fields)) {
       const r = await fetch('/api/ie/cell/save', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({cell_id: parseInt(pid), stage_id: stageId, field, value, user})
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({cell_id:parseInt(pid), stage_id:stageId, field, value, user:'demo_user'}),
       });
       const j = await r.json();
       j.ok ? ok++ : fail++;
     }
   }
-
-  EDITS = {};
-  updateSaveBar();
-  btn.disabled = false;
-  btn.textContent = '提交審核';
+  EDITS = {}; updateSaveBar();
+  btn.disabled = false; btn.textContent = '提交審核';
   alert(`提交完成：${ok} 項成功，${fail} 項失敗`);
 }
 
-// ── Save modal / New stage ────────────────────────────────────────────────────
 function showSaveModal() {
-  const editCount = Object.values(EDITS).reduce((n,f)=>n+Object.keys(f).length,0);
-  if (editCount === 0) {
-    alert('目前沒有修改項目');
-  } else {
-    if (confirm(`確認提交 ${editCount} 項修改至版本「${STAGE?.stage_name || '—'}」？`)) {
-      submitAllEdits();
-    }
-  }
+  const count = Object.values(EDITS).reduce((n,f) => n + Object.keys(f).length, 0);
+  if (count === 0) { alert('目前沒有修改項目'); return; }
+  if (confirm(`確認提交 ${count} 項修改至版本「${STAGE?.stage_name || '—'}」？`)) submitAllEdits();
 }
 
 function newStage() {
-  const name = prompt('請輸入新版本名稱 (例如: v2.0 修正版):');
+  const name = prompt('請輸入新版本名稱:');
   if (!name) return;
   fetch('/api/ie/stages/' + HID, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({stage_name: name})
-  }).then(r => r.json()).then(j => {
-    if (j.ok) {
-      STAGE = {id: j.stage_id, stage_name: name};
-      document.getElementById('stageBadge').textContent = name;
-      alert('新版本建立: ' + name);
-    }
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({stage_name:name}),
+  }).then(r=>r.json()).then(j => {
+    if (j.ok) { STAGE = {id:j.stage_id, stage_name:name}; document.getElementById('stageBadge').textContent = name; }
+    else alert('建立失敗');
   });
 }
 
-// ── Start ─────────────────────────────────────────────────────────────────────
+// ── Utils ─────────────────────────────────────────────────────────────────────
+function fmtNum(v) {
+  if (v == null) return '—';
+  if (typeof v === 'number') return Number.isInteger(v) ? String(v) : parseFloat(v.toFixed(4)).toString();
+  return String(v);
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 init();
 </script>
 </body>

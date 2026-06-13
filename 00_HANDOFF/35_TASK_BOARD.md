@@ -65,6 +65,9 @@ Version: v1.0 | 建立: 2026-06-13
 | 040 | 水蜘蛛歸段→assembly/水蜘蛛(offline) + get_ie_sum 改 actual_ops + 細表雙欄 | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | STF WS→assembly; 打粗水洗actual清除; 4段PASS(切-1.7%/針0%/成0%/貼0%) |
 | 041 | SMARTPN_DEMO.html 材料圖片換 Unsplash 真實照片 | Brand Demo | ✅完成 | 2026-06-13 | 2026-06-13 | SMARTPN_DEMO.html+SUPPLIER: 12張卡片+5分類縮圖+mat-row-img |
 
+| 042 | IE 細表界面全面修正（10項） | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | ie_cell_detail.html 重寫：+/× row, 分組modal, 雙欄理/實, 水蜘蛛, 中/越toggle |
+| 043 | IE 主表列表頁修正（EOLR分行） | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | ie_interface.html: 生產季度|鞋型+細表|ART|材料|EOLR行|4MP; rowspan=2雙EOLR |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |

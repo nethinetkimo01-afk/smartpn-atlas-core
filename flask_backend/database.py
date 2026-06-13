@@ -786,10 +786,17 @@ def get_ie_process_by_header(header_id, segment='cutting'):
 
 
 ZONE_ORDER = {
-    'cutting':  ['裁斷機', 'ATOM', 'Laser', 'EMMA', 'YINGHUI', '移印', '轉印', '_summary', '待分區'],
-    'stitching':['主流', '支流', '電腦針車', '待分區'],
-    'assembly': ['成型', '水蜘蛛', '待分區'],
-    'stf':      ['打粗', '照射', '水洗', '貼底', '待分區'],
+    'cutting':  ['裁斷機', 'ATOM', 'Laser', 'EMMA', 'YINGHUI', '移印', '轉印', '水蜘蛛', '_summary', '待分區'],
+    'stitching':['主流', '支流', '電腦針車', '水蜘蛛', '待分區'],
+    'assembly': ['成型', '成型UV', '水蜘蛛', '待分區'],
+    'stf':      ['打粗', '照射', '水洗', '貼底', '水蜘蛛', '待分區'],
+}
+# Offline zones excluded from SUM C2B per-segment totals
+OFFLINE_ZONES = {
+    'cutting':   ['水蜘蛛'],
+    'stitching': ['電腦針車', '水蜘蛛'],
+    'assembly':  ['水蜘蛛', '成型UV'],
+    'stf':       ['水蜘蛛'],
 }
 
 
@@ -829,11 +836,27 @@ def get_ie_cell_data(header_id, segment='cutting', eolr=120):
             SELECT id, zone, seq, process_name, part_name, flag,
                    normal_time, allowance_pct, standard_time, tct,
                    actual_operators, machine, cut_per_hour, qty_per_pair,
+                   layers_per_cut, process_name_vi,
                    value_type, is_locked, source_sheet
             FROM ie_process
+            WHERE header_id=? AND segment=? AND (flag IS NULL OR flag != 'deleted')
+            ORDER BY id
+        ''', (header_id, segment)).fetchall()
+
+        # Also load process groups for this segment
+        group_rows = conn.execute('''
+            SELECT id, zone, process_ids, headcount, note
+            FROM ie_process_group
             WHERE header_id=? AND segment=?
             ORDER BY id
         ''', (header_id, segment)).fetchall()
+        # Build map: process_id -> (group_id, headcount)
+        group_map = {}
+        for gr in group_rows:
+            import json as _json
+            pids = _json.loads(gr['process_ids'])
+            for pid in pids:
+                group_map[pid] = {'group_id': gr['id'], 'headcount': gr['headcount'], 'note': gr['note']}
 
         zone_map = {}
         hand_total = 0.0
@@ -850,27 +873,41 @@ def get_ie_cell_data(header_id, segment='cutting', eolr=120):
             else:
                 rec['theory_operators'] = _calc_theory(r['standard_time'], eolr)
 
+            # Attach group info if this process is grouped
+            if r['id'] in group_map:
+                rec['group_info'] = group_map[r['id']]
+            else:
+                rec['group_info'] = None
+
             if z not in zone_map:
                 zone_map[z] = []
             zone_map[z].append(rec)
 
-            # Accumulate hand total (non-裁斷機 zones, non-summary)
-            if segment == 'cutting' and z not in ('裁斷機', '_summary') and rec['theory_operators']:
+            # Accumulate hand total (non-裁斷機 + non-offline zones, non-summary)
+            offline = OFFLINE_ZONES.get(segment, [])
+            if segment == 'cutting' and z not in ('裁斷機', '_summary') and z not in offline and rec['theory_operators']:
                 hand_total += rec['theory_operators']
 
-        # Build ordered list of zones
-        order = ZONE_ORDER.get(segment, [])
+        # Build ordered list of zones — always include 水蜘蛛 even if empty
+        order = list(ZONE_ORDER.get(segment, []))
         seen = set(order)
         for z in zone_map:
             if z not in seen:
-                order = order + [z]
+                order.append(z)
 
         zones = []
         for z in order:
-            if z in zone_map:
-                zones.append({'zone': z, 'rows': zone_map[z]})
+            if z == '_summary':
+                # Only include _summary if data rows exist for it
+                if z in zone_map:
+                    zones.append({'zone': z, 'rows': zone_map[z], 'always_show': False})
+            elif z == '水蜘蛛':
+                # Always show 水蜘蛛 section (even empty — + button available)
+                zones.append({'zone': z, 'rows': zone_map.get(z, []), 'always_show': True})
+            elif z in zone_map:
+                zones.append({'zone': z, 'rows': zone_map[z], 'always_show': False})
 
-        # Update _summary row tct with computed hand_total
+        # Update _summary row theory_operators with computed hand_total
         for z_entry in zones:
             if z_entry['zone'] == '_summary':
                 for row in z_entry['rows']:
@@ -926,6 +963,101 @@ def approve_ie_edit(log_id, approver):
         )
         conn.commit()
         return {'ok': True}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def add_ie_process_row(header_id, segment, zone, process_name, standard_time, stage_id, user='demo'):
+    """Add a new process row and log the action."""
+    conn = get_conn()
+    try:
+        # Find max seq in this zone
+        max_seq = conn.execute(
+            'SELECT MAX(seq) FROM ie_process WHERE header_id=? AND segment=? AND zone=?',
+            (header_id, segment, zone)
+        ).fetchone()[0] or 0
+        conn.execute('''
+            INSERT INTO ie_process (header_id, segment, zone, seq, process_name, standard_time, flag)
+            VALUES (?,?,?,?,?,?, 'new')
+        ''', (header_id, segment, zone, max_seq + 1, process_name, standard_time))
+        conn.commit()
+        new_id = conn.execute('SELECT last_insert_rowid()').fetchone()[0]
+        # Log as edit
+        conn.execute('''
+            INSERT INTO ie_edit_log (process_id, stage_id, field, old_value, new_value, user, status)
+            VALUES (?,?,'_add',NULL,?,?,'pending')
+        ''', (new_id, stage_id, process_name, user))
+        conn.commit()
+        return {'ok': True, 'process_id': new_id}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def delete_ie_process_row(process_id, stage_id, user='demo'):
+    """Soft-delete: mark flag='deleted' and log."""
+    ALLOWED = {'actual_operators', 'standard_time', 'normal_time', 'cut_per_hour',
+               'qty_per_pair', 'layers_per_cut', 'process_name', 'process_name_vi',
+               'allowance_pct', 'flag', '_add', '_delete'}
+    conn = get_conn()
+    try:
+        old_row = conn.execute(
+            'SELECT process_name, flag FROM ie_process WHERE id=?', (process_id,)
+        ).fetchone()
+        if not old_row:
+            return {'ok': False, 'error': 'row not found'}
+        conn.execute("UPDATE ie_process SET flag='deleted' WHERE id=?", (process_id,))
+        conn.execute('''
+            INSERT INTO ie_edit_log (process_id, stage_id, field, old_value, new_value, user, status)
+            VALUES (?,?,'_delete',?,'deleted',?,'pending')
+        ''', (process_id, stage_id, old_row['process_name'], user))
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def save_ie_process_group(header_id, segment, zone, stage_id, process_ids, headcount, note=''):
+    """Save or update a process grouping."""
+    import json as _json
+    conn = get_conn()
+    try:
+        # Remove existing groups that overlap these process_ids
+        existing = conn.execute(
+            'SELECT id, process_ids FROM ie_process_group WHERE header_id=? AND segment=? AND zone=?',
+            (header_id, segment, zone)
+        ).fetchall()
+        pid_set = set(int(p) for p in process_ids)
+        for eg in existing:
+            old_pids = set(_json.loads(eg['process_ids']))
+            if old_pids & pid_set:
+                conn.execute('DELETE FROM ie_process_group WHERE id=?', (eg['id'],))
+        conn.execute('''
+            INSERT INTO ie_process_group (header_id, segment, zone, stage_id, process_ids, headcount, note)
+            VALUES (?,?,?,?,?,?,?)
+        ''', (header_id, segment, zone, stage_id, _json.dumps([int(p) for p in process_ids]), headcount, note))
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def get_ie_process_groups(header_id, segment):
+    """Return all groupings for a header/segment."""
+    conn = get_conn()
+    try:
+        rows = conn.execute(
+            'SELECT id, zone, process_ids, headcount, note FROM ie_process_group WHERE header_id=? AND segment=?',
+            (header_id, segment)
+        ).fetchall()
+        return {'ok': True, 'groups': [dict(r) for r in rows]}
     except Exception as e:
         return {'ok': False, 'error': str(e)}
     finally:

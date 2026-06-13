@@ -300,6 +300,36 @@ def ie_cell_approve():
     d = request.get_json(force=True)
     return jsonify(db.approve_ie_edit(d.get('log_id'), d.get('approver', 'system')))
 
+@app.route('/api/ie/cell/add_row', methods=['POST'])
+def ie_cell_add_row():
+    d = request.get_json(force=True)
+    return jsonify(db.add_ie_process_row(
+        d.get('header_id'), d.get('segment'), d.get('zone'),
+        d.get('process_name', '新工序'), d.get('standard_time'),
+        d.get('stage_id'), d.get('user', 'demo')
+    ))
+
+@app.route('/api/ie/cell/delete_row', methods=['POST'])
+def ie_cell_delete_row():
+    d = request.get_json(force=True)
+    return jsonify(db.delete_ie_process_row(
+        d.get('process_id'), d.get('stage_id'), d.get('user', 'demo')
+    ))
+
+@app.route('/api/ie/cell/save_group', methods=['POST'])
+def ie_cell_save_group():
+    d = request.get_json(force=True)
+    return jsonify(db.save_ie_process_group(
+        d.get('header_id'), d.get('segment'), d.get('zone'),
+        d.get('stage_id'), d.get('process_ids', []),
+        d.get('headcount'), d.get('note', '')
+    ))
+
+@app.route('/api/ie/<int:header_id>/groups', methods=['GET'])
+def ie_get_groups(header_id):
+    segment = request.args.get('segment', 'cutting')
+    return jsonify(db.get_ie_process_groups(header_id, segment))
+
 @app.route('/api/ie/<int:header_id>/sum', methods=['GET'])
 def ie_sum_api(header_id):
     eolr = request.args.get('eolr', 120)
