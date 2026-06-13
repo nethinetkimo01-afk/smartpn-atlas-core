@@ -293,7 +293,7 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
   <button class="fc" onclick="setTypeFilter('secondary',this)">Secondary</button>
   <button class="fc dpp" onclick="toggleDppFilter(this)" id="dpp-fc">DPP-ready</button>
   <div class="filter-sep"></div>
-  <span class="filter-label">Price / kg</span>
+  <span class="filter-label">Price / m</span>
   <div class="price-range-wrap">
     <input type="number" class="price-input" id="price-min" placeholder="Min" oninput="applyFilters()">
     <span style="font-size:12px;color:#86868B">–</span>
@@ -306,6 +306,8 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
   <span class="filter-label">Sort</span>
   <button class="fc" id="sort-lt" onclick="toggleSort('lt',this)">LT ↕</button>
   <button class="fc" id="sort-price" onclick="toggleSort('price',this)">Price ↕</button>
+  <div class="filter-sep"></div>
+  <button class="fc" id="ext-view-btn" onclick="toggleExtView(this)" title="模擬外部訪客視角，看不到 PRIVATE 材料">外部視角</button>
 </div>
 
 <!-- ══ PAGES ══ -->
@@ -380,9 +382,9 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 <div class="page fade-in" id="page-favorites">
   <div class="section-title">My Favorites</div>
   <div class="lib-grid">
-    <div class="lib-card" onclick="openMaterial('SPN-001')"><div class="lib-img"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#1D1D1F" stroke-width="1.2"/></svg></div><div class="lib-info"><div class="lib-name">PA66-GF30 Nylon</div><div class="lib-sub">Formosa Plastics · Raw</div><div class="lib-meta"><span class="badge b-open">OPEN</span><span class="b-dpp">DPP-ready</span></div></div><span class="lib-chev">›</span></div>
-    <div class="lib-card" onclick="openMaterial('SPN-004')"><div class="lib-img"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="#1D1D1F" stroke-width="1.2"/></svg></div><div class="lib-info"><div class="lib-name">PETG Sheet 1.5mm</div><div class="lib-sub">Formosa Plastics · Raw</div><div class="lib-meta"><span class="badge b-shared">SHARED</span><span class="b-dpp">DPP-ready</span></div></div><span class="lib-chev">›</span></div>
-    <div class="lib-card" onclick="openMaterial('SPN-007')"><div class="lib-img"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><polygon points="12,4 20,20 4,20" stroke="#1D1D1F" stroke-width="1.2" fill="none"/></svg></div><div class="lib-info"><div class="lib-name">SUS304 Hinge Bracket</div><div class="lib-sub">Shinkong Fiber · Raw</div><div class="lib-meta"><span class="badge b-open">OPEN</span></div></div><span class="lib-chev">›</span></div>
+    <div class="lib-card" onclick="openMaterial('SPA-MAT-0001')"><div class="lib-img"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 12 Q10 6 16 12 Q22 18 28 12" stroke="#1D1D1F" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg></div><div class="lib-info"><div class="lib-name">Recycled Polyester Mesh 220g</div><div class="lib-sub">Formosa Vietnam · Raw</div><div class="lib-meta"><span class="badge b-open">OPEN</span><span class="b-dpp">DPP-ready</span></div></div><span class="lib-chev">›</span></div>
+    <div class="lib-card" onclick="openMaterial('SPA-MAT-0004')"><div class="lib-img"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 16 Q12 6 20 16" stroke="#1D1D1F" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg></div><div class="lib-info"><div class="lib-name">Full Grain Cow Leather</div><div class="lib-sub">Apex Textile · Raw</div><div class="lib-meta"><span class="badge b-open">OPEN</span><span class="b-dpp">DPP-ready</span></div></div><span class="lib-chev">›</span></div>
+    <div class="lib-card" onclick="openMaterial('SPA-COMP-0101')"><div class="lib-img"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="8" width="16" height="8" rx="2" stroke="#1D1D1F" stroke-width="1.2"/></svg></div><div class="lib-info"><div class="lib-name">Laminated Black Mesh (2nd)</div><div class="lib-sub">Formosa Indonesia · Secondary</div><div class="lib-meta"><span class="badge b-open">OPEN</span><span class="b-dpp">DPP-ready</span></div></div><span class="lib-chev">›</span></div>
   </div>
 </div>
 
@@ -397,7 +399,7 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
   <div style="max-width:1080px;margin:0 auto;padding:0 40px">
     <div class="compare-page-header">
       <div class="compare-page-title">Compare Materials</div>
-      <div class="compare-page-sub">PA66-GF Nylon — 3 variants, side by side</div>
+      <div class="compare-page-sub">Recycled Polyester Mesh 220g — Find Same Material 案例：同款不同供應商</div>
     </div>
   </div>
   <div class="compare-wrapper" style="max-width:1080px;margin:0 auto;padding:0 40px 40px">
@@ -406,29 +408,28 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
         <tr>
           <th></th>
           <th>
-            <div class="compare-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#1D1D1F" stroke-width="1.2"/></svg></div>
-            PA66-GF30<br><span class="compare-supplier">Formosa Plastics</span>
+            <div class="compare-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M4 14 Q10 8 16 14 Q22 20 28 14" stroke="#1D1D1F" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg></div>
+            Recycled Mesh 220g<br><span class="compare-supplier">Formosa Vietnam (DPP)</span>
           </th>
           <th>
-            <div class="compare-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#1D1D1F" stroke-width="1.2"/></svg></div>
-            PA66-GF33<br><span class="compare-supplier">Shinkong Fiber</span>
+            <div class="compare-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M4 14 Q10 8 16 14 Q22 20 28 14" stroke="#86868B" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg></div>
+            Recycled Mesh 220g<br><span class="compare-supplier">Sunrise Synthetics</span>
           </th>
           <th>
-            <div class="compare-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#1D1D1F" stroke-width="1.2"/></svg></div>
-            PA66-GF40<br><span class="compare-supplier">NexPlast Vietnam</span>
+            <div class="compare-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M4 14 Q10 8 16 14 Q22 20 28 14" stroke="#1D1D1F" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg></div>
+            Full Grain Cow Leather<br><span class="compare-supplier">Apex Textile</span>
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr><td>SmartPN ID</td><td style="font-size:12px;color:#86868B">SPN-001</td><td style="font-size:12px;color:#86868B">SPN-002</td><td style="font-size:12px;color:#86868B">SPN-003</td></tr>
-        <tr><td>Type</td><td class="compare-same">Raw · Pellet</td><td class="compare-same">Raw · Pellet</td><td class="compare-same">Raw · Pellet</td></tr>
-        <tr><td>Glass fill</td><td>30%</td><td>33%</td><td class="compare-better">40%</td></tr>
-        <tr><td>Tensile strength</td><td>185 MPa</td><td class="compare-better">196 MPa</td><td class="compare-better">210 MPa</td></tr>
-        <tr><td>Price / kg</td><td>USD 4.20</td><td class="compare-better">USD 3.85</td><td class="compare-better">USD 3.60</td></tr>
-        <tr><td>Lead time</td><td class="compare-better">14 days</td><td>21 days</td><td class="compare-worse">28 days</td></tr>
-        <tr><td>DPP-ready</td><td><span class="b-dpp">✓ DPP-ready</span></td><td><span class="b-dpp">✓ DPP-ready</span></td><td style="color:#86868B">—</td></tr>
-        <tr><td>Permission</td><td><span class="badge b-open">OPEN</span></td><td><span class="badge b-shared">SHARED</span></td><td><span class="badge b-open">OPEN</span></td></tr>
-        <tr><td>Updated</td><td>Jun 10, 2026</td><td>Jun 8, 2026</td><td>Jun 5, 2026</td></tr>
+        <tr><td>SmartPN ID</td><td style="font-size:12px;color:#86868B">SPA-MAT-0001</td><td style="font-size:12px;color:#86868B">SPA-MAT-0007</td><td style="font-size:12px;color:#86868B">SPA-MAT-0004</td></tr>
+        <tr><td>Category</td><td class="compare-same">紡織</td><td class="compare-same">紡織</td><td>皮料</td></tr>
+        <tr><td>GRS 認證</td><td class="compare-better">52% post-consumer</td><td class="compare-worse">—（未認證）</td><td style="color:#86868B">N/A</td></tr>
+        <tr><td>Price / m</td><td>USD 2.00</td><td class="compare-better">USD 1.85</td><td>USD 8.50/sqft</td></tr>
+        <tr><td>Lead time</td><td class="compare-better">30 days</td><td class="compare-worse">50 days</td><td>45 days</td></tr>
+        <tr><td>DPP-ready</td><td><span class="b-dpp">✓ DPP-ready</span></td><td style="color:#86868B">—</td><td><span class="b-dpp">✓ DPP-ready</span></td></tr>
+        <tr><td>Permission</td><td><span class="badge b-open">OPEN</span></td><td><span class="badge b-open">OPEN</span></td><td><span class="badge b-open">OPEN</span></td></tr>
+        <tr><td>Updated</td><td>Jun 13, 2026</td><td>Jun 9, 2026</td><td>Jun 13, 2026</td></tr>
         <tr class="compare-add-row"><td></td><td><button class="btn-compare-add">Add to Library</button></td><td><button class="btn-compare-add">Add to Library</button></td><td><button class="btn-compare-add">Add to Library</button></td></tr>
       </tbody>
     </table>
@@ -447,8 +448,8 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
   </div>
   <div class="section-title">Access &amp; Permissions</div>
   <div class="settings-row"><span class="settings-label">OPEN materials</span><span class="settings-val">All — 1,284 items</span></div>
-  <div class="settings-row"><span class="settings-label">Granted by Formosa Plastics</span><span class="settings-val">Customs folder · Finance folder</span></div>
-  <div class="settings-row"><span class="settings-label">Granted by Shinkong Fiber</span><span class="settings-val">Technical folder</span></div>
+  <div class="settings-row"><span class="settings-label">Granted by Formosa Vietnam Co.</span><span class="settings-val">Material spec folder · DPP folder</span></div>
+  <div class="settings-row"><span class="settings-label">Granted by Apex Textile Co.</span><span class="settings-val">Technical folder · Certification folder</span></div>
   <div class="settings-row"><span class="settings-label">Pending requests</span><span class="settings-val" style="color:#F5A623">2 requests pending</span></div>
 </div>
 
@@ -483,189 +484,144 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
    MOCK DATA
 ═══════════════════════ */
 const SUPPLIERS = {
-  FP: { id:'FP', name:'Formosa Plastics', short:'FP', location:'Taipei, Taiwan', category:'Polymer & Raw Materials', desc:'Founded 1954. One of Asia\'s largest integrated polymer producers. All materials independently verified. ISO 9001 / ISO 14001 certified.', certs:['ISO 9001','ISO 14001','GRS-certified','DPP-ready'], materials:247, open:89, dpp:true },
-  SK: { id:'SK', name:'Shinkong Fiber', short:'SK', location:'Taipei, Taiwan', category:'Advanced Fibers & Composites', desc:'Specialized in high-performance engineering fibers and polymer composites. Serving aerospace, automotive, and electronics sectors for 30+ years.', certs:['ISO 9001','OEKO-TEX','DPP-ready'], materials:138, open:52, dpp:true },
-  NX: { id:'NX', name:'NexPlast Vietnam', short:'NX', location:'Ho Chi Minh City, Vietnam', category:'Commodity Polymers', desc:'Regional polymer distributor and toll processor. Competitive pricing with 28-day lead times. REACH compliant.', certs:['ISO 9001','REACH'], materials:64, open:40, dpp:false },
-  HF: { id:'HF', name:'Hua Fong Leather', short:'HF', location:'Guangzhou, China', category:'Leather & Synthetic Materials', desc:'Leading tannery serving global footwear and accessories brands. GRS-certified recycled content. REACH and Prop 65 compliant. Full DPP data on request.', certs:['ISO 9001','GRS-certified','REACH','DPP-ready'], materials:183, open:95, dpp:true },
+  FV: { id:'FV', name:'Formosa Vietnam Co.', short:'FV', location:'Ho Chi Minh City, Vietnam', category:'Textiles & Synthetics', desc:'Formosa Materials Group subsidiary. Specializes in recycled mesh textiles, PU synthetic leather, and specialty fabrics. GRS and ISO 9001 certified.', certs:['ISO 9001','GRS-certified','DPP-ready'], materials:4, open:2, dpp:true },
+  FI: { id:'FI', name:'Formosa Indonesia Co.', short:'FI', location:'Jakarta, Indonesia', category:'Films & Secondary Processing', desc:'Formosa Materials Group subsidiary. Specializes in TPU laminating films and secondary processing. ISO 9001 certified.', certs:['ISO 9001','DPP-ready'], materials:3, open:2, dpp:true },
+  AP: { id:'AP', name:'Apex Textile Co.', short:'AP', location:'Taipei, Taiwan', category:'Textiles & Leather', desc:'DPP-ready textile specialist. Full grain leather, jacquard knit, and microfiber suede for global footwear brands. Company review (Brand-C): "DPP 資料配合度高，配合速度業界最快。" ★★★★★', certs:['ISO 9001','DPP-ready','OEKO-TEX'], materials:3, open:3, dpp:true },
+  SS: { id:'SS', name:'Sunrise Synthetics', short:'SS', location:'Da Nang, Vietnam', category:'Commodity Textiles', desc:'Regional supplier. Competitive pricing with longer lead times. REACH compliant. Note: LT reliability has been flagged by buyers (see material reviews).', certs:['ISO 9001','REACH'], materials:2, open:2, dpp:false },
 };
 
 const MATERIALS = [
-  { id:'SPN-001', name:'PA66-GF30 Nylon', sup:'FP', type:'raw', spuCode:'PA66-GF', skuKey:'30GF-NAT', imgShape:'circle', cat:null, views:89,
-    photo:'https://picsum.photos/seed/nylon-pellet/400/280',
-    price:4.20, lt:14, perm:'OPEN', dpp:true, updated:'Jun 10',
-    spuFields:{ Category:'Engineering Polymer', 'Base resin':'Polyamide 66', 'Filler type':'Glass fiber', Standard:'ISO 527' },
+  // ── #1 Formosa VN — Recycled Mesh (FSM Identical: #7 same SPU+SKU, diff supplier)
+  { id:'SPA-MAT-0001', name:'Recycled Polyester Mesh 220g', sup:'FV', type:'raw', spuCode:'RPET-MESH-220', skuKey:'BLK-58', imgShape:'wave', cat:'紡織', views:203,
+    photo:'https://picsum.photos/seed/mesh-textile/400/280',
+    price:2.00, priceUnit:'m', lt:30, perm:'OPEN', dpp:true, updated:'Jun 13',
+    spuFields:{ Category:'Textile', Fiber:'Recycled PET 220g/m²', Construction:'Knit mesh', Standard:'ISO 105-B02', 'GRS Content':'≥50% post-consumer' },
     skuVariants:[
-      { key:'30GF-NAT', label:'30% GF · Natural', price:4.20, lt:14, fields:{ 'Glass filler':'30%','Color':'Natural','Form':'Pellet','Tensile strength':'185 MPa','Melt flow index':'14 g/10min' } },
-      { key:'30GF-BLK', label:'30% GF · Black',   price:4.35, lt:14, fields:{ 'Glass filler':'30%','Color':'Black','Form':'Pellet','Tensile strength':'185 MPa','Melt flow index':'14 g/10min' } },
-      { key:'33GF-NAT', label:'33% GF · Natural',  price:4.55, lt:18, fields:{ 'Glass filler':'33%','Color':'Natural','Form':'Pellet','Tensile strength':'192 MPa','Melt flow index':'12 g/10min' } },
+      { key:'BLK-58', label:'Black · 58" wide', price:2.00, lt:30, fields:{ Color:'Black', Width:'58"','Weight':'220 g/m²','GRS recycled':'52%','Colorfastness':'≥4' } },
+      { key:'WHT-58', label:'White · 58" wide', price:2.05, lt:30, fields:{ Color:'White', Width:'58"','Weight':'220 g/m²','GRS recycled':'52%','Colorfastness':'≥4' } },
+      { key:'BLK-44', label:'Black · 44" wide', price:1.90, lt:28, fields:{ Color:'Black', Width:'44"','Weight':'220 g/m²','GRS recycled':'52%','Colorfastness':'≥4' } },
     ],
     reviews:[
-      { initials:'RL', name:'Rachel L.', org:'NexBrand Procurement', date:'May 28', stars:5, text:'Consistent quality across 4 production batches. DPP documentation arrived within 48h of request.', perm:'SHARED' },
-      { initials:'KM', name:'K. Matsuda', org:'Apex Factory', date:'May 12', stars:4, text:'Good mechanical properties, slightly above quote on LT this cycle. Communication with supplier is excellent.', perm:'SHARED' },
-      { initials:'PL', name:'P. Lee', org:'VNM Footwear Co.', date:'Apr 30', stars:4, text:'Reliable supply. Lead time accurate to within 2 days every order.', perm:'OPEN' },
+      { initials:'BA', name:'Brand-A 開發部', org:'Brand-A', date:'Jun 10', stars:5, text:'品質穩定，交期準。每批次品質一致性高，推薦。', perm:'SHARED' },
     ]
   },
-  { id:'SPN-002', name:'PA66-GF33 Variant', sup:'SK', type:'raw', spuCode:'PA66-GF', skuKey:'33GF-BLK', imgShape:'circle', cat:null, views:62,
-    photo:'https://picsum.photos/seed/fiber-composite/400/280',
-    price:3.85, lt:21, perm:'SHARED', dpp:true, updated:'Jun 8',
-    spuFields:{ Category:'Engineering Polymer', 'Base resin':'Polyamide 66', 'Filler type':'Glass fiber', Standard:'ISO 527' },
+  // ── #2 Formosa ID — TPU Film
+  { id:'SPA-MAT-0002', name:'TPU Laminating Film 0.15mm', sup:'FI', type:'raw', spuCode:'TPU-FILM-015', skuKey:'CLR-015', imgShape:'rect', cat:'薄膜', views:87,
+    photo:'https://picsum.photos/seed/tpu-film/400/280',
+    price:1.45, priceUnit:'m', lt:25, perm:'OPEN', dpp:true, updated:'Jun 12',
+    spuFields:{ Category:'Film', 'Base resin':'Thermoplastic polyurethane', Thickness:'0.15mm', Standard:'ASTM D412' },
     skuVariants:[
-      { key:'33GF-BLK', label:'33% GF · Black', price:3.85, lt:21, fields:{ 'Glass filler':'33%','Color':'Black','Form':'Pellet','Tensile strength':'196 MPa','Melt flow index':'11 g/10min' } },
-    ],
-    reviews:[
-      { initials:'JL', name:'James Liu', org:'NexBrand R&D', date:'Jun 2', stars:5, text:'Best tensile strength in this SPU family at the price. DPP report comprehensive.', perm:'SHARED' },
-    ]
-  },
-  { id:'SPN-003', name:'PA66-GF40 High Fill', sup:'NX', type:'raw', spuCode:'PA66-GF', skuKey:'40GF-BLK', imgShape:'circle', cat:null, views:44,
-    photo:'https://picsum.photos/seed/polymer-black/400/280',
-    price:3.60, lt:28, perm:'OPEN', dpp:false, updated:'Jun 5',
-    spuFields:{ Category:'Engineering Polymer', 'Base resin':'Polyamide 66', 'Filler type':'Glass fiber', Standard:'ISO 527' },
-    skuVariants:[
-      { key:'40GF-BLK', label:'40% GF · Black', price:3.60, lt:28, fields:{ 'Glass filler':'40%','Color':'Black','Form':'Pellet','Tensile strength':'210 MPa','Melt flow index':'9 g/10min' } },
+      { key:'CLR-015', label:'Clear · 0.15mm', price:1.45, lt:25, fields:{ Thickness:'0.15mm',Color:'Clear',Hardness:'85 Shore A','Tensile strength':'40 MPa' } },
     ],
     reviews:[]
   },
-  { id:'SPN-004', name:'PETG Sheet 1.5mm', sup:'FP', type:'raw', spuCode:'PETG-SHEET', skuKey:'1.5mm-CLR', imgShape:'rect', cat:'薄膜', views:133,
-    photo:'https://picsum.photos/seed/petg-sheet/400/280',
-    price:5.50, lt:10, perm:'SHARED', dpp:true, updated:'Jun 9',
-    spuFields:{ Category:'Engineering Polymer', 'Base resin':'Polyethylene terephthalate glycol', 'Form':'Sheet', Standard:'ASTM D6103' },
-    skuVariants:[
-      { key:'1.5mm-CLR', label:'1.5mm · Clear', price:5.50, lt:10, fields:{ Thickness:'1.5mm',Color:'Clear',Form:'Sheet','Tensile strength':'52 MPa','Light transmission':'>90%' } },
-      { key:'2.0mm-CLR', label:'2.0mm · Clear', price:6.10, lt:10, fields:{ Thickness:'2.0mm',Color:'Clear',Form:'Sheet','Tensile strength':'52 MPa','Light transmission':'>90%' } },
-      { key:'2.0mm-FRO', label:'2.0mm · Frosted', price:6.20, lt:12, fields:{ Thickness:'2.0mm',Color:'Frosted',Form:'Sheet','Tensile strength':'52 MPa','Light transmission':'60-70%' } },
-    ],
-    reviews:[
-      { initials:'AW', name:'A. Wong', org:'ProductionTech', date:'Jun 1', stars:5, text:'Perfect surface finish. DPP data included recycled content %, very useful for our brand reporting.', perm:'SHARED' },
-    ]
-  },
-  { id:'SPN-005', name:'PETG Sheet 2.0mm', sup:'SK', type:'raw', spuCode:'PETG-SHEET', skuKey:'2.0mm-CLR', imgShape:'rect', cat:'薄膜', views:78,
-    photo:'https://picsum.photos/seed/clear-plastic/400/280',
-    price:5.20, lt:14, perm:'OPEN', dpp:false, updated:'May 28',
-    spuFields:{ Category:'Engineering Polymer', 'Base resin':'Polyethylene terephthalate glycol', 'Form':'Sheet', Standard:'ASTM D6103' },
-    skuVariants:[
-      { key:'2.0mm-CLR', label:'2.0mm · Clear', price:5.20, lt:14, fields:{ Thickness:'2.0mm',Color:'Clear',Form:'Sheet','Tensile strength':'50 MPa' } },
-    ],
-    reviews:[]
-  },
-  { id:'SPN-006', name:'ABS-HI Resin', sup:'FP', type:'raw', spuCode:'ABS-HI', skuKey:'NAT-PELLET', imgShape:'circle', cat:null, views:55,
-    photo:'https://picsum.photos/seed/abs-resin/400/280',
-    price:3.10, lt:7, perm:'OPEN', dpp:true, updated:'Jun 7',
-    spuFields:{ Category:'Engineering Polymer', 'Base resin':'Acrylonitrile Butadiene Styrene', Grade:'High Impact', Standard:'ISO 180' },
-    skuVariants:[
-      { key:'NAT-PELLET', label:'Natural · Pellet', price:3.10, lt:7, fields:{ Color:'Natural',Form:'Pellet',Grade:'High Impact','Izod impact':'250 J/m' } },
-      { key:'BLK-PELLET', label:'Black · Pellet',   price:3.15, lt:7, fields:{ Color:'Black',Form:'Pellet',Grade:'High Impact','Izod impact':'250 J/m' } },
-    ],
-    reviews:[
-      { initials:'TK', name:'T. Kim', org:'GlobalBrand Factory', date:'May 30', stars:4, text:'Good impact resistance. Shortest LT in our approved list.', perm:'OPEN' },
-    ]
-  },
-  { id:'SPN-007', name:'SUS304 Hinge Bracket', sup:'SK', type:'raw', spuCode:'SUS304-STAMP', skuKey:'2B-STD', imgShape:'diamond', cat:null, views:31,
-    photo:'https://picsum.photos/seed/stainless-metal/400/280',
-    price:8.40, lt:21, perm:'OPEN', dpp:false, updated:'Jun 9',
-    spuFields:{ Category:'Metal Component', Material:'Stainless Steel 304', 'Process':'Stamping', Standard:'ASTM A240' },
-    skuVariants:[
-      { key:'2B-STD', label:'2B Finish · Standard', price:8.40, lt:21, fields:{ Surface:'2B Finish',Form:'Stamped','Thickness':'1.2mm','Hardness':'HRB 80' } },
-      { key:'BA-STD', label:'BA Finish · Standard', price:9.20, lt:25, fields:{ Surface:'BA Finish',Form:'Stamped','Thickness':'1.2mm','Hardness':'HRB 80' } },
-    ],
-    reviews:[]
-  },
-  { id:'SPN-008', name:'PP Homopolymer', sup:'NX', type:'raw', spuCode:'PP-HM', skuKey:'NAT-PELLET', imgShape:'circle', cat:null, views:27,
-    photo:'https://picsum.photos/seed/white-granule/400/280',
-    price:2.20, lt:14, perm:'SHARED', dpp:false, updated:'Jun 3',
-    spuFields:{ Category:'Commodity Polymer', 'Base resin':'Polypropylene', Grade:'Homopolymer', Standard:'ISO 1183' },
-    skuVariants:[
-      { key:'NAT-PELLET', label:'Natural · Pellet', price:2.20, lt:14, fields:{ Color:'Natural',Form:'Pellet','MFI':'12 g/10min','Density':'0.905 g/cm³' } },
-    ],
-    reviews:[]
-  },
-  { id:'SPN-009', name:'POM Copolymer', sup:'NX', type:'raw', spuCode:'POM-CO', skuKey:'NAT-PELLET', imgShape:'circle', cat:'薄膜', views:19,
-    photo:'https://picsum.photos/seed/polymer-pellet/400/280',
-    price:3.80, lt:21, perm:'OPEN', dpp:false, updated:'Jun 1',
-    spuFields:{ Category:'Engineering Polymer', 'Base resin':'Polyoxymethylene', Grade:'Copolymer', Standard:'ISO 527' },
-    skuVariants:[
-      { key:'NAT-PELLET', label:'Natural · Pellet', price:3.80, lt:21, fields:{ Color:'Natural',Form:'Pellet','Tensile strength':'62 MPa','Flexural modulus':'2.7 GPa' } },
-    ],
-    reviews:[]
-  },
-  { id:'SPN-010', name:'Electroplating Chrome', sup:'FP', type:'secondary', spuCode:'ELEC-PROC', skuKey:'10-25UM', imgShape:'wave', cat:'二次加工', views:76,
-    photo:'https://picsum.photos/seed/chrome-surface/400/280',
-    price:null, lt:14, perm:'OPEN', dpp:true, updated:'Jun 8',
-    spuFields:{ Category:'Secondary Process', 'Process type':'Electroplating', 'Coating':'Chrome', Application:'ABS / Polymer substrates' },
-    skuVariants:[
-      { key:'10-25UM', label:'10–25 µm Chrome', price:null, lt:14, fields:{ 'Coating thickness':'10–25 µm','Base material':'ABS',Adhesion:'Cross-cut ≥ 4B','Surface':'High gloss' } },
-    ],
-    reviews:[
-      { initials:'RL', name:'Rachel L.', org:'NexBrand', date:'May 20', stars:5, text:'Best-in-class adhesion on ABS. DPP data includes REACH substance declaration.', perm:'SHARED' },
-    ]
-  },
-  { id:'SPN-011', name:'Powder Coat Black', sup:'NX', type:'secondary', spuCode:'PC-PROC', skuKey:'BLK-STD', imgShape:'wave', cat:'二次加工', views:48,
-    photo:'https://picsum.photos/seed/black-coating/400/280',
-    price:null, lt:10, perm:'OPEN', dpp:false, updated:'Jun 6',
-    spuFields:{ Category:'Secondary Process', 'Process type':'Powder Coating', Color:'Black (RAL 9005)', Application:'Metal substrates' },
-    skuVariants:[
-      { key:'BLK-STD', label:'Black Matt · 60–80 µm', price:null, lt:10, fields:{ Color:'Black RAL 9005','Finish':'Matt','Thickness':'60–80 µm',Adhesion:'Cross-cut 4B' } },
-    ],
-    reviews:[]
-  },
-  { id:'SPN-012', name:'Anodising Type II', sup:'SK', type:'secondary', spuCode:'ANOD-PROC', skuKey:'CLR-T2', imgShape:'wave', cat:'二次加工', views:61,
-    photo:'https://picsum.photos/seed/aluminum-surface/400/280',
-    price:null, lt:12, perm:'SHARED', dpp:true, updated:'Jun 7',
-    spuFields:{ Category:'Secondary Process', 'Process type':'Anodising', Standard:'MIL-A-8625 Type II', Application:'Aluminium alloy' },
-    skuVariants:[
-      { key:'CLR-T2', label:'Clear · Type II', price:null, lt:12, fields:{ Color:'Clear','Coating thickness':'5–25 µm',Hardness:'HV 350','Sealing':'Hot DI water' } },
-      { key:'BLK-T2', label:'Black · Type II', price:null, lt:14, fields:{ Color:'Black dyed','Coating thickness':'5–25 µm',Hardness:'HV 350','Sealing':'Hot DI water' } },
-    ],
-    reviews:[
-      { initials:'JL', name:'James Liu', org:'NexBrand', date:'Jun 3', stars:5, text:'Excellent consistency. DPP report includes water usage and chemical inventory.', perm:'SHARED' },
-    ]
-  },
-  { id:'SPN-013', name:'Full Grain Bovine Leather', sup:'HF', type:'raw', spuCode:'BVL-GRAIN', skuKey:'1.2mm-NAT', imgShape:'wave', cat:'皮料', views:142,
-    photo:'https://picsum.photos/seed/bovine-leather/400/280',
-    price:8.80, lt:21, perm:'OPEN', dpp:true, updated:'Jun 11',
-    spuFields:{ Category:'Leather', Origin:'Brazil', Tannage:'Chrome-free vegetable', Standard:'IUF 450' },
-    skuVariants:[
-      { key:'1.2mm-NAT', label:'1.2mm · Natural Tan', price:8.80, lt:21, fields:{ Thickness:'1.2mm',Color:'Natural Tan',Finish:'Full grain','Tensile strength':'≥200 N/cm²','Tear strength':'≥60 N/cm' } },
-      { key:'1.4mm-BLK', label:'1.4mm · Black', price:9.20, lt:21, fields:{ Thickness:'1.4mm',Color:'Black',Finish:'Full grain','Tensile strength':'≥200 N/cm²','Tear strength':'≥65 N/cm' } },
-    ],
-    reviews:[
-      { initials:'RL', name:'Rachel L.', org:'NexBrand Footwear', date:'Jun 5', stars:5, text:'Supplest full grain we have sourced this season. DPP includes full tannery chain of custody.', perm:'SHARED' },
-    ]
-  },
-  { id:'SPN-014', name:'PU Synthetic Leather 1.2mm', sup:'NX', type:'raw', spuCode:'PU-SL', skuKey:'1.2mm-BLK', imgShape:'rect', cat:'人造皮', views:118,
+  // ── #3 Formosa VN — PU Synthetic Leather
+  { id:'SPA-MAT-0003', name:'PU Synthetic Leather 1.2mm', sup:'FV', type:'raw', spuCode:'PU-SL-12', skuKey:'BLK-MAT', imgShape:'rect', cat:'人造皮', views:118,
     photo:'https://picsum.photos/seed/pu-synthetic/400/280',
-    price:3.40, lt:14, perm:'OPEN', dpp:true, updated:'Jun 10',
+    price:3.80, priceUnit:'m', lt:35, perm:'OPEN', dpp:false, updated:'Jun 11',
     spuFields:{ Category:'Synthetic Leather', Base:'Woven polyester', Coating:'PU top coat', Standard:'QB/T 2729' },
     skuVariants:[
-      { key:'1.2mm-BLK', label:'1.2mm · Black Matt', price:3.40, lt:14, fields:{ Thickness:'1.2mm',Color:'Black',Finish:'Matt','Peel strength':'≥30 N/cm','Abrasion':'20,000 cycles' } },
-      { key:'1.2mm-WHT', label:'1.2mm · White Gloss', price:3.55, lt:14, fields:{ Thickness:'1.2mm',Color:'White',Finish:'High gloss','Peel strength':'≥30 N/cm','Abrasion':'20,000 cycles' } },
+      { key:'BLK-MAT', label:'Black · Matt', price:3.80, lt:35, fields:{ Thickness:'1.2mm',Color:'Black',Finish:'Matt','Peel strength':'≥30 N/cm','Abrasion':'20,000 cycles' } },
+      { key:'WHT-GLO', label:'White · Gloss', price:3.95, lt:35, fields:{ Thickness:'1.2mm',Color:'White',Finish:'High gloss','Peel strength':'≥30 N/cm','Abrasion':'20,000 cycles' } },
+    ],
+    reviews:[]
+  },
+  // ── #4 Apex — Full Grain Cow Leather (OPEN review from Brand-B)
+  { id:'SPA-MAT-0004', name:'Full Grain Cow Leather', sup:'AP', type:'raw', spuCode:'FGCL-NATURAL', skuKey:'1.2-NAT', imgShape:'wave', cat:'皮料', views:142,
+    photo:'https://picsum.photos/seed/bovine-leather/400/280',
+    price:8.50, priceUnit:'sqft', lt:45, perm:'OPEN', dpp:true, updated:'Jun 13',
+    spuFields:{ Category:'Leather', Origin:'South America', Tannage:'Chrome-free vegetable', Standard:'IUF 450' },
+    skuVariants:[
+      { key:'1.2-NAT', label:'1.2mm · Natural Tan', price:8.50, lt:45, fields:{ Thickness:'1.2mm',Color:'Natural Tan',Finish:'Full grain','Tensile strength':'≥200 N/cm²','Tear strength':'≥60 N/cm' } },
+      { key:'1.4-BLK', label:'1.4mm · Black',       price:9.00, lt:45, fields:{ Thickness:'1.4mm',Color:'Black',Finish:'Full grain','Tensile strength':'≥200 N/cm²','Tear strength':'≥65 N/cm' } },
     ],
     reviews:[
-      { initials:'TK', name:'T. Kim', org:'GlobalBrand Factory', date:'Jun 8', stars:4, text:'Consistent peel strength batch to batch. Good price point for volume orders.', perm:'OPEN' },
+      { initials:'BB', name:'Brand-B 材料部', org:'Brand-B', date:'Jun 8', stars:4, text:'認證齊全，DPP 文件完整，適合高端品牌需求。認證回覆速度快。', perm:'OPEN' },
     ]
   },
-  { id:'SPN-015', name:'Recycled Polyester Mesh', sup:'SK', type:'raw', spuCode:'RPET-MESH', skuKey:'150D-BLK', imgShape:'wave', cat:'紡織', views:203,
-    photo:'https://picsum.photos/seed/mesh-textile/400/280',
-    price:2.80, lt:28, perm:'OPEN', dpp:true, updated:'Jun 12',
-    spuFields:{ Category:'Textile', Fiber:'Recycled PET', Construction:'Plain weave 150D', Standard:'ISO 105-B02', 'GRS Content':'≥50% post-consumer' },
+  // ── #5 Apex — Jacquard Knit Upper
+  { id:'SPA-MAT-0005', name:'Jacquard Knit Upper 380g', sup:'AP', type:'raw', spuCode:'JKU-380', skuKey:'BLK-JQ', imgShape:'wave', cat:'紡織', views:76,
+    photo:'https://picsum.photos/seed/jacquard-knit/400/280',
+    price:4.20, priceUnit:'m', lt:28, perm:'OPEN', dpp:true, updated:'Jun 12',
+    spuFields:{ Category:'Textile', Fiber:'Polyester/Nylon blend 380g/m²', Construction:'Jacquard knit', Standard:'ISO 13934' },
     skuVariants:[
-      { key:'150D-BLK', label:'150D · Black', price:2.80, lt:28, fields:{ Denier:'150D',Color:'Black',Weave:'Plain',Width:'150 cm','Tenacity':'≥4.5 cN/dtex','GRS recycled':'52%' } },
-      { key:'300D-BLK', label:'300D · Black', price:3.20, lt:28, fields:{ Denier:'300D',Color:'Black',Weave:'Plain',Width:'150 cm','Tenacity':'≥4.8 cN/dtex','GRS recycled':'52%' } },
+      { key:'BLK-JQ', label:'Black · Jacquard', price:4.20, lt:28, fields:{ Color:'Black','Weight':'380 g/m²',Width:'52"','Burst strength':'≥500 kPa','Pilling':'≥4' } },
+      { key:'GRY-JQ', label:'Grey · Jacquard',  price:4.20, lt:28, fields:{ Color:'Grey','Weight':'380 g/m²',Width:'52"','Burst strength':'≥500 kPa','Pilling':'≥4' } },
+    ],
+    reviews:[]
+  },
+  // ── #6 Sunrise — EVA Foam Sheet
+  { id:'SPA-MAT-0006', name:'EVA Foam Sheet 4mm', sup:'SS', type:'raw', spuCode:'EVA-FOAM-4', skuKey:'WHT-4MM', imgShape:'rect', cat:'薄膜', views:55,
+    photo:'https://picsum.photos/seed/foam-sheet/400/280',
+    price:1.10, priceUnit:'m', lt:40, perm:'OPEN', dpp:false, updated:'Jun 10',
+    spuFields:{ Category:'Foam', Material:'Ethylene vinyl acetate', Thickness:'4mm', Standard:'ASTM D1056' },
+    skuVariants:[
+      { key:'WHT-4MM', label:'White · 4mm', price:1.10, lt:40, fields:{ Thickness:'4mm',Color:'White',Density:'0.20 g/cm³','Compression set':'≤30%','Hardness':'35 Shore C' } },
+    ],
+    reviews:[]
+  },
+  // ── #7 Sunrise — Recycled Mesh (FSM Identical match with #1: cheaper $1.85 but LT 50d, no DPP)
+  { id:'SPA-MAT-0007', name:'Recycled Polyester Mesh 220g', sup:'SS', type:'raw', spuCode:'RPET-MESH-220', skuKey:'BLK-58', imgShape:'wave', cat:'紡織', views:89,
+    photo:'https://picsum.photos/seed/recycled-mesh/400/280',
+    price:1.85, priceUnit:'m', lt:50, perm:'OPEN', dpp:false, updated:'Jun 9',
+    spuFields:{ Category:'Textile', Fiber:'Recycled PET 220g/m²', Construction:'Knit mesh', Standard:'ISO 105-B02', 'GRS Content':'Not certified' },
+    skuVariants:[
+      { key:'BLK-58', label:'Black · 58" wide', price:1.85, lt:50, fields:{ Color:'Black', Width:'58"','Weight':'220 g/m²','GRS recycled':'—','Colorfastness':'≥3' } },
     ],
     reviews:[
-      { initials:'JL', name:'James Liu', org:'NexBrand R&D', date:'Jun 9', stars:5, text:'Best recycled content documentation in this category. DPP data is comprehensive and audit-ready.', perm:'SHARED' },
+      { initials:'BA2', name:'Brand-A 採購部', org:'Brand-A', date:'Jun 5', stars:2, text:'兩次延誤交期，LT 不穩定。報價便宜但實際綜合成本不低。不建議用於急單。', perm:'SHARED' },
     ]
   },
-  { id:'SPN-016', name:'TPU Film 0.3mm', sup:'FP', type:'raw', spuCode:'TPU-FILM', skuKey:'0.3mm-CLR', imgShape:'rect', cat:'薄膜', views:87,
-    photo:'https://picsum.photos/seed/tpu-film/400/280',
-    price:6.80, lt:14, perm:'SHARED', dpp:true, updated:'Jun 11',
-    spuFields:{ Category:'Film', 'Base resin':'Thermoplastic polyurethane', Thickness:'0.3mm', Standard:'ASTM D412' },
+  // ── #8 Apex — Microfiber Suede
+  { id:'SPA-MAT-0008', name:'Microfiber Suede 0.8mm', sup:'AP', type:'raw', spuCode:'MFS-08', skuKey:'GRY-08', imgShape:'wave', cat:'人造皮', views:62,
+    photo:'https://picsum.photos/seed/microfiber-suede/400/280',
+    price:5.60, priceUnit:'m', lt:32, perm:'OPEN', dpp:true, updated:'Jun 11',
+    spuFields:{ Category:'Synthetic Leather', Material:'Microfiber suede', Thickness:'0.8mm', Standard:'QB/T 2726' },
     skuVariants:[
-      { key:'0.3mm-CLR', label:'0.3mm · Clear', price:6.80, lt:14, fields:{ Thickness:'0.3mm',Color:'Clear',Hardness:'88 Shore A','Tensile strength':'45 MPa',Elongation:'≥500%' } },
-      { key:'0.3mm-WHT', label:'0.3mm · White', price:7.00, lt:14, fields:{ Thickness:'0.3mm',Color:'White',Hardness:'88 Shore A','Tensile strength':'45 MPa',Elongation:'≥500%' } },
+      { key:'GRY-08', label:'Grey · 0.8mm', price:5.60, lt:32, fields:{ Thickness:'0.8mm',Color:'Grey',Finish:'Suede','Peel strength':'≥25 N/cm','Abrasion':'15,000 cycles' } },
+      { key:'BLK-08', label:'Black · 0.8mm', price:5.60, lt:32, fields:{ Thickness:'0.8mm',Color:'Black',Finish:'Suede','Peel strength':'≥25 N/cm','Abrasion':'15,000 cycles' } },
     ],
-    reviews:[
-      { initials:'AW', name:'A. Wong', org:'ProductionTech', date:'Jun 7', stars:5, text:'Excellent bondability for upper lamination. DPP includes full chemical passport.', perm:'SHARED' },
-    ]
+    reviews:[]
+  },
+  // ── #9 Formosa ID — Laminated Black Mesh (2nd process)
+  { id:'SPA-COMP-0101', name:'Laminated Black Mesh (2nd)', sup:'FI', type:'secondary', spuCode:'COMP-LBM', skuKey:'BLK-LT', imgShape:'wave', cat:'二次加工', views:133,
+    photo:'https://picsum.photos/seed/laminated-mesh/400/280',
+    price:3.30, priceUnit:'m', lt:38, perm:'OPEN', dpp:true, updated:'Jun 12',
+    spuFields:{ Category:'Secondary Process', 'Process type':'Lamination', Materials:'Mesh + TPU film', Standard:'Internal QC-2101' },
+    skuVariants:[
+      { key:'BLK-LT', label:'Black · LT bond', price:3.30, lt:38, fields:{ Color:'Black',Bonding:'Low-temp TPU','Total thickness':'2.2mm','Peel strength':'≥35 N/cm','Width':'54"' } },
+    ],
+    reviews:[]
+  },
+  // ── #10 PRIVATE — Ripstop Nylon (External view cannot see)
+  { id:'SPA-MAT-0010', name:'Ripstop Nylon 70D', sup:'FV', type:'raw', spuCode:'RSN-70D', skuKey:'BLK-70', imgShape:'wave', cat:'紡織', views:27,
+    photo:'https://picsum.photos/seed/ripstop-nylon/400/280',
+    price:2.75, priceUnit:'m', lt:30, perm:'PRIVATE', dpp:false, updated:'Jun 10',
+    spuFields:{ Category:'Textile', Fiber:'Nylon 70D', Construction:'Ripstop weave', Standard:'ISO 13934' },
+    skuVariants:[
+      { key:'BLK-70', label:'Black · 70D', price:2.75, lt:30, fields:{ Color:'Black',Denier:'70D',Weave:'Ripstop','Tensile strength':'≥400 N','Weight':'70 g/m²' } },
+    ],
+    reviews:[]
+  },
+  // ── #11 PRIVATE — Bio-based TPU Film (External view cannot see)
+  { id:'SPA-MAT-0011', name:'Bio-based TPU Film', sup:'FI', type:'raw', spuCode:'BIO-TPU', skuKey:'CLR-020', imgShape:'rect', cat:'薄膜', views:19,
+    photo:'https://picsum.photos/seed/bio-tpu/400/280',
+    price:2.90, priceUnit:'m', lt:42, perm:'PRIVATE', dpp:true, updated:'Jun 13',
+    spuFields:{ Category:'Film', 'Base resin':'Bio-based TPU', 'Bio content':'≥30%', Thickness:'0.20mm', Standard:'EN 14067' },
+    skuVariants:[
+      { key:'CLR-020', label:'Clear · 0.20mm', price:2.90, lt:42, fields:{ Thickness:'0.20mm',Color:'Clear','Bio content':'30%','Tensile strength':'38 MPa',Elongation:'≥450%' } },
+    ],
+    reviews:[]
+  },
+  // ── #12 PRIVATE — Bonded Knit + Foam (External view cannot see)
+  { id:'SPA-COMP-0102', name:'Bonded Knit + Foam (2nd)', sup:'FV', type:'secondary', spuCode:'COMP-BKF', skuKey:'BLK-BKF', imgShape:'wave', cat:'二次加工', views:31,
+    photo:'https://picsum.photos/seed/bonded-knit/400/280',
+    price:4.85, priceUnit:'m', lt:36, perm:'PRIVATE', dpp:false, updated:'Jun 11',
+    spuFields:{ Category:'Secondary Process', 'Process type':'Bonding', Materials:'Jacquard knit + EVA foam', Standard:'Internal QC-0102' },
+    skuVariants:[
+      { key:'BLK-BKF', label:'Black · Bonded', price:4.85, lt:36, fields:{ Color:'Black','Total thickness':'4.5mm',Bonding:'Hot melt','Delamination':'≥20 N','Width':'52"' } },
+    ],
+    reviews:[]
   },
 ];
 
@@ -677,6 +633,7 @@ let typeFilter = 'all';
 let dppFilter = false;
 let catFilter = null;
 let fsmContext = null;
+let externalView = false;
 let currentMat = null;
 let currentSku = null;
 let prevPage = 'home';
@@ -733,6 +690,14 @@ function setTypeFilter(t, el) {
 function toggleDppFilter(el) {
   dppFilter = !dppFilter;
   el.classList.toggle('active', dppFilter);
+  applyFilters();
+}
+
+function toggleExtView(el) {
+  externalView = !externalView;
+  el.classList.toggle('active', externalView);
+  el.textContent = externalView ? '外部視角 ●' : '外部視角';
+  el.title = externalView ? '外部視角：PRIVATE材料已隱藏 (模擬#10-12不可見)' : '模擬外部訪客視角，看不到 PRIVATE 材料';
   applyFilters();
 }
 
@@ -810,6 +775,7 @@ function getFiltered() {
   const priceMax = parseFloat(document.getElementById('price-max').value) || Infinity;
   const ltMax = parseFloat(document.getElementById('lt-max').value) || Infinity;
   let result = MATERIALS.filter(m => {
+    if (externalView && m.perm === 'PRIVATE') return false;
     if (typeFilter !== 'all' && m.type !== typeFilter) return false;
     if (dppFilter && !m.dpp) return false;
     if (catFilter && m.cat !== catFilter) return false;
@@ -915,7 +881,7 @@ function cardHtml(m) {
     <button class="mc-supplier-link" onclick="event.stopPropagation();openCompanyFromCard('${m.sup}')">${sup.name}</button>
     ${stars}
     <div class="mc-price-row">
-      <span>Price / kg ${priceStr}</span>
+      <span>Price / ${m.priceUnit||'m'} ${priceStr}</span>
       <span>LT <span class="mc-price-val">${m.lt}d</span></span>
     </div>
     ${permLabel(m.perm)}
@@ -944,7 +910,7 @@ function openMaterial(id) { openSpu(id); }
 
 function renderSpuPage(m) {
   const sup = SUPPLIERS[m.sup];
-  const priceStr = m.price !== null ? `USD ${m.price.toFixed(2)} / kg` : '—';
+  const priceStr = m.price !== null ? `USD ${m.price.toFixed(2)} / ${m.priceUnit||'m'}` : '—';
   document.getElementById('spu-hero').innerHTML = `
     <div class="spu-img">
       ${imgSVG(m.imgShape)}
@@ -958,7 +924,7 @@ function renderSpuPage(m) {
       <div>Maintained by <button class="supplier-link" onclick="openCompanyFromSpu('${m.sup}')">${sup.name}</button></div>
       <div class="spu-maintained">${sup.location}</div>
       <div class="spu-price-block">
-        <div class="spu-price-item"><div class="spu-price-label">Price / kg</div><div class="spu-price-val">${priceStr}</div><div class="spu-price-sub">Base SKU · excl. duties</div></div>
+        <div class="spu-price-item"><div class="spu-price-label">Price / ${m.priceUnit||'m'}</div><div class="spu-price-val">${priceStr}</div><div class="spu-price-sub">Base SKU · excl. duties</div></div>
         <div class="spu-price-item"><div class="spu-price-label">Lead time</div><div class="spu-price-val">${m.lt} days</div><div class="spu-price-sub">Standard order</div></div>
         ${m.dpp ? '<div class="spu-price-item"><div class="spu-price-label">DPP data</div><div class="spu-price-val" style="color:#1D7340;font-size:16px">Available</div><div class="spu-price-sub">Compliance docs on request</div></div>' : ''}
       </div>
@@ -1017,7 +983,7 @@ function renderSkuPage(m, sku) {
   currentMat = m;
   currentSku = sku;
   const sup = SUPPLIERS[m.sup];
-  const priceStr = sku.price !== null ? `USD ${sku.price.toFixed(2)} / kg` : '—';
+  const priceStr = sku.price !== null ? `USD ${sku.price.toFixed(2)} / ${m.priceUnit||'m'}` : '—';
 
   document.getElementById('sku-back-btn').textContent = '‹ ' + m.name;
   document.getElementById('sku-hero').innerHTML = `
@@ -1041,7 +1007,7 @@ function renderSkuPage(m, sku) {
       </div>
 
       <div class="spu-price-block">
-        <div class="spu-price-item"><div class="spu-price-label">Price / kg</div><div class="spu-price-val">${priceStr}</div></div>
+        <div class="spu-price-item"><div class="spu-price-label">Price / ${m.priceUnit||'m'}</div><div class="spu-price-val">${priceStr}</div></div>
         <div class="spu-price-item"><div class="spu-price-label">Lead time</div><div class="spu-price-val">${sku.lt} days</div></div>
       </div>
 
@@ -1186,7 +1152,7 @@ function renderCompanyPage(supId) {
           <div class="lib-meta">
             <span class="badge b-${m.perm.toLowerCase()}">${m.perm}</span>
             ${m.dpp ? '<span class="b-dpp">DPP-ready</span>' : ''}
-            ${m.price !== null ? `<span style="font-size:12px;color:#86868B">USD ${m.price.toFixed(2)}/kg · ${m.lt}d</span>` : `<span style="font-size:12px;color:#86868B">LT ${m.lt}d</span>`}
+            ${m.price !== null ? `<span style="font-size:12px;color:#86868B">USD ${m.price.toFixed(2)}/${m.priceUnit||'m'} · ${m.lt}d</span>` : `<span style="font-size:12px;color:#86868B">LT ${m.lt}d</span>`}
           </div>
         </div>
         <span class="lib-chev">›</span>
