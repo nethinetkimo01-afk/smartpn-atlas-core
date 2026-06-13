@@ -41,6 +41,7 @@ This is the ONLY source of truth. All sessions read from here. All sessions writ
 30_DEMO_INTERFACE_SPEC_DRAFT.md — demo interface spec draft, pending Jim review (A-H sections)
 31_DEMO_INTERFACE_SPEC_v1.md — demo interface spec v1.0, CONFIRMED by Jim 2026-06-12 (replaces 30)
 33_DEMO_SPEC_v1_2_ADDENDUM.md — v1.2 addendum: Boss BI 8 KPIs, "who viewed" privacy, role test items, CONFIRMED 2026-06-12
+34_MASTER_WORK_ORDER.md — 總工單 2026-06-12 v1.0: Jim 授權 Claude 全權安排，Code 執行順序與任務清單
 ### Layer 4 — Demo Screens (Read When Working on Demo)
 docs/preview/S01_DEMO.html through S17_DEMO.html — interactive demo screens for all 17 scenarios
 ### Layer 5 — New Projects (Add as Needed)
