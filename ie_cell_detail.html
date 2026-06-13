@@ -50,6 +50,8 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background
 .proc-table td.name{text-align:left;min-width:180px;max-width:280px;white-space:normal;line-height:1.4}
 .proc-table td.num{text-align:right;min-width:72px;color:#1a4a7a;font-family:'Consolas','Courier New',monospace}
 .proc-table td.theory{text-align:right;min-width:72px;font-weight:700;color:#0d5e2e;font-family:'Consolas','Courier New',monospace}
+.theory-line{font-size:9px;color:#aaa;margin-bottom:2px;font-family:'Consolas','Courier New',monospace}
+.actual-display{font-family:'Consolas','Courier New',monospace;font-size:11px;color:#1a4a7a;font-weight:600}
 .proc-table td.flag-cell{text-align:center;color:#c62828;font-weight:600;font-size:10px}
 .proc-table td.formula-cell{background:#f5f5f5;color:#555}
 .proc-table td.locked-cell{background:#fff8e1;color:#795548;font-weight:600}
@@ -176,16 +178,16 @@ async function loadSegment(seg) {
 
 // ── Render ────────────────────────────────────────────────────────────────────
 const SEG_COLS = {
-  cutting:   ['seq','process_name','part_name','cut_per_hour','qty_per_pair','standard_time','theory_operators','actual_operators','machine'],
-  stitching: ['seq','process_name','normal_time','allowance_pct','standard_time','theory_operators','actual_operators','machine'],
-  assembly:  ['seq','process_name','normal_time','allowance_pct','standard_time','theory_operators','actual_operators','machine'],
-  stf:       ['seq','process_name','standard_time','theory_operators','actual_operators','flag'],
+  cutting:   ['seq','process_name','part_name','cut_per_hour','qty_per_pair','standard_time','actual_operators','machine'],
+  stitching: ['seq','process_name','normal_time','allowance_pct','standard_time','actual_operators','machine'],
+  assembly:  ['seq','process_name','normal_time','allowance_pct','standard_time','actual_operators','machine'],
+  stf:       ['seq','process_name','standard_time','actual_operators','flag'],
 };
 const COL_LABELS = {
   seq:'#', process_name:'工序名稱', part_name:'部件/素材',
   cut_per_hour:'刀數/H', qty_per_pair:'量/雙',
   normal_time:'正常時間', allowance_pct:'寬放%', standard_time:'標準時間',
-  theory_operators:'理論人數', actual_operators:'實際人數',
+  actual_operators:'人數(理/實)',
   machine:'機器', flag:'備注',
 };
 const EDITABLE_FIELDS = new Set(['standard_time','actual_operators','cut_per_hour','normal_time']);
@@ -259,6 +261,23 @@ function renderCell(row, col, seg, eolr) {
   }
   if (col === 'machine')      return `<td class="num" style="color:#555;font-family:sans-serif">${esc(val ?? '')}</td>`;
 
+  if (col === 'actual_operators') {
+    const theory = row.theory_operators;
+    const stdtime = row.standard_time ?? '';
+    const theoryStr = (theory !== null && theory !== undefined) ? fmt(theory) : '—';
+    const theoryLine = `<div class="theory-line" data-stdtime="${stdtime}" data-eolr="${eolr}">理 ${theoryStr}</div>`;
+
+    if (row.is_locked) {
+      const display = val !== null && val !== undefined ? fmt(val) : '—';
+      return `<td class="num locked-cell" style="min-width:90px;padding:3px 8px">${theoryLine}<div class="actual-display">${display}</div></td>`;
+    }
+    if (row.flag === '待手工') {
+      return `<td class="flag-cell" style="color:#e65100;background:#fff3e0;min-width:90px;padding:3px 8px">${theoryLine}<div>⚠ 待手工</div></td>`;
+    }
+    const display = val !== null && val !== undefined ? fmt(val) : '';
+    return `<td class="num editable" style="min-width:90px;padding:3px 8px" onclick="startEdit(this,${pid},'actual_operators')" title="點擊填寫實際人數">${theoryLine}<div class="actual-display">${display || '—'}</div></td>`;
+  }
+
   if (col === 'theory_operators') {
     const cls = row.is_locked ? 'locked-cell theory' : 'formula-cell theory';
     const display = val !== null && val !== undefined ? fmt(val) : '—';
@@ -309,20 +328,24 @@ function setEolr(v) {
 
   // Recalculate theory_operators in DOM without full reload
   const divisor = 3600 / v;
-  document.querySelectorAll('td[data-stdtime]').forEach(td => {
-    const st = parseFloat(td.dataset.stdtime);
+  document.querySelectorAll('[data-stdtime]').forEach(el => {
+    const st = parseFloat(el.dataset.stdtime);
     if (!isNaN(st) && st > 0) {
       const theory = (st / divisor).toFixed(4).replace(/\.?0+$/, '');
-      td.textContent = theory;
+      if (el.classList.contains('theory-line')) {
+        el.textContent = '理 ' + theory;   // dual-display cell
+      } else {
+        el.textContent = theory;           // standalone theory column
+      }
     }
   });
 
   // Recalculate hand total
   let handTotal = 0;
-  document.querySelectorAll('td[data-stdtime]').forEach(td => {
-    const z = td.closest('.zone-card');
+  document.querySelectorAll('[data-stdtime]').forEach(el => {
+    const z = el.closest('.zone-card');
     if (z && !z.querySelector('.zone-locked')) {
-      const st = parseFloat(td.dataset.stdtime);
+      const st = parseFloat(el.dataset.stdtime);
       if (!isNaN(st)) handTotal += st / divisor;
     }
   });
@@ -339,8 +362,18 @@ function switchSeg(seg) {
 
 // ── Inline editing ────────────────────────────────────────────────────────────
 function startEdit(td, pid, field) {
-  const cur = td.textContent.trim();
-  td.innerHTML = `<input type="number" step="any" value="${cur}" onblur="commitEdit(this,${pid},'${field}')" onkeydown="editKey(event,this,${pid},'${field}')">`;
+  // For actual_operators dual-display cell: extract only the actual value
+  const theoryLine = td.querySelector('.theory-line');
+  const actualDiv  = td.querySelector('.actual-display');
+  let cur = '';
+  if (actualDiv) {
+    cur = actualDiv.textContent.trim();
+    if (cur === '—') cur = '';
+  } else {
+    cur = td.textContent.trim();
+  }
+  const theoryHTML = theoryLine ? theoryLine.outerHTML : '';
+  td.innerHTML = theoryHTML + `<input type="number" step="any" value="${cur}" onblur="commitEdit(this,${pid},'${field}')" onkeydown="editKey(event,this,${pid},'${field}')">`;
   td.querySelector('input').focus();
 }
 
@@ -352,21 +385,34 @@ function editKey(e, inp, pid, field) {
 function commitEdit(inp, pid, field) {
   const newVal = inp.value.trim();
   const td = inp.closest('td');
-  td.textContent = newVal || '—';
+
+  if (field === 'actual_operators') {
+    const theoryLine = td.querySelector('.theory-line');
+    const theoryHTML = theoryLine ? theoryLine.outerHTML : '';
+    td.innerHTML = theoryHTML + `<div class="actual-display">${newVal || '—'}</div>`;
+  } else {
+    td.textContent = newVal || '—';
+  }
 
   if (!EDITS[pid]) EDITS[pid] = {};
   EDITS[pid][field] = newVal;
   td.style.background = '#fff3cd';
 
-  // If editing standard_time, update theory cell in same row
+  // If editing standard_time, update theory-line divs in same row
   if (field === 'standard_time') {
     const tr = td.closest('tr');
-    const theoryCells = tr.querySelectorAll('td[data-stdtime]');
-    theoryCells.forEach(tc => {
-      tc.dataset.stdtime = newVal;
-      const divisor = 3600 / EOLR;
-      const st = parseFloat(newVal);
-      if (!isNaN(st)) tc.textContent = (st / divisor).toFixed(4).replace(/\.?0+$/, '');
+    const divisor = 3600 / EOLR;
+    const st = parseFloat(newVal);
+    tr.querySelectorAll('[data-stdtime]').forEach(el => {
+      el.dataset.stdtime = newVal;
+      if (!isNaN(st)) {
+        const theory = (st / divisor).toFixed(4).replace(/\.?0+$/, '');
+        if (el.classList.contains('theory-line')) {
+          el.textContent = '理 ' + theory;
+        } else {
+          el.textContent = theory;
+        }
+      }
     });
   }
 

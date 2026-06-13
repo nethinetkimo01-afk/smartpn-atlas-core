@@ -959,7 +959,10 @@ def get_ie_header_meta(header_id):
 
 
 def get_ie_sum(header_id, eolr=120):
-    """SUM C2B: aggregate theory_operators per segment, with offline (電腦針車) separate."""
+    """SUM C2B: aggregate actual_operators (fallback to theory) per segment.
+    Offline zones: 電腦針車 (stitching), 水蜘蛛 + 成型UV (assembly).
+    All water spiders are stored in assembly/水蜘蛛 and excluded from totals.
+    """
     eolr = int(eolr)
     target_output = eolr * 8  # pairs / 8-hour shift
 
@@ -968,7 +971,13 @@ def get_ie_sum(header_id, eolr=120):
         return {'ok': False, 'error': f'header {header_id} not found'}
 
     SEGMENTS = ['cutting', 'stitching', 'assembly', 'stf']
-    OFFLINE_ZONES = {'stitching': ['電腦針車']}
+    OFFLINE_ZONES = {
+        'stitching': ['電腦針車'],
+        'assembly':  ['水蜘蛛', '成型UV'],  # WS = overhead; 成型UV = UV machine op
+    }
+    # Segments with comprehensive actual_operators data: use strict actual (NULL=0)
+    # cutting uses theory fallback because formula rows rarely have actual filled
+    STRICT_ACTUAL_SEGS = {'assembly', 'stitching', 'stf'}
 
     result = {'ok': True, 'header_id': header_id, 'eolr': eolr,
                'target_output': target_output, 'meta': meta}
@@ -981,6 +990,7 @@ def get_ie_sum(header_id, eolr=120):
         ops_sum = 0.0
         tct_sum = 0.0
         offline_zones = OFFLINE_ZONES.get(seg, [])
+        strict = seg in STRICT_ACTUAL_SEGS
 
         for zone_entry in cell.get('zones', []):
             zname = zone_entry['zone']
@@ -989,17 +999,22 @@ def get_ie_sum(header_id, eolr=120):
             zone_ops = 0.0
             zone_tct = 0.0
             for row in zone_entry['rows']:
-                t = row.get('theory_operators')
-                # theory=None means std=NULL: use actual_operators (water spider, fixed headcount)
-                if t is None:
-                    t = row.get('actual_operators') or 0.0
+                actual = row.get('actual_operators')
+                theory = row.get('theory_operators')
+                if seg == 'cutting':
+                    # cutting：theory 優先（公式基準），水蜘蛛(theory=None) fallback actual
+                    t = theory if theory is not None else (actual or 0.0)
+                elif actual is not None:
+                    t = actual           # assembly/stitching/stf：有 actual 就用
+                else:
+                    t = 0.0              # 嚴格模式：actual=NULL → 不計入
                 zone_ops += t
                 zone_tct += row.get('standard_time') or 0.0
 
             if zname in offline_zones:
                 pph_z = round(target_output / zone_ops / 8, 3) if zone_ops else None
                 offline_list.append({
-                    'name': zname, 'eolr': eolr,
+                    'name': f'{seg}/{zname}', 'eolr': eolr,
                     'operators': round(zone_ops, 4),
                     'tct': round(zone_tct, 2),
                     'pph': pph_z,

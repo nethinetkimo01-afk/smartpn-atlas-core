@@ -61,8 +61,9 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 037 | Assembly/STF 差異查證 + get_ie_sum 邏輯分析 | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | 結論：code 邏輯正確(fallback=actual for theory=None)；差異是 SUM.C2B 用 actual_operators 非公式 |
 | 038 | 更新 verification reports + 差距根因說明 | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | sum_verification_1609.txt / sum_verification_32.txt 含根因分析 |
-| 039 | 成型面照射歸段修正（assembly→stf/照射）+ 重新驗算 | DATA SYSTEM | 進行中 | 2026-06-13 | | ie_process UPDATE + sum verification |
-| 040 | LA TRAINER STF flag='待手工' 標記 + 細表顯示橙色 | DATA SYSTEM | 排隊中 | | | |
+| 039 | 成型面照射歸段修正（zone→成型UV）+ LA TRAINER STF flag=待手工 | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | 12行zone更名；5行flag=待手工；細表橙色badge |
+| 040 | 水蜘蛛歸段→assembly/水蜘蛛(offline) + get_ie_sum 改 actual_ops + 細表雙欄 | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | STF WS→assembly; 打粗水洗actual清除; 4段PASS(切-1.7%/針0%/成0%/貼0%) |
+| 041 | SMARTPN_DEMO.html 材料圖片換 Unsplash 真實照片 | Brand Demo | 進行中 | 2026-06-13 | | docs/preview/SMARTPN_DEMO.html |
 
 ## 待 Jim 決定（不擋工）
 
