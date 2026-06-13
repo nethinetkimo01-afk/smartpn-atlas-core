@@ -63,7 +63,7 @@ Version: v1.0 | 建立: 2026-06-13
 | 038 | 更新 verification reports + 差距根因說明 | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | sum_verification_1609.txt / sum_verification_32.txt 含根因分析 |
 | 039 | 成型面照射歸段修正（zone→成型UV）+ LA TRAINER STF flag=待手工 | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | 12行zone更名；5行flag=待手工；細表橙色badge |
 | 040 | 水蜘蛛歸段→assembly/水蜘蛛(offline) + get_ie_sum 改 actual_ops + 細表雙欄 | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | STF WS→assembly; 打粗水洗actual清除; 4段PASS(切-1.7%/針0%/成0%/貼0%) |
-| 041 | SMARTPN_DEMO.html 材料圖片換 Unsplash 真實照片 | Brand Demo | 進行中 | 2026-06-13 | | docs/preview/SMARTPN_DEMO.html |
+| 041 | SMARTPN_DEMO.html 材料圖片換 Unsplash 真實照片 | Brand Demo | ✅完成 | 2026-06-13 | 2026-06-13 | SMARTPN_DEMO.html+SUPPLIER: 12張卡片+5分類縮圖+mat-row-img |
 
 ## 待 Jim 決定（不擋工）
 
