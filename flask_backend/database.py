@@ -990,13 +990,9 @@ def get_ie_sum(header_id, eolr=120):
             zone_tct = 0.0
             for row in zone_entry['rows']:
                 t = row.get('theory_operators')
+                # theory=None means std=NULL: use actual_operators (water spider, fixed headcount)
                 if t is None:
                     t = row.get('actual_operators') or 0.0
-                # Only fallback to actual_operators for locked rows (e.g. STF water washing)
-                if t is None and row.get('is_locked'):
-                    t = row.get('actual_operators') or 0.0
-                if t is None:
-                    t = 0.0
                 zone_ops += t
                 zone_tct += row.get('standard_time') or 0.0
 

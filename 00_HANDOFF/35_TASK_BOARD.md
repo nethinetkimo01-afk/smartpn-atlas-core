@@ -59,6 +59,10 @@ Version: v1.0 | 建立: 2026-06-13
 | 035 | 1609ER RS 四段導入 | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | ie_import_1609er_rs.py / header49(EOLR=120)+160(EOLR=60) / 寬幅裁斷格式 |
 | 036 | SUM C2B 驗算 1609ER（EOLR=60+120 對照） | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | test_output/sum_verification_1609.txt — EOLR=120: 裁12.29/針33.08/成35.52/貼14.11 |
 
+| 037 | Assembly/STF 差異查證 + get_ie_sum 邏輯分析 | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | 結論：code 邏輯正確(fallback=actual for theory=None)；差異是 SUM.C2B 用 actual_operators 非公式 |
+| 038 | 更新 verification reports + 差距根因說明 | DATA SYSTEM | ✅完成 | 2026-06-13 | 2026-06-13 | sum_verification_1609.txt / sum_verification_32.txt 含根因分析 |
+| 039 | LA TRAINER STF 補導入（打粗/照射/貼底 真實工序） | DATA SYSTEM | 排隊中 | | | |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |
