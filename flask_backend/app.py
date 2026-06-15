@@ -185,6 +185,22 @@ def ie_remove_art():
     return jsonify(db.remove_art_from_header(art, int(header_id)))
 
 
+@app.route('/api/ie/<int:header_id>/delete', methods=['POST'])
+def ie_delete_header(header_id):
+    return jsonify(db.delete_ie_header(header_id))
+
+@app.route('/api/ie/create_record', methods=['POST'])
+def ie_create_record():
+    data = request.get_json(force=True)
+    art = (data.get('art') or '').strip()
+    model_name = (data.get('model_name') or '').strip()
+    eolr = data.get('eolr', 120)
+    if not art or not model_name:
+        return jsonify({'ok': False, 'error': 'art and model_name required'}), 400
+    if int(eolr) not in (60, 120):
+        return jsonify({'ok': False, 'error': 'eolr must be 60 or 120'}), 400
+    return jsonify(db.create_ie_record(art, model_name, int(eolr)))
+
 @app.route('/api/ie/export/<int:header_id>')
 def ie_export(header_id):
     if not HAS_XLSX:

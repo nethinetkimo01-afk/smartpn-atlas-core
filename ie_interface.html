@@ -80,6 +80,11 @@ thead th:last-child{border-right:none}
 
 .loading{text-align:center;padding:40px;color:#888}
 .empty{text-align:center;padding:30px;color:#aaa;font-size:12px}
+
+.act-cell{text-align:center;padding:2px 4px;white-space:nowrap;border-right:1px solid #e4e9f2;vertical-align:middle}
+.btn-add-rec,.btn-del-rec{background:transparent;border:none;cursor:pointer;font-size:12px;font-weight:700;border-radius:3px;padding:1px 5px;line-height:1.5}
+.btn-add-rec{color:#1d9e6b}.btn-add-rec:hover{background:#e8f5e9;color:#155d3d}
+.btn-del-rec{color:#e53935}.btn-del-rec:hover{background:#ffebee;color:#b71c1c}
 </style>
 </head>
 <body>
@@ -110,6 +115,7 @@ thead th:last-child{border-right:none}
   <table>
     <thead>
       <tr>
+        <th style="width:46px;text-align:center;border-right:1px solid #c8d5ed;padding:4px 2px"></th>
         <th id="th-season" style="min-width:70px">生產季度</th>
         <th id="th-model"  class="th-left" style="min-width:180px">鞋型</th>
         <th id="th-arts"   class="th-left" style="min-width:140px">ART 列表</th>
@@ -122,7 +128,7 @@ thead th:last-child{border-right:none}
       </tr>
     </thead>
     <tbody id="ie-tbody">
-      <tr><td colspan="9" class="loading">載入中...</td></tr>
+      <tr><td colspan="10" class="loading">載入中...</td></tr>
     </tbody>
   </table>
 </div>
@@ -264,6 +270,7 @@ function renderGroup(g){
     (linkId ? `<br><a href="${detailHref}" class="detail-link">${esc(detailTxt)}</a>` : '');
   const artsVal   = chips || '<span style="color:#aaa;font-size:11px">—</span>';
   const matVal    = matText(g.mat);
+  const modelJ    = esc(JSON.stringify(g.model_name));
 
   function leftCells(){
     return `<td class="season-cell">${seasonVal}</td>`+
@@ -271,17 +278,18 @@ function renderGroup(g){
            `<td class="arts-cell">${artsVal}</td>`+
            `<td class="mat-cell">${matVal}</td>`;
   }
-  function leftCellsDim(){
-    return `<td class="season-cell" style="color:#ccc;font-size:10px">${seasonVal}</td>`+
-           `<td class="model-cell" style="color:#ccc;font-size:10px"></td>`+
-           `<td class="arts-cell" style="color:#ccc;font-size:10px"></td>`+
-           `<td class="mat-cell" style="color:#ccc;font-size:10px"></td>`;
+  function leftCellsEmpty(){
+    return `<td class="season-cell"></td>`+
+           `<td class="model-cell"></td>`+
+           `<td class="arts-cell"></td>`+
+           `<td class="mat-cell"></td>`;
   }
 
   let rows = '';
 
   if(has60){
     rows += `<tr class="tr-eolr ${both ? 'tr-model-first' : 'tr-single'}">
+      <td class="act-cell"><button class="btn-add-rec" onclick="addIeRecord(${modelJ})" title="新增ART">＋</button> <button class="btn-del-rec" onclick="delIeRecord(${g.id60})" title="刪除">×</button></td>
       ${leftCells()}
       <td class="eolr-cell"><span class="eolr-60">60</span></td>
       ${mpRow(g.r60)}
@@ -290,7 +298,8 @@ function renderGroup(g){
 
   if(has120){
     rows += `<tr class="tr-eolr ${both ? 'tr-model-second' : 'tr-single'}">
-      ${both ? leftCellsDim() : leftCells()}
+      <td class="act-cell">${!has60 ? `<button class="btn-add-rec" onclick="addIeRecord(${modelJ})" title="新增ART">＋</button> ` : ''}<button class="btn-del-rec" onclick="delIeRecord(${g.id120})" title="刪除">×</button></td>
+      ${both ? leftCellsEmpty() : leftCells()}
       <td class="eolr-cell"><span class="eolr-120">120</span></td>
       ${mpRow(g.r120)}
     </tr>`;
@@ -298,6 +307,7 @@ function renderGroup(g){
 
   if(!has60 && !has120){
     rows = `<tr class="tr-eolr tr-single">
+      <td class="act-cell"><button class="btn-add-rec" onclick="addIeRecord(${modelJ})" title="新增ART">＋</button></td>
       ${leftCells()}
       <td class="eolr-cell">—</td>
       <td class="mp-cell" colspan="4"><span class="mp-na">—</span></td>
@@ -315,7 +325,7 @@ function updateStats(){
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 async function loadData(){
-  document.getElementById('ie-tbody').innerHTML=`<tr><td colspan="9" class="loading">${esc(L('loading'))}</td></tr>`;
+  document.getElementById('ie-tbody').innerHTML=`<tr><td colspan="10" class="loading">${esc(L('loading'))}</td></tr>`;
   try{
     const res  = await fetch('/api/ie/list');
     const data = await res.json();
@@ -325,13 +335,13 @@ async function loadData(){
     updateStats();
     fixStickyOffsets();
   }catch(e){
-    document.getElementById('ie-tbody').innerHTML=`<tr><td colspan="9" class="empty">${esc(L('offline'))}</td></tr>`;
+    document.getElementById('ie-tbody').innerHTML=`<tr><td colspan="10" class="empty">${esc(L('offline'))}</td></tr>`;
   }
 }
 
 function renderGroupedTable(groups){
   const tbody = document.getElementById('ie-tbody');
-  if(!groups.length){ tbody.innerHTML=`<tr><td colspan="9" class="empty">${esc(L('empty'))}</td></tr>`; return; }
+  if(!groups.length){ tbody.innerHTML=`<tr><td colspan="10" class="empty">${esc(L('empty'))}</td></tr>`; return; }
   tbody.innerHTML = groups.map(renderGroup).join('');
 }
 
@@ -343,6 +353,31 @@ function filterTable(){
     (r.arts||[]).some(a=>a.toLowerCase().includes(q))
   );
   renderGroupedTable(groupByModel(filtered));
+}
+
+// ── Actions ───────────────────────────────────────────────────────────────────
+async function addIeRecord(modelName){
+  const art = prompt(`新增 ART（鞋型：${modelName}）：`);
+  if(!art || !art.trim()) return;
+  const eolrStr = prompt('EOLR（60 或 120）：','120');
+  const eolr = parseInt(eolrStr);
+  if(![60,120].includes(eolr)){ alert('EOLR 只能是 60 或 120'); return; }
+  const r = await fetch('/api/ie/create_record',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({art:art.trim(), model_name:modelName, eolr}),
+  });
+  const j = await r.json();
+  if(j.ok) loadData();
+  else alert('新增失敗：'+(j.error||''));
+}
+
+async function delIeRecord(id){
+  if(!confirm('確認刪除此 EOLR 記錄？此操作不可復原。')) return;
+  const r = await fetch('/api/ie/'+id+'/delete',{method:'POST'});
+  const j = await r.json();
+  if(j.ok) loadData();
+  else alert('刪除失敗：'+(j.error||''));
 }
 
 // ── Health check ──────────────────────────────────────────────────────────────

@@ -91,6 +91,8 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 057 | Cutting段最終修正：所有區統一19欄+DB修正 | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | ATOM qty_per_pair=2/Lưỡi gà std=7.2; renderCuttingZoneCard+renderCuttingRow統一; 2-row header; 標時用儲存值 |
 
+| 058 | 主表+細表修正（EOLR分行/MP1位/+×按鈕/Output欄/水蜘蛛+） | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | ie_interface.html: EOLR第2行空格/act-cell+×/+按鈕/colspan10; ie_cell_detail.html: 水蜘蛛+修正; database.py+app.py: delete+create端點 |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |

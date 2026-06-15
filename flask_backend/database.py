@@ -466,6 +466,47 @@ def remove_art_from_header(art, header_id):
         conn.close()
 
 
+def delete_ie_header(header_id):
+    """Delete a single ob_header record and all its related data."""
+    conn = get_conn()
+    try:
+        conn.execute('DELETE FROM ob_articles WHERE header_id=?', (header_id,))
+        conn.execute('DELETE FROM ob_epph     WHERE header_id=?', (header_id,))
+        conn.execute('DELETE FROM ob_rows     WHERE header_id=?', (header_id,))
+        conn.execute('DELETE FROM ie_process  WHERE header_id=?', (header_id,))
+        conn.execute('DELETE FROM ob_header   WHERE id=?',        (header_id,))
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        conn.rollback()
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def create_ie_record(art, model_name, eolr):
+    """Create a new ob_header + ob_articles record."""
+    import datetime
+    conn = get_conn()
+    try:
+        ts = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
+        header_id = conn.execute(
+            'INSERT INTO ob_header (model_name, eolr, run, created_at, updated_at) VALUES (?,?,1,?,?)',
+            (model_name, int(eolr), ts, ts)
+        ).lastrowid
+        conn.execute(
+            'INSERT OR IGNORE INTO ob_articles (header_id, art) VALUES (?,?)',
+            (header_id, art.strip())
+        )
+        conn.commit()
+        return {'ok': True, 'header_id': header_id}
+    except Exception as e:
+        conn.rollback()
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
 def get_ie_model_detail(header_id):
     """Return single header with arts, epph, and ie_sheet_data sheet name list."""
     conn = get_conn()

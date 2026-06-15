@@ -859,7 +859,7 @@ function newStage() {
 function renderAddTriggerRow(zone, seg) {
   const zJ   = esc(JSON.stringify(zone));
   const segJ = esc(JSON.stringify(seg));
-  const fn   = (seg === 'cutting') ? `addCuttingRow(${zJ})` : `addRowInline(${zJ},${segJ})`;
+  const fn   = (seg === 'cutting' && zone !== WS) ? `addCuttingRow(${zJ})` : `addRowInline(${zJ},${segJ})`;
   return `<tr class="add-trigger-row"><td colspan="100" class="add-trigger-cell"><button class="btn-add-zone" onclick="${fn}">＋</button></td></tr>`;
 }
 
