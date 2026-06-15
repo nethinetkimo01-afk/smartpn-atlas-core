@@ -105,6 +105,8 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 062b | 廠務編制系統：DS-04明細表CRUD+EOLR設定+廠務編制表 | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | /ds04(CRUD)+/eolr-settings(33 LEAN)+/bianche(440筆 MP)+schema+5fd0261 |
 
+| 064 | Task062兩項修正：bianche全1454筆+ds04確認鎖定 | DATA SYSTEM | 進行中 | 2026-06-15 | — | /bianche全筆無IE顯示—; /ds04確認鎖定+ds04_lock表 |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |

@@ -1754,7 +1754,58 @@ def ds04_get_filters():
     finally:
         conn.close()
 
+def ds04_get_lock_status(month):
+    conn = get_conn()
+    try:
+        r = conn.execute('SELECT month, locked_at, locked_by FROM ds04_lock WHERE month=?', (month,)).fetchone()
+        if r:
+            return {'ok': True, 'locked': True, 'month': r['month'],
+                    'locked_at': r['locked_at'], 'locked_by': r['locked_by']}
+        return {'ok': True, 'locked': False, 'month': month}
+    finally:
+        conn.close()
+
+def ds04_lock_month(month, locked_by=''):
+    conn = get_conn()
+    try:
+        ts = now_iso()
+        conn.execute(
+            '''INSERT INTO ds04_lock (month, locked_at, locked_by)
+               VALUES (?,?,?)
+               ON CONFLICT(month) DO UPDATE SET locked_at=excluded.locked_at, locked_by=excluded.locked_by''',
+            (month, ts, locked_by)
+        )
+        conn.commit()
+        return {'ok': True, 'month': month, 'locked_at': ts}
+    except Exception as e:
+        conn.rollback(); return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+def ds04_unlock_month(month):
+    conn = get_conn()
+    try:
+        conn.execute('DELETE FROM ds04_lock WHERE month=?', (month,))
+        conn.commit()
+        return {'ok': True, 'month': month}
+    except Exception as e:
+        conn.rollback(); return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+def _check_ds04_lock(month):
+    """Return error dict if month is locked, else None."""
+    if not month:
+        return None
+    status = ds04_get_lock_status(month)
+    if status.get('locked'):
+        return {'ok': False, 'error': f'本月 {month} 已確認鎖定，無法修改。如需解鎖請聯繫管理員。'}
+    return None
+
 def ds04_add_order(data):
+    lock_err = _check_ds04_lock(data.get('month', ''))
+    if lock_err:
+        return lock_err
     conn = get_conn()
     try:
         ts = now_iso()
@@ -1778,6 +1829,9 @@ def ds04_add_order(data):
         conn.close()
 
 def ds04_update_order(order_id, data):
+    lock_err = _check_ds04_lock(data.get('month', ''))
+    if lock_err:
+        return lock_err
     conn = get_conn()
     try:
         ts = now_iso()
@@ -1804,7 +1858,10 @@ def ds04_update_order(order_id, data):
     finally:
         conn.close()
 
-def ds04_delete_order(order_id):
+def ds04_delete_order(order_id, month=''):
+    lock_err = _check_ds04_lock(month)
+    if lock_err:
+        return lock_err
     conn = get_conn()
     try:
         ts = now_iso()
@@ -1951,28 +2008,34 @@ def get_bianche_data(month='2026-06'):
 
         results = []
         for ord_row in order_rows:
-            lean = ord_row['lean']
-            art  = ord_row['art']
-            qty  = ord_row['qty'] or 0
-            eolr = eolr_map.get(lean, 120)
+            lean   = ord_row['lean']
+            art    = ord_row['art']
+            qty    = ord_row['qty'] or 0
+            eolr   = eolr_map.get(lean, 120)
             is_out = ord_row['is_outsource'] or 0
+            has_ie = art in ie_data
 
-            cut_ie   = zone_mp(art, CUTTING_ZONES, eolr)
-            cut_mv   = zone_moved(art, AUTO_ZONES)
-            stch_ie  = zone_mp(art, STITCH_ZONES, eolr)
-            stch_mv  = zone_moved(art, STITCH_ZONES)
-            asm_ie   = zone_mp(art, ASSEMBLY_ZONES, eolr)
-            asm_mv   = zone_moved(art, ASSEMBLY_ZONES)
-            tct      = zone_tct(art, STF_ZONES)
-            stf_mp   = round(qty * tct / 3600.0 / 222.0, 4) if tct else 0
+            if has_ie:
+                cut_ie   = zone_mp(art, CUTTING_ZONES, eolr)
+                cut_mv   = zone_moved(art, AUTO_ZONES)
+                stch_ie  = zone_mp(art, STITCH_ZONES, eolr)
+                stch_mv  = zone_moved(art, STITCH_ZONES)
+                asm_ie   = zone_mp(art, ASSEMBLY_ZONES, eolr)
+                asm_mv   = zone_moved(art, ASSEMBLY_ZONES)
+                tct      = zone_tct(art, STF_ZONES)
+                stf_mp   = round(qty * tct / 3600.0 / 222.0, 4) if tct else 0
 
-            if is_out:
-                cut_act  = 0.0
-                stch_act = 0.0
+                if is_out:
+                    cut_act  = 0.0
+                    stch_act = 0.0
+                else:
+                    cut_act  = round(cut_ie - cut_mv, 4)
+                    stch_act = round(stch_ie - stch_mv, 4)
+                asm_act = round(asm_ie - asm_mv, 4)
             else:
-                cut_act  = round(cut_ie - cut_mv, 4)
-                stch_act = round(stch_ie - stch_mv, 4)
-            asm_act = round(asm_ie - asm_mv, 4)
+                cut_ie = stch_ie = asm_ie = 0.0
+                cut_mv = stch_mv = asm_mv = 0.0
+                cut_act = stch_act = asm_act = stf_mp = None
 
             results.append({
                 'lean': lean,
@@ -1980,6 +2043,7 @@ def get_bianche_data(month='2026-06'):
                 'art': art,
                 'qty': qty,
                 'is_outsource': is_out,
+                'has_ie': has_ie,
                 'eolr': eolr,
                 # IE (before allocation)
                 'cutting_ie_mp':   cut_ie,
@@ -1989,22 +2053,23 @@ def get_bianche_data(month='2026-06'):
                 'cutting_moved':   cut_mv,
                 'stitching_moved': stch_mv,
                 'assembly_moved':  asm_mv,
-                # Actual
+                # Actual (None = no IE data)
                 'cutting_mp':   cut_act,
                 'stitching_mp': stch_act,
                 'assembly_mp':  asm_act,
                 'stf_mp':       stf_mp,
-                'total_mp':     round(cut_act + stch_act + asm_act + stf_mp, 4),
+                'total_mp':     round((cut_act or 0) + (stch_act or 0) + (asm_act or 0) + (stf_mp or 0), 4),
                 # Manual
                 'manager_mp':  manual_map.get(lean, {}).get('manager_mp', 0),
                 'headcount':   manual_map.get(lean, {}).get('headcount', 0),
             })
 
+        def _s(r, k): return r[k] if r[k] is not None else 0
         totals = {
-            'cutting':   round(sum(r['cutting_mp']   for r in results), 2),
-            'stitching': round(sum(r['stitching_mp'] for r in results), 2),
-            'assembly':  round(sum(r['assembly_mp']  for r in results), 2),
-            'stf':       round(sum(r['stf_mp']       for r in results), 2),
+            'cutting':   round(sum(_s(r,'cutting_mp')   for r in results), 2),
+            'stitching': round(sum(_s(r,'stitching_mp') for r in results), 2),
+            'assembly':  round(sum(_s(r,'assembly_mp')  for r in results), 2),
+            'stf':       round(sum(_s(r,'stf_mp')       for r in results), 2),
         }
         totals['grand'] = round(sum(totals.values()), 2)
 

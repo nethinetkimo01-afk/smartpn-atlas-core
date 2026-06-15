@@ -969,7 +969,22 @@ def ds04_update_order(order_id):
 
 @app.route('/api/ds04/order/<int:order_id>', methods=['DELETE'])
 def ds04_delete_order(order_id):
-    return jsonify(db.ds04_delete_order(order_id))
+    month = request.args.get('month', '')
+    return jsonify(db.ds04_delete_order(order_id, month))
+
+@app.route('/api/ds04/lock', methods=['GET'])
+def get_ds04_lock():
+    month = request.args.get('month', '2026-06')
+    return jsonify(db.ds04_get_lock_status(month))
+
+@app.route('/api/ds04/lock', methods=['POST'])
+def lock_ds04():
+    data = request.get_json(force=True)
+    action = data.get('action', 'lock')
+    month  = data.get('month', '2026-06')
+    if action == 'unlock':
+        return jsonify(db.ds04_unlock_month(month))
+    return jsonify(db.ds04_lock_month(month, data.get('locked_by', '')))
 
 @app.route('/api/eolr-settings', methods=['GET'])
 def get_eolr_settings():

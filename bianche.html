@@ -32,6 +32,9 @@ td.al{text-align:left}
 tr.total-row td{background:#e8eef8;font-weight:700}
 tr.out-row td{background:#fff3e0}
 .badge-out{background:#ff9800;color:#fff;font-size:10px;padding:1px 5px;border-radius:3px}
+.badge-noie{background:#bdbdbd;color:#fff;font-size:10px;padding:1px 5px;border-radius:3px}
+tr.no-ie-row td{color:#aaa}
+tr.no-ie-row td.al{color:#888}
 .mp-cell{font-weight:600;color:#1565c0}
 .zero-mp{color:#bbb}
 .manual-input{width:60px;padding:2px 5px;border:1px solid #ccd;border-radius:3px;font-size:12px;text-align:center}
@@ -64,6 +67,7 @@ tr.out-row td{background:#fff3e0}
   <div class="kpi">成型MP <strong id="s_asm">—</strong></div>
   <div class="kpi">STF MP <strong id="s_stf">—</strong></div>
   <div class="kpi">合計 <strong id="s_total">—</strong></div>
+  <div class="kpi" style="margin-left:auto;opacity:.7">無IE資料 <strong id="s_noie" style="color:#ffcc80">—</strong> 筆</div>
 </div>
 
 <div class="content" id="content"><div class="loading">載入中...</div></div>
@@ -86,19 +90,22 @@ async function load() {
     const res = await fetch(`/api/bianche?month=${month}`).then(r=>r.json());
     if (!res.ok) { document.getElementById('content').innerHTML=`<div class="no-data">錯誤: ${res.error||'未知'}</div>`; return; }
     _rows = res.rows || [];
-    updateSummary(res.totals || {});
+    updateSummary(res.totals || {}, _rows);
     render(_rows);
   } catch(e) {
     document.getElementById('content').innerHTML=`<div class="no-data">載入失敗: ${e}</div>`;
   }
 }
 
-function updateSummary(t) {
+function updateSummary(t, rows) {
   document.getElementById('s_cut').textContent   = fmt(t.cutting);
   document.getElementById('s_stch').textContent  = fmt(t.stitching);
   document.getElementById('s_asm').textContent   = fmt(t.assembly);
   document.getElementById('s_stf').textContent   = fmt(t.stf);
   document.getElementById('s_total').textContent = fmt(t.grand);
+  const noIe = (rows||[]).filter(r=>!r.has_ie).length;
+  const noIeEl = document.getElementById('s_noie');
+  if (noIeEl) noIeEl.textContent = noIe;
 }
 
 function render(rows) {
@@ -138,23 +145,32 @@ function render(rows) {
         <tbody>`;
 
     lrows.forEach(r => {
-      const grand = r.cutting_mp + r.stitching_mp + r.assembly_mp + r.stf_mp;
+      const cut  = r.cutting_mp;
+      const stch = r.stitching_mp;
+      const asm  = r.assembly_mp;
+      const stf  = r.stf_mp;
+      const grand = (cut||0) + (stch||0) + (asm||0) + (stf||0);
       const mgr = r.manager_mp || 0;
       const hc  = r.headcount  || 0;
-      html += `<tr class="${r.is_outsource ? 'out-row' : ''}">
-        <td class="al">${esc(r.model_name)} ${r.is_outsource?'<span class="badge-out">外包鞋面</span>':''}</td>
+      const noIe = !r.has_ie;
+      const rowCls = noIe ? 'no-ie-row' : (r.is_outsource ? 'out-row' : '');
+      html += `<tr class="${rowCls}">
+        <td class="al">${esc(r.model_name)}
+          ${r.is_outsource?'<span class="badge-out">外包鞋面</span>':''}
+          ${noIe?'<span class="badge-noie" title="尚未建IE表">無IE</span>':''}
+        </td>
         <td>${esc(r.art)}</td>
         <td>${(r.qty||0).toLocaleString()}</td>
         ${_jimMode ? `<td class="zero-mp">${fmt(r.cutting_ie_mp)}</td><td class="zero-mp">${fmt(r.cutting_moved)}</td>` : ''}
-        <td class="${r.cutting_mp?'mp-cell':'zero-mp'}">${fmt(r.cutting_mp)}</td>
+        <td class="${cut?'mp-cell':'zero-mp'}">${fmt(cut)}</td>
         ${_jimMode ? `<td class="zero-mp">${fmt(r.stitching_ie_mp)}</td><td class="zero-mp">${fmt(r.stitching_moved)}</td>` : ''}
-        <td class="${r.stitching_mp?'mp-cell':'zero-mp'}">${fmt(r.stitching_mp)}</td>
+        <td class="${stch?'mp-cell':'zero-mp'}">${fmt(stch)}</td>
         ${_jimMode ? `<td class="zero-mp">${fmt(r.assembly_ie_mp)}</td><td class="zero-mp">${fmt(r.assembly_moved)}</td>` : ''}
-        <td class="${r.assembly_mp?'mp-cell':'zero-mp'}">${fmt(r.assembly_mp)}</td>
-        <td class="${r.stf_mp?'mp-cell':'zero-mp'}">${fmt(r.stf_mp)}</td>
+        <td class="${asm?'mp-cell':'zero-mp'}">${fmt(asm)}</td>
+        <td class="${stf?'mp-cell':'zero-mp'}">${fmt(stf)}</td>
         <td><input class="manual-input" type="number" step="0.01" value="${mgr||''}"
             onchange="saveManual('${esc(lean)}','manager_mp',this.value, this)" placeholder="—"></td>
-        <td class="mp-cell">${fmt(grand + mgr)}</td>
+        <td class="${grand?'mp-cell':'zero-mp'}">${fmt(grand + mgr)}</td>
         <td><input class="manual-input" type="number" step="0.1" value="${hc||''}"
             onchange="saveManual('${esc(lean)}','headcount',this.value, this)" placeholder="—"></td>
       </tr>`;

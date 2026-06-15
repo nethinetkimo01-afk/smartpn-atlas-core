@@ -12,8 +12,10 @@ body{font-family:'Microsoft JhengHei',Arial,sans-serif;font-size:13px;background
 .filters{background:#fff;border-bottom:1px solid #dde;padding:8px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .filters label{font-size:12px;color:#666;display:flex;gap:4px;align-items:center}
 .filters select{padding:4px 8px;border:1px solid #ccd;border-radius:4px;font-size:12px}
-.stat-bar{background:#eef3fb;padding:5px 16px;font-size:12px;color:#555;border-bottom:1px solid #dde}
+.stat-bar{background:#eef3fb;padding:5px 16px;font-size:12px;color:#555;border-bottom:1px solid #dde;display:flex;align-items:center;gap:16px}
 .stat-bar span{font-weight:700;color:#1e3a5f}
+.lock-badge{background:#c62828;color:#fff;padding:2px 9px;border-radius:3px;font-size:11px;font-weight:700}
+.lock-badge.unlocked{background:#2e7d32}
 .content{padding:12px 16px;overflow-x:auto}
 .lean-group{margin-bottom:16px;border:1px solid #d0d8e8;border-radius:6px;overflow:hidden}
 .lean-header{background:#2d5a9e;color:#fff;padding:6px 12px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600}
@@ -35,6 +37,10 @@ tr:hover td{background:#f5f8ff}
 .btn-del:hover{background:#f8bbd0}
 .btn-add{background:#2d5a9e;color:#fff;padding:5px 12px;font-size:12px}
 .btn-dl{background:#2e7d32;color:#fff;padding:5px 12px;font-size:12px}
+.btn-confirm{background:#ff6f00;color:#fff;padding:5px 14px;font-size:12px;font-weight:700}
+.btn-confirm:hover{background:#e65100}
+.btn-confirm.locked{background:#c62828}
+.btn-confirm.locked:hover{background:#b71c1c}
 .no-data,.loading{text-align:center;padding:40px;color:#999}
 /* Modal */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;display:none;align-items:center;justify-content:center}
@@ -48,16 +54,25 @@ tr:hover td{background:#f5f8ff}
 .btn-cancel{background:#eee;color:#555}
 .btn-save{background:#2d5a9e;color:#fff}
 .toast{position:fixed;bottom:20px;right:20px;background:#1e3a5f;color:#fff;padding:9px 16px;border-radius:5px;font-size:12px;display:none;z-index:999}
+button:disabled{opacity:.4;cursor:not-allowed}
 </style>
 </head>
 <body>
 <div class="topbar">
   <h1>DS-04 明細表</h1>
+  <label style="color:#adc8f0;font-size:12px">月份
+    <select id="selMonth" onchange="onMonthChange()" style="margin-left:4px;padding:3px 7px;font-size:12px;border-radius:3px;border:none">
+      <option value="2026-06">2026-06</option>
+      <option value="2026-07">2026-07</option>
+      <option value="2026-05">2026-05</option>
+    </select>
+  </label>
   <a href="/eolr-settings">EOLR設定 →</a>
   <a href="/allocation">勾選表 →</a>
   <a href="/bianche">廠務編制表 →</a>
-  <button class="btn btn-add" onclick="openAdd()">＋ 新增指令</button>
+  <button id="btnAdd" class="btn btn-add" onclick="openAdd()">＋ 新增指令</button>
   <button class="btn btn-dl" onclick="downloadXlsx()">⬇ 下載 xlsx</button>
+  <button id="btnConfirm" class="btn btn-confirm" onclick="toggleLock()">確認本月資料</button>
 </div>
 
 <div class="filters">
@@ -71,7 +86,10 @@ tr:hover td{background:#f5f8ff}
     </select>
   </label>
 </div>
-<div class="stat-bar" id="statBar">載入中...</div>
+<div class="stat-bar" id="statBar">
+  <span id="statText">載入中...</span>
+  <span id="lockStatus"></span>
+</div>
 <div class="content" id="content"><div class="loading">載入中...</div></div>
 
 <!-- Edit/Add Modal -->
@@ -99,12 +117,69 @@ tr:hover td{background:#f5f8ff}
 
 <script>
 let _rows = [];
+let _locked = false;
+let _lockedAt = '';
 
 async function init() {
   const f = await fetch('/api/ds04/filters').then(r=>r.json());
   const sd=document.getElementById('selDept'), sl=document.getElementById('selLean');
   (f.depts||[]).forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;sd.appendChild(o);});
   (f.leans||[]).forEach(l=>{const o=document.createElement('option');o.value=l;o.textContent=l;sl.appendChild(o);});
+  await loadLockStatus();
+  loadData();
+}
+
+function currentMonth() { return document.getElementById('selMonth').value; }
+
+async function loadLockStatus() {
+  const res = await fetch(`/api/ds04/lock?month=${currentMonth()}`).then(r=>r.json());
+  _locked = res.locked || false;
+  _lockedAt = res.locked_at || '';
+  updateLockUI();
+}
+
+function updateLockUI() {
+  const btn = document.getElementById('btnConfirm');
+  const addBtn = document.getElementById('btnAdd');
+  const ls = document.getElementById('lockStatus');
+  if (_locked) {
+    btn.textContent = '🔒 已鎖定（點此解鎖）';
+    btn.classList.add('locked');
+    addBtn.disabled = true;
+    ls.innerHTML = `<span class="lock-badge">已鎖定 ${_lockedAt ? _lockedAt.slice(0,10) : ''}</span>`;
+  } else {
+    btn.textContent = '確認本月資料';
+    btn.classList.remove('locked');
+    addBtn.disabled = false;
+    ls.innerHTML = '<span class="lock-badge unlocked">未鎖定</span>';
+  }
+  // Refresh table to enable/disable row buttons
+  if (_rows.length) render(_rows);
+}
+
+async function toggleLock() {
+  const month = currentMonth();
+  if (_locked) {
+    if (!confirm(`解鎖 ${month}？解鎖後可再修改資料。`)) return;
+    const r = await fetch('/api/ds04/lock', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'unlock', month})
+    }).then(r=>r.json());
+    if (r.ok) { _locked = false; _lockedAt = ''; showToast('已解鎖'); updateLockUI(); }
+    else alert('解鎖失敗: ' + (r.error||''));
+  } else {
+    if (!confirm(`確認鎖定 ${month} 的資料？鎖定後不可新增/修改/刪除，廠務編制表將以此為計算來源。`)) return;
+    const r = await fetch('/api/ds04/lock', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'lock', month, locked_by: 'user'})
+    }).then(r=>r.json());
+    if (r.ok) { _locked = true; _lockedAt = r.locked_at||''; showToast(`${month} 已確認鎖定`); updateLockUI(); }
+    else alert('鎖定失敗: ' + (r.error||''));
+  }
+}
+
+async function onMonthChange() {
+  await loadLockStatus();
   loadData();
 }
 
@@ -124,7 +199,7 @@ async function loadData() {
 
 function render(rows) {
   const wb=rows.filter(r=>r.is_outsource_upper).length;
-  document.getElementById('statBar').innerHTML=`共 <span>${rows.length}</span> 筆　外包鞋面 <span>${wb}</span> 筆`;
+  document.getElementById('statText').innerHTML=`共 <span>${rows.length}</span> 筆　外包鞋面 <span>${wb}</span> 筆`;
   if(!rows.length){document.getElementById('content').innerHTML='<div class="no-data">無資料</div>';return;}
   const byLean={};
   rows.forEach(r=>{if(!byLean[r.lean])byLean[r.lean]=[];byLean[r.lean].push(r);});
@@ -147,6 +222,8 @@ function render(rows) {
         if(r.model_name) html+=`<tr class="model-sep"><td colspan="7">▸ ${esc(r.model_name)}</td></tr>`;
         lastM=r.model_name;
       }
+      const dis = _locked ? 'disabled' : '';
+      const dataR = esc(JSON.stringify(r).replace(/'/g,"&#39;"));
       html+=`<tr>
         <td>${esc(r.model_name)}</td>
         <td>${esc(r.art)}</td>
@@ -154,8 +231,10 @@ function render(rows) {
         <td><b>${(r.qty||0).toLocaleString()}</b></td>
         <td style="color:#666">${esc(r.delivery_date)}</td>
         <td>${r.is_outsource_upper?'<span class="badge-y">Y</span>':''}</td>
-        <td><button class="btn btn-edit" onclick='openEdit(${JSON.stringify(r)})'>編輯</button>
-            <button class="btn btn-del" onclick="delRow(${r.id})">刪除</button></td>
+        <td>
+          <button class="btn btn-edit" onclick='openEdit(${JSON.stringify(r)})' ${dis}>編輯</button>
+          <button class="btn btn-del" onclick="delRow(${r.id})" ${dis}>刪除</button>
+        </td>
       </tr>`;
     });
     html+='</tbody></table></div>';
@@ -164,6 +243,7 @@ function render(rows) {
 }
 
 function openAdd() {
+  if(_locked){alert('本月已鎖定，無法新增');return;}
   document.getElementById('modalTitle').textContent='新增指令';
   document.getElementById('editId').value='';
   ['fDept','fLean','fModel','fArt','fOrderNo','fDate'].forEach(id=>document.getElementById(id).value='');
@@ -189,6 +269,7 @@ function closeModal(){ document.getElementById('overlay').classList.remove('show
 async function saveRow() {
   const id=document.getElementById('editId').value;
   const body={
+    month: currentMonth(),
     dept:document.getElementById('fDept').value,
     lean:document.getElementById('fLean').value,
     model_name:document.getElementById('fModel').value,
@@ -206,14 +287,15 @@ async function saveRow() {
 }
 
 async function delRow(id) {
+  if(_locked){alert('本月已鎖定，無法刪除');return;}
   if(!confirm('確定刪除此筆？')) return;
-  const r=await fetch(`/api/ds04/order/${id}`,{method:'DELETE'}).then(r=>r.json());
+  const r=await fetch(`/api/ds04/order/${id}?month=${currentMonth()}`,{method:'DELETE'}).then(r=>r.json());
   if(r.ok){ showToast('已刪除'); loadData(); }
   else { alert('刪除失敗: '+(r.error||'')); }
 }
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2000);}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function downloadXlsx(){
   const d=document.getElementById('selDept').value,l=document.getElementById('selLean').value,o=document.getElementById('selOutsource').value;
   let url='/api/ds04/export?';

@@ -251,3 +251,10 @@ CREATE TABLE IF NOT EXISTS bianche_manual (
     updated_at  TEXT NOT NULL,
     UNIQUE(lean, month)
 );
+
+-- DS-04 月份鎖定
+CREATE TABLE IF NOT EXISTS ds04_lock (
+    month       TEXT PRIMARY KEY,
+    locked_at   TEXT NOT NULL,
+    locked_by   TEXT DEFAULT ''
+);
