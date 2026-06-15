@@ -10,7 +10,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#f0f2
 .topbar{background:#1a2744;color:#fff;padding:9px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3);flex-wrap:wrap}
 .topbar-model{font-size:14px;font-weight:700;white-space:nowrap}
 .topbar-meta{font-size:11px;color:#7a9bcc;white-space:nowrap}
+.eolr-badge{font-size:10px;background:#1b3a6b;color:#90caf9;border:1px solid #2a5298;border-radius:4px;padding:2px 7px;font-weight:700;white-space:nowrap}
 .topbar-spacer{flex:1}
+.stage-select{background:#243356;color:#b0c4de;border:1px solid #3a4f72;border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;min-width:90px}
+.stage-select option{background:#1a2744;color:#c8d8f0}
 .toggle-group{display:flex;gap:2px;background:#0f1e38;border-radius:6px;padding:3px}
 .tg-btn{background:transparent;color:#7a9bcc;border:none;border-radius:4px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s}
 .tg-btn.active{background:#4a6cf7;color:#fff}
@@ -19,7 +22,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#f0f2
 .btn-sm:hover{background:#178059}
 .btn-outline{background:transparent;color:#7a9bcc;border:1px solid #3a4f72;border-radius:5px;padding:5px 12px;font-size:12px;cursor:pointer}
 .btn-outline:hover{background:#243356;color:#fff}
-.stage-badge{background:#243356;color:#b0c4de;border-radius:4px;padding:3px 8px;font-size:11px}
 .back-link{color:#7a9bcc;text-decoration:none;font-size:11px;display:flex;align-items:center;gap:4px}
 .back-link:hover{color:#fff}
 .tab-bar{background:#fff;border-bottom:2px solid #e4e9f2;padding:0 18px;display:flex;overflow-x:auto;position:sticky;top:46px;z-index:90;box-shadow:0 1px 4px rgba(0,0,0,.05)}
@@ -58,7 +60,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#f0f2
 .proc-table td.seq{text-align:center;color:#888;font-weight:600;min-width:30px}
 .proc-table td.name{text-align:left;min-width:150px;max-width:260px;white-space:normal;line-height:1.4}
 .proc-table td.num{text-align:right;min-width:70px;color:#1a4a7a;font-family:Consolas,monospace}
-.formula-cell{background:#f5f5f5;color:#555;text-align:right;min-width:72px;font-family:Consolas,monospace}
+.formula-cell{background:#f0f0f0;color:#555;text-align:right;min-width:72px;font-family:Consolas,monospace;cursor:default}
 .actual-cell{background:#fff;color:#0d5e2e;text-align:right;min-width:72px;font-family:Consolas,monospace;font-weight:700}
 .actual-cell.clickable{cursor:text}
 .actual-cell.clickable:hover{background:#f0fff4;outline:1px dashed #1d9e6b}
@@ -97,11 +99,14 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#f0f2
 <body>
 
 <div class="topbar">
-  <a class="back-link" id="backLink" href="/ie">← 返回列表</a>
+  <a class="back-link" href="/ie">← 返回列表</a>
   <div class="topbar-model" id="modelName">載入中…</div>
+  <div class="eolr-badge" id="eolrBadge">EOLR 120</div>
   <div class="topbar-meta" id="modelMeta"></div>
   <div class="topbar-spacer"></div>
-  <div class="stage-badge" id="stageBadge">— 版本 —</div>
+  <select class="stage-select" id="stageSelect" onchange="switchStage(this.value)">
+    <option value="">— 版本 —</option>
+  </select>
   <div class="toggle-group">
     <button class="tg-btn" id="langZH" onclick="setLang('zh')">中</button>
     <button class="tg-btn" id="langVI"  onclick="setLang('vi')">越</button>
@@ -130,6 +135,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#f0f2
   <button class="btn-save-all" id="btnSaveAll" onclick="submitAllEdits()">提交審核</button>
 </div>
 
+<!-- 分組 Modal -->
 <div class="modal-overlay" id="groupModal">
   <div class="modal-box">
     <div class="modal-title" id="groupModalTitle">設定人力分組</div>
@@ -146,6 +152,23 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#f0f2
   </div>
 </div>
 
+<!-- 新增工序 Modal -->
+<div class="modal-overlay" id="addRowModal">
+  <div class="modal-box">
+    <div class="modal-title" id="addRowTitle">新增工序</div>
+    <label class="modal-label">工序名稱 *</label>
+    <input class="modal-input" type="text" id="addProcessName" placeholder="例: 車縫鞋頭">
+    <label class="modal-label">部件名稱（選填）</label>
+    <input class="modal-input" type="text" id="addPartName" placeholder="例: 鞋頭面料">
+    <label class="modal-label">TCT 秒/雙（選填）</label>
+    <input class="modal-input" type="number" step="any" min="0" id="addTCT" placeholder="例: 30">
+    <div class="modal-footer">
+      <button class="btn-mcancel" onclick="closeAddModal()">取消</button>
+      <button class="btn-mok" onclick="submitAddRow()">新增</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const PATH = window.location.pathname;
 const HID  = parseInt(PATH.split('/')[2]) || 0;
@@ -157,6 +180,7 @@ let EDITS  = {};
 let LANG   = localStorage.getItem('ie_lang') || 'zh';
 let ZONE_ROWS = {};
 let GROUP_ZONE = null;
+let ADD_ZONE   = null;
 
 const MACHINE_ZONES = new Set(['裁斷機','ATOM','Laser','EMMA','YINGHUI','移印','轉印']);
 const WS = '水蜘蛛';
@@ -168,29 +192,31 @@ const OFFLINE_MAP = {
 };
 const COL_LABELS = {
   seq:'#', process_name:'工序名稱', part_name:'部件/素材',
-  cut_per_hour:'刀數/H', qty_per_pair:'件數/雙(F)', layers_per_cut:'層數(E)',
+  cut_per_hour:'刀數/H', qty_per_pair:'件數/雙', layers_per_cut:'層數',
   normal_time:'正常時間', allowance_pct:'寬放%', standard_time:'標準時間',
   theory_operators:'理論人數', actual_operators:'實際人數',
 };
-const EDITABLE_COLS = new Set(['standard_time','cut_per_hour','normal_time','qty_per_pair','layers_per_cut']);
+// standard_time removed from editable — always formula
+const EDITABLE_COLS = new Set(['cut_per_hour','normal_time','qty_per_pair','layers_per_cut']);
 
 function getZoneCols(seg, zone) {
   if (zone === '_summary') return null;
+  // Task 6: WS only shows actual_operators in all segments
+  if (zone === WS) return ['seq','process_name','actual_operators'];
   if (seg === 'cutting') {
     if (zone === '裁斷機') {
-      return ['seq','process_name','part_name','cut_per_hour','qty_per_pair','layers_per_cut','standard_time','theory_operators','actual_operators'];
+      return ['seq','process_name','part_name','layers_per_cut','qty_per_pair','cut_per_hour','standard_time','theory_operators','actual_operators'];
     }
-    return ['seq','process_name','standard_time','theory_operators','actual_operators'];
+    // Task 6: cutting non-machine manual zones — no theory_operators
+    return ['seq','process_name','standard_time','actual_operators'];
   }
-  const withTiming = (seg === 'stitching' || seg === 'assembly') && zone !== WS;
-  if (withTiming) {
+  if (seg === 'stitching' || seg === 'assembly') {
     return ['seq','process_name','normal_time','allowance_pct','standard_time','theory_operators','actual_operators'];
   }
   return ['seq','process_name','standard_time','theory_operators','actual_operators'];
 }
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
-document.getElementById('backLink').href = '/ie/' + HID;
 applyLangUI(LANG);
 
 async function init() {
@@ -198,20 +224,41 @@ async function init() {
     fetch('/api/ie/stages/' + HID).then(r => r.json()).catch(() => ({})),
     fetch('/api/ie/list').then(r => r.json()).catch(() => ({})),
   ]);
+
+  // Task 5: populate version dropdown
   if (sr.ok && sr.stages && sr.stages.length) {
-    STAGE = sr.stages[sr.stages.length - 1];
-    document.getElementById('stageBadge').textContent = STAGE.stage_name;
+    const sel = document.getElementById('stageSelect');
+    sel.innerHTML = '';
+    for (const st of sr.stages) {
+      const opt = document.createElement('option');
+      opt.value = st.id;
+      opt.textContent = st.stage_name;
+      sel.appendChild(opt);
+      if (!STAGE) STAGE = st; // default to first (official)
+    }
+    if (STAGE) sel.value = STAGE.id;
   }
+
   if (lr.ok) {
     const rec = (lr.records || []).find(r => r.id === HID);
     if (rec) {
+      // Task 4: only model name + EOLR badge + season + material
       document.getElementById('modelName').textContent = rec.model_name;
-      document.getElementById('modelMeta').textContent =
-        (rec.season || '') + (rec.material ? '  |  ' + rec.material.substring(0, 30) : '');
+      const parts = [];
+      if (rec.season)   parts.push(rec.season);
+      if (rec.material) parts.push(rec.material.substring(0, 30));
+      document.getElementById('modelMeta').textContent = parts.join('  |  ');
       document.title = rec.model_name + ' — IE 細表';
     }
   }
   loadSegment('cutting');
+}
+
+// ── Stage switch ──────────────────────────────────────────────────────────────
+function switchStage(stageId) {
+  if (!stageId) return;
+  const sel = document.getElementById('stageSelect');
+  STAGE = {id: parseInt(stageId), stage_name: sel.options[sel.selectedIndex].textContent};
 }
 
 // ── Load segment ──────────────────────────────────────────────────────────────
@@ -297,7 +344,7 @@ function renderZoneCard(z, seg, eolr) {
 
     for (const row of z.rows) {
       h += '<tr>';
-      for (const col of cols) h += renderCell(row, col, zone, eolr);
+      for (const col of cols) h += renderCell(row, col, zone, seg, eolr);
       h += row.is_locked
         ? '<td class="del-cell"></td>'
         : `<td class="del-cell"><button class="btn-del" onclick="deleteRow(${row.id})" title="刪除">×</button></td>`;
@@ -309,7 +356,7 @@ function renderZoneCard(z, seg, eolr) {
   return h;
 }
 
-function renderCell(row, col, zone, eolr) {
+function renderCell(row, col, zone, seg, eolr) {
   const val    = row[col];
   const pid    = row.id;
   const locked = row.is_locked;
@@ -324,6 +371,18 @@ function renderCell(row, col, zone, eolr) {
   }
 
   if (col === 'part_name') return `<td class="name" style="color:#888;font-size:10px">${esc(val ?? '')}</td>`;
+
+  // Task 1: standard_time — always formula cell (grey, not editable)
+  if (col === 'standard_time') {
+    let computed = val;
+    if (zone === '裁斷機' && row.qty_per_pair != null && row.cut_per_hour != null && row.cut_per_hour > 0) {
+      computed = (row.qty_per_pair * 3600) / row.cut_per_hour;
+    } else if ((seg === 'stitching' || seg === 'assembly') && row.normal_time != null && row.allowance_pct != null) {
+      computed = row.normal_time * (1 + row.allowance_pct / 100);
+    }
+    const display = computed != null ? fmtNum(parseFloat(computed.toFixed(4))) : '—';
+    return `<td class="formula-cell" title="公式格，不可直接編輯">${display}</td>`;
+  }
 
   if (col === 'theory_operators') {
     const st = parseFloat(row.standard_time);
@@ -357,7 +416,6 @@ function zoneLabel(z) {
 }
 
 function calcHandTotal(summaryZone) {
-  // summaryZone.rows contains the pre-calculated rows OR we compute from DATA
   if (!DATA) return 0;
   const divisor = 3600 / EOLR;
   let total = 0;
@@ -397,6 +455,8 @@ function setEolr(v) {
   EOLR = v;
   document.getElementById('eolr60').classList.toggle('active', v === 60);
   document.getElementById('eolr120').classList.toggle('active', v === 120);
+  // Task 4: update EOLR badge
+  document.getElementById('eolrBadge').textContent = 'EOLR ' + v;
   updateTheoryAndTotal();
 }
 
@@ -419,17 +479,40 @@ function switchSeg(seg) {
   loadSegment(seg);
 }
 
-// ── Add / Delete row ──────────────────────────────────────────────────────────
-async function addRow(zone) {
+// ── Add row (Task 3: opens modal) ──────────────────────────────────────────────
+function addRow(zone) {
+  ADD_ZONE = zone;
+  document.getElementById('addRowTitle').textContent = '新增工序 — ' + zoneLabel(zone);
+  document.getElementById('addProcessName').value = '';
+  document.getElementById('addPartName').value = '';
+  document.getElementById('addTCT').value = '';
+  document.getElementById('addRowModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('addProcessName').focus(), 50);
+}
+function closeAddModal() {
+  document.getElementById('addRowModal').style.display = 'none';
+  ADD_ZONE = null;
+}
+async function submitAddRow() {
+  const name = document.getElementById('addProcessName').value.trim();
+  if (!name) { alert('請輸入工序名稱'); return; }
+  const partName = document.getElementById('addPartName').value.trim() || null;
+  const tctVal = document.getElementById('addTCT').value;
+  const tct = tctVal ? parseFloat(tctVal) : null;
   const r = await fetch('/api/ie/cell/add_row', {
     method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({header_id:HID, segment:SEG, zone, stage_id:STAGE?.id, user:'demo'}),
+    body: JSON.stringify({
+      header_id: HID, segment: SEG, zone: ADD_ZONE,
+      stage_id: STAGE?.id, user: 'demo',
+      process_name: name, part_name: partName, tct,
+    }),
   });
   const j = await r.json();
-  if (j.ok) loadSegment(SEG);
+  if (j.ok) { closeAddModal(); loadSegment(SEG); }
   else alert('新增失敗: ' + (j.error || ''));
 }
 
+// ── Delete row ────────────────────────────────────────────────────────────────
 async function deleteRow(pid) {
   if (!confirm('確認刪除此工序？')) return;
   const r = await fetch('/api/ie/cell/delete_row', {
@@ -457,12 +540,10 @@ function openGroupModal(zone) {
   document.getElementById('groupNote').value = '';
   document.getElementById('groupModal').style.display = 'flex';
 }
-
 function closeGroupModal() {
   document.getElementById('groupModal').style.display = 'none';
   GROUP_ZONE = null;
 }
-
 async function submitGroup() {
   const checked = [...document.querySelectorAll('#groupProcList input:checked')].map(cb => parseInt(cb.value));
   const headcount = parseFloat(document.getElementById('groupHeadcount').value);
@@ -487,12 +568,10 @@ function startEdit(td, pid, field) {
     onkeydown="editKey(event,this,${pid},'${field}')">`;
   td.querySelector('input').focus();
 }
-
 function editKey(e, inp, pid, field) {
   if (e.key === 'Enter')  commitEdit(inp, pid, field);
   if (e.key === 'Escape') { inp.closest('td').textContent = inp.value || '—'; }
 }
-
 function commitEdit(inp, pid, field) {
   const newVal = inp.value.trim();
   const td = inp.closest('td');
@@ -500,17 +579,6 @@ function commitEdit(inp, pid, field) {
   if (!EDITS[pid]) EDITS[pid] = {};
   EDITS[pid][field] = newVal;
   td.style.outline = '2px solid #f9a825';
-
-  if (field === 'standard_time') {
-    const tr = td.closest('tr');
-    const theoryCell = tr.querySelector('.theory-cell');
-    if (theoryCell) {
-      const st = parseFloat(newVal);
-      theoryCell.dataset.stdtime = newVal;
-      theoryCell.textContent = (!isNaN(st) && st > 0) ? fmtNum(st / (3600 / EOLR)) : '—';
-    }
-    if (SEG === 'cutting') updateTheoryAndTotal();
-  }
   updateSaveBar();
 }
 
@@ -521,7 +589,6 @@ function updateSaveBar() {
   const el = document.getElementById('pendingCount');
   if (el) el.textContent = count;
 }
-
 async function submitAllEdits() {
   const btn = document.getElementById('btnSaveAll');
   btn.disabled = true; btn.textContent = '提交中…';
@@ -541,13 +608,11 @@ async function submitAllEdits() {
   btn.disabled = false; btn.textContent = '提交審核';
   alert(`提交完成：${ok} 項成功，${fail} 項失敗`);
 }
-
 function showSaveModal() {
   const count = Object.values(EDITS).reduce((n,f) => n + Object.keys(f).length, 0);
   if (count === 0) { alert('目前沒有修改項目'); return; }
   if (confirm(`確認提交 ${count} 項修改至版本「${STAGE?.stage_name || '—'}」？`)) submitAllEdits();
 }
-
 function newStage() {
   const name = prompt('請輸入新版本名稱:');
   if (!name) return;
@@ -555,8 +620,15 @@ function newStage() {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({stage_name:name}),
   }).then(r=>r.json()).then(j => {
-    if (j.ok) { STAGE = {id:j.stage_id, stage_name:name}; document.getElementById('stageBadge').textContent = name; }
-    else alert('建立失敗');
+    if (j.ok) {
+      STAGE = {id:j.stage_id, stage_name:name};
+      const sel = document.getElementById('stageSelect');
+      const opt = document.createElement('option');
+      opt.value = j.stage_id;
+      opt.textContent = name;
+      sel.appendChild(opt);
+      sel.value = j.stage_id;
+    } else alert('建立失敗');
   });
 }
 
@@ -564,7 +636,8 @@ function newStage() {
 function fmtNum(v) {
   if (v == null) return '—';
   if (typeof v === 'number') return Number.isInteger(v) ? String(v) : parseFloat(v.toFixed(4)).toString();
-  return String(v);
+  const n = parseFloat(v);
+  return isNaN(n) ? String(v) : (Number.isInteger(n) ? String(n) : parseFloat(n.toFixed(4)).toString());
 }
 function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');

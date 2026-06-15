@@ -77,6 +77,8 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 049 | 雙機作業交接機制（Code機↔結果機） | Infra | ✅完成 | 2026-06-13 | 2026-06-13 | flask_backend/sync.bat（git pull+重啟Flask）+ nightly/morning_sync.py（每日08:00自動同步,--install排程/--startup啟動資料夾,殺舊Flask不殺自己）+ 00_HANDOFF/雙機作業說明.md（程式碼自動同步/DB隨身碟手動同步） |
 
+| 050 | IE細表界面修正7項（公式格/層數導入/+modal/表頭/版本切換/水蜘蛛/返回） | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | ie_cell_detail.html 重寫 + DB layers_per_cut 回填 + app.py/database.py add_row 擴充 |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |

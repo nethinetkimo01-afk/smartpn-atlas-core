@@ -969,19 +969,24 @@ def approve_ie_edit(log_id, approver):
         conn.close()
 
 
-def add_ie_process_row(header_id, segment, zone, process_name, standard_time, stage_id, user='demo'):
+def add_ie_process_row(header_id, segment, zone, process_name, standard_time, stage_id, user='demo', part_name=None, tct=None):
     """Add a new process row and log the action."""
     conn = get_conn()
     try:
+        # Look up art from existing rows for this header
+        art_row = conn.execute(
+            'SELECT art FROM ie_process WHERE header_id=? LIMIT 1', (header_id,)
+        ).fetchone()
+        art = art_row['art'] if art_row else str(header_id)
         # Find max seq in this zone
         max_seq = conn.execute(
             'SELECT MAX(seq) FROM ie_process WHERE header_id=? AND segment=? AND zone=?',
             (header_id, segment, zone)
         ).fetchone()[0] or 0
         conn.execute('''
-            INSERT INTO ie_process (header_id, segment, zone, seq, process_name, standard_time, flag)
-            VALUES (?,?,?,?,?,?, 'new')
-        ''', (header_id, segment, zone, max_seq + 1, process_name, standard_time))
+            INSERT INTO ie_process (header_id, art, segment, zone, seq, process_name, part_name, tct, standard_time, flag)
+            VALUES (?,?,?,?,?,?,?,?,?, 'new')
+        ''', (header_id, art, segment, zone, max_seq + 1, process_name, part_name, tct, standard_time))
         conn.commit()
         new_id = conn.execute('SELECT last_insert_rowid()').fetchone()[0]
         # Log as edit

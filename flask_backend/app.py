@@ -324,7 +324,8 @@ def ie_cell_add_row():
     return jsonify(db.add_ie_process_row(
         d.get('header_id'), d.get('segment'), d.get('zone'),
         d.get('process_name', '新工序'), d.get('standard_time'),
-        d.get('stage_id'), d.get('user', 'demo')
+        d.get('stage_id'), d.get('user', 'demo'),
+        d.get('part_name'), d.get('tct')
     ))
 
 @app.route('/api/ie/cell/delete_row', methods=['POST'])
