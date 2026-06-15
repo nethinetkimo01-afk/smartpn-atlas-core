@@ -1753,3 +1753,279 @@ def ds04_get_filters():
         return {'ok': True, 'depts': depts, 'leans': leans}
     finally:
         conn.close()
+
+def ds04_add_order(data):
+    conn = get_conn()
+    try:
+        ts = now_iso()
+        cur = conn.execute(
+            '''INSERT INTO ds04_orders
+               (dept, lean, model_name, art, order_no, qty, delivery_date, is_outsource_upper, created_at)
+               VALUES (?,?,?,?,?,?,?,?,?)''',
+            (data.get('dept',''), data.get('lean',''), data.get('model_name',''),
+             data.get('art',''), data.get('order_no',''), int(data.get('qty',0)),
+             data.get('delivery_date',''), 1 if data.get('is_outsource_upper') else 0, ts)
+        )
+        conn.execute(
+            'INSERT INTO ds04_edit_log (order_id,action,user_name,new_value,created_at) VALUES (?,?,?,?,?)',
+            (cur.lastrowid, 'add', data.get('user',''), str(data), ts)
+        )
+        conn.commit()
+        return {'ok': True, 'id': cur.lastrowid}
+    except Exception as e:
+        conn.rollback(); return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+def ds04_update_order(order_id, data):
+    conn = get_conn()
+    try:
+        ts = now_iso()
+        old = conn.execute('SELECT * FROM ds04_orders WHERE id=?', (order_id,)).fetchone()
+        if not old:
+            return {'ok': False, 'error': 'not found'}
+        conn.execute(
+            '''UPDATE ds04_orders SET dept=?,lean=?,model_name=?,art=?,order_no=?,
+               qty=?,delivery_date=?,is_outsource_upper=? WHERE id=?''',
+            (data.get('dept', old['dept']), data.get('lean', old['lean']),
+             data.get('model_name', old['model_name']), data.get('art', old['art']),
+             data.get('order_no', old['order_no']), int(data.get('qty', old['qty'])),
+             data.get('delivery_date', old['delivery_date']),
+             1 if data.get('is_outsource_upper') else 0, order_id)
+        )
+        conn.execute(
+            'INSERT INTO ds04_edit_log (order_id,action,old_value,new_value,user_name,created_at) VALUES (?,?,?,?,?,?)',
+            (order_id, 'update', str(dict(old)), str(data), data.get('user',''), ts)
+        )
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        conn.rollback(); return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+def ds04_delete_order(order_id):
+    conn = get_conn()
+    try:
+        ts = now_iso()
+        old = conn.execute('SELECT * FROM ds04_orders WHERE id=?', (order_id,)).fetchone()
+        if not old:
+            return {'ok': False, 'error': 'not found'}
+        conn.execute('DELETE FROM ds04_orders WHERE id=?', (order_id,))
+        conn.execute(
+            'INSERT INTO ds04_edit_log (order_id,action,old_value,user_name,created_at) VALUES (?,?,?,?,?)',
+            (order_id, 'delete', str(dict(old)), '', ts)
+        )
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        conn.rollback(); return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+# ── EOLR Settings ─────────────────────────────────────────────────────────────
+
+def get_eolr_settings(month):
+    """Return all LEAN eolr settings for given month. Missing leans inherit 120."""
+    conn = get_conn()
+    try:
+        # All leans from ds04_orders
+        all_leans = [r[0] for r in conn.execute(
+            'SELECT DISTINCT lean FROM ds04_orders ORDER BY lean'
+        ).fetchall()]
+        # Existing settings for this month
+        rows = conn.execute(
+            'SELECT lean, eolr, updated_by, updated_at FROM lean_eolr_settings WHERE month=?', (month,)
+        ).fetchall()
+        setting_map = {r['lean']: dict(r) for r in rows}
+        result = []
+        for lean in all_leans:
+            s = setting_map.get(lean)
+            result.append({
+                'lean': lean,
+                'eolr': s['eolr'] if s else 120,
+                'updated_by': s['updated_by'] if s else '',
+                'updated_at': s['updated_at'] if s else '',
+                'is_default': s is None,
+            })
+        return {'ok': True, 'month': month, 'settings': result}
+    finally:
+        conn.close()
+
+def set_eolr_setting(lean, month, eolr, updated_by=''):
+    conn = get_conn()
+    try:
+        ts = now_iso()
+        conn.execute(
+            '''INSERT INTO lean_eolr_settings (lean, month, eolr, updated_by, updated_at)
+               VALUES (?,?,?,?,?)
+               ON CONFLICT(lean, month) DO UPDATE SET eolr=excluded.eolr,
+               updated_by=excluded.updated_by, updated_at=excluded.updated_at''',
+            (lean, month, int(eolr), updated_by, ts)
+        )
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        conn.rollback(); return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+# ── 廠務編制表 計算 ────────────────────────────────────────────────────────────
+
+CUTTING_ZONES   = {'裁斷機', 'ATOM', 'Laser', 'EMMA', 'YINGHUI'}
+AUTO_ZONES      = {'ATOM', 'Laser', 'EMMA', 'YINGHUI'}   # can be checked out
+STITCH_ZONES    = {'電腦針車', '折边'}
+ASSEMBLY_ZONES  = {'成型', '成型UV', '水蜘蛛'}
+STF_ZONES       = {'打粗', '照射'}
+
+def get_bianche_data(month='2026-06'):
+    conn = get_conn()
+    try:
+        # 1. EOLR map per LEAN for this month (default 120)
+        eolr_rows = conn.execute(
+            'SELECT lean, eolr FROM lean_eolr_settings WHERE month=?', (month,)
+        ).fetchall()
+        eolr_map = {r['lean']: r['eolr'] for r in eolr_rows}
+
+        # 2. DS-04 orders grouped by lean + model + art
+        order_rows = conn.execute(
+            '''SELECT lean, model_name, art, SUM(qty) AS qty, MAX(is_outsource_upper) AS is_outsource
+               FROM ds04_orders
+               GROUP BY lean, model_name, art
+               ORDER BY lean, model_name, art'''
+        ).fetchall()
+
+        # 3. IE process data: art → zone → [std_time]
+        ie_rows = conn.execute(
+            '''SELECT oa.art, ip.zone, ip.standard_time
+               FROM ie_process ip
+               JOIN ob_articles oa ON oa.header_id = ip.header_id
+               WHERE (ip.flag IS NULL OR ip.flag != 'deleted') AND ip.standard_time > 0
+               ORDER BY oa.art, ip.zone''',
+        ).fetchall()
+        ie_data = {}   # art → zone → [std_time]
+        for r in ie_rows:
+            a = r['art']
+            z = r['zone']
+            if a not in ie_data:
+                ie_data[a] = {}
+            if z not in ie_data[a]:
+                ie_data[a][z] = []
+            ie_data[a][z].append(r['standard_time'] or 0)
+
+        # 4. Checked (moved-out) allocation_item: art → zone → moved_mp
+        chk_rows = conn.execute(
+            '''SELECT art, zone, SUM(theory_mp) AS moved
+               FROM allocation_item
+               WHERE is_checked=1 AND month=?
+               GROUP BY art, zone''',
+            (month,)
+        ).fetchall()
+        moved_data = {}   # art → zone → moved_mp
+        for r in chk_rows:
+            a = r['art']
+            if a not in moved_data:
+                moved_data[a] = {}
+            moved_data[a][r['zone']] = r['moved'] or 0
+
+        # 5. Manual bianche fields (manager_mp, headcount)
+        manual_rows = conn.execute(
+            'SELECT lean, manager_mp, headcount FROM bianche_manual WHERE month=?', (month,)
+        ).fetchall()
+        manual_map = {r['lean']: {'manager_mp': r['manager_mp'], 'headcount': r['headcount']} for r in manual_rows}
+
+        # 6. Compute per order
+        def zone_mp(art, zones, eolr):
+            d = ie_data.get(art, {})
+            return round(sum(sum(d.get(z, [])) for z in zones) * eolr / 3600.0, 4)
+
+        def zone_moved(art, zones):
+            d = moved_data.get(art, {})
+            return round(sum(d.get(z, 0) for z in zones), 4)
+
+        def zone_tct(art, zones):
+            d = ie_data.get(art, {})
+            return sum(sum(d.get(z, [])) for z in zones)
+
+        results = []
+        for ord_row in order_rows:
+            lean = ord_row['lean']
+            art  = ord_row['art']
+            qty  = ord_row['qty'] or 0
+            eolr = eolr_map.get(lean, 120)
+            is_out = ord_row['is_outsource'] or 0
+
+            cut_ie   = zone_mp(art, CUTTING_ZONES, eolr)
+            cut_mv   = zone_moved(art, AUTO_ZONES)
+            stch_ie  = zone_mp(art, STITCH_ZONES, eolr)
+            stch_mv  = zone_moved(art, STITCH_ZONES)
+            asm_ie   = zone_mp(art, ASSEMBLY_ZONES, eolr)
+            asm_mv   = zone_moved(art, ASSEMBLY_ZONES)
+            tct      = zone_tct(art, STF_ZONES)
+            stf_mp   = round(qty * tct / 3600.0 / 222.0, 4) if tct else 0
+
+            if is_out:
+                cut_act  = 0.0
+                stch_act = 0.0
+            else:
+                cut_act  = round(cut_ie - cut_mv, 4)
+                stch_act = round(stch_ie - stch_mv, 4)
+            asm_act = round(asm_ie - asm_mv, 4)
+
+            results.append({
+                'lean': lean,
+                'model_name': ord_row['model_name'],
+                'art': art,
+                'qty': qty,
+                'is_outsource': is_out,
+                'eolr': eolr,
+                # IE (before allocation)
+                'cutting_ie_mp':   cut_ie,
+                'stitching_ie_mp': stch_ie,
+                'assembly_ie_mp':  asm_ie,
+                # Moved out
+                'cutting_moved':   cut_mv,
+                'stitching_moved': stch_mv,
+                'assembly_moved':  asm_mv,
+                # Actual
+                'cutting_mp':   cut_act,
+                'stitching_mp': stch_act,
+                'assembly_mp':  asm_act,
+                'stf_mp':       stf_mp,
+                'total_mp':     round(cut_act + stch_act + asm_act + stf_mp, 4),
+                # Manual
+                'manager_mp':  manual_map.get(lean, {}).get('manager_mp', 0),
+                'headcount':   manual_map.get(lean, {}).get('headcount', 0),
+            })
+
+        totals = {
+            'cutting':   round(sum(r['cutting_mp']   for r in results), 2),
+            'stitching': round(sum(r['stitching_mp'] for r in results), 2),
+            'assembly':  round(sum(r['assembly_mp']  for r in results), 2),
+            'stf':       round(sum(r['stf_mp']       for r in results), 2),
+        }
+        totals['grand'] = round(sum(totals.values()), 2)
+
+        return {'ok': True, 'month': month, 'rows': results, 'totals': totals}
+    finally:
+        conn.close()
+
+def set_bianche_manual(lean, month, manager_mp, headcount, updated_by=''):
+    conn = get_conn()
+    try:
+        ts = now_iso()
+        conn.execute(
+            '''INSERT INTO bianche_manual (lean, month, manager_mp, headcount, updated_by, updated_at)
+               VALUES (?,?,?,?,?,?)
+               ON CONFLICT(lean, month) DO UPDATE SET manager_mp=excluded.manager_mp,
+               headcount=excluded.headcount, updated_by=excluded.updated_by, updated_at=excluded.updated_at''',
+            (lean, month, float(manager_mp or 0), float(headcount or 0), updated_by, ts)
+        )
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        conn.rollback(); return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()

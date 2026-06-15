@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8">
+<title>EOLR 設定</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Microsoft JhengHei',Arial,sans-serif;font-size:13px;background:#f5f7fa;color:#333}
+.topbar{background:#1e3a5f;color:#fff;padding:12px 20px;display:flex;align-items:center;gap:16px}
+.topbar h1{font-size:16px;font-weight:600;margin-right:auto}
+.topbar a{color:#adc8f0;text-decoration:none;font-size:12px}
+.toolbar{background:#fff;border-bottom:1px solid #dde;padding:10px 20px;display:flex;gap:12px;align-items:center}
+.toolbar label{font-size:12px;color:#666;display:flex;gap:6px;align-items:center}
+.toolbar select,.toolbar input{padding:4px 8px;border:1px solid #ccd;border-radius:4px;font-size:12px}
+.content{padding:16px 20px;max-width:600px}
+.info{background:#eef3fb;border:1px solid #c5d7f0;border-radius:4px;padding:10px 14px;font-size:12px;color:#444;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border:1px solid #d0d8e8;border-radius:6px;overflow:hidden}
+thead tr{background:#e8eef8}
+th{padding:8px 14px;text-align:left;font-weight:600;color:#1e3a5f;border-bottom:1px solid #c5d0e0}
+td{padding:6px 10px;border-bottom:1px solid #edf0f5;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.eolr-cell select{padding:3px 8px;border:1px solid #ccd;border-radius:3px;font-size:12px;cursor:pointer}
+.eolr-cell select:focus{outline:none;border-color:#4a90d9}
+.badge-default{background:#f0f4fa;color:#888;font-size:10px;padding:1px 5px;border-radius:3px;margin-left:6px}
+.updated-at{font-size:11px;color:#999}
+.btn{padding:6px 14px;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600}
+.btn-save{background:#2e7d32;color:#fff}
+.btn-save:hover{background:#1b5e20}
+.toast{position:fixed;bottom:20px;right:20px;background:#2e7d32;color:#fff;padding:10px 18px;border-radius:6px;font-size:13px;display:none;z-index:999}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>EOLR 設定</h1>
+  <a href="/ds04">← DS-04明細</a>
+  <a href="/bianche">廠務編制表</a>
+  <a href="/allocation">勾選表</a>
+</div>
+
+<div class="toolbar">
+  <label>月份
+    <select id="selMonth" onchange="load()">
+      <option value="2026-06">2026-06</option>
+      <option value="2026-07">2026-07</option>
+      <option value="2026-05">2026-05</option>
+    </select>
+  </label>
+  <button class="btn btn-save" onclick="saveAll()">儲存所有變更</button>
+</div>
+
+<div class="content">
+  <div class="info">
+    EOLR 設定決定廠務編制表的理論人數計算：<br>
+    EOLR=120 → 理論人數 = 標准時間 ÷ 30　　EOLR=60 → 理論人數 = 標准時間 ÷ 60<br>
+    未設定的 LEAN 預設繼承 120。
+  </div>
+  <table>
+    <thead><tr><th>LEAN</th><th>EOLR</th><th>上次修改</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let _changes = {};  // lean → eolr
+
+async function load() {
+  const month = document.getElementById('selMonth').value;
+  _changes = {};
+  const res = await fetch(`/api/eolr-settings?month=${month}`).then(r=>r.json());
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+  (res.settings || []).forEach(s => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${esc(s.lean)}${s.is_default?'<span class="badge-default">預設</span>':''}</td>
+      <td class="eolr-cell">
+        <select data-lean="${esc(s.lean)}" onchange="onChange('${esc(s.lean)}', this.value)">
+          <option value="120" ${s.eolr==120?'selected':''}>120</option>
+          <option value="60"  ${s.eolr==60?'selected':''}>60</option>
+        </select>
+      </td>
+      <td class="updated-at">${s.updated_at ? s.updated_at.slice(0,19).replace('T',' ') : '—'}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function onChange(lean, val) {
+  _changes[lean] = parseInt(val);
+}
+
+async function saveAll() {
+  const month = document.getElementById('selMonth').value;
+  const entries = Object.entries(_changes);
+  if (!entries.length) { showToast('沒有變更'); return; }
+  let ok = 0;
+  for (const [lean, eolr] of entries) {
+    const r = await fetch('/api/eolr-settings', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({lean, month, eolr})
+    }).then(r=>r.json());
+    if (r.ok) ok++;
+  }
+  _changes = {};
+  showToast(`已儲存 ${ok} 筆 EOLR 設定`);
+  load();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(()=>{ t.style.display='none'; }, 2500);
+}
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+load();
+</script>
+</body>
+</html>

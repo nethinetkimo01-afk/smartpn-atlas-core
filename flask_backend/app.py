@@ -947,7 +947,56 @@ def import_corrections():
 def ds04_page():
     return send_from_directory('..', 'ds04.html')
 
+@app.route('/eolr-settings')
+def eolr_settings_page():
+    return send_from_directory('..', 'eolr_settings.html')
+
+@app.route('/bianche')
+def bianche_page():
+    return send_from_directory('..', 'bianche.html')
+
 # ── DS-04 API ─────────────────────────────────────────────────────────────────
+
+@app.route('/api/ds04/order', methods=['POST'])
+def ds04_add_order():
+    data = request.get_json(force=True)
+    return jsonify(db.ds04_add_order(data))
+
+@app.route('/api/ds04/order/<int:order_id>', methods=['PUT'])
+def ds04_update_order(order_id):
+    data = request.get_json(force=True)
+    return jsonify(db.ds04_update_order(order_id, data))
+
+@app.route('/api/ds04/order/<int:order_id>', methods=['DELETE'])
+def ds04_delete_order(order_id):
+    return jsonify(db.ds04_delete_order(order_id))
+
+@app.route('/api/eolr-settings', methods=['GET'])
+def get_eolr_settings():
+    month = request.args.get('month', '2026-06')
+    return jsonify(db.get_eolr_settings(month))
+
+@app.route('/api/eolr-settings', methods=['POST'])
+def set_eolr_setting():
+    data = request.get_json(force=True)
+    return jsonify(db.set_eolr_setting(
+        data.get('lean'), data.get('month', '2026-06'),
+        data.get('eolr', 120), data.get('updated_by', '')
+    ))
+
+@app.route('/api/bianche', methods=['GET'])
+def get_bianche():
+    month = request.args.get('month', '2026-06')
+    return jsonify(db.get_bianche_data(month))
+
+@app.route('/api/bianche/manual', methods=['POST'])
+def set_bianche_manual():
+    data = request.get_json(force=True)
+    return jsonify(db.set_bianche_manual(
+        data.get('lean'), data.get('month', '2026-06'),
+        data.get('manager_mp', 0), data.get('headcount', 0),
+        data.get('updated_by', '')
+    ))
 
 @app.route('/api/ds04/orders', methods=['GET'])
 def ds04_orders():

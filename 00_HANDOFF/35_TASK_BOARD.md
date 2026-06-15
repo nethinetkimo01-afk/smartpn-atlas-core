@@ -103,6 +103,8 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 063 | Cutting段完全重建照LA TRAINER OG xlsx (Cutting da thật) 19欄19欄4層表頭 + 最重要規則 | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | 4層表頭(群組/越文/英文/中文); 19欄=材料/序號/名稱/層/件/刀/裁断std+theory+actual+5×post(std+ops); 七區①-⑦固定編號; 最重要規則00_MUST_READ_FIRST.md |
 
+| 062 | 廠務編制系統：DS-04明細表CRUD+EOLR設定+廠務編制表 | DATA SYSTEM | 進行中 | 2026-06-15 | — | /ds04(CRUD)+/eolr-settings+/bianche+schema+DB+交接文件更新 |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |

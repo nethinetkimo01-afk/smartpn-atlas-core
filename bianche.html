@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8">
+<title>廠務編制表</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Microsoft JhengHei',Arial,sans-serif;font-size:13px;background:#f5f7fa;color:#333}
+.topbar{background:#1e3a5f;color:#fff;padding:10px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.topbar h1{font-size:16px;font-weight:600;margin-right:auto}
+.topbar a{color:#adc8f0;text-decoration:none;font-size:12px}
+.toolbar{background:#fff;border-bottom:1px solid #dde;padding:8px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.toolbar label{font-size:12px;color:#666;display:flex;gap:4px;align-items:center}
+.toolbar select,.toolbar input{padding:4px 8px;border:1px solid #ccd;border-radius:4px;font-size:12px}
+.btn{padding:5px 13px;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600}
+.btn-toggle{background:#e8eef8;color:#1e3a5f}
+.btn-toggle.active{background:#2d5a9e;color:#fff}
+.btn-dl{background:#2e7d32;color:#fff}
+.summary-bar{background:#1e3a5f;color:#fff;padding:8px 16px;display:flex;gap:20px;font-size:12px;flex-wrap:wrap}
+.summary-bar .kpi{display:flex;gap:5px;align-items:center}
+.summary-bar .kpi strong{font-size:14px;color:#90caf9}
+.content{padding:12px 16px;overflow-x:auto}
+.lean-group{margin-bottom:16px;border:1px solid #c5d0e0;border-radius:6px;overflow:hidden}
+.lean-hdr{background:#2d5a9e;color:#fff;padding:6px 12px;display:flex;align-items:center;gap:10px;font-weight:600;font-size:13px}
+.lean-hdr .lc{font-family:monospace;background:#1e3a5f;padding:1px 7px;border-radius:3px}
+.lean-hdr .ls{margin-left:auto;font-size:11px;font-weight:400;opacity:.8}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead tr{background:#e8eef8}
+th{padding:5px 8px;text-align:center;font-weight:600;color:#1e3a5f;border-bottom:1px solid #c5d0e0;white-space:nowrap;font-size:11px}
+td{padding:4px 8px;border-bottom:1px solid #eef;vertical-align:middle;text-align:center}
+td.al{text-align:left}
+tr.total-row td{background:#e8eef8;font-weight:700}
+tr.out-row td{background:#fff3e0}
+.badge-out{background:#ff9800;color:#fff;font-size:10px;padding:1px 5px;border-radius:3px}
+.mp-cell{font-weight:600;color:#1565c0}
+.zero-mp{color:#bbb}
+.manual-input{width:60px;padding:2px 5px;border:1px solid #ccd;border-radius:3px;font-size:12px;text-align:center}
+.no-data{text-align:center;padding:40px;color:#999}
+.loading{text-align:center;padding:40px;color:#888}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>廠務編制表</h1>
+  <a href="/ds04">← DS-04</a>
+  <a href="/eolr-settings">EOLR設定</a>
+  <a href="/allocation">勾選表</a>
+</div>
+
+<div class="toolbar">
+  <label>月份
+    <select id="selMonth" onchange="load()">
+      <option value="2026-06">2026-06</option>
+      <option value="2026-07">2026-07</option>
+    </select>
+  </label>
+  <button class="btn btn-toggle" id="btnJim" onclick="toggleJim()">Jim 視圖（隱藏）</button>
+  <button class="btn btn-dl" onclick="exportData()">⬇ 匯出</button>
+</div>
+
+<div class="summary-bar" id="summaryBar">
+  <div class="kpi">裁斷MP <strong id="s_cut">—</strong></div>
+  <div class="kpi">針車MP <strong id="s_stch">—</strong></div>
+  <div class="kpi">成型MP <strong id="s_asm">—</strong></div>
+  <div class="kpi">STF MP <strong id="s_stf">—</strong></div>
+  <div class="kpi">合計 <strong id="s_total">—</strong></div>
+</div>
+
+<div class="content" id="content"><div class="loading">載入中...</div></div>
+
+<script>
+let _jimMode = false;
+let _rows = [];
+
+function toggleJim() {
+  _jimMode = !_jimMode;
+  document.getElementById('btnJim').classList.toggle('active', _jimMode);
+  document.getElementById('btnJim').textContent = _jimMode ? 'Jim 視圖（顯示中）' : 'Jim 視圖（隱藏）';
+  render(_rows);
+}
+
+async function load() {
+  const month = document.getElementById('selMonth').value;
+  document.getElementById('content').innerHTML = '<div class="loading">計算中...</div>';
+  try {
+    const res = await fetch(`/api/bianche?month=${month}`).then(r=>r.json());
+    if (!res.ok) { document.getElementById('content').innerHTML=`<div class="no-data">錯誤: ${res.error||'未知'}</div>`; return; }
+    _rows = res.rows || [];
+    updateSummary(res.totals || {});
+    render(_rows);
+  } catch(e) {
+    document.getElementById('content').innerHTML=`<div class="no-data">載入失敗: ${e}</div>`;
+  }
+}
+
+function updateSummary(t) {
+  document.getElementById('s_cut').textContent   = fmt(t.cutting);
+  document.getElementById('s_stch').textContent  = fmt(t.stitching);
+  document.getElementById('s_asm').textContent   = fmt(t.assembly);
+  document.getElementById('s_stf').textContent   = fmt(t.stf);
+  document.getElementById('s_total').textContent = fmt(t.grand);
+}
+
+function render(rows) {
+  if (!rows.length) { document.getElementById('content').innerHTML='<div class="no-data">無資料</div>'; return; }
+
+  // Group by lean
+  const byLean = {};
+  rows.forEach(r => { if (!byLean[r.lean]) byLean[r.lean]=[]; byLean[r.lean].push(r); });
+
+  let html = '';
+  for (const lean of Object.keys(byLean).sort()) {
+    const lrows = byLean[lean];
+    const dept = lrows[0]?.dept || '';
+
+    // Lean totals
+    const lTotCut  = lrows.reduce((s,r)=>s+r.cutting_mp,0);
+    const lTotStch = lrows.reduce((s,r)=>s+r.stitching_mp,0);
+    const lTotAsm  = lrows.reduce((s,r)=>s+r.assembly_mp,0);
+    const lTotStf  = lrows.reduce((s,r)=>s+r.stf_mp,0);
+    const lGrand   = lTotCut+lTotStch+lTotAsm+lTotStf;
+
+    html += `<div class="lean-group">
+      <div class="lean-hdr">
+        <span class="lc">${esc(lean)}</span>
+        <span class="ls">合計 ${fmt(lGrand)} MP</span>
+      </div>
+      <table>
+        <thead><tr>
+          <th>鞋型名稱</th><th>ART</th><th>訂單</th>
+          ${_jimMode ? '<th>IE裁斷</th><th>移出裁</th>' : ''}
+          <th>裁斷MP</th>
+          ${_jimMode ? '<th>IE針車</th><th>移出針</th>' : ''}
+          <th>針車MP</th>
+          ${_jimMode ? '<th>IE成型</th><th>移出成</th>' : ''}
+          <th>成型MP</th><th>STF MP</th><th>協理給</th><th>合計</th><th>編制</th>
+        </tr></thead>
+        <tbody>`;
+
+    lrows.forEach(r => {
+      const grand = r.cutting_mp + r.stitching_mp + r.assembly_mp + r.stf_mp;
+      const mgr = r.manager_mp || 0;
+      const hc  = r.headcount  || 0;
+      html += `<tr class="${r.is_outsource ? 'out-row' : ''}">
+        <td class="al">${esc(r.model_name)} ${r.is_outsource?'<span class="badge-out">外包鞋面</span>':''}</td>
+        <td>${esc(r.art)}</td>
+        <td>${(r.qty||0).toLocaleString()}</td>
+        ${_jimMode ? `<td class="zero-mp">${fmt(r.cutting_ie_mp)}</td><td class="zero-mp">${fmt(r.cutting_moved)}</td>` : ''}
+        <td class="${r.cutting_mp?'mp-cell':'zero-mp'}">${fmt(r.cutting_mp)}</td>
+        ${_jimMode ? `<td class="zero-mp">${fmt(r.stitching_ie_mp)}</td><td class="zero-mp">${fmt(r.stitching_moved)}</td>` : ''}
+        <td class="${r.stitching_mp?'mp-cell':'zero-mp'}">${fmt(r.stitching_mp)}</td>
+        ${_jimMode ? `<td class="zero-mp">${fmt(r.assembly_ie_mp)}</td><td class="zero-mp">${fmt(r.assembly_moved)}</td>` : ''}
+        <td class="${r.assembly_mp?'mp-cell':'zero-mp'}">${fmt(r.assembly_mp)}</td>
+        <td class="${r.stf_mp?'mp-cell':'zero-mp'}">${fmt(r.stf_mp)}</td>
+        <td><input class="manual-input" type="number" step="0.01" value="${mgr||''}"
+            onchange="saveManual('${esc(lean)}','manager_mp',this.value, this)" placeholder="—"></td>
+        <td class="mp-cell">${fmt(grand + mgr)}</td>
+        <td><input class="manual-input" type="number" step="0.1" value="${hc||''}"
+            onchange="saveManual('${esc(lean)}','headcount',this.value, this)" placeholder="—"></td>
+      </tr>`;
+    });
+
+    // LEAN total row
+    html += `<tr class="total-row">
+        <td class="al" colspan="3">${esc(lean)} 合計</td>
+        ${_jimMode ? '<td></td><td></td>' : ''}
+        <td>${fmt(lTotCut)}</td>
+        ${_jimMode ? '<td></td><td></td>' : ''}
+        <td>${fmt(lTotStch)}</td>
+        ${_jimMode ? '<td></td><td></td>' : ''}
+        <td>${fmt(lTotAsm)}</td>
+        <td>${fmt(lTotStf)}</td>
+        <td></td>
+        <td>${fmt(lGrand)}</td>
+        <td></td>
+      </tr>`;
+    html += '</tbody></table></div>';
+  }
+  document.getElementById('content').innerHTML = html;
+}
+
+async function saveManual(lean, field, val, input) {
+  const month = document.getElementById('selMonth').value;
+  const body = {lean, month, [field]: parseFloat(val)||0};
+  const r = await fetch('/api/bianche/manual', {
+    method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+  }).then(r=>r.json());
+  if (!r.ok) { input.style.borderColor='red'; }
+  else { input.style.borderColor=''; }
+}
+
+function exportData() {
+  const month = document.getElementById('selMonth').value;
+  // Simple CSV export
+  let csv = '部門,LEAN,鞋型名稱,ART,訂單,裁斷MP,針車MP,成型MP,STF MP,協理給,合計編制\n';
+  _rows.forEach(r => {
+    const tot = r.cutting_mp+r.stitching_mp+r.assembly_mp+r.stf_mp;
+    csv += [r.dept||'',r.lean,r.model_name,r.art,r.qty,r.cutting_mp,r.stitching_mp,r.assembly_mp,r.stf_mp,r.manager_mp||0,tot].join(',') + '\n';
+  });
+  const blob = new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `廠務編制表_${month}.csv`; a.click();
+}
+
+function fmt(v) { return v != null ? Number(v).toFixed(4).replace(/\.?0+$/, '') || '0' : '—'; }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+load();
+</script>
+</body>
+</html>

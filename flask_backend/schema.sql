@@ -215,3 +215,39 @@ CREATE TABLE IF NOT EXISTS ds04_orders (
 CREATE INDEX IF NOT EXISTS idx_ds04_dept   ON ds04_orders(dept);
 CREATE INDEX IF NOT EXISTS idx_ds04_lean   ON ds04_orders(lean);
 CREATE INDEX IF NOT EXISTS idx_ds04_art    ON ds04_orders(art);
+
+-- EOLR per LEAN per month (for 廠務編制 calculation)
+CREATE TABLE IF NOT EXISTS lean_eolr_settings (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    lean        TEXT NOT NULL,
+    month       TEXT NOT NULL,
+    eolr        INTEGER NOT NULL DEFAULT 120,
+    updated_by  TEXT DEFAULT '',
+    updated_at  TEXT NOT NULL,
+    UNIQUE(lean, month)
+);
+CREATE INDEX IF NOT EXISTS idx_lean_eolr ON lean_eolr_settings(lean, month);
+
+-- DS-04 manual edit log
+CREATE TABLE IF NOT EXISTS ds04_edit_log (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id    INTEGER,
+    action      TEXT NOT NULL,
+    field_name  TEXT DEFAULT '',
+    old_value   TEXT DEFAULT '',
+    new_value   TEXT DEFAULT '',
+    user_name   TEXT DEFAULT '',
+    created_at  TEXT NOT NULL
+);
+
+-- 廠務編制 manual fields (per lean per month)
+CREATE TABLE IF NOT EXISTS bianche_manual (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    lean        TEXT NOT NULL,
+    month       TEXT NOT NULL,
+    manager_mp  REAL DEFAULT 0,
+    headcount   REAL DEFAULT 0,
+    updated_by  TEXT DEFAULT '',
+    updated_at  TEXT NOT NULL,
+    UNIQUE(lean, month)
+);

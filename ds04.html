@@ -2,187 +2,227 @@
 <html lang="zh-TW">
 <head>
 <meta charset="utf-8">
-<title>DS-04 進度表</title>
+<title>DS-04 明細表</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Microsoft JhengHei',Arial,sans-serif;font-size:13px;background:#f5f7fa;color:#333}
-.topbar{background:#1e3a5f;color:#fff;padding:12px 20px;display:flex;align-items:center;gap:16px}
-.topbar h1{font-size:16px;font-weight:600;margin-right:auto}
+.topbar{background:#1e3a5f;color:#fff;padding:10px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.topbar h1{font-size:15px;font-weight:600;margin-right:auto}
 .topbar a{color:#adc8f0;text-decoration:none;font-size:12px}
-.topbar a:hover{color:#fff}
-.filters{background:#fff;border-bottom:1px solid #dde;padding:10px 20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.filters label{font-size:12px;color:#666;display:flex;gap:6px;align-items:center}
+.filters{background:#fff;border-bottom:1px solid #dde;padding:8px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.filters label{font-size:12px;color:#666;display:flex;gap:4px;align-items:center}
 .filters select{padding:4px 8px;border:1px solid #ccd;border-radius:4px;font-size:12px}
-.stat-bar{background:#eef3fb;padding:6px 20px;font-size:12px;color:#555;border-bottom:1px solid #dde}
+.stat-bar{background:#eef3fb;padding:5px 16px;font-size:12px;color:#555;border-bottom:1px solid #dde}
 .stat-bar span{font-weight:700;color:#1e3a5f}
-.content{padding:16px 20px;overflow-x:auto}
-.lean-group{margin-bottom:20px;border:1px solid #d0d8e8;border-radius:6px;overflow:hidden}
-.lean-header{background:#2d5a9e;color:#fff;padding:7px 14px;display:flex;align-items:center;gap:12px;font-size:13px;font-weight:600}
-.lean-header .lean-code{background:#1e3a5f;padding:2px 8px;border-radius:3px;font-size:12px;font-family:monospace}
-.lean-header .lean-total{margin-left:auto;font-size:11px;font-weight:400;opacity:.8}
+.content{padding:12px 16px;overflow-x:auto}
+.lean-group{margin-bottom:16px;border:1px solid #d0d8e8;border-radius:6px;overflow:hidden}
+.lean-header{background:#2d5a9e;color:#fff;padding:6px 12px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600}
+.lean-header .lc{background:#1e3a5f;padding:1px 7px;border-radius:3px;font-size:12px;font-family:monospace}
+.lean-header .lt{margin-left:auto;font-size:11px;font-weight:400;opacity:.8}
 table{width:100%;border-collapse:collapse;font-size:12px}
 thead tr{background:#e8eef8}
-th{padding:6px 10px;text-align:left;font-weight:600;color:#1e3a5f;border-bottom:1px solid #c5d0e0;white-space:nowrap}
-td{padding:5px 10px;border-bottom:1px solid #edf0f5;vertical-align:middle}
+th{padding:5px 8px;text-align:left;font-weight:600;color:#1e3a5f;border-bottom:1px solid #c5d0e0;white-space:nowrap}
+td{padding:4px 8px;border-bottom:1px solid #edf0f5;vertical-align:middle}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:#f5f8ff}
-.model-group td:first-child{border-left:3px solid #4a90d9}
 .model-sep{background:#f0f4fa}
-.model-sep td{padding:4px 10px;font-size:11px;color:#4a7ac5;font-weight:600}
-.badge-y{background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;padding:1px 7px;border-radius:3px;font-size:11px;font-weight:600}
-.qty-cell{font-weight:600;color:#333}
-.order-no{font-family:monospace;font-size:11px;color:#555}
-.delivery{color:#666}
-.no-data{text-align:center;padding:40px;color:#999;font-size:14px}
-.btn{padding:6px 14px;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600}
-.btn-dl{background:#2e7d32;color:#fff}
-.btn-dl:hover{background:#1b5e20}
-.loading{text-align:center;padding:40px;color:#888}
+.model-sep td{padding:3px 8px;font-size:11px;color:#4a7ac5;font-weight:600}
+.badge-y{background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:600}
+.btn{padding:4px 10px;border:none;border-radius:3px;cursor:pointer;font-size:11px;font-weight:600}
+.btn-edit{background:#e3f2fd;color:#1565c0}
+.btn-edit:hover{background:#bbdefb}
+.btn-del{background:#fce4ec;color:#c62828}
+.btn-del:hover{background:#f8bbd0}
+.btn-add{background:#2d5a9e;color:#fff;padding:5px 12px;font-size:12px}
+.btn-dl{background:#2e7d32;color:#fff;padding:5px 12px;font-size:12px}
+.no-data,.loading{text-align:center;padding:40px;color:#999}
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;display:none;align-items:center;justify-content:center}
+.overlay.show{display:flex}
+.modal{background:#fff;border-radius:8px;padding:20px;width:420px;max-width:95vw}
+.modal h3{font-size:14px;font-weight:700;color:#1e3a5f;margin-bottom:14px}
+.form-row{margin-bottom:10px;display:flex;gap:8px;align-items:center}
+.form-row label{width:80px;font-size:12px;color:#555;flex-shrink:0}
+.form-row input,.form-row select{flex:1;padding:5px 8px;border:1px solid #ccd;border-radius:4px;font-size:12px}
+.form-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.btn-cancel{background:#eee;color:#555}
+.btn-save{background:#2d5a9e;color:#fff}
+.toast{position:fixed;bottom:20px;right:20px;background:#1e3a5f;color:#fff;padding:9px 16px;border-radius:5px;font-size:12px;display:none;z-index:999}
 </style>
 </head>
 <body>
 <div class="topbar">
-  <h1>DS-04 月進度表</h1>
-  <a href="/">← 主頁</a>
-  <a href="/allocation">勾選分配</a>
+  <h1>DS-04 明細表</h1>
+  <a href="/eolr-settings">EOLR設定 →</a>
+  <a href="/allocation">勾選表 →</a>
+  <a href="/bianche">廠務編制表 →</a>
+  <button class="btn btn-add" onclick="openAdd()">＋ 新增指令</button>
   <button class="btn btn-dl" onclick="downloadXlsx()">⬇ 下載 xlsx</button>
 </div>
 
 <div class="filters">
-  <label>部門
-    <select id="selDept" onchange="loadData()">
-      <option value="">全部部門</option>
-    </select>
-  </label>
-  <label>LEAN
-    <select id="selLean" onchange="loadData()">
-      <option value="">全部 LEAN</option>
-    </select>
-  </label>
+  <label>部門<select id="selDept" onchange="loadData()"><option value="">全部</option></select></label>
+  <label>LEAN<select id="selLean" onchange="loadData()"><option value="">全部</option></select></label>
   <label>外包鞋面
     <select id="selOutsource" onchange="loadData()">
       <option value="">全部</option>
-      <option value="Y">外包鞋面 (Y)</option>
+      <option value="Y">外包鞋面(Y)</option>
       <option value="N">非外包</option>
     </select>
   </label>
 </div>
-
 <div class="stat-bar" id="statBar">載入中...</div>
+<div class="content" id="content"><div class="loading">載入中...</div></div>
 
-<div class="content" id="content">
-  <div class="loading">載入資料中...</div>
+<!-- Edit/Add Modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3 id="modalTitle">新增指令</h3>
+    <input type="hidden" id="editId">
+    <div class="form-row"><label>部門</label><input id="fDept" placeholder="1部"></div>
+    <div class="form-row"><label>LEAN</label><input id="fLean" placeholder="1A"></div>
+    <div class="form-row"><label>鞋型名稱</label><input id="fModel" placeholder="CODECHAOS 27"></div>
+    <div class="form-row"><label>ART</label><input id="fArt" placeholder="KI5735"></div>
+    <div class="form-row"><label>訂單號</label><input id="fOrderNo" placeholder="MF2606KI5735-10"></div>
+    <div class="form-row"><label>數量</label><input id="fQty" type="number" placeholder="0"></div>
+    <div class="form-row"><label>交期</label><input id="fDate" placeholder="6/5"></div>
+    <div class="form-row"><label>外包鞋面</label>
+      <select id="fOut"><option value="0">否</option><option value="1">是(Y)</option></select>
+    </div>
+    <div class="form-btns">
+      <button class="btn btn-cancel" onclick="closeModal()">取消</button>
+      <button class="btn btn-save" onclick="saveRow()">儲存</button>
+    </div>
+  </div>
 </div>
+<div class="toast" id="toast"></div>
 
 <script>
 let _rows = [];
 
 async function init() {
-  const f = await fetch('/api/ds04/filters').then(r => r.json());
-  const sd = document.getElementById('selDept');
-  const sl = document.getElementById('selLean');
-  (f.depts || []).forEach(d => {
-    const o = document.createElement('option'); o.value = d; o.textContent = d; sd.appendChild(o);
-  });
-  (f.leans || []).forEach(l => {
-    const o = document.createElement('option'); o.value = l; o.textContent = l; sl.appendChild(o);
-  });
+  const f = await fetch('/api/ds04/filters').then(r=>r.json());
+  const sd=document.getElementById('selDept'), sl=document.getElementById('selLean');
+  (f.depts||[]).forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;sd.appendChild(o);});
+  (f.leans||[]).forEach(l=>{const o=document.createElement('option');o.value=l;o.textContent=l;sl.appendChild(o);});
   loadData();
 }
 
 async function loadData() {
-  const dept = document.getElementById('selDept').value;
-  const lean = document.getElementById('selLean').value;
-  const out  = document.getElementById('selOutsource').value;
-  let url = '/api/ds04/orders?';
-  if (dept) url += `dept=${encodeURIComponent(dept)}&`;
-  if (lean) url += `lean=${encodeURIComponent(lean)}&`;
-  if (out)  url += `outsource=${out}&`;
-  document.getElementById('content').innerHTML = '<div class="loading">載入中...</div>';
-  try {
-    const res = await fetch(url).then(r => r.json());
-    _rows = res.rows || [];
-    render(_rows);
-  } catch(e) {
-    document.getElementById('content').innerHTML = `<div class="no-data">載入失敗: ${e}</div>`;
-  }
+  const dept=document.getElementById('selDept').value;
+  const lean=document.getElementById('selLean').value;
+  const out=document.getElementById('selOutsource').value;
+  let url='/api/ds04/orders?';
+  if(dept) url+=`dept=${encodeURIComponent(dept)}&`;
+  if(lean) url+=`lean=${encodeURIComponent(lean)}&`;
+  if(out)  url+=`outsource=${out}&`;
+  document.getElementById('content').innerHTML='<div class="loading">載入中...</div>';
+  const res=await fetch(url).then(r=>r.json());
+  _rows=res.rows||[];
+  render(_rows);
 }
 
 function render(rows) {
-  const total = rows.length;
-  const waibao = rows.filter(r => r.is_outsource_upper).length;
-  document.getElementById('statBar').innerHTML =
-    `共 <span>${total}</span> 筆指令　外包鞋面 <span>${waibao}</span> 筆`;
-
-  if (!total) {
-    document.getElementById('content').innerHTML = '<div class="no-data">無符合資料</div>';
-    return;
-  }
-
-  // Group by LEAN
-  const byLean = {};
-  rows.forEach(r => {
-    if (!byLean[r.lean]) byLean[r.lean] = [];
-    byLean[r.lean].push(r);
-  });
-
-  let html = '';
-  for (const lean of Object.keys(byLean).sort()) {
-    const lrows = byLean[lean];
-    const dept = lrows[0].dept;
-    const waibaoCount = lrows.filter(r => r.is_outsource_upper).length;
-    html += `<div class="lean-group">
+  const wb=rows.filter(r=>r.is_outsource_upper).length;
+  document.getElementById('statBar').innerHTML=`共 <span>${rows.length}</span> 筆　外包鞋面 <span>${wb}</span> 筆`;
+  if(!rows.length){document.getElementById('content').innerHTML='<div class="no-data">無資料</div>';return;}
+  const byLean={};
+  rows.forEach(r=>{if(!byLean[r.lean])byLean[r.lean]=[];byLean[r.lean].push(r);});
+  let html='';
+  for(const lean of Object.keys(byLean).sort()){
+    const lr=byLean[lean];
+    const dept=lr[0].dept;
+    const wb=lr.filter(r=>r.is_outsource_upper).length;
+    html+=`<div class="lean-group">
       <div class="lean-header">
-        <span class="lean-code">${esc(lean)}</span>
-        <span>${esc(dept)}</span>
-        <span class="lean-total">${lrows.length} 筆指令${waibaoCount ? `　外包 ${waibaoCount} 筆` : ''}</span>
+        <span class="lc">${esc(lean)}</span><span>${esc(dept)}</span>
+        <span class="lt">${lr.length} 筆${wb?` 外包 ${wb}`:''}</span>
       </div>
-      <table>
-        <thead><tr>
-          <th>部門</th><th>LEAN</th><th>鞋型名稱</th><th>ART</th>
-          <th>訂單號</th><th>數量</th><th>交期</th><th>外包鞋面</th>
-        </tr></thead>
-        <tbody>`;
-
-    let lastModel = null;
-    lrows.forEach(r => {
-      if (r.model_name !== lastModel) {
-        if (r.model_name) {
-          html += `<tr class="model-sep"><td colspan="8">▸ ${esc(r.model_name)}</td></tr>`;
-        }
-        lastModel = r.model_name;
+      <table><thead><tr>
+        <th>鞋型名稱</th><th>ART</th><th>訂單號</th><th>數量</th><th>交期</th><th>外包鞋面</th><th>操作</th>
+      </tr></thead><tbody>`;
+    let lastM=null;
+    lr.forEach(r=>{
+      if(r.model_name!==lastM){
+        if(r.model_name) html+=`<tr class="model-sep"><td colspan="7">▸ ${esc(r.model_name)}</td></tr>`;
+        lastM=r.model_name;
       }
-      html += `<tr>
-        <td>${esc(r.dept)}</td>
-        <td>${esc(r.lean)}</td>
+      html+=`<tr>
         <td>${esc(r.model_name)}</td>
         <td>${esc(r.art)}</td>
-        <td class="order-no">${esc(r.order_no)}</td>
-        <td class="qty-cell">${r.qty.toLocaleString()}</td>
-        <td class="delivery">${esc(r.delivery_date)}</td>
-        <td>${r.is_outsource_upper ? '<span class="badge-y">Y</span>' : ''}</td>
+        <td style="font-family:monospace;font-size:11px">${esc(r.order_no)}</td>
+        <td><b>${(r.qty||0).toLocaleString()}</b></td>
+        <td style="color:#666">${esc(r.delivery_date)}</td>
+        <td>${r.is_outsource_upper?'<span class="badge-y">Y</span>':''}</td>
+        <td><button class="btn btn-edit" onclick='openEdit(${JSON.stringify(r)})'>編輯</button>
+            <button class="btn btn-del" onclick="delRow(${r.id})">刪除</button></td>
       </tr>`;
     });
-    html += '</tbody></table></div>';
+    html+='</tbody></table></div>';
   }
-  document.getElementById('content').innerHTML = html;
+  document.getElementById('content').innerHTML=html;
 }
 
-function esc(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function openAdd() {
+  document.getElementById('modalTitle').textContent='新增指令';
+  document.getElementById('editId').value='';
+  ['fDept','fLean','fModel','fArt','fOrderNo','fDate'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fQty').value='0';
+  document.getElementById('fOut').value='0';
+  document.getElementById('overlay').classList.add('show');
+}
+function openEdit(r) {
+  document.getElementById('modalTitle').textContent='編輯指令';
+  document.getElementById('editId').value=r.id;
+  document.getElementById('fDept').value=r.dept||'';
+  document.getElementById('fLean').value=r.lean||'';
+  document.getElementById('fModel').value=r.model_name||'';
+  document.getElementById('fArt').value=r.art||'';
+  document.getElementById('fOrderNo').value=r.order_no||'';
+  document.getElementById('fQty').value=r.qty||0;
+  document.getElementById('fDate').value=r.delivery_date||'';
+  document.getElementById('fOut').value=r.is_outsource_upper?'1':'0';
+  document.getElementById('overlay').classList.add('show');
+}
+function closeModal(){ document.getElementById('overlay').classList.remove('show'); }
+
+async function saveRow() {
+  const id=document.getElementById('editId').value;
+  const body={
+    dept:document.getElementById('fDept').value,
+    lean:document.getElementById('fLean').value,
+    model_name:document.getElementById('fModel').value,
+    art:document.getElementById('fArt').value,
+    order_no:document.getElementById('fOrderNo').value,
+    qty:parseInt(document.getElementById('fQty').value)||0,
+    delivery_date:document.getElementById('fDate').value,
+    is_outsource_upper:document.getElementById('fOut').value==='1',
+  };
+  const url=id ? `/api/ds04/order/${id}` : '/api/ds04/order';
+  const method=id ? 'PUT' : 'POST';
+  const res=await fetch(url,{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json());
+  if(res.ok){ closeModal(); showToast(id?'已更新':'已新增'); loadData(); }
+  else { alert('錯誤: '+(res.error||'未知')); }
 }
 
-function downloadXlsx() {
-  const dept = document.getElementById('selDept').value;
-  const lean = document.getElementById('selLean').value;
-  const out  = document.getElementById('selOutsource').value;
-  let url = '/api/ds04/export?';
-  if (dept) url += `dept=${encodeURIComponent(dept)}&`;
-  if (lean) url += `lean=${encodeURIComponent(lean)}&`;
-  if (out)  url += `outsource=${out}&`;
-  window.location = url;
+async function delRow(id) {
+  if(!confirm('確定刪除此筆？')) return;
+  const r=await fetch(`/api/ds04/order/${id}`,{method:'DELETE'}).then(r=>r.json());
+  if(r.ok){ showToast('已刪除'); loadData(); }
+  else { alert('刪除失敗: '+(r.error||'')); }
 }
 
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2000);}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function downloadXlsx(){
+  const d=document.getElementById('selDept').value,l=document.getElementById('selLean').value,o=document.getElementById('selOutsource').value;
+  let url='/api/ds04/export?';
+  if(d) url+=`dept=${encodeURIComponent(d)}&`;
+  if(l) url+=`lean=${encodeURIComponent(l)}&`;
+  if(o) url+=`outsource=${o}&`;
+  window.location=url;
+}
+document.getElementById('overlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
 init();
 </script>
 </body>
