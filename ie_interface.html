@@ -272,25 +272,21 @@ function renderGroup(g){
   const matVal    = matText(g.mat);
   const modelJ    = esc(JSON.stringify(g.model_name));
 
-  function leftCells(){
-    return `<td class="season-cell">${seasonVal}</td>`+
-           `<td class="model-cell">${modelVal}</td>`+
-           `<td class="arts-cell">${artsVal}</td>`+
-           `<td class="mat-cell">${matVal}</td>`;
-  }
-  function leftCellsEmpty(){
-    return `<td class="season-cell"></td>`+
-           `<td class="model-cell"></td>`+
-           `<td class="arts-cell"></td>`+
-           `<td class="mat-cell"></td>`;
+  function leftCells(rs){
+    const r = rs ? ' rowspan="2"' : '';
+    return `<td class="season-cell"${r}>${seasonVal}</td>`+
+           `<td class="model-cell"${r}>${modelVal}</td>`+
+           `<td class="arts-cell"${r}>${artsVal}</td>`+
+           `<td class="mat-cell"${r}>${matVal}</td>`;
   }
 
   let rows = '';
 
   if(has60){
+    const rs = both ? ' rowspan="2"' : '';
     rows += `<tr class="tr-eolr ${both ? 'tr-model-first' : 'tr-single'}">
-      <td class="act-cell"><button class="btn-add-rec" onclick="addIeRecord(${modelJ})" title="新增ART">＋</button> <button class="btn-del-rec" onclick="delIeRecord(${g.id60})" title="刪除">×</button></td>
-      ${leftCells()}
+      <td class="act-cell"${rs}><button class="btn-add-rec" onclick="addIeRecord(${modelJ})" title="新增ART">＋</button> <button class="btn-del-rec" onclick="delIeRecord(${g.id60})" title="刪除">×</button></td>
+      ${leftCells(both)}
       <td class="eolr-cell"><span class="eolr-60">60</span></td>
       ${mpRow(g.r60)}
     </tr>`;
@@ -298,8 +294,7 @@ function renderGroup(g){
 
   if(has120){
     rows += `<tr class="tr-eolr ${both ? 'tr-model-second' : 'tr-single'}">
-      <td class="act-cell">${!has60 ? `<button class="btn-add-rec" onclick="addIeRecord(${modelJ})" title="新增ART">＋</button> <button class="btn-del-rec" onclick="delIeRecord(${g.id120})" title="刪除">×</button>` : ''}</td>
-      ${both ? leftCellsEmpty() : leftCells()}
+      ${!has60 ? `<td class="act-cell"><button class="btn-add-rec" onclick="addIeRecord(${modelJ})" title="新增ART">＋</button> <button class="btn-del-rec" onclick="delIeRecord(${g.id120})" title="刪除">×</button></td>${leftCells(false)}` : ''}
       <td class="eolr-cell"><span class="eolr-120">120</span></td>
       ${mpRow(g.r120)}
     </tr>`;
@@ -308,7 +303,7 @@ function renderGroup(g){
   if(!has60 && !has120){
     rows = `<tr class="tr-eolr tr-single">
       <td class="act-cell"><button class="btn-add-rec" onclick="addIeRecord(${modelJ})" title="新增ART">＋</button></td>
-      ${leftCells()}
+      ${leftCells(false)}
       <td class="eolr-cell">—</td>
       <td class="mp-cell" colspan="4"><span class="mp-na">—</span></td>
     </tr>`;
