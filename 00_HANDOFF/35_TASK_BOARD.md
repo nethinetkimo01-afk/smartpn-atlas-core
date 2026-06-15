@@ -107,6 +107,8 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 064 | Task062兩項修正：bianche全筆+ds04確認鎖定 | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | bianche 440組(有IE=16/無IE=424灰字—); ds04_lock表+確認鎖定按鈕; 0502760 |
 
+| 065 | GitHub 同步+環境確認+新界面盤點（/ds04,/eolr-settings,/bianche） | Infra | ✅完成 | 2026-06-15 | 2026-06-15 | pull faa4e5e→4343876; Py3.14.6/flask3.1.3/flask_cors/openpyxl3.1.5 全裝; app.py import OK(HAS_DS04=True); 3路由皆註冊(send_from_directory '..'); ds04/eolr_settings/bianche.html在repo根; data/atlas.db 172KB(本機有真資料) |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |
