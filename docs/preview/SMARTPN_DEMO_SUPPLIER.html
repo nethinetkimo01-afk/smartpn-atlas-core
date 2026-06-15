@@ -328,7 +328,7 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
 
     <!-- 原物料建立 -->
     <div class="view fade-in" id="view-raw">
-      <div class="page-header"><div class="page-title" data-i18n="m_raw">原物料建立</div><div class="page-sub">Product (SPU) → Options</div></div>
+      <div class="page-header"><div class="page-title" data-i18n="m_raw">原物料建立</div><div class="page-sub">Product → Options</div></div>
       <div class="form-card"><div class="form-card-title">料號 Part Numbers</div>
         <div class="form-grid">
           <div class="form-group"><label class="form-label">GS1 Code（選填）</label><input class="form-input" placeholder="例：4711234500017"></div>
@@ -341,14 +341,14 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
           </div>
         </div>
       </div>
-      <div class="form-card"><div class="form-card-title">產品 (SPU) 主體</div>
+      <div class="form-card"><div class="form-card-title">產品主體</div>
         <div class="form-grid">
           <div class="form-group"><label class="form-label">產品名稱 Name</label><input class="form-input" value="Ripstop Nylon 70D"></div>
           <div class="form-group"><label class="form-label">分類 Category</label><select class="form-input form-select" id="raw-cat" onchange="syncOptionPattern()"><option value="textile">紡織 · Textile</option><option value="synleather">人造皮 · Synthetic Leather</option><option value="leather">皮料 · Leather</option><option value="film">薄膜 · Film</option><option value="secondary">二次加工 · Secondary</option></select></div>
           <div class="form-group form-full"><label class="form-label">成分 Composition</label><input class="form-input" value="100% Nylon 70D, ripstop weave"></div>
           <div class="form-group"><label class="form-label">版本 Version</label><input class="form-input" value="v1.0"></div>
         </div>
-        <div class="warn-box"><span>🔒</span><span><strong>SPU 物性鎖定：</strong>名稱 / 分類 / 成分 等物性欄位，第一個 Option 送出後即<strong>鎖定不可修改</strong>。</span></div>
+        <div class="warn-box"><span>🔒</span><span><strong>Product 物性鎖定：</strong>名稱 / 分類 / 成分 等物性欄位，第一個 Option 送出後即<strong>鎖定不可修改</strong>。</span></div>
       </div>
       <div class="section-title">規格 Options（每個 = 顏色 + 幅寬 + 重量 + 單價 + LT + 材料圖）</div>
       <div id="option-cards" data-pat="textile"></div>

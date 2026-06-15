@@ -95,6 +95,8 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 059 | IE主表+細表+allocation 剩餘修正 | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | ie_interface.html: 120行act-cell空; ie_cell_detail.html: 表頭全名+×首欄+toFixed(1); allocation.html: UNIT_ZONES過濾+裁斷機完全隱藏+機台獨立欄 |
 
+| 060 | 01_CONSTITUTION+21_STATUS+Demo設計決定同步 | SmartPN Atlas | ✅完成 | 2026-06-15 | 2026-06-15 | 01_CONSTITUTION §10-18新增; 21_CURRENT_STATUS今日確認清單; SUPPLIER Demo SPU→Product |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |
