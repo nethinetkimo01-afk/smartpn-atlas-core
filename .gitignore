@@ -1,2 +1,5 @@
 flask_backend/*.log
 flask_backend/data/*.db
+# IE source xlsx (large — kept locally, not pushed to GitHub)
+data/source_files/IE_xlsx/
+data/source_files/IE_xlsx_Jun/
