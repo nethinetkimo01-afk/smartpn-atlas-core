@@ -101,6 +101,16 @@ app = Flask(__name__, static_folder='..', static_url_path='')
 app.secret_key = os.environ.get('ATLAS_SECRET', 'smartpn-allocation-demo-key')
 CORS(app, supports_credentials=True)
 
+# ── Startup: print 00_MUST_READ_FIRST so every Code session sees the rules ──
+_must_read = os.path.join(os.path.dirname(__file__), '..', '00_HANDOFF', '00_MUST_READ_FIRST.md')
+try:
+    with open(_must_read, encoding='utf-8') as _f:
+        print('\n' + '='*60)
+        print(_f.read())
+        print('='*60 + '\n')
+except Exception:
+    pass
+
 # ── Allocation users (Phase 1, no password — demo identity switch) ─────────────
 ALLOC_USERS = {
     'jim':     {'role': 'admin',     'unit': None,        'name': 'Jim (Admin)'},
@@ -332,6 +342,8 @@ def ie_cell_add_row():
         qty_per_pair=d.get('qty_per_pair'),
         layers_per_cut=d.get('layers_per_cut'),
         actual_operators=d.get('actual_operators'),
+        normal_time=d.get('normal_time'),
+        allowance_pct=d.get('allowance_pct'),
     ))
 
 @app.route('/api/ie/cell/delete_row', methods=['POST'])
@@ -470,7 +482,7 @@ def alloc_parts():
 
 @app.route('/api/allocation/export_ref', methods=['GET'])
 def alloc_export_ref():
-    """Download reference xlsx in Jim's 10-column format."""
+    """Download reference xlsx — format differs per unit type."""
     if not HAS_XLSX:
         return jsonify({'ok': False, 'error': 'openpyxl not installed'}), 500
     from flask import send_file
@@ -487,52 +499,71 @@ def alloc_export_ref():
 
     hdr_font = Font(bold=True, color='FFFFFF')
     hdr_fill = PatternFill('solid', fgColor='1A2744')
-    sub_fill = PatternFill('solid', fgColor='243356')
     lean_fill = PatternFill('solid', fgColor='0F1E38')
     thin = Side(style='thin', color='C0C8D8')
     bord = Border(left=thin, right=thin, bottom=thin, top=thin)
+    ctr = Alignment(horizontal='center')
 
-    headers = ['LEAN', '鞋型', 'ART', '序號', '部件名稱',
-               '刀數/H', '層數', '片數/雙', '總片數',
-               'CT秒/雙', 'Output', '理論人數', '勾選']
+    # Unit-specific column definitions
+    is_tongcai = unit == '同材共裁自動化' or not unit
+    is_dianno  = unit == '電腦針車折邊'
+    is_dacu    = unit == '打粗水洗照射'
+
+    if is_dacu:
+        headers = ['LEAN', '鞋型', 'ART', '訂單', '流程', 'TCT(秒/雙)', '需求人力', '勾選']
+        col_widths = [8, 22, 10, 8, 22, 11, 11, 8]
+    elif is_dianno:
+        headers = ['LEAN', '鞋型', 'ART', '訂單', '配件', 'CT標準時間', 'Output', '理論人數', '勾選']
+        col_widths = [8, 22, 10, 8, 22, 12, 9, 10, 8]
+    else:  # 同材共裁 or all
+        headers = ['LEAN', '鞋型', 'ART', '訂單', '部件名稱', 'Zone',
+                   '刀數/H', '層數', '片數/雙', '總片數', 'CT秒/雙', 'Output', '理論人數', '勾選']
+        col_widths = [8, 22, 10, 8, 22, 9, 9, 7, 9, 9, 9, 9, 9, 8]
+
     for ci, h in enumerate(headers, 1):
         c = ws.cell(row=1, column=ci, value=h)
-        c.font = hdr_font; c.fill = hdr_fill; c.border = bord
-        c.alignment = Alignment(horizontal='center')
+        c.font = hdr_font; c.fill = hdr_fill; c.border = bord; c.alignment = ctr
 
     ri = 2
     for lg in data.get('leans', []):
         lean_label = lg.get('lean') or '—'
         for mg in lg.get('models', []):
+            order_qty = mg.get('order_qty') or 0
             for it in mg.get('items', []):
-                vals = [
-                    lean_label, mg.get('model_name', ''), mg.get('art', ''),
-                    it.get('seq'), it.get('part_name', ''),
-                    it.get('cut_per_hour'), it.get('layers'),
-                    it.get('qty_per_pair'), it.get('total_pieces'),
-                    it.get('ct_sec'), it.get('output'), it.get('theory_mp'),
-                    '外移' if it.get('is_checked') else '留CSA'
-                ]
+                ct = it.get('ct_sec')
+                chk = '外移' if it.get('is_checked') else ('留CSA(主裁斷)' if it.get('is_csa_locked') else '留CSA')
+                if is_dacu:
+                    demand = round(order_qty * (ct or 0) / 3600 / 222, 2) if ct and order_qty else None
+                    vals = [lean_label, mg.get('model_name', ''), mg.get('art', ''), order_qty,
+                            it.get('part_name', ''), ct, demand, chk]
+                elif is_dianno:
+                    vals = [lean_label, mg.get('model_name', ''), mg.get('art', ''), order_qty,
+                            it.get('part_name', ''), ct, it.get('output'), it.get('theory_mp'), chk]
+                else:
+                    vals = [lean_label, mg.get('model_name', ''), mg.get('art', ''), order_qty,
+                            it.get('part_name', ''), it.get('zone', ''),
+                            it.get('cut_per_hour'), it.get('layers'), it.get('qty_per_pair'),
+                            it.get('total_pieces'), ct, it.get('output'), it.get('theory_mp'), chk]
                 for ci, v in enumerate(vals, 1):
                     ws.cell(row=ri, column=ci, value=v).border = bord
                 ri += 1
-            # model footer
-            row_f = ws.cell(row=ri, column=5, value='小計')
-            row_f.font = Font(bold=True)
-            ws.cell(row=ri, column=12, value=mg.get('ie_mp'))
-            ws.cell(row=ri, column=13, value='').border = bord
+            # model subtotal
+            n_cols = len(headers)
+            sub_c = ws.cell(row=ri, column=n_cols - 1, value=mg.get('ie_mp'))
+            sub_c.font = Font(bold=True)
+            ws.cell(row=ri, column=n_cols, value='小計').font = Font(bold=True)
             ri += 1
         # LEAN footer
         c = ws.cell(row=ri, column=1, value=f'LEAN {lean_label} 合計')
         c.font = Font(bold=True, color='FFFFFF'); c.fill = lean_fill
-        ws.merge_cells(start_row=ri, start_column=1, end_row=ri, end_column=4)
-        ws.cell(row=ri, column=5, value=f'外移MP: {lg.get("allocated_mp")}  留CSA: {lg.get("csa_mp")}  原始IE: {lg.get("ie_mp")}')
+        ws.merge_cells(start_row=ri, start_column=1, end_row=ri, end_column=3)
+        ws.cell(row=ri, column=4,
+                value=f'外移MP: {lg.get("allocated_mp")}  留CSA: {lg.get("csa_mp")}')
         ri += 1
 
     if ri == 2:
         ws.cell(row=2, column=1, value='（尚無資料 — 請先預填）')
 
-    col_widths = [8, 20, 10, 6, 22, 9, 7, 9, 9, 9, 9, 9, 8]
     for ci, w in enumerate(col_widths, 1):
         ws.column_dimensions[ws.cell(1, ci).column_letter].width = w
 

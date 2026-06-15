@@ -975,7 +975,8 @@ def approve_ie_edit(log_id, approver):
 
 
 def add_ie_process_row(header_id, segment, zone, process_name, standard_time, stage_id, user='demo', part_name=None, tct=None,
-                       mat_cat=None, process_name_zh=None, cut_per_hour=None, qty_per_pair=None, layers_per_cut=None, actual_operators=None):
+                       mat_cat=None, process_name_zh=None, cut_per_hour=None, qty_per_pair=None, layers_per_cut=None, actual_operators=None,
+                       normal_time=None, allowance_pct=None):
     """Add a new process row and log the action."""
     conn = get_conn()
     try:
@@ -991,10 +992,12 @@ def add_ie_process_row(header_id, segment, zone, process_name, standard_time, st
         ).fetchone()[0] or 0
         conn.execute('''
             INSERT INTO ie_process (header_id, art, segment, zone, seq, process_name, part_name, tct, standard_time, flag,
-                                    mat_cat, process_name_zh, cut_per_hour, qty_per_pair, layers_per_cut, actual_operators)
-            VALUES (?,?,?,?,?,?,?,?,?, 'new',?,?,?,?,?,?)
+                                    mat_cat, process_name_zh, cut_per_hour, qty_per_pair, layers_per_cut, actual_operators,
+                                    normal_time, allowance_pct)
+            VALUES (?,?,?,?,?,?,?,?,?, 'new',?,?,?,?,?,?,?,?)
         ''', (header_id, art, segment, zone, max_seq + 1, process_name, part_name, tct, standard_time,
-              mat_cat, process_name_zh, cut_per_hour, qty_per_pair, layers_per_cut, actual_operators))
+              mat_cat, process_name_zh, cut_per_hour, qty_per_pair, layers_per_cut, actual_operators,
+              normal_time, allowance_pct))
         conn.commit()
         new_id = conn.execute('SELECT last_insert_rowid()').fetchone()[0]
         # Log as edit
@@ -1210,19 +1213,28 @@ def get_db_stats():
 # 後製工序 zone → 外移單位
 ZONE_TO_UNIT = {
     'ATOM': '同材共裁自動化', 'LASER': '同材共裁自動化', 'EMMA': '同材共裁自動化',
-    '裁斷機': '同材共裁自動化',   # 舊格式切割機，同等裁斷工序
-    '電腦針車': '電腦針車折邊',
+    '裁斷機': '同材共裁自動化', 'YINGHUI': '同材共裁自動化',
+    '電腦針車': '電腦針車折邊', '折边': '電腦針車折邊',
     '打粗': '打粗水洗照射', '照射': '打粗水洗照射',
 }
 # 後製工序 zone → IE 段（用於 CSA MP 扣除歸段）
 ZONE_TO_SEGMENT = {
     'ATOM': 'cutting', 'LASER': 'cutting', 'EMMA': 'cutting',
-    '裁斷機': 'cutting',
-    '電腦針車': 'stitching',
+    '裁斷機': 'cutting', 'YINGHUI': 'cutting',
+    '電腦針車': 'stitching', '折边': 'stitching',
     '打粗': 'stf', '照射': 'stf',
 }
 ALLOCATION_UNITS = ['同材共裁自動化', '電腦針車折邊', '打粗水洗照射']
-TARGET_ZONES = ['ATOM', 'Laser', 'EMMA', '裁斷機', '電腦針車', '打粗', '照射']
+TARGET_ZONES = ['ATOM', 'Laser', 'EMMA', '裁斷機', 'YINGHUI', '電腦針車', '折边', '打粗', '照射']
+
+# 各外移單位顯示的 zone（同材共裁含裁斷機但不可切換外移）
+UNIT_DISPLAY_ZONES = {
+    '同材共裁自動化': ['ATOM', 'Laser', 'EMMA', 'YINGHUI', '裁斷機'],
+    '電腦針車折邊':   ['電腦針車', '折边'],
+    '打粗水洗照射':   ['打粗', '照射'],
+}
+ALL_DISPLAY_ZONES = [z for zones in UNIT_DISPLAY_ZONES.values() for z in zones]
+NON_TOGGLEABLE_ZONES = frozenset(['裁斷機'])  # 主裁斷：永遠留CSA，前端不顯示勾選框
 
 
 def _zone_unit(zone):
@@ -1402,13 +1414,12 @@ def set_allocation_check(item_id, is_checked, user='demo'):
 
 
 def get_allocation_leans(month=None):
+    """Return all assigned LEANs from ob_header (month-independent)."""
     conn = get_conn()
     try:
-        _ensure_alloc_tables(conn)
-        month = month or now_iso()[:7]
         rows = conn.execute(
-            'SELECT DISTINCT lean FROM allocation_item WHERE month=? AND lean IS NOT NULL ORDER BY lean',
-            (month,)).fetchall()
+            'SELECT DISTINCT lean FROM ob_header WHERE lean IS NOT NULL ORDER BY lean'
+        ).fetchall()
         return {'ok': True, 'leans': [r[0] for r in rows]}
     finally:
         conn.close()
@@ -1462,17 +1473,18 @@ def get_csa_mp(lean=None, art=None, eolr=120, month=None):
 
 
 def get_allocation_parts(month=None, unit=None, lean=None):
-    """New hierarchy view: LEAN → model×ART → parts with cut details from ie_process."""
+    """LEAN → model×ART → parts, filtered by unit display zones (excluding 裁斷機 from toggle)."""
     conn = get_conn()
     try:
         _ensure_alloc_tables(conn)
         month = month or now_iso()[:7]
 
-        where_clauses = ['ai.month=?']
-        params_after = [month]
-        if unit:
-            where_clauses.append('ai.target_unit=?')
-            params_after.append(unit)
+        # Zone whitelist: filter by unit's display zones, not target_unit
+        display_zones = UNIT_DISPLAY_ZONES.get(unit, ALL_DISPLAY_ZONES) if unit else ALL_DISPLAY_ZONES
+        zone_ph = ','.join('?' * len(display_zones))
+
+        where_clauses = ['ai.month=?', f'ai.zone IN ({zone_ph})']
+        params_after = [month] + list(display_zones)
         if lean:
             where_clauses.append('ai.lean=?')
             params_after.append(lean)
@@ -1486,9 +1498,16 @@ def get_allocation_parts(month=None, unit=None, lean=None):
                 h.model_name, h.eolr,
                 COALESCE(s.qty, 0) AS order_qty
             FROM allocation_item ai
-            LEFT JOIN ie_process ip
-                ON ip.header_id=ai.header_id AND ip.zone=ai.zone AND ip.seq=ai.seq
-               AND (ip.flag IS NULL OR ip.flag != 'deleted')
+            LEFT JOIN (
+                SELECT header_id, zone, seq,
+                       MAX(cut_per_hour) AS cut_per_hour,
+                       MAX(layers_per_cut) AS layers_per_cut,
+                       MAX(qty_per_pair) AS qty_per_pair,
+                       MAX(standard_time) AS standard_time
+                FROM ie_process
+                WHERE flag IS NULL OR flag != 'deleted'
+                GROUP BY header_id, zone, seq
+            ) ip ON ip.header_id=ai.header_id AND ip.zone=ai.zone AND ip.seq=ai.seq
             LEFT JOIN ob_header h ON h.id=ai.header_id
             LEFT JOIN (
                 SELECT article_id, SUM(quantity) AS qty
@@ -1497,7 +1516,9 @@ def get_allocation_parts(month=None, unit=None, lean=None):
             WHERE {" AND ".join(where_clauses)}
             ORDER BY
                 CASE WHEN ai.lean IS NULL THEN 1 ELSE 0 END,
-                ai.lean, h.model_name, ai.art, ai.zone, ai.seq, ai.id
+                ai.lean, h.model_name, ai.art,
+                CASE ai.zone WHEN '裁斷機' THEN 1 ELSE 0 END,
+                ai.zone, ai.seq, ai.id
         ''', params_after).fetchall()
 
         lean_groups = {}
@@ -1533,15 +1554,16 @@ def get_allocation_parts(month=None, unit=None, lean=None):
 
             mg = lg['_models'][mk]
             mp = float(d.get('theory_mp') or 0.0)
-            is_checked = 1 if d.get('is_checked') else 0
+            zone = d.get('zone') or ''
+            is_csa_locked = zone in NON_TOGGLEABLE_ZONES
+            is_checked = 0 if is_csa_locked else (1 if d.get('is_checked') else 0)
             ct = d.get('standard_time')
-            eolr = int(d.get('eolr') or 120)
             qty_pp = d.get('qty_per_pair')
             order_qty = float(d.get('order_qty') or 0)
 
             mg['ie_mp'] += mp
             lg['ie_mp'] += mp
-            if is_checked:
+            if is_checked and not is_csa_locked:
                 mg['allocated_mp'] += mp
                 lg['allocated_mp'] += mp
             else:
@@ -1551,8 +1573,8 @@ def get_allocation_parts(month=None, unit=None, lean=None):
             mg['items'].append({
                 'id': d['id'],
                 'seq': d['seq'],
-                'zone': d['zone'],
-                'part_name': d.get('part_name') or d.get('process_name') or '',
+                'zone': zone,
+                'part_name': d.get('process_name') or d.get('part_name') or '',
                 'cut_per_hour': d.get('cut_per_hour'),
                 'layers': d.get('layers_per_cut'),
                 'qty_per_pair': qty_pp,
@@ -1561,6 +1583,7 @@ def get_allocation_parts(month=None, unit=None, lean=None):
                 'output': round(3600.0 / float(ct), 1) if ct else None,
                 'theory_mp': round(mp, 4),
                 'is_checked': is_checked,
+                'is_csa_locked': is_csa_locked,
                 'target_unit': d.get('target_unit'),
             })
 

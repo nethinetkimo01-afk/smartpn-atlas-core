@@ -83,6 +83,8 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 053 | Cutting 標準時間改手工格 | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | ie_cell_detail.html renderCuttingRow 標準時間欄改白底手工格 |
 
+| 054 | 四段界面公式精確還原（Cutting/Stitching/Assembly/STF） | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | ie_cell_detail.html：Cutting機器3600÷G÷E×F灰底/Auto 1.12灰底+生産目標/Stitching 1.1灰底+生産目標/STF貼底1.1公式+打粗手工/EOLR即時不重載 |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |
