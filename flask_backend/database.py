@@ -1210,17 +1210,19 @@ def get_db_stats():
 # 後製工序 zone → 外移單位
 ZONE_TO_UNIT = {
     'ATOM': '同材共裁自動化', 'LASER': '同材共裁自動化', 'EMMA': '同材共裁自動化',
+    '裁斷機': '同材共裁自動化',   # 舊格式切割機，同等裁斷工序
     '電腦針車': '電腦針車折邊',
     '打粗': '打粗水洗照射', '照射': '打粗水洗照射',
 }
 # 後製工序 zone → IE 段（用於 CSA MP 扣除歸段）
 ZONE_TO_SEGMENT = {
     'ATOM': 'cutting', 'LASER': 'cutting', 'EMMA': 'cutting',
+    '裁斷機': 'cutting',
     '電腦針車': 'stitching',
     '打粗': 'stf', '照射': 'stf',
 }
 ALLOCATION_UNITS = ['同材共裁自動化', '電腦針車折邊', '打粗水洗照射']
-TARGET_ZONES = ['ATOM', 'Laser', 'EMMA', '電腦針車', '打粗', '照射']
+TARGET_ZONES = ['ATOM', 'Laser', 'EMMA', '裁斷機', '電腦針車', '打粗', '照射']
 
 
 def _zone_unit(zone):
