@@ -108,9 +108,16 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#f0f2
 .btn-inline-ok{background:#1d9e6b;color:#fff;border:none;border-radius:3px;padding:2px 7px;font-size:10px;cursor:pointer;font-weight:700}
 .btn-inline-ok:hover{background:#178059}
 .btn-inline-cancel{background:#e0e0e0;color:#555;border:none;border-radius:3px;padding:2px 5px;font-size:10px;cursor:pointer;margin-left:2px}
+/* + trigger row */
+.add-trigger-row td{background:#f8fff8;border:1px dashed #c8e6c9;text-align:center;padding:2px;border-collapse:collapse}
+.btn-add-zone{background:transparent;border:none;color:#bbb;font-size:15px;font-weight:700;cursor:pointer;padding:0 16px;line-height:1.8}
+.btn-add-zone:hover{color:#1d9e6b}
+/* Custom tooltip */
+#cellTip{position:fixed;background:#1a2744;color:#c8d8f0;font-size:10px;padding:2px 8px;border-radius:4px;pointer-events:none;z-index:500;display:none;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25)}
 </style>
 </head>
 <body>
+<div id="cellTip"></div>
 
 <div class="topbar">
   <a class="back-link" href="/ie">← 返回列表</a>
@@ -337,7 +344,6 @@ function renderAutoCuttingZoneCard(z, eolr) {
       </div>
       <div class="zone-actions">
         <button class="btn-group" onclick="openGroupModal(${zoneJ})">分組</button>
-        <button class="btn-add" onclick="addCuttingRow(${zoneJ})">＋</button>
       </div>
     </div>
     <div class="zone-body"><table class="proc-table">
@@ -350,6 +356,7 @@ function renderAutoCuttingZoneCard(z, eolr) {
     </tr></thead>
     <tbody id="tbody-cut-${esc(zone)}">`;
   for (const row of z.rows) h += renderAutoCuttingRow(row, zone, eolr);
+  h += renderAddTriggerRow(zone, 'cutting');
   h += '</tbody></table></div></div>';
   return h;
 }
@@ -373,13 +380,13 @@ function renderAutoCuttingRow(row, zone, eolr) {
   let h = '<tr>';
   h += `<td class="seq">${row.seq ?? ''}</td>`;
   h += nameCell;
-  h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'layers_per_cut')" title="點擊編輯">${row.layers_per_cut != null ? fmtNum(row.layers_per_cut) : '—'}</td>`;
-  h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'normal_time')" title="點擊編輯正常時間">${row.normal_time != null ? fmtNum(row.normal_time) : '—'}</td>`;
-  h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'allowance_pct')" title="點擊編輯寬放率">${fmtNum(allowance)}</td>`;
-  h += `<td class="formula-cell" title="公式：正常時間×(1+寬放%÷100)">${stdDisp}</td>`;
+  h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'layers_per_cut')" data-tip="點擊編輯">${row.layers_per_cut != null ? fmtNum(row.layers_per_cut) : '—'}</td>`;
+  h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'normal_time')" data-tip="點擊編輯">${row.normal_time != null ? fmtNum(row.normal_time) : '—'}</td>`;
+  h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'allowance_pct')" data-tip="點擊編輯">${fmtNum(allowance)}</td>`;
+  h += `<td class="formula-cell">${stdDisp}</td>`;
   h += `<td class="formula-cell" style="color:#1a6e3c">${ptDisp}</td>`;
   h += `<td class="formula-cell theory-cell" data-stdtime="${stdTime ?? ''}" data-zone="${esc(zone)}">${thDisp}</td>`;
-  h += `<td class="actual-cell clickable" onclick="startEdit(this,${pid},'actual_operators')" title="點擊填寫">${row.actual_operators != null ? fmtNum(row.actual_operators) : '—'}</td>`;
+  h += `<td class="actual-cell clickable" onclick="startEdit(this,${pid},'actual_operators')" data-tip="點擊編輯">${row.actual_operators != null ? fmtNum(row.actual_operators) : '—'}</td>`;
   h += `<td class="del-cell"><button class="btn-del" onclick="deleteRow(${pid})" title="刪除">×</button></td>`;
   h += '</tr>';
   return h;
@@ -398,7 +405,6 @@ function renderMachineCuttingZoneCard(z, eolr) {
       </div>
       <div class="zone-actions">
         <button class="btn-group" onclick="openGroupModal(${zoneJ})">分組</button>
-        <button class="btn-add" onclick="addCuttingRow(${zoneJ})">＋</button>
       </div>
     </div>
     <div class="zone-body"><table class="proc-table">
@@ -440,7 +446,7 @@ function renderMachineCuttingZoneCard(z, eolr) {
   h += `</thead><tbody id="tbody-cut-${esc(zone)}">`;
 
   for (const row of z.rows) h += renderMachineCuttingRow(row, zone, eolr);
-
+  h += renderAddTriggerRow(zone, 'cutting');
   h += '</tbody></table></div></div>';
   return h;
 }
@@ -466,25 +472,22 @@ function renderMachineCuttingRow(row, zone, eolr) {
     : `<td class="name">${viet}</td>`;
 
   let h = '<tr>';
-  h += `<td class="num" style="background:#fff;cursor:text;min-width:56px" onclick="startTextEdit(this,${pid},'mat_cat')" title="點擊編輯材料類別">${esc(row.mat_cat || '')}</td>`;
+  h += `<td class="num" style="background:#fff;cursor:text;min-width:56px" onclick="startTextEdit(this,${pid},'mat_cat')" data-tip="點擊編輯">${esc(row.mat_cat || '')}</td>`;
   h += `<td class="seq">${row.seq ?? ''}</td>`;
   h += nameCell;
-  h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'layers_per_cut')" title="點擊編輯">${row.layers_per_cut != null ? fmtNum(row.layers_per_cut) : '—'}</td>`;
-  h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'qty_per_pair')" title="點擊編輯">${row.qty_per_pair != null ? fmtNum(row.qty_per_pair) : '—'}</td>`;
-  h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'cut_per_hour')" title="點擊編輯">${row.cut_per_hour != null ? fmtNum(row.cut_per_hour) : '—'}</td>`;
-  // Standard time: GREY formula (3600÷G÷E×F)
-  h += `<td class="formula-cell" title="公式：3600÷刀數/H÷層數×件數">${stdDisp}</td>`;
-  // Theory: grey formula, data-stdtime for EOLR live update
+  h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'layers_per_cut')" data-tip="點擊編輯">${row.layers_per_cut != null ? fmtNum(row.layers_per_cut) : '—'}</td>`;
+  h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'qty_per_pair')" data-tip="點擊編輯">${row.qty_per_pair != null ? fmtNum(row.qty_per_pair) : '—'}</td>`;
+  h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'cut_per_hour')" data-tip="點擊編輯">${row.cut_per_hour != null ? fmtNum(row.cut_per_hour) : '—'}</td>`;
+  h += `<td class="formula-cell">${stdDisp}</td>`;
   h += `<td class="formula-cell theory-cell" data-stdtime="${stdTime ?? ''}" data-zone="${esc(zone)}">${thDisp}</td>`;
-  h += `<td class="actual-cell clickable" onclick="startEdit(this,${pid},'actual_operators')" title="點擊填寫裁機要求人數">${row.actual_operators != null ? fmtNum(row.actual_operators) : '—'}</td>`;
+  h += `<td class="actual-cell clickable" onclick="startEdit(this,${pid},'actual_operators')" data-tip="點擊編輯">${row.actual_operators != null ? fmtNum(row.actual_operators) : '—'}</td>`;
 
   const postCols = ['post_marking_std','post_skiving_std','post_attach_std','post_edge_std','post_heat_std'];
   for (const stdCol of postCols) {
     const ps = row[stdCol];
     const ps_ops = (ps != null && ps > 0) ? fmtNum(parseFloat((ps / divisor).toFixed(4))) : '—';
     const ps_disp = ps != null ? fmtNum(ps) : '—';
-    h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'${stdCol}')" title="點擊編輯">${ps_disp}</td>`;
-    // data-poststd allows EOLR live update without page reload
+    h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'${stdCol}')" data-tip="點擊編輯">${ps_disp}</td>`;
     h += `<td class="formula-cell th-post-ops-cell" style="background:#e8f5e9;color:#2e7d32" data-poststd="${ps ?? ''}">${ps_ops}</td>`;
   }
 
@@ -537,7 +540,12 @@ function addCuttingRow(zone) {
   const tr = document.createElement('tr');
   tr.className = 'add-row-inline';
   tr.innerHTML = cells;
-  tbody.appendChild(tr);
+  const trigger = tbody.querySelector('.add-trigger-row');
+  if (trigger) tbody.insertBefore(tr, trigger); else tbody.appendChild(tr);
+  tr.addEventListener('keydown', e => {
+    if (e.key === 'Enter')  confirmAddCuttingRow(zone);
+    if (e.key === 'Escape') cancelAddCuttingRow(zone);
+  });
   document.getElementById('add-name-' + zone)?.focus();
 }
 
@@ -605,7 +613,6 @@ function renderZoneCard(z, seg, eolr) {
 
   if (!isSummary) {
     h += `<button class="btn-group" onclick="openGroupModal(${zoneJ})">分組</button>`;
-    h += `<button class="btn-add"   onclick="addRow(${zoneJ})">＋</button>`;
   }
   h += `</div></div>`;
 
@@ -616,6 +623,7 @@ function renderZoneCard(z, seg, eolr) {
       <div class="hand-total-val" id="handTotalVal">${fmtNum(total)}</div>
     </div>`;
   } else {
+    const segJ = esc(JSON.stringify(seg));
     h += '<div class="zone-body"><table class="proc-table"><thead><tr>';
     for (const col of cols) {
       const lbl = COL_LABELS[col] || col;
@@ -623,7 +631,7 @@ function renderZoneCard(z, seg, eolr) {
       const cls = (col === 'theory_operators' || col === 'production_target') ? 'th-theory' : col === 'actual_operators' ? 'th-actual' : isLeft ? 'left' : '';
       h += `<th${cls ? ` class="${cls}"` : ''}>${lbl}</th>`;
     }
-    h += '<th style="width:22px"></th></tr></thead><tbody>';
+    h += `<th style="width:22px"></th></tr></thead><tbody id="tbody-gen-${esc(zone)}">`;
 
     for (const row of z.rows) {
       h += '<tr>';
@@ -633,6 +641,7 @@ function renderZoneCard(z, seg, eolr) {
         : `<td class="del-cell"><button class="btn-del" onclick="deleteRow(${row.id})" title="刪除">×</button></td>`;
       h += '</tr>';
     }
+    h += renderAddTriggerRow(zone, seg);
     h += '</tbody></table></div>';
   }
   h += '</div>';
@@ -673,20 +682,19 @@ function renderCell(row, col, zone, seg, eolr) {
         computed = row.normal_time * (1 + allow / 100);
       }
       const display = computed != null ? fmtNum(parseFloat(computed.toFixed(4))) : '—';
-      return `<td class="formula-cell" title="公式：正常時間×(1+寬放%÷100)">${display}</td>`;
+      return `<td class="formula-cell">${display}</td>`;
     }
     if (seg === 'stf') {
       if (zone === '貼底') {
-        // Grey formula: normal_time × 1.1
         if (row.normal_time != null) computed = row.normal_time * 1.1;
         const display = computed != null ? fmtNum(parseFloat(computed.toFixed(4))) : '—';
-        return `<td class="formula-cell" title="公式：正常時間×1.1">${display}</td>`;
+        return `<td class="formula-cell">${display}</td>`;
       }
       // 打粗/照射: TCT manual, white, editable
-      return `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'standard_time')" title="點擊填寫TCT">${val != null ? fmtNum(val) : '—'}</td>`;
+      return `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'standard_time')" data-tip="點擊編輯">${val != null ? fmtNum(val) : '—'}</td>`;
     }
     const display = computed != null ? fmtNum(parseFloat(computed.toFixed(4))) : '—';
-    return `<td class="formula-cell" title="公式格，不可直接編輯">${display}</td>`;
+    return `<td class="formula-cell">${display}</td>`;
   }
 
   if (col === 'theory_operators') {
@@ -712,7 +720,7 @@ function renderCell(row, col, zone, seg, eolr) {
     }
     if (locked) return `<td class="actual-cell locked-cell">${val != null ? fmtNum(val) : '—'}</td>`;
     if (row.flag === '待手工') return `<td class="actual-cell" style="background:#fff3e0;color:#e65100;text-align:center">⚠ 待手工</td>`;
-    return `<td class="actual-cell clickable" onclick="startEdit(this,${pid},'actual_operators')" title="點擊填寫實際人數">${val != null ? fmtNum(val) : '—'}</td>`;
+    return `<td class="actual-cell clickable" onclick="startEdit(this,${pid},'actual_operators')" data-tip="點擊編輯">${val != null ? fmtNum(val) : '—'}</td>`;
   }
 
   if (col === 'allowance_pct') {
@@ -723,7 +731,7 @@ function renderCell(row, col, zone, seg, eolr) {
 
   if (EDITABLE_COLS.has(col)) {
     if (locked) return `<td class="num locked-cell">${val != null ? fmtNum(val) : '—'}</td>`;
-    return `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'${col}')" title="點擊編輯">${val != null ? fmtNum(val) : '—'}</td>`;
+    return `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'${col}')" data-tip="點擊編輯">${val != null ? fmtNum(val) : '—'}</td>`;
   }
 
   return `<td class="num">${val != null ? fmtNum(val) : '—'}</td>`;
@@ -962,6 +970,106 @@ function newStage() {
     } else alert('建立失敗');
   });
 }
+
+// ── + trigger row ─────────────────────────────────────────────────────────────
+function renderAddTriggerRow(zone, seg) {
+  const zJ   = esc(JSON.stringify(zone));
+  const segJ = esc(JSON.stringify(seg));
+  const fn   = (seg === 'cutting') ? `addCuttingRow(${zJ})` : `addRowInline(${zJ},${segJ})`;
+  return `<tr class="add-trigger-row"><td colspan="100" class="add-trigger-cell"><button class="btn-add-zone" onclick="${fn}">＋</button></td></tr>`;
+}
+
+// ── Inline add for non-cutting zones ─────────────────────────────────────────
+function addRowInline(zone, seg) {
+  const tbodyId = 'tbody-gen-' + zone;
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  if (tbody.querySelector('.add-row-inline')) { tbody.querySelector('.add-row-inline input')?.focus(); return; }
+  const cols = getZoneCols(seg, zone);
+  if (!cols) return;
+  const zJ   = esc(JSON.stringify(zone));
+  const segJ = esc(JSON.stringify(seg));
+  let cells = '';
+  for (const col of cols) {
+    if (col === 'seq') {
+      cells += `<td style="text-align:center;color:#aaa">—</td>`;
+    } else if (col === 'process_name') {
+      cells += `<td><input class="add-inp" id="add-gen-pname-${esc(zone)}" placeholder="工序名稱" style="min-width:110px"></td>`;
+    } else if (col === 'normal_time') {
+      cells += `<td><input class="add-inp add-num" id="add-gen-nt-${esc(zone)}" type="number" placeholder="正常時間" style="min-width:55px"></td>`;
+    } else if (col === 'allowance_pct') {
+      cells += `<td><input class="add-inp add-num" id="add-gen-ap-${esc(zone)}" type="number" value="10" placeholder="10" style="min-width:35px"></td>`;
+    } else if (col === 'standard_time') {
+      const isFormula = (seg === 'stitching' || seg === 'assembly') || (seg === 'stf' && zone === '貼底');
+      cells += isFormula
+        ? `<td class="formula-cell" style="font-size:9px;color:#aaa">公式</td>`
+        : `<td><input class="add-inp add-num" id="add-gen-std-${esc(zone)}" type="number" placeholder="TCT" style="min-width:55px"></td>`;
+    } else if (col === 'production_target' || col === 'theory_operators') {
+      cells += `<td class="formula-cell" style="font-size:9px;color:#aaa">公式</td>`;
+    } else if (col === 'actual_operators') {
+      cells += `<td><input class="add-inp add-num" id="add-gen-act-${esc(zone)}" type="number" placeholder="人數" style="min-width:40px"></td>`;
+    } else {
+      cells += `<td></td>`;
+    }
+  }
+  cells += `<td style="white-space:nowrap;border:1px solid #c8e6c9">
+    <button class="btn-inline-ok" onclick="confirmAddRowInline(${zJ},${segJ})">✓</button>
+    <button class="btn-inline-cancel" onclick="cancelAddRowInline(${zJ})">✗</button>
+  </td>`;
+  const tr = document.createElement('tr');
+  tr.className = 'add-row-inline';
+  tr.innerHTML = cells;
+  const trigger = tbody.querySelector('.add-trigger-row');
+  if (trigger) tbody.insertBefore(tr, trigger); else tbody.appendChild(tr);
+  tr.addEventListener('keydown', e => {
+    if (e.key === 'Enter')  confirmAddRowInline(zone, seg);
+    if (e.key === 'Escape') cancelAddRowInline(zone);
+  });
+  document.getElementById('add-gen-pname-' + zone)?.focus();
+}
+
+async function confirmAddRowInline(zone, seg) {
+  const name = document.getElementById('add-gen-pname-' + zone)?.value?.trim();
+  if (!name) { alert('請輸入工序名稱'); return; }
+  const payload = {header_id:HID, segment:seg, zone, stage_id:STAGE?.id, user:'demo', process_name:name};
+  const nt  = parseFloat(document.getElementById('add-gen-nt-'  + zone)?.value) || null;
+  const ap  = parseFloat(document.getElementById('add-gen-ap-'  + zone)?.value) || null;
+  const std = parseFloat(document.getElementById('add-gen-std-' + zone)?.value) || null;
+  const act = parseFloat(document.getElementById('add-gen-act-' + zone)?.value) || null;
+  if (nt  != null) payload.normal_time = nt;
+  if (ap  != null) payload.allowance_pct = ap;
+  if (std != null) payload.standard_time = std;
+  if (act != null) payload.actual_operators = act;
+  const r = await fetch('/api/ie/cell/add_row', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload),
+  });
+  const j = await r.json();
+  if (j.ok) loadSegment(seg);
+  else alert('新增失敗: ' + (j.error || ''));
+}
+
+function cancelAddRowInline(zone) {
+  const tbody = document.getElementById('tbody-gen-' + zone);
+  if (tbody) tbody.querySelector('.add-row-inline')?.remove();
+}
+
+// ── Custom tooltip ────────────────────────────────────────────────────────────
+(function(){
+  const TIP = document.getElementById('cellTip');
+  document.addEventListener('mouseover', e => {
+    const cell = e.target.closest('[data-tip]');
+    if (!cell) { TIP.style.display = 'none'; return; }
+    TIP.textContent = cell.dataset.tip;
+    TIP.style.display = 'block';
+    const r = cell.getBoundingClientRect();
+    TIP.style.left = Math.max(0, r.left + r.width / 2 - TIP.offsetWidth / 2) + 'px';
+    TIP.style.top  = (r.top - TIP.offsetHeight - 5) + 'px';
+  });
+  document.addEventListener('mouseout', e => {
+    if (!e.relatedTarget?.closest('[data-tip]')) TIP.style.display = 'none';
+  });
+})();
 
 // ── Utils ─────────────────────────────────────────────────────────────────────
 function fmtNum(v) {

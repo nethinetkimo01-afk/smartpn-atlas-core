@@ -45,9 +45,10 @@ thead th:last-child{border-right:none}
 .tr-eolr td{
   padding:5px 7px;border-bottom:1px solid #edf0f7;vertical-align:middle
 }
-.tr-first td{border-top:2px solid #c5cfe8}
-.tr-first td.shared-cell{border-bottom:1px dashed #e4e9f2}
-.tr-second td{border-top:none}
+.tr-model-first td{border-top:2px solid #c5cfe8}
+.tr-model-second td{border-top:1px dashed #d0d8ec}
+.tr-model-second .season-cell,.tr-model-second .model-cell,
+.tr-model-second .arts-cell,.tr-model-second .mat-cell{color:#aaa;font-size:10px}
 .tr-single td{border-top:2px solid #c5cfe8}
 .tr-eolr:hover td{background:#f0f4ff!important}
 
@@ -254,32 +255,42 @@ function renderGroup(g){
   const both   = has60 && has120;
   const linkId = g.id120 || g.id60 || 0;
 
-  const chips = g.arts.map(a=>`<span class="art-chip">${esc(a)}</span>`).join('');
+  const chips      = g.arts.map(a=>`<span class="art-chip">${esc(a)}</span>`).join('');
   const detailHref = linkId ? `/ie/${linkId}/detail` : '#';
   const detailTxt  = L('detail');
 
-  const rowspan = both ? ' rowspan="2"' : '';
-  const seasonCell = `<td class="season-cell shared-cell"${rowspan}>${esc(g.season||'—')}</td>`;
-  const modelCell  = `<td class="model-cell shared-cell"${rowspan}>`+
-    `<a href="/ie/${linkId}" class="model-link">${fmtModel(g.model_name)}</a>`+
-    (linkId ? `<br><a href="${detailHref}" class="detail-link">${esc(detailTxt)}</a>` : '')+
-    `</td>`;
-  const artsCell   = `<td class="arts-cell shared-cell"${rowspan}>${chips||'<span style="color:#aaa;font-size:11px">—</span>'}</td>`;
-  const matCell    = `<td class="mat-cell shared-cell"${rowspan}>${matText(g.mat)}</td>`;
+  const seasonVal = esc(g.season||'—');
+  const modelVal  = `<a href="/ie/${linkId}" class="model-link">${fmtModel(g.model_name)}</a>`+
+    (linkId ? `<br><a href="${detailHref}" class="detail-link">${esc(detailTxt)}</a>` : '');
+  const artsVal   = chips || '<span style="color:#aaa;font-size:11px">—</span>';
+  const matVal    = matText(g.mat);
+
+  function leftCells(){
+    return `<td class="season-cell">${seasonVal}</td>`+
+           `<td class="model-cell">${modelVal}</td>`+
+           `<td class="arts-cell">${artsVal}</td>`+
+           `<td class="mat-cell">${matVal}</td>`;
+  }
+  function leftCellsDim(){
+    return `<td class="season-cell" style="color:#ccc;font-size:10px">${seasonVal}</td>`+
+           `<td class="model-cell" style="color:#ccc;font-size:10px"></td>`+
+           `<td class="arts-cell" style="color:#ccc;font-size:10px"></td>`+
+           `<td class="mat-cell" style="color:#ccc;font-size:10px"></td>`;
+  }
 
   let rows = '';
 
   if(has60){
-    rows += `<tr class="tr-eolr ${both ? 'tr-first' : 'tr-single'}">
-      ${seasonCell}${modelCell}${artsCell}${matCell}
+    rows += `<tr class="tr-eolr ${both ? 'tr-model-first' : 'tr-single'}">
+      ${leftCells()}
       <td class="eolr-cell"><span class="eolr-60">60</span></td>
       ${mpRow(g.r60)}
     </tr>`;
   }
 
   if(has120){
-    rows += `<tr class="tr-eolr ${both ? 'tr-second' : 'tr-single'}">
-      ${!has60 ? seasonCell+modelCell+artsCell+matCell : ''}
+    rows += `<tr class="tr-eolr ${both ? 'tr-model-second' : 'tr-single'}">
+      ${both ? leftCellsDim() : leftCells()}
       <td class="eolr-cell"><span class="eolr-120">120</span></td>
       ${mpRow(g.r120)}
     </tr>`;
@@ -287,7 +298,7 @@ function renderGroup(g){
 
   if(!has60 && !has120){
     rows = `<tr class="tr-eolr tr-single">
-      ${seasonCell}${modelCell}${artsCell}${matCell}
+      ${leftCells()}
       <td class="eolr-cell">—</td>
       <td class="mp-cell" colspan="4"><span class="mp-na">—</span></td>
     </tr>`;

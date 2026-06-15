@@ -85,6 +85,8 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 054 | 四段界面公式精確還原（Cutting/Stitching/Assembly/STF） | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | ie_cell_detail.html：Cutting機器3600÷G÷E×F灰底/Auto 1.12灰底+生産目標/Stitching 1.1灰底+生産目標/STF貼底1.1公式+打粗手工/EOLR即時不重載 |
 
+| 055 | IE細表全面修正5項（seq排序/+按鈕/tooltip/裁斷機資料/主表EOLR上下分行） | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | database.py ORDER BY zone,seq; 8行soft-delete; ie_cell_detail.html trigger-row+inline-add+tooltip; ie_interface.html 上下分行no-rowspan |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |

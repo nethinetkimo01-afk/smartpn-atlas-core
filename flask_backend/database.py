@@ -845,7 +845,7 @@ def get_ie_cell_data(header_id, segment='cutting', eolr=120):
                    value_type, is_locked, source_sheet
             FROM ie_process
             WHERE header_id=? AND segment=? AND (flag IS NULL OR flag != 'deleted')
-            ORDER BY id
+            ORDER BY zone, seq ASC, id
         ''', (header_id, segment)).fetchall()
 
         # Also load process groups for this segment
