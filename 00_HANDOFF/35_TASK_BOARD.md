@@ -87,6 +87,8 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 055 | IE細表全面修正5項（seq排序/+按鈕/tooltip/裁斷機資料/主表EOLR上下分行） | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | database.py ORDER BY zone,seq; 8行soft-delete; ie_cell_detail.html trigger-row+inline-add+tooltip; ie_interface.html 上下分行no-rowspan |
 
+| 056 | ATOM/LASER/YINGHUI 區資料修正＋界面修正 | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | DB UPDATE: ATOM seq1 nt=19.99, seq2 std=7.168, seq3 nt=5.143; renderAutoCuttingRow 用儲存std; + 按鈕右對齊 |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |
