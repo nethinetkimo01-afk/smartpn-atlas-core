@@ -415,7 +415,7 @@ function renderCuttingRow(row, zone, hasPost, eolr) {
   h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'layers_per_cut')" title="點擊編輯">${row.layers_per_cut != null ? fmtNum(row.layers_per_cut) : '—'}</td>`;
   h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'qty_per_pair')" title="點擊編輯">${row.qty_per_pair != null ? fmtNum(row.qty_per_pair) : '—'}</td>`;
   h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'cut_per_hour')" title="點擊編輯">${row.cut_per_hour != null ? fmtNum(row.cut_per_hour) : '—'}</td>`;
-  h += `<td class="formula-cell" title="公式：件數×3600÷刀數/H">${stdDisp}</td>`;
+  h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'standard_time')" title="點擊編輯標準時間">${stdDisp}</td>`;
   h += `<td class="formula-cell th-theory">${thDisp}</td>`;
   h += `<td class="actual-cell clickable" onclick="startEdit(this,${pid},'actual_operators')" title="點擊填寫裁機要求人數">${row.actual_operators != null ? fmtNum(row.actual_operators) : '—'}</td>`;
 

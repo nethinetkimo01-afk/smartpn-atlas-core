@@ -81,6 +81,8 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 052 | IE細表 Cutting段完整重建（DB重導入+像素還原界面） | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | ie_reimport_cutting_32.py + 12新欄位schema + ie_cell_detail.html 3列表頭+後製工序橫欄+inline+新增 |
 
+| 053 | Cutting 標準時間改手工格 | DATA SYSTEM | 進行中 | 2026-06-15 | — | ie_cell_detail.html renderCuttingRow 標準時間欄 |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |
