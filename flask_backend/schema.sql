@@ -198,3 +198,20 @@ CREATE INDEX IF NOT EXISTS idx_ob_epph_header     ON ob_epph(header_id);
 CREATE INDEX IF NOT EXISTS idx_ob_rows_header     ON ob_rows(header_id, sheet_key);
 CREATE INDEX IF NOT EXISTS idx_change_log_key     ON change_log(table_name, record_key);
 CREATE INDEX IF NOT EXISTS idx_ds02_art           ON ds02_fob(art);
+
+-- DS-04: Monthly production schedule orders
+CREATE TABLE IF NOT EXISTS ds04_orders (
+    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+    dept                TEXT NOT NULL,
+    lean                TEXT NOT NULL,
+    model_name          TEXT NOT NULL DEFAULT '',
+    art                 TEXT NOT NULL DEFAULT '',
+    order_no            TEXT NOT NULL DEFAULT '',
+    qty                 INTEGER DEFAULT 0,
+    delivery_date       TEXT DEFAULT '',
+    is_outsource_upper  INTEGER DEFAULT 0,
+    created_at          TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_ds04_dept   ON ds04_orders(dept);
+CREATE INDEX IF NOT EXISTS idx_ds04_lean   ON ds04_orders(lean);
+CREATE INDEX IF NOT EXISTS idx_ds04_art    ON ds04_orders(art);

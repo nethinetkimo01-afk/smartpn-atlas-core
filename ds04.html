@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8">
+<title>DS-04 進度表</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Microsoft JhengHei',Arial,sans-serif;font-size:13px;background:#f5f7fa;color:#333}
+.topbar{background:#1e3a5f;color:#fff;padding:12px 20px;display:flex;align-items:center;gap:16px}
+.topbar h1{font-size:16px;font-weight:600;margin-right:auto}
+.topbar a{color:#adc8f0;text-decoration:none;font-size:12px}
+.topbar a:hover{color:#fff}
+.filters{background:#fff;border-bottom:1px solid #dde;padding:10px 20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.filters label{font-size:12px;color:#666;display:flex;gap:6px;align-items:center}
+.filters select{padding:4px 8px;border:1px solid #ccd;border-radius:4px;font-size:12px}
+.stat-bar{background:#eef3fb;padding:6px 20px;font-size:12px;color:#555;border-bottom:1px solid #dde}
+.stat-bar span{font-weight:700;color:#1e3a5f}
+.content{padding:16px 20px;overflow-x:auto}
+.lean-group{margin-bottom:20px;border:1px solid #d0d8e8;border-radius:6px;overflow:hidden}
+.lean-header{background:#2d5a9e;color:#fff;padding:7px 14px;display:flex;align-items:center;gap:12px;font-size:13px;font-weight:600}
+.lean-header .lean-code{background:#1e3a5f;padding:2px 8px;border-radius:3px;font-size:12px;font-family:monospace}
+.lean-header .lean-total{margin-left:auto;font-size:11px;font-weight:400;opacity:.8}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead tr{background:#e8eef8}
+th{padding:6px 10px;text-align:left;font-weight:600;color:#1e3a5f;border-bottom:1px solid #c5d0e0;white-space:nowrap}
+td{padding:5px 10px;border-bottom:1px solid #edf0f5;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f5f8ff}
+.model-group td:first-child{border-left:3px solid #4a90d9}
+.model-sep{background:#f0f4fa}
+.model-sep td{padding:4px 10px;font-size:11px;color:#4a7ac5;font-weight:600}
+.badge-y{background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;padding:1px 7px;border-radius:3px;font-size:11px;font-weight:600}
+.qty-cell{font-weight:600;color:#333}
+.order-no{font-family:monospace;font-size:11px;color:#555}
+.delivery{color:#666}
+.no-data{text-align:center;padding:40px;color:#999;font-size:14px}
+.btn{padding:6px 14px;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600}
+.btn-dl{background:#2e7d32;color:#fff}
+.btn-dl:hover{background:#1b5e20}
+.loading{text-align:center;padding:40px;color:#888}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>DS-04 月進度表</h1>
+  <a href="/">← 主頁</a>
+  <a href="/allocation">勾選分配</a>
+  <button class="btn btn-dl" onclick="downloadXlsx()">⬇ 下載 xlsx</button>
+</div>
+
+<div class="filters">
+  <label>部門
+    <select id="selDept" onchange="loadData()">
+      <option value="">全部部門</option>
+    </select>
+  </label>
+  <label>LEAN
+    <select id="selLean" onchange="loadData()">
+      <option value="">全部 LEAN</option>
+    </select>
+  </label>
+  <label>外包鞋面
+    <select id="selOutsource" onchange="loadData()">
+      <option value="">全部</option>
+      <option value="Y">外包鞋面 (Y)</option>
+      <option value="N">非外包</option>
+    </select>
+  </label>
+</div>
+
+<div class="stat-bar" id="statBar">載入中...</div>
+
+<div class="content" id="content">
+  <div class="loading">載入資料中...</div>
+</div>
+
+<script>
+let _rows = [];
+
+async function init() {
+  const f = await fetch('/api/ds04/filters').then(r => r.json());
+  const sd = document.getElementById('selDept');
+  const sl = document.getElementById('selLean');
+  (f.depts || []).forEach(d => {
+    const o = document.createElement('option'); o.value = d; o.textContent = d; sd.appendChild(o);
+  });
+  (f.leans || []).forEach(l => {
+    const o = document.createElement('option'); o.value = l; o.textContent = l; sl.appendChild(o);
+  });
+  loadData();
+}
+
+async function loadData() {
+  const dept = document.getElementById('selDept').value;
+  const lean = document.getElementById('selLean').value;
+  const out  = document.getElementById('selOutsource').value;
+  let url = '/api/ds04/orders?';
+  if (dept) url += `dept=${encodeURIComponent(dept)}&`;
+  if (lean) url += `lean=${encodeURIComponent(lean)}&`;
+  if (out)  url += `outsource=${out}&`;
+  document.getElementById('content').innerHTML = '<div class="loading">載入中...</div>';
+  try {
+    const res = await fetch(url).then(r => r.json());
+    _rows = res.rows || [];
+    render(_rows);
+  } catch(e) {
+    document.getElementById('content').innerHTML = `<div class="no-data">載入失敗: ${e}</div>`;
+  }
+}
+
+function render(rows) {
+  const total = rows.length;
+  const waibao = rows.filter(r => r.is_outsource_upper).length;
+  document.getElementById('statBar').innerHTML =
+    `共 <span>${total}</span> 筆指令　外包鞋面 <span>${waibao}</span> 筆`;
+
+  if (!total) {
+    document.getElementById('content').innerHTML = '<div class="no-data">無符合資料</div>';
+    return;
+  }
+
+  // Group by LEAN
+  const byLean = {};
+  rows.forEach(r => {
+    if (!byLean[r.lean]) byLean[r.lean] = [];
+    byLean[r.lean].push(r);
+  });
+
+  let html = '';
+  for (const lean of Object.keys(byLean).sort()) {
+    const lrows = byLean[lean];
+    const dept = lrows[0].dept;
+    const waibaoCount = lrows.filter(r => r.is_outsource_upper).length;
+    html += `<div class="lean-group">
+      <div class="lean-header">
+        <span class="lean-code">${esc(lean)}</span>
+        <span>${esc(dept)}</span>
+        <span class="lean-total">${lrows.length} 筆指令${waibaoCount ? `　外包 ${waibaoCount} 筆` : ''}</span>
+      </div>
+      <table>
+        <thead><tr>
+          <th>部門</th><th>LEAN</th><th>鞋型名稱</th><th>ART</th>
+          <th>訂單號</th><th>數量</th><th>交期</th><th>外包鞋面</th>
+        </tr></thead>
+        <tbody>`;
+
+    let lastModel = null;
+    lrows.forEach(r => {
+      if (r.model_name !== lastModel) {
+        if (r.model_name) {
+          html += `<tr class="model-sep"><td colspan="8">▸ ${esc(r.model_name)}</td></tr>`;
+        }
+        lastModel = r.model_name;
+      }
+      html += `<tr>
+        <td>${esc(r.dept)}</td>
+        <td>${esc(r.lean)}</td>
+        <td>${esc(r.model_name)}</td>
+        <td>${esc(r.art)}</td>
+        <td class="order-no">${esc(r.order_no)}</td>
+        <td class="qty-cell">${r.qty.toLocaleString()}</td>
+        <td class="delivery">${esc(r.delivery_date)}</td>
+        <td>${r.is_outsource_upper ? '<span class="badge-y">Y</span>' : ''}</td>
+      </tr>`;
+    });
+    html += '</tbody></table></div>';
+  }
+  document.getElementById('content').innerHTML = html;
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function downloadXlsx() {
+  const dept = document.getElementById('selDept').value;
+  const lean = document.getElementById('selLean').value;
+  const out  = document.getElementById('selOutsource').value;
+  let url = '/api/ds04/export?';
+  if (dept) url += `dept=${encodeURIComponent(dept)}&`;
+  if (lean) url += `lean=${encodeURIComponent(lean)}&`;
+  if (out)  url += `outsource=${out}&`;
+  window.location = url;
+}
+
+init();
+</script>
+</body>
+</html>

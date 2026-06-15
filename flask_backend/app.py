@@ -943,6 +943,62 @@ def import_corrections():
         except: pass
 
 
+@app.route('/ds04')
+def ds04_page():
+    return send_from_directory('..', 'ds04.html')
+
+# ── DS-04 API ─────────────────────────────────────────────────────────────────
+
+@app.route('/api/ds04/orders', methods=['GET'])
+def ds04_orders():
+    dept     = request.args.get('dept', '')
+    lean     = request.args.get('lean', '')
+    outsource = request.args.get('outsource', '')
+    return jsonify(db.ds04_get_orders(
+        dept=dept or None,
+        lean=lean or None,
+        outsource=outsource or None
+    ))
+
+@app.route('/api/ds04/filters', methods=['GET'])
+def ds04_filters():
+    return jsonify(db.ds04_get_filters())
+
+@app.route('/api/ds04/export', methods=['GET'])
+def ds04_export():
+    if not HAS_XLSX:
+        return jsonify({'ok': False, 'error': 'openpyxl not installed'}), 500
+    dept     = request.args.get('dept', '')
+    lean     = request.args.get('lean', '')
+    outsource = request.args.get('outsource', '')
+    result = db.ds04_get_orders(
+        dept=dept or None, lean=lean or None, outsource=outsource or None
+    )
+    if not result['ok']:
+        return jsonify(result), 500
+    import io as _io
+    from openpyxl.styles import Font, PatternFill
+    wb2 = openpyxl.Workbook()
+    ws2 = wb2.active
+    ws2.title = 'DS04進度表'
+    headers = ['部門', 'LEAN', '鞋型名稱', 'ART', '訂單號', '數量', '交期', '外包鞋面']
+    ws2.append(headers)
+    for cell in ws2[1]:
+        cell.font = Font(bold=True)
+        cell.fill = PatternFill('solid', fgColor='DDEEFF')
+    for r in result['rows']:
+        ws2.append([
+            r['dept'], r['lean'], r['model_name'], r['art'],
+            r['order_no'], r['qty'], r['delivery_date'],
+            'Y' if r['is_outsource_upper'] else ''
+        ])
+    buf = _io.BytesIO()
+    wb2.save(buf)
+    buf.seek(0)
+    from flask import send_file
+    return send_file(buf, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                     as_attachment=True, download_name='ds04_進度表.xlsx')
+
 # ── Health check ─────────────────────────────────────────────────────────────
 
 @app.route('/api/health', methods=['GET'])

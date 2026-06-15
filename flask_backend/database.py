@@ -1692,3 +1692,64 @@ def get_allocation_export_rows(unit, month=None):
         return {'ok': True, 'unit': unit, 'month': month, 'rows': out}
     finally:
         conn.close()
+
+
+# ── DS-04 Production Schedule Orders ────────────────────────────────────────
+
+def ds04_import(records):
+    """Bulk-replace all ds04_orders rows."""
+    conn = get_conn()
+    try:
+        conn.execute('DELETE FROM ds04_orders')
+        ts = now_iso()
+        conn.executemany(
+            '''INSERT INTO ds04_orders
+               (dept, lean, model_name, art, order_no, qty, delivery_date, is_outsource_upper, created_at)
+               VALUES (?,?,?,?,?,?,?,?,?)''',
+            [(r['部門'], r['LEAN'], r['鞋型名稱'], r['ART'], r['訂單號'],
+              int(r['數量'] or 0), r['交期'], 1 if r['外包鞋面'] == 'Y' else 0, ts)
+             for r in records]
+        )
+        conn.commit()
+        return {'ok': True, 'count': len(records)}
+    except Exception as e:
+        conn.rollback()
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+def ds04_get_orders(dept=None, lean=None, outsource=None):
+    """Query ds04_orders with optional filters."""
+    conn = get_conn()
+    try:
+        where, params = [], []
+        if dept:
+            where.append('dept=?'); params.append(dept)
+        if lean:
+            where.append('lean=?'); params.append(lean)
+        if outsource == 'Y':
+            where.append('is_outsource_upper=1')
+        elif outsource == 'N':
+            where.append('is_outsource_upper=0')
+        sql = 'SELECT * FROM ds04_orders'
+        if where:
+            sql += ' WHERE ' + ' AND '.join(where)
+        sql += ' ORDER BY dept, lean, model_name, id'
+        rows = conn.execute(sql, params).fetchall()
+        return {'ok': True, 'rows': [dict(r) for r in rows]}
+    finally:
+        conn.close()
+
+def ds04_get_filters():
+    """Return distinct dept and lean values."""
+    conn = get_conn()
+    try:
+        depts = [r[0] for r in conn.execute(
+            "SELECT DISTINCT dept FROM ds04_orders ORDER BY CAST(REPLACE(dept,'部','') AS INTEGER)"
+        ).fetchall()]
+        leans = [r[0] for r in conn.execute(
+            'SELECT DISTINCT lean FROM ds04_orders ORDER BY lean'
+        ).fetchall()]
+        return {'ok': True, 'depts': depts, 'leans': leans}
+    finally:
+        conn.close()

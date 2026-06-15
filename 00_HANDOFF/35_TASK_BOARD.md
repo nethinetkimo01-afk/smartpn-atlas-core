@@ -97,6 +97,8 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 060 | 01_CONSTITUTION+21_STATUS+Demo設計決定同步 | SmartPN Atlas | ✅完成 | 2026-06-15 | 2026-06-15 | 01_CONSTITUTION §10-18新增; 21_CURRENT_STATUS今日確認清單; SUPPLIER Demo SPU→Product |
 
+| 061 | DS-04 進度表解析+網頁+DB（1-12部全解析/ds04頁面/db入庫） | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | ds04_parsed.xlsx(1454筆/70外包) + /ds04 + ds04_orders + parse_ds04.py + import_ds04.py |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |
