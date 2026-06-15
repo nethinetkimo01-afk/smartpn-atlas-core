@@ -101,7 +101,7 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 062 | ie_cell_detail Cutting段固定顯示所有區+標題修正 | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | CUTTING_FIXED_ORDER固定7區+_summary+WS; renderZones重寫; cleanName移除Target Output |
 
-| 063 | Cutting段完全重建照LA_TRAINER_OG標準IE範本_v1.xlsx + 00_MUST_READ_FIRST規則 | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | 8欄xlsx結構(層級/TCT/機台/階段/鎖定/公式原文/備注); 公式#E2EFDA手工#FFF2CC; API+formula+stage; ZONE_NUM/ZONE_BG; 最重要規則寫入00_MUST_READ_FIRST.md |
+| 063 | Cutting段完全重建照LA TRAINER OG xlsx (Cutting da thật) 19欄19欄4層表頭 + 最重要規則 | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | 4層表頭(群組/越文/英文/中文); 19欄=材料/序號/名稱/層/件/刀/裁断std+theory+actual+5×post(std+ops); 七區①-⑦固定編號; 最重要規則00_MUST_READ_FIRST.md |
 
 ## 待 Jim 決定（不擋工）
 
