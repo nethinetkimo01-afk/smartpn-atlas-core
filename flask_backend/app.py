@@ -449,6 +449,94 @@ def alloc_csa_mp():
         eolr=request.args.get('eolr', 120),
         month=request.args.get('month')))
 
+@app.route('/api/allocation/parts', methods=['GET'])
+def alloc_parts():
+    u = _current_user()
+    unit = request.args.get('unit') or None
+    if u and u['role'] == 'unit_user':
+        unit = u['unit']
+    return jsonify(db.get_allocation_parts(
+        month=request.args.get('month'),
+        unit=unit,
+        lean=request.args.get('lean') or None
+    ))
+
+
+@app.route('/api/allocation/export_ref', methods=['GET'])
+def alloc_export_ref():
+    """Download reference xlsx in Jim's 10-column format."""
+    if not HAS_XLSX:
+        return jsonify({'ok': False, 'error': 'openpyxl not installed'}), 500
+    from flask import send_file
+    import io, openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+
+    unit = request.args.get('unit', '')
+    month = request.args.get('month')
+    data = db.get_allocation_parts(month=month, unit=unit or None)
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = (unit[:28] if unit else '參考表')
+
+    hdr_font = Font(bold=True, color='FFFFFF')
+    hdr_fill = PatternFill('solid', fgColor='1A2744')
+    sub_fill = PatternFill('solid', fgColor='243356')
+    lean_fill = PatternFill('solid', fgColor='0F1E38')
+    thin = Side(style='thin', color='C0C8D8')
+    bord = Border(left=thin, right=thin, bottom=thin, top=thin)
+
+    headers = ['LEAN', '鞋型', 'ART', '序號', '部件名稱',
+               '刀數/H', '層數', '片數/雙', '總片數',
+               'CT秒/雙', 'Output', '理論人數', '勾選']
+    for ci, h in enumerate(headers, 1):
+        c = ws.cell(row=1, column=ci, value=h)
+        c.font = hdr_font; c.fill = hdr_fill; c.border = bord
+        c.alignment = Alignment(horizontal='center')
+
+    ri = 2
+    for lg in data.get('leans', []):
+        lean_label = lg.get('lean') or '—'
+        for mg in lg.get('models', []):
+            for it in mg.get('items', []):
+                vals = [
+                    lean_label, mg.get('model_name', ''), mg.get('art', ''),
+                    it.get('seq'), it.get('part_name', ''),
+                    it.get('cut_per_hour'), it.get('layers'),
+                    it.get('qty_per_pair'), it.get('total_pieces'),
+                    it.get('ct_sec'), it.get('output'), it.get('theory_mp'),
+                    '外移' if it.get('is_checked') else '留CSA'
+                ]
+                for ci, v in enumerate(vals, 1):
+                    ws.cell(row=ri, column=ci, value=v).border = bord
+                ri += 1
+            # model footer
+            row_f = ws.cell(row=ri, column=5, value='小計')
+            row_f.font = Font(bold=True)
+            ws.cell(row=ri, column=12, value=mg.get('ie_mp'))
+            ws.cell(row=ri, column=13, value='').border = bord
+            ri += 1
+        # LEAN footer
+        c = ws.cell(row=ri, column=1, value=f'LEAN {lean_label} 合計')
+        c.font = Font(bold=True, color='FFFFFF'); c.fill = lean_fill
+        ws.merge_cells(start_row=ri, start_column=1, end_row=ri, end_column=4)
+        ws.cell(row=ri, column=5, value=f'外移MP: {lg.get("allocated_mp")}  留CSA: {lg.get("csa_mp")}  原始IE: {lg.get("ie_mp")}')
+        ri += 1
+
+    if ri == 2:
+        ws.cell(row=2, column=1, value='（尚無資料 — 請先預填）')
+
+    col_widths = [8, 20, 10, 6, 22, 9, 7, 9, 9, 9, 9, 9, 8]
+    for ci, w in enumerate(col_widths, 1):
+        ws.column_dimensions[ws.cell(1, ci).column_letter].width = w
+
+    buf = io.BytesIO(); wb.save(buf); buf.seek(0)
+    safe_unit = unit.replace('/', '_') if unit else 'all'
+    return send_file(buf, as_attachment=True,
+                     download_name=f'ref_{safe_unit}_{month or "all"}.xlsx',
+                     mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+
 @app.route('/api/allocation/export', methods=['GET'])
 def alloc_export():
     if not HAS_XLSX:

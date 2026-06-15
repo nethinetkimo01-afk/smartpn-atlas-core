@@ -1279,10 +1279,11 @@ def prefill_allocation(header_id=None, month=None):
 
         inserted = 0
         for hid in hdr_ids:
-            meta = conn.execute('SELECT eolr FROM ob_header WHERE id=?', (hid,)).fetchone()
+            meta = conn.execute('SELECT eolr, lean FROM ob_header WHERE id=?', (hid,)).fetchone()
             if not meta:
                 continue
             eolr = int(meta['eolr'] or 120)
+            lean_val = meta['lean']
             divisor = 3600.0 / eolr
             arts = [r['art'] for r in conn.execute(
                 'SELECT art FROM ob_articles WHERE header_id=? ORDER BY id', (hid,)).fetchall()]
@@ -1309,7 +1310,7 @@ def prefill_allocation(header_id=None, month=None):
                         (header_id, art, lean, zone, seq, process_name, part_name,
                          post_process, theory_mp, target_unit, is_checked, month)
                         VALUES (?,?,?,?,?,?,?,?,?,?,0,?)
-                    ''', (hid, art, None, zone, r['seq'], r['process_name'], r['part_name'],
+                    ''', (hid, art, lean_val, zone, r['seq'], r['process_name'], r['part_name'],
                           zone, theory_mp, _zone_unit(zone), month))
                     inserted += cur.rowcount
         conn.commit()
@@ -1446,6 +1447,132 @@ def get_csa_mp(lean=None, art=None, eolr=120, month=None):
         return out
     except Exception as e:
         return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def get_allocation_parts(month=None, unit=None, lean=None):
+    """New hierarchy view: LEAN → model×ART → parts with cut details from ie_process."""
+    conn = get_conn()
+    try:
+        _ensure_alloc_tables(conn)
+        month = month or now_iso()[:7]
+
+        where_clauses = ['ai.month=?']
+        params_after = [month]
+        if unit:
+            where_clauses.append('ai.target_unit=?')
+            params_after.append(unit)
+        if lean:
+            where_clauses.append('ai.lean=?')
+            params_after.append(lean)
+
+        rows = conn.execute(f'''
+            SELECT
+                ai.id, ai.art, ai.lean, ai.zone, ai.seq,
+                ai.process_name, ai.part_name,
+                ai.theory_mp, ai.is_checked, ai.target_unit,
+                ip.cut_per_hour, ip.layers_per_cut, ip.qty_per_pair, ip.standard_time,
+                h.model_name, h.eolr,
+                COALESCE(s.qty, 0) AS order_qty
+            FROM allocation_item ai
+            LEFT JOIN ie_process ip
+                ON ip.header_id=ai.header_id AND ip.zone=ai.zone AND ip.seq=ai.seq
+               AND (ip.flag IS NULL OR ip.flag != 'deleted')
+            LEFT JOIN ob_header h ON h.id=ai.header_id
+            LEFT JOIN (
+                SELECT article_id, SUM(quantity) AS qty
+                FROM ds01_sp GROUP BY article_id
+            ) s ON s.article_id=ai.art
+            WHERE {" AND ".join(where_clauses)}
+            ORDER BY
+                CASE WHEN ai.lean IS NULL THEN 1 ELSE 0 END,
+                ai.lean, h.model_name, ai.art, ai.zone, ai.seq, ai.id
+        ''', params_after).fetchall()
+
+        lean_groups = {}
+        lean_order = []
+
+        for r in rows:
+            d = dict(r)
+            lk = d.get('lean') or None
+            label = lk if lk else '—'
+            if label not in lean_groups:
+                lean_groups[label] = {
+                    'lean': lk,
+                    'allocated_mp': 0.0, 'csa_mp': 0.0, 'ie_mp': 0.0,
+                    '_models': {}
+                }
+                lean_order.append(label)
+
+            lg = lean_groups[label]
+            model_raw = d.get('model_name') or ''
+            model = model_raw.split('Target Output')[0].strip()
+            art = d.get('art') or '(無ART)'
+            mk = f'{art}||{model}'
+
+            if mk not in lg['_models']:
+                lg['_models'][mk] = {
+                    'model_name': model,
+                    'art': art,
+                    'eolr': d.get('eolr') or 120,
+                    'order_qty': float(d.get('order_qty') or 0),
+                    'allocated_mp': 0.0, 'csa_mp': 0.0, 'ie_mp': 0.0,
+                    'items': []
+                }
+
+            mg = lg['_models'][mk]
+            mp = float(d.get('theory_mp') or 0.0)
+            is_checked = 1 if d.get('is_checked') else 0
+            ct = d.get('standard_time')
+            eolr = int(d.get('eolr') or 120)
+            qty_pp = d.get('qty_per_pair')
+            order_qty = float(d.get('order_qty') or 0)
+
+            mg['ie_mp'] += mp
+            lg['ie_mp'] += mp
+            if is_checked:
+                mg['allocated_mp'] += mp
+                lg['allocated_mp'] += mp
+            else:
+                mg['csa_mp'] += mp
+                lg['csa_mp'] += mp
+
+            mg['items'].append({
+                'id': d['id'],
+                'seq': d['seq'],
+                'zone': d['zone'],
+                'part_name': d.get('part_name') or d.get('process_name') or '',
+                'cut_per_hour': d.get('cut_per_hour'),
+                'layers': d.get('layers_per_cut'),
+                'qty_per_pair': qty_pp,
+                'total_pieces': round(order_qty * float(qty_pp)) if qty_pp and order_qty else None,
+                'ct_sec': round(float(ct), 3) if ct else None,
+                'output': round(3600.0 / float(ct), 1) if ct else None,
+                'theory_mp': round(mp, 4),
+                'is_checked': is_checked,
+                'target_unit': d.get('target_unit'),
+            })
+
+        out = []
+        for lk in lean_order:
+            lg = lean_groups[lk]
+            models_list = []
+            for mg in lg.pop('_models').values():
+                mg['allocated_mp'] = round(mg['allocated_mp'], 4)
+                mg['csa_mp'] = round(mg['csa_mp'], 4)
+                mg['ie_mp'] = round(mg['ie_mp'], 4)
+                models_list.append(mg)
+            lg['models'] = models_list
+            lg['allocated_mp'] = round(lg['allocated_mp'], 4)
+            lg['csa_mp'] = round(lg['csa_mp'], 4)
+            lg['ie_mp'] = round(lg['ie_mp'], 4)
+            out.append(lg)
+
+        return {'ok': True, 'month': month, 'unit': unit, 'leans': out}
+    except Exception as e:
+        import traceback
+        return {'ok': False, 'error': str(e), 'trace': traceback.format_exc(), 'leans': []}
     finally:
         conn.close()
 
