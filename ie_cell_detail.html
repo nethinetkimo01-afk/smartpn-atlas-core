@@ -269,12 +269,13 @@ async function init() {
   if (lr.ok) {
     const rec = (lr.records || []).find(r => r.id === HID);
     if (rec) {
-      document.getElementById('modelName').textContent = rec.model_name;
+      const cleanName = (rec.model_name || '').replace(/\s+Target Output.*$/i, '').trim();
+      document.getElementById('modelName').textContent = cleanName;
       const parts = [];
       if (rec.season)   parts.push(rec.season);
       if (rec.material) parts.push(rec.material.substring(0, 30));
       document.getElementById('modelMeta').textContent = parts.join('  |  ');
-      document.title = rec.model_name + ' — IE 細表';
+      document.title = cleanName + ' — IE 細表';
     }
   }
   loadSegment('cutting');
@@ -306,6 +307,8 @@ async function loadSegment(seg) {
 }
 
 // ── Render dispatcher ──────────────────────────────────────────────────────────
+const CUTTING_FIXED_ORDER = ['裁斷機','ATOM','EMMA','Laser','YINGHUI','移印','轉印'];
+
 function renderZones(data) {
   ZONE_ROWS = {};
   for (const z of data.zones) {
@@ -315,11 +318,18 @@ function renderZones(data) {
     }));
   }
   let html = '';
-  for (const z of data.zones) {
-    const zone = z.zone;
-    if (data.segment === 'cutting' && zone !== '_summary' && zone !== WS) {
-      html += renderCuttingZoneCard(z, data.eolr);
-    } else {
+  if (data.segment === 'cutting') {
+    const zoneMap = new Map(data.zones.map(z => [z.zone, z]));
+    // ①–⑦ 固定順序，無資料也渲染（空 rows）
+    for (const name of CUTTING_FIXED_ORDER) {
+      html += renderCuttingZoneCard(zoneMap.get(name) || { zone: name, rows: [] }, data.eolr);
+    }
+    // ⑧ 手工總人數行
+    html += renderZoneCard(zoneMap.get('_summary') || { zone: '_summary', rows: [] }, data.segment, data.eolr);
+    // ⑨ 水蜘蛛
+    html += renderZoneCard(zoneMap.get(WS) || { zone: WS, rows: [] }, data.segment, data.eolr);
+  } else {
+    for (const z of data.zones) {
       html += renderZoneCard(z, data.segment, data.eolr);
     }
   }

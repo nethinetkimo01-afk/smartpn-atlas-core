@@ -99,6 +99,8 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 061 | DS-04 進度表解析+網頁+DB（1-12部全解析/ds04頁面/db入庫） | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | ds04_parsed.xlsx(1454筆/70外包) + /ds04 + ds04_orders + parse_ds04.py + import_ds04.py |
 
+| 062 | ie_cell_detail Cutting段固定顯示所有區+標題修正 | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | CUTTING_FIXED_ORDER固定7區+_summary+WS; renderZones重寫; cleanName移除Target Output |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |
