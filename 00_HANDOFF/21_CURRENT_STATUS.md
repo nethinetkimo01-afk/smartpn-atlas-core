@@ -1,6 +1,27 @@
 # Current Status
 
-Last updated: 2026-06-13
+Last updated: 2026-06-15
+
+---
+
+## 今日確認決定（2026-06-13）
+
+### SmartPN Atlas — 設計決定鎖定
+
+- [x] 視覺系統：100% Apple 風格（純白/SF Pro/0.5px細線/大量留白）；黑底版 REJECTED
+- [x] 系統名詞：SPU→Product / SKU→Option，全界面統一
+- [x] GRANT 操作機制：Supplier 自建資料夾→打勾欄位→授權公司·單位·帳號；同欄位可多資料夾；新材料預設 PRIVATE
+- [x] 單向可見性：只有 Brand/Factory 能發邀請；Supplier 無法主動搜尋 Brand/Factory
+- [x] SmartPN 編碼：排除 0/1/I/O/E；料號定後不可改；物性變=新料號
+- [x] My Library：個人庫+同公司分享功能
+- [x] Requests：Brand/Factory 發 Request；即時對話（像客服）；Supplier 收通知後才可回
+- [x] 評論：私密（同公司）/ 公開（含 Supplier）；Supplier 看不到私密評論
+- [x] Find Same Material：範圍=OPEN+已授權給此帳號，非全平台
+- [x] Supplier 財務資料：收款方（銀行/帳號/Swift Code/幣別/發票抬頭）≠ 付款條件（買方）
+
+### 待確認
+
+- [ ] CV 是什麼？Jim 尚未說明，等待確認後補入 01_CONSTITUTION.md
 
 ---
 

@@ -86,4 +86,71 @@ GRANT 是製造端的系統層，治理 source data 的授權——什麼資料�
 
 **Data qualities in GRANT:** timely（及時）、trusted（可信）、precise（精準）
 
+**GRANT 操作機制（2026-06-13 確認）：**
+- Supplier 自建資料夾（自行命名）→ 打勾選欄位屬於該資料夾 → 授權給指定公司+單位+帳號
+- 同一欄位可屬於多個資料夾
+- 新材料預設全 PRIVATE
+- Access is not taken. It is granted.
+
 **Status:** 暫定。取代先前 MSDG / SGL / GATE 候選。正式定案前所有對外文件先不使用。
+
+## 10. 視覺系統（唯一標準）（2026-06-13 確認）
+
+- 所有輸出：Demo 軟件 / Scenario PPT / 官網 — 100% Apple 風格
+- 參考：Apple.com 產品頁（iPad 規格選單）
+- 純白背景 / SF Pro 字體 / 0.5px #D2D2D7 細線 / 無邊框無陰影 / 大量留白
+- 黑底版本：REJECTED，永不使用
+- LinkedIn 圖片：獨立系統（白底+Jim頭像+行銷版面）
+
+## 11. 系統名詞（正式）（2026-06-13 確認）
+
+- SPU → **Product**
+- SKU → **Option**
+- 所有界面統一使用 Product / Option，不使用 SPU / SKU
+
+## 12. 單向可見性（核心設計原則）（2026-06-13 確認）
+
+- Supplier 看不到 Brand/Factory 的資料
+- Supplier 不能主動搜尋 Brand/Factory
+- 只有 Brand/Factory 能發出好友邀請
+- Supplier 接受後才能互看互聯絡
+- 目的：保護 Brand/Factory 不被騷擾
+
+## 13. SmartPN 編碼規則（2026-06-13 確認）
+
+- 每個材料有兩個號碼：GS1 Code（可能有）+ SmartPN Code（一定有）
+- SmartPN 編碼排除字元：0（像O）/ 1（像I）/ I / O / E
+- 純序號或亂碼，不帶任何資訊意義
+- 料號編定後不可更改
+- SPU 物性改變 = 新材料新料號
+
+## 14. My Library（2026-06-13 確認）
+
+- 個人材料庫，每個帳號各自獨立
+- 有分享給同公司其他帳號的功能
+
+## 15. Requests / 即時對話（2026-06-13 確認）
+
+- Brand/Factory 可向 Supplier 發出 Request
+- 即時對話功能（像購物網客服）
+- Supplier 在 Dashboard 收到通知後才能回應
+
+## 16. 評論（2026-06-13 確認）
+
+- 私密：只有同公司帳號可見
+- 公開：所有人可見（包含 Supplier）
+- Supplier 完全看不到 Brand 的私密評論
+
+## 17. Find Same Material 搜尋範圍（2026-06-13 確認）
+
+- OPEN 材料 + 已授權給這個帳號的材料
+- 不是全平台搜尋
+
+## 18. Supplier 財務資料（2026-06-13 確認）
+
+- 收款方資訊：銀行名稱 / 帳號 / Swift Code / 收款幣別 / 發票抬頭
+- 不是付款條件（那是買方）
+
+## 待確認
+
+- CV 是什麼？Jim 尚未說明，等待確認後補入
