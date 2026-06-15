@@ -883,7 +883,7 @@ def get_ie_cell_data(header_id, segment='cutting', eolr=120):
                    post_attach_std, post_attach_ops,
                    post_edge_std, post_edge_ops,
                    post_heat_std, post_heat_ops,
-                   value_type, is_locked, source_sheet
+                   value_type, is_locked, source_sheet, formula, stage
             FROM ie_process
             WHERE header_id=? AND segment=? AND (flag IS NULL OR flag != 'deleted')
             ORDER BY zone, seq ASC, id

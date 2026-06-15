@@ -95,12 +95,20 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#f0f2
 .btn-mok{background:#4a6cf7;color:#fff;border:none;border-radius:5px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer}
 .loading-msg{padding:40px;text-align:center;color:#888;font-size:13px}
 .error-msg{padding:20px;color:#cc2222;font-size:12px}
-/* ── Cutting 3-row header ─────────────────────────────────────────────── */
-.th-cut-group{background:#1a3a6b;color:#90caf9;text-align:center;border:1px solid #2a4f8a;font-size:11px}
-.th-post-group{background:#2d4a1e;color:#a5d6a7;text-align:center;border:1px solid #3d6428;font-size:11px}
-.th-cut-group2{background:#243356;color:#7aa9d0;text-align:center;font-size:9px;font-style:italic;border:1px solid #2a4f8a}
-.th-post-group2{background:#1e3b14;color:#81c784;text-align:center;font-size:9px;font-style:italic;border:1px solid #3d6428}
-.th-empty-grp{background:#2a2f40;border:1px solid #3a3f58}
+/* ── Cutting tab — xlsx 標準樣式 ─────────────────────────────────────── */
+.cut-table th{background:#2F4F7F;color:#fff;font-size:10px;font-weight:700;text-align:center;white-space:normal;line-height:1.5;padding:4px 6px}
+.cut-table th.th-name{text-align:left;min-width:160px}
+.cut-table th .en{font-weight:400;font-style:italic;font-size:9px}
+.cut-zone-hdr td{background:#FCE4D6;font-weight:700;font-size:11px;color:#7B3A00;padding:5px 10px;border:1px solid #F4B89A}
+.cut-lvl{background:#F2F2F2;text-align:center;color:#555;min-width:36px;max-width:48px;cursor:text}
+.cut-lvl:hover{background:#e8e8e8;outline:1px dashed #aaa}
+.cut-zone-cell{text-align:center;font-weight:600;font-size:10px}
+.cut-locked-f{background:#E2EFDA;color:#375623;text-align:center;font-size:10px;font-weight:700}
+.cut-locked-m{background:#FFF2CC;color:#7F6000;text-align:center;font-size:10px;font-weight:700}
+.cut-tct{text-align:right;color:#1a4a7a;font-family:Consolas,monospace;min-width:60px}
+.cut-formula{background:#F8F8F8;color:#888;font-size:9px;font-family:Consolas,monospace;max-width:140px;overflow:hidden;text-overflow:ellipsis}
+.cut-name{background:#fff;min-width:160px;white-space:normal;cursor:text;line-height:1.4}
+.cut-name:hover{outline:1px dashed #90caf9}
 .name-zh{font-size:9px;color:#aaa;margin-top:1px}
 /* Inline add row */
 .add-row-inline td{background:#f0fff4!important;padding:2px 3px}
@@ -337,109 +345,85 @@ function renderZones(data) {
 }
 
 // ── Cutting zone card (all zones unified: 裁斷機/ATOM/LASER/YINGHUI/EMMA/移印/轉印) ──
+// ── Cutting 區帶編號 & 顏色 (照 LA_TRAINER_OG_標準IE範本_v1.xlsx) ────────
+const CUTTING_ZONE_NUM = {'裁斷機':'①','ATOM':'②','EMMA':'③','Laser':'④','YINGHUI':'⑤','移印':'⑥','轉印':'⑦'};
+const CUTTING_ZONE_BG  = {'裁斷機':'#FCE4D6','ATOM':'#FFF0E0','EMMA':'#FFF8F4','Laser':'#FFF8F4','YINGHUI':'#FFF8F4','移印':'#FFF8F4','轉印':'#FFF8F4'};
+
 function renderCuttingZoneCard(z, eolr) {
   const zone  = z.zone;
   const zoneJ = esc(JSON.stringify(zone));
-  const isAuto = CUTTING_NO_POST.has(zone);
+  const num   = CUTTING_ZONE_NUM[zone] || '';
+  const zoneBg = CUTTING_ZONE_BG[zone] || '#fff';
   let h = `<div class="zone-card">
     <div class="zone-header">
       <div class="zone-left">
-        <span class="zone-name">${esc(zone)}</span>
+        <span class="zone-name">${num ? num + ' ' : ''}${esc(zone)}</span>
         <span class="zone-count">${z.rows.length} 道</span>
-        ${isAuto ? '<span class="badge" style="background:#e8eaf6;color:#3949ab">自動裁</span>' : ''}
       </div>
       <div class="zone-actions">
         <button class="btn-group" onclick="openGroupModal(${zoneJ})">分組</button>
       </div>
     </div>
-    <div class="zone-body"><table class="proc-table">
-    <thead>
-    <tr>
-      <th rowspan="2" style="width:22px;text-align:center;padding:2px"></th>
-      <th rowspan="2" style="min-width:50px;font-size:10px">材料類別</th>
-      <th rowspan="2">序號</th>
-      <th rowspan="2" class="left" style="min-width:110px">部件名稱</th>
-      <th rowspan="2">層數</th>
-      <th rowspan="2">件數</th>
-      <th rowspan="2">刀數/H</th>
-      <th colspan="2" class="th-cut-group">裁斷</th>
-      <th rowspan="2" class="th-actual" style="font-size:10px">裁機<br>要求人數</th>
-      <th colspan="2" class="th-post-group">印線/畫線</th>
-      <th colspan="2" class="th-post-group">削皮</th>
-      <th colspan="2" class="th-post-group">貼補強</th>
-      <th colspan="2" class="th-post-group">涂邊/烘毛邊</th>
-      <th colspan="2" class="th-post-group">热压</th>
-    </tr>
-    <tr>
-      <th style="font-size:9px">標准時間(秒/雙)</th><th class="th-theory" style="font-size:9px">理論人數</th>
-      <th style="font-size:9px">標准時間</th><th class="th-theory" style="font-size:9px">理論人數</th>
-      <th style="font-size:9px">標准時間</th><th class="th-theory" style="font-size:9px">理論人數</th>
-      <th style="font-size:9px">標准時間</th><th class="th-theory" style="font-size:9px">理論人數</th>
-      <th style="font-size:9px">標准時間</th><th class="th-theory" style="font-size:9px">理論人數</th>
-      <th style="font-size:9px">標准時間</th><th class="th-theory" style="font-size:9px">理論人數</th>
-    </tr>
-    </thead>
+    <div class="zone-body"><table class="proc-table cut-table">
+    <thead><tr>
+      <th style="width:22px;padding:2px"></th>
+      <th>層級<br><span class="en">Level</span></th>
+      <th class="th-name" style="text-align:left">流程/部件名稱<br><span class="en">Process / Part Name</span></th>
+      <th>TCT<br><span class="en">(秒/Sec)</span></th>
+      <th>機台/區別<br><span class="en">Machine/Zone</span></th>
+      <th>階段<br><span class="en">Phase</span></th>
+      <th>鎖定<br><span class="en">Locked?</span></th>
+      <th>公式原文<br><span class="en">(有才填 Formula)</span></th>
+      <th>備注/反饋<br><span class="en">(空白=正確 Blank=OK)</span></th>
+    </tr></thead>
     <tbody id="tbody-cut-${esc(zone)}">`;
-  for (const row of z.rows) h += renderCuttingRow(row, zone, eolr);
+  for (const row of z.rows) h += renderCuttingRow(row, zone, zoneBg);
   h += renderAddTriggerRow(zone, 'cutting');
   h += '</tbody></table></div></div>';
   return h;
 }
 
-function renderCuttingRow(row, zone, eolr) {
-  const pid     = row.id;
-  const divisor = 3600 / eolr;
-  function dv(v) { return v != null ? fmtNum(v) : '—'; }
-  function opsDisp(std) {
-    if (std == null || std <= 0) return '—';
-    return fmtNum(parseFloat((std / divisor).toFixed(4)));
-  }
-  const stdTime = row.standard_time;
-  const theory  = (stdTime != null && stdTime > 0) ? stdTime / divisor : null;
-  const thDisp  = theory != null ? fmtNum(parseFloat(theory.toFixed(4))) : '—';
-  const viet = esc(row.process_name || '');
-  const zh   = esc(row.process_name_zh || '');
-  const nameCell = zh
-    ? `<td class="name">${viet}<div class="name-zh">${zh}</div></td>`
-    : `<td class="name">${viet}</td>`;
+function renderCuttingRow(row, zone, zoneBg) {
+  const pid = row.id;
+  const isFormula = row.value_type === 'formula';
+  const locked    = isFormula ? '公式' : '手工';
+  const lockedCls = isFormula ? 'cut-locked-f' : 'cut-locked-m';
+  const tctVal    = row.tct != null ? fmtNum(row.tct) : '—';
+  const name      = esc(LANG === 'vi' && row.process_name_vi ? row.process_name_vi : (row.process_name || '—'));
+  const formulaTxt = esc(row.formula || '');
   let h = '<tr>';
   h += `<td class="del-cell"><button class="btn-del" onclick="deleteRow(${pid})">×</button></td>`;
-  h += `<td class="num" style="background:#fff;cursor:text;font-size:9px" onclick="startTextEdit(this,${pid},'mat_cat')" data-tip="點擊編輯">${esc(row.mat_cat || '—')}</td>`;
-  h += `<td class="seq">${row.seq ?? ''}</td>`;
-  h += nameCell;
-  h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'layers_per_cut')" data-tip="點擊編輯">${dv(row.layers_per_cut)}</td>`;
-  h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'qty_per_pair')" data-tip="點擊編輯">${dv(row.qty_per_pair)}</td>`;
-  h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'cut_per_hour')" data-tip="點擊編輯">${dv(row.cut_per_hour)}</td>`;
-  h += `<td class="formula-cell">${stdTime != null ? fmtNum(stdTime) : '—'}</td>`;
-  h += `<td class="formula-cell theory-cell" data-stdtime="${stdTime ?? ''}" data-zone="${esc(zone)}">${thDisp}</td>`;
-  h += `<td class="actual-cell clickable" onclick="startEdit(this,${pid},'actual_operators')" data-tip="點擊編輯">${dv(row.actual_operators)}</td>`;
-  const postCols = ['post_marking_std','post_skiving_std','post_attach_std','post_edge_std','post_heat_std'];
-  for (const col of postCols) {
-    const ps = row[col];
-    h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'${col}')" data-tip="點擊編輯">${dv(ps)}</td>`;
-    h += `<td class="formula-cell th-post-ops-cell" style="background:#e8f5e9;color:#2e7d32" data-poststd="${ps ?? ''}">${opsDisp(ps)}</td>`;
+  h += `<td class="cut-lvl" onclick="startTextEdit(this,${pid},'mat_cat')" data-tip="點擊編輯">${esc(row.mat_cat || '—')}</td>`;
+  h += `<td class="cut-name" onclick="startTextEdit(this,${pid},'process_name')" data-tip="點擊編輯">${name}</td>`;
+  if (isFormula) {
+    h += `<td class="cut-tct">${tctVal}</td>`;
+  } else {
+    h += `<td class="cut-tct" style="cursor:text" onclick="startEdit(this,${pid},'tct')" data-tip="點擊編輯">${tctVal}</td>`;
   }
+  h += `<td class="cut-zone-cell" style="background:${zoneBg}">${esc(zone)}</td>`;
+  h += `<td style="text-align:center;color:#555;background:#fff">${row.stage ?? 1}</td>`;
+  h += `<td class="${lockedCls}">${locked}</td>`;
+  h += `<td class="cut-formula" title="${formulaTxt}">${formulaTxt}</td>`;
+  h += `<td style="background:#fff;min-width:60px"></td>`;
   h += '</tr>';
   return h;
 }
 
-// ── Inline add row for all cutting zones ─────────────────────────────────────
+// ── Inline add row for cutting zones ─────────────────────────────────────────
 function addCuttingRow(zone) {
   const tbody = document.getElementById('tbody-cut-' + zone);
   if (!tbody) return;
   if (tbody.querySelector('.add-row-inline')) { tbody.querySelector('.add-inp')?.focus(); return; }
   const zJ = esc(JSON.stringify(zone));
   const cells = `
-    <td><input class="add-inp" id="add-mat-${esc(zone)}" placeholder="材料" style="min-width:46px;font-size:10px"></td>
-    <td style="text-align:center;color:#aaa;font-size:10px">—</td>
-    <td><input class="add-inp" id="add-name-${esc(zone)}" placeholder="部件名稱" style="min-width:90px"></td>
-    <td><input class="add-inp add-num" id="add-lay-${esc(zone)}" type="number" placeholder="層" style="min-width:28px"></td>
-    <td><input class="add-inp add-num" id="add-qty-${esc(zone)}" type="number" placeholder="件" style="min-width:28px"></td>
-    <td><input class="add-inp add-num" id="add-cph-${esc(zone)}" type="number" placeholder="刀/H" style="min-width:34px"></td>
-    <td><input class="add-inp add-num" id="add-std-${esc(zone)}" type="number" placeholder="標時" style="min-width:38px"></td>
-    <td class="formula-cell" style="font-size:9px;color:#aaa">公式</td>
-    <td><input class="add-inp add-num" id="add-act-${esc(zone)}" type="number" placeholder="人" style="min-width:28px"></td>
-    <td colspan="10" style="background:#f1f8e9;text-align:center;font-size:9px;color:#aaa;border:1px dashed #c8e6c9">後製工序（新增後填入）</td>
+    <td></td>
+    <td><input class="add-inp" id="add-mat-${esc(zone)}" placeholder="C/L/T" style="min-width:32px"></td>
+    <td><input class="add-inp" id="add-name-${esc(zone)}" placeholder="流程/部件名稱" style="min-width:140px"></td>
+    <td><input class="add-inp add-num" id="add-tct-${esc(zone)}" type="number" step="0.01" placeholder="秒" style="min-width:55px"></td>
+    <td style="text-align:center;color:#888;font-size:10px">${esc(zone)}</td>
+    <td style="text-align:center;color:#888">1</td>
+    <td style="background:#FFF2CC;text-align:center;font-size:10px;color:#7F6000">手工</td>
+    <td></td>
     <td style="white-space:nowrap">
       <button class="btn-inline-ok" onclick="confirmAddCuttingRow(${zJ})">✓</button>
       <button class="btn-inline-cancel" onclick="cancelAddCuttingRow(${zJ})">✗</button>
@@ -459,17 +443,11 @@ function addCuttingRow(zone) {
 async function confirmAddCuttingRow(zone) {
   const name = document.getElementById('add-name-' + zone)?.value?.trim();
   if (!name) { alert('請輸入部件名稱'); return; }
-  const payload = {header_id: HID, segment: SEG, zone, stage_id: STAGE?.id, user: 'demo', process_name: name};
   const mat = document.getElementById('add-mat-' + zone)?.value?.trim() || null;
-  const lay = parseFloat(document.getElementById('add-lay-' + zone)?.value) || null;
-  const qty = parseFloat(document.getElementById('add-qty-' + zone)?.value) || null;
-  const cph = parseFloat(document.getElementById('add-cph-' + zone)?.value) || null;
-  const std = parseFloat(document.getElementById('add-std-' + zone)?.value) || null;
-  const act = parseFloat(document.getElementById('add-act-' + zone)?.value) || null;
-  Object.assign(payload, {mat_cat: mat, layers_per_cut: lay, qty_per_pair: qty, cut_per_hour: cph, standard_time: std, actual_operators: act});
+  const tct = parseFloat(document.getElementById('add-tct-' + zone)?.value) || null;
   const r = await fetch('/api/ie/cell/add_row', {
     method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify(payload),
+    body: JSON.stringify({header_id: HID, segment: SEG, zone, stage_id: STAGE?.id, user: 'demo', process_name: name, mat_cat: mat, tct}),
   });
   const j = await r.json();
   if (j.ok) loadSegment(SEG);
