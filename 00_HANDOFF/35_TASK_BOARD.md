@@ -93,6 +93,8 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 058 | 主表+細表修正（EOLR分行/MP1位/+×按鈕/Output欄/水蜘蛛+） | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | ie_interface.html: EOLR第2行空格/act-cell+×/+按鈕/colspan10; ie_cell_detail.html: 水蜘蛛+修正; database.py+app.py: delete+create端點 |
 
+| 059 | IE主表+細表+allocation 剩餘修正 | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | ie_interface.html: 120行act-cell空; ie_cell_detail.html: 表頭全名+×首欄+toFixed(1); allocation.html: UNIT_ZONES過濾+裁斷機完全隱藏+機台獨立欄 |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |

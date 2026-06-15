@@ -298,7 +298,7 @@ function renderGroup(g){
 
   if(has120){
     rows += `<tr class="tr-eolr ${both ? 'tr-model-second' : 'tr-single'}">
-      <td class="act-cell">${!has60 ? `<button class="btn-add-rec" onclick="addIeRecord(${modelJ})" title="新增ART">＋</button> ` : ''}<button class="btn-del-rec" onclick="delIeRecord(${g.id120})" title="刪除">×</button></td>
+      <td class="act-cell">${!has60 ? `<button class="btn-add-rec" onclick="addIeRecord(${modelJ})" title="新增ART">＋</button> <button class="btn-del-rec" onclick="delIeRecord(${g.id120})" title="刪除">×</button>` : ''}</td>
       ${both ? leftCellsEmpty() : leftCells()}
       <td class="eolr-cell"><span class="eolr-120">120</span></td>
       ${mpRow(g.r120)}

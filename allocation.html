@@ -144,6 +144,12 @@ const USERS = [
   {u:'dacu',    name:'打粗水洗照射',  role:'unit_user', unit:'打粗水洗照射'},
 ];
 let ME=null, UNITS=[], curUnit=null, MONTH='2026-06';
+const UNIT_ZONES = {
+  '同材共裁自動化': ['ATOM','Laser','EMMA','YINGHUI'],
+  '電腦針車折邊':   ['電腦針車','折边'],
+  '打粗水洗照射':   ['打粗','照射'],
+};
+const HIDDEN_ZONES = ['裁斷機'];
 const F={credentials:'same-origin'};
 
 function api(path,opts){ return fetch(path,Object.assign({},F,opts)).then(r=>r.json().then(j=>({status:r.status,j}))); }
@@ -279,7 +285,14 @@ function renderLean(lg){
 
 function renderModel(mg){
   const canEdit=ME&&(ME.role==='admin'||ME.unit===curUnit);
-  const rows=mg.items.map((it,i)=>{
+  const unitZones = UNIT_ZONES[curUnit] || null;
+  const filteredItems = mg.items.filter(it => {
+    if (HIDDEN_ZONES.includes(it.zone)) return false;
+    if (unitZones) return unitZones.includes(it.zone);
+    return true;
+  });
+  if (!filteredItems.length) return '';
+  const rows=filteredItems.map((it)=>{
     const locked=!!it.is_csa_locked;
     const chkCls=it.is_checked?'move':'csa';
     const dis=(canEdit&&!locked)?'':'disabled';
@@ -291,8 +304,8 @@ function renderModel(mg){
            ${it.is_checked?'外移':'留CSA'}
          </label>`;
     return `<tr${locked?' class="row-locked"':''}>
-      <td class="seq-cell">${i+1}</td>
-      <td>${esc(it.part_name||'—')}<br><span class="zone-tag">${esc(it.zone||'')}</span></td>
+      <td>${esc(it.part_name||'—')}</td>
+      <td><span class="zone-tag">${esc(it.zone||'')}</span></td>
       <td class="num">${fmtN(it.cut_per_hour)}</td>
       <td class="num">${fmtN(it.layers)}</td>
       <td class="num">${fmtN(it.qty_per_pair)}</td>
@@ -320,13 +333,13 @@ function renderModel(mg){
     <div class="table-wrap">
       <table>
         <thead><tr>
-          <th class="ctr">#</th>
           <th>部件名稱</th>
+          <th>機台</th>
           <th class="num">刀數/H</th>
           <th class="num">層數</th>
           <th class="num">片數/雙</th>
           <th class="num">總片數</th>
-          <th class="num">CT秒/雙</th>
+          <th class="num">CT</th>
           <th class="num">Output</th>
           <th class="num">理論人數</th>
           <th class="ctr">勾選（外移/留CSA）</th>

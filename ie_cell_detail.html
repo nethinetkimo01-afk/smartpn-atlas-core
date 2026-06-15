@@ -344,28 +344,28 @@ function renderCuttingZoneCard(z, eolr) {
     <div class="zone-body"><table class="proc-table">
     <thead>
     <tr>
-      <th rowspan="2" style="min-width:50px;font-size:10px">材料類</th>
-      <th rowspan="2">#</th>
+      <th rowspan="2" style="width:22px;text-align:center;padding:2px"></th>
+      <th rowspan="2" style="min-width:50px;font-size:10px">材料類別</th>
+      <th rowspan="2">序號</th>
       <th rowspan="2" class="left" style="min-width:110px">部件名稱</th>
       <th rowspan="2">層數</th>
       <th rowspan="2">件數</th>
       <th rowspan="2">刀數/H</th>
       <th colspan="2" class="th-cut-group">裁斷</th>
-      <th rowspan="2" class="th-actual" style="font-size:10px">裁機<br>要求</th>
+      <th rowspan="2" class="th-actual" style="font-size:10px">裁機<br>要求人數</th>
       <th colspan="2" class="th-post-group">印線/畫線</th>
       <th colspan="2" class="th-post-group">削皮</th>
       <th colspan="2" class="th-post-group">貼補強</th>
       <th colspan="2" class="th-post-group">涂邊/烘毛邊</th>
       <th colspan="2" class="th-post-group">热压</th>
-      <th rowspan="2"></th>
     </tr>
     <tr>
-      <th class="th-theory">標时</th><th class="th-theory">理人</th>
-      <th style="font-size:9px">標时</th><th class="th-theory" style="font-size:9px">理人</th>
-      <th style="font-size:9px">標时</th><th class="th-theory" style="font-size:9px">理人</th>
-      <th style="font-size:9px">標时</th><th class="th-theory" style="font-size:9px">理人</th>
-      <th style="font-size:9px">標时</th><th class="th-theory" style="font-size:9px">理人</th>
-      <th style="font-size:9px">標时</th><th class="th-theory" style="font-size:9px">理人</th>
+      <th style="font-size:9px">標准時間(秒/雙)</th><th class="th-theory" style="font-size:9px">理論人數</th>
+      <th style="font-size:9px">標准時間</th><th class="th-theory" style="font-size:9px">理論人數</th>
+      <th style="font-size:9px">標准時間</th><th class="th-theory" style="font-size:9px">理論人數</th>
+      <th style="font-size:9px">標准時間</th><th class="th-theory" style="font-size:9px">理論人數</th>
+      <th style="font-size:9px">標准時間</th><th class="th-theory" style="font-size:9px">理論人數</th>
+      <th style="font-size:9px">標准時間</th><th class="th-theory" style="font-size:9px">理論人數</th>
     </tr>
     </thead>
     <tbody id="tbody-cut-${esc(zone)}">`;
@@ -392,6 +392,7 @@ function renderCuttingRow(row, zone, eolr) {
     ? `<td class="name">${viet}<div class="name-zh">${zh}</div></td>`
     : `<td class="name">${viet}</td>`;
   let h = '<tr>';
+  h += `<td class="del-cell"><button class="btn-del" onclick="deleteRow(${pid})">×</button></td>`;
   h += `<td class="num" style="background:#fff;cursor:text;font-size:9px" onclick="startTextEdit(this,${pid},'mat_cat')" data-tip="點擊編輯">${esc(row.mat_cat || '—')}</td>`;
   h += `<td class="seq">${row.seq ?? ''}</td>`;
   h += nameCell;
@@ -407,7 +408,6 @@ function renderCuttingRow(row, zone, eolr) {
     h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'${col}')" data-tip="點擊編輯">${dv(ps)}</td>`;
     h += `<td class="formula-cell th-post-ops-cell" style="background:#e8f5e9;color:#2e7d32" data-poststd="${ps ?? ''}">${opsDisp(ps)}</td>`;
   }
-  h += `<td class="del-cell"><button class="btn-del" onclick="deleteRow(${pid})">×</button></td>`;
   h += '</tr>';
   return h;
 }
@@ -958,9 +958,9 @@ function cancelAddRowInline(zone) {
 // ── Utils ─────────────────────────────────────────────────────────────────────
 function fmtNum(v) {
   if (v == null) return '—';
-  if (typeof v === 'number') return Number.isInteger(v) ? String(v) : parseFloat(v.toFixed(4)).toString();
+  if (typeof v === 'number') return Number.isInteger(v) ? String(v) : parseFloat(v.toFixed(1)).toString();
   const n = parseFloat(v);
-  return isNaN(n) ? String(v) : (Number.isInteger(n) ? String(n) : parseFloat(n.toFixed(4)).toString());
+  return isNaN(n) ? String(v) : (Number.isInteger(n) ? String(n) : parseFloat(n.toFixed(1)).toString());
 }
 function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
