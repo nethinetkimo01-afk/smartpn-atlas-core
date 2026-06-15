@@ -79,6 +79,8 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 050 | IE細表界面修正7項（公式格/層數導入/+modal/表頭/版本切換/水蜘蛛/返回） | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | ie_cell_detail.html 重寫 + DB layers_per_cut 回填 + app.py/database.py add_row 擴充 |
 
+| 052 | IE細表 Cutting段完整重建（DB重導入+像素還原界面） | DATA SYSTEM | ✅完成 | 2026-06-15 | 2026-06-15 | ie_reimport_cutting_32.py + 12新欄位schema + ie_cell_detail.html 3列表頭+後製工序橫欄+inline+新增 |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |

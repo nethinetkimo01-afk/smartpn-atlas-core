@@ -836,7 +836,12 @@ def get_ie_cell_data(header_id, segment='cutting', eolr=120):
             SELECT id, zone, seq, process_name, part_name, flag,
                    normal_time, allowance_pct, standard_time, tct,
                    actual_operators, machine, cut_per_hour, qty_per_pair,
-                   layers_per_cut, process_name_vi,
+                   layers_per_cut, process_name_vi, process_name_zh, mat_cat,
+                   post_marking_std, post_marking_ops,
+                   post_skiving_std, post_skiving_ops,
+                   post_attach_std, post_attach_ops,
+                   post_edge_std, post_edge_ops,
+                   post_heat_std, post_heat_ops,
                    value_type, is_locked, source_sheet
             FROM ie_process
             WHERE header_id=? AND segment=? AND (flag IS NULL OR flag != 'deleted')
@@ -969,7 +974,8 @@ def approve_ie_edit(log_id, approver):
         conn.close()
 
 
-def add_ie_process_row(header_id, segment, zone, process_name, standard_time, stage_id, user='demo', part_name=None, tct=None):
+def add_ie_process_row(header_id, segment, zone, process_name, standard_time, stage_id, user='demo', part_name=None, tct=None,
+                       mat_cat=None, process_name_zh=None, cut_per_hour=None, qty_per_pair=None, layers_per_cut=None, actual_operators=None):
     """Add a new process row and log the action."""
     conn = get_conn()
     try:
@@ -984,9 +990,11 @@ def add_ie_process_row(header_id, segment, zone, process_name, standard_time, st
             (header_id, segment, zone)
         ).fetchone()[0] or 0
         conn.execute('''
-            INSERT INTO ie_process (header_id, art, segment, zone, seq, process_name, part_name, tct, standard_time, flag)
-            VALUES (?,?,?,?,?,?,?,?,?, 'new')
-        ''', (header_id, art, segment, zone, max_seq + 1, process_name, part_name, tct, standard_time))
+            INSERT INTO ie_process (header_id, art, segment, zone, seq, process_name, part_name, tct, standard_time, flag,
+                                    mat_cat, process_name_zh, cut_per_hour, qty_per_pair, layers_per_cut, actual_operators)
+            VALUES (?,?,?,?,?,?,?,?,?, 'new',?,?,?,?,?,?)
+        ''', (header_id, art, segment, zone, max_seq + 1, process_name, part_name, tct, standard_time,
+              mat_cat, process_name_zh, cut_per_hour, qty_per_pair, layers_per_cut, actual_operators))
         conn.commit()
         new_id = conn.execute('SELECT last_insert_rowid()').fetchone()[0]
         # Log as edit

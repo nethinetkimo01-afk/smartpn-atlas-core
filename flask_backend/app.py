@@ -325,7 +325,13 @@ def ie_cell_add_row():
         d.get('header_id'), d.get('segment'), d.get('zone'),
         d.get('process_name', '新工序'), d.get('standard_time'),
         d.get('stage_id'), d.get('user', 'demo'),
-        d.get('part_name'), d.get('tct')
+        d.get('part_name'), d.get('tct'),
+        mat_cat=d.get('mat_cat'),
+        process_name_zh=d.get('process_name_zh'),
+        cut_per_hour=d.get('cut_per_hour'),
+        qty_per_pair=d.get('qty_per_pair'),
+        layers_per_cut=d.get('layers_per_cut'),
+        actual_operators=d.get('actual_operators'),
     ))
 
 @app.route('/api/ie/cell/delete_row', methods=['POST'])
