@@ -1489,7 +1489,19 @@ def get_allocation_parts(month=None, unit=None, lean=None):
             where_clauses.append('ai.lean=?')
             params_after.append(lean)
 
+        # CTE dedup: same art×zone×seq×process_name can appear in multiple
+        # ob_header rows (different EOLRs).  Pick MIN(id) to get one row each.
+        cte_where = f'ai.month=? AND ai.zone IN ({zone_ph})'
+        if lean:
+            cte_where += ' AND ai.lean=?'
+
         rows = conn.execute(f'''
+            WITH ai_dedup AS (
+                SELECT MIN(ai.id) AS id
+                FROM allocation_item ai
+                WHERE {cte_where}
+                GROUP BY ai.lean, ai.art, ai.zone, ai.seq, ai.process_name, ai.month
+            )
             SELECT
                 ai.id, ai.art, ai.lean, ai.zone, ai.seq,
                 ai.process_name, ai.part_name,
@@ -1497,23 +1509,24 @@ def get_allocation_parts(month=None, unit=None, lean=None):
                 ip.cut_per_hour, ip.layers_per_cut, ip.qty_per_pair, ip.standard_time,
                 h.model_name, h.eolr,
                 COALESCE(s.qty, 0) AS order_qty
-            FROM allocation_item ai
+            FROM ai_dedup d
+            JOIN allocation_item ai ON ai.id = d.id
             LEFT JOIN (
-                SELECT header_id, zone, seq,
-                       MAX(cut_per_hour) AS cut_per_hour,
-                       MAX(layers_per_cut) AS layers_per_cut,
-                       MAX(qty_per_pair) AS qty_per_pair,
-                       MAX(standard_time) AS standard_time
-                FROM ie_process
-                WHERE flag IS NULL OR flag != 'deleted'
-                GROUP BY header_id, zone, seq
-            ) ip ON ip.header_id=ai.header_id AND ip.zone=ai.zone AND ip.seq=ai.seq
+                SELECT oa.art, ip2.zone, ip2.seq,
+                       MAX(ip2.cut_per_hour)   AS cut_per_hour,
+                       MAX(ip2.layers_per_cut) AS layers_per_cut,
+                       MAX(ip2.qty_per_pair)   AS qty_per_pair,
+                       MAX(ip2.standard_time)  AS standard_time
+                FROM ie_process ip2
+                JOIN ob_articles oa ON oa.header_id = ip2.header_id
+                WHERE ip2.flag IS NULL OR ip2.flag != 'deleted'
+                GROUP BY oa.art, ip2.zone, ip2.seq
+            ) ip ON ip.art=ai.art AND ip.zone=ai.zone AND ip.seq=ai.seq
             LEFT JOIN ob_header h ON h.id=ai.header_id
             LEFT JOIN (
                 SELECT article_id, SUM(quantity) AS qty
                 FROM ds01_sp GROUP BY article_id
             ) s ON s.article_id=ai.art
-            WHERE {" AND ".join(where_clauses)}
             ORDER BY
                 CASE WHEN ai.lean IS NULL THEN 1 ELSE 0 END,
                 ai.lean, h.model_name, ai.art,
@@ -1553,7 +1566,8 @@ def get_allocation_parts(month=None, unit=None, lean=None):
                 }
 
             mg = lg['_models'][mk]
-            mp = float(d.get('theory_mp') or 0.0)
+            raw_mp = d.get('theory_mp')          # None when CT is NULL
+            mp = float(raw_mp or 0.0)            # 0.0 for totals arithmetic
             zone = d.get('zone') or ''
             is_csa_locked = zone in NON_TOGGLEABLE_ZONES
             is_checked = 0 if is_csa_locked else (1 if d.get('is_checked') else 0)
@@ -1581,7 +1595,7 @@ def get_allocation_parts(month=None, unit=None, lean=None):
                 'total_pieces': round(order_qty * float(qty_pp)) if qty_pp and order_qty else None,
                 'ct_sec': round(float(ct), 3) if ct else None,
                 'output': round(3600.0 / float(ct), 1) if ct else None,
-                'theory_mp': round(mp, 4),
+                'theory_mp': round(raw_mp, 4) if raw_mp is not None else None,
                 'is_checked': is_checked,
                 'is_csa_locked': is_csa_locked,
                 'target_unit': d.get('target_unit'),
