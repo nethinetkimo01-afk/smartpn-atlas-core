@@ -77,6 +77,8 @@ tr:hover td{background:#f7faff}
 .chk.move{color:#1d7340}
 .chk.csa{color:#888}
 .chk.disabled{opacity:.4;cursor:not-allowed}
+.csa-lock{font-size:11px;color:#999;background:#f0f0f0;border-radius:3px;padding:2px 7px;white-space:nowrap;font-weight:500}
+tr.row-locked td{background:#fafafa;color:#aaa}
 
 /* LEAN footer */
 .lean-footer{display:flex;gap:0;background:#0f1e38;font-size:12px}
@@ -278,9 +280,17 @@ function renderLean(lg){
 function renderModel(mg){
   const canEdit=ME&&(ME.role==='admin'||ME.unit===curUnit);
   const rows=mg.items.map((it,i)=>{
+    const locked=!!it.is_csa_locked;
     const chkCls=it.is_checked?'move':'csa';
-    const dis=canEdit?'':'disabled';
-    return `<tr>
+    const dis=(canEdit&&!locked)?'':'disabled';
+    const chkHtml=locked
+      ? `<span class="csa-lock">留CSA（主裁斷）</span>`
+      : `<label class="chk ${chkCls} ${dis}">
+           <input type="checkbox" ${it.is_checked?'checked':''} ${(canEdit&&!locked)?'':'disabled'}
+             onchange="toggle(${it.id},this)">
+           ${it.is_checked?'外移':'留CSA'}
+         </label>`;
+    return `<tr${locked?' class="row-locked"':''}>
       <td class="seq-cell">${i+1}</td>
       <td>${esc(it.part_name||'—')}<br><span class="zone-tag">${esc(it.zone||'')}</span></td>
       <td class="num">${fmtN(it.cut_per_hour)}</td>
@@ -290,13 +300,7 @@ function renderModel(mg){
       <td class="num">${fmtN(it.ct_sec)}</td>
       <td class="num">${fmtN(it.output)}</td>
       <td class="num">${fmtN(it.theory_mp)}</td>
-      <td class="ctr">
-        <label class="chk ${chkCls} ${dis}">
-          <input type="checkbox" ${it.is_checked?'checked':''} ${canEdit?'':'disabled'}
-            onchange="toggle(${it.id},this)">
-          ${it.is_checked?'外移':'留CSA'}
-        </label>
-      </td>
+      <td class="ctr">${chkHtml}</td>
     </tr>`;
   }).join('');
   return `<div class="art-section">
