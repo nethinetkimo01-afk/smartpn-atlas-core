@@ -1472,13 +1472,15 @@ def prefill_allocation(header_id=None, month=None):
                     zone = r['zone']
                     st = r['standard_time']
                     theory_mp = round(st / divisor, 4) if st else None
+                    # 裁斷機 stays in CSA (0); all other zones default to moved-out (1)
+                    default_checked = 0 if zone in NON_TOGGLEABLE_ZONES else 1
                     cur = conn.execute('''
                         INSERT OR IGNORE INTO allocation_item
                         (header_id, art, lean, zone, seq, process_name, part_name,
                          post_process, theory_mp, target_unit, is_checked, month)
-                        VALUES (?,?,?,?,?,?,?,?,?,?,0,?)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
                     ''', (hid, art, lean_val, zone, r['seq'], r['process_name'], r['part_name'],
-                          zone, theory_mp, _zone_unit(zone), month))
+                          zone, theory_mp, _zone_unit(zone), default_checked, month))
                     inserted += cur.rowcount
         conn.commit()
         return {'ok': True, 'inserted': inserted, 'month': month, 'headers': len(hdr_ids)}
@@ -1669,9 +1671,9 @@ def get_allocation_parts(month=None, unit=None, lean=None):
             ) ip ON ip.art=ai.art AND ip.zone=ai.zone AND ip.seq=ai.seq
             LEFT JOIN ob_header h ON h.id=ai.header_id
             LEFT JOIN (
-                SELECT article_id, SUM(quantity) AS qty
-                FROM ds01_sp GROUP BY article_id
-            ) s ON s.article_id=ai.art
+                SELECT art, SUM(qty) AS qty
+                FROM ds04_orders GROUP BY art
+            ) s ON s.art=ai.art
             ORDER BY
                 CASE WHEN ai.lean IS NULL THEN 1 ELSE 0 END,
                 ai.lean, h.model_name, ai.art,
@@ -2423,6 +2425,23 @@ def set_bianche_dept_hc(dept, group_name, month, headcount, shoe_detail='', upda
         conn.commit(); return {'ok': True}
     except Exception as e:
         conn.rollback(); return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def alloc_fix_default_checked(month):
+    """One-time: set all non-裁斷機 items for month to is_checked=1 (moved out by default)."""
+    conn = get_conn()
+    try:
+        _ensure_alloc_tables(conn)
+        n = conn.execute(
+            "UPDATE allocation_item SET is_checked=1 WHERE month=? AND zone != '裁斷機'",
+            (month,)
+        ).rowcount
+        conn.commit()
+        return {'ok': True, 'updated': n}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
     finally:
         conn.close()
 

@@ -122,6 +122,8 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 072 | /ds04 明細表修正（部門/LEAN排序+預計完成日欄+統計標題） | DATA SYSTEM | ✅完成 | 2026-06-16 | 2026-06-16 | ds04.html+schema.sql+database.py: 部門→LEAN二層分組; 部門統計(N筆,M雙); LEAN統計(N筆,M雙); 預計完成日欄(空=—); estimated_completion欄位; 排序照規格 |
 
+| 073 | /allocation 勾選分配系統完整重建（機台分區+LEAN分組+訂單來源） | DATA SYSTEM | ✅完成 | 2026-06-16 | 2026-06-16 | allocation.html 全重建：3 tabs(同材共裁/電腦針車/打粗水洗)+zone區段+LEAN分組+鞋型×ART子表頭+部件行(☑/CT/Output/理論人數)+STF需求人力公式; database.py: order_qty→ds04_orders JOIN/prefill is_checked=1/alloc_fix_default_checked; app.py: fix_defaults route; T1-T4全Pass(12067筆prefill/3A ATOM 3項/toggle ok) |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |

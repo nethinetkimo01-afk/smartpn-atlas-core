@@ -1,424 +1,406 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>勾選分配系統</title>
+<meta charset="utf-8">
+<title>勾選分配表</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#f0f2f5;color:#1a1a2e;min-height:100vh}
-.topbar{background:#1a2744;color:#fff;padding:9px 18px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;flex-wrap:wrap;box-shadow:0 2px 8px rgba(0,0,0,.3)}
-.title{font-size:15px;font-weight:700;white-space:nowrap}
-.spacer{flex:1}
-.who{font-size:11px;background:#243356;border-radius:6px;padding:5px 10px;color:#b0c4de;display:flex;align-items:center;gap:8px}
-.who b{color:#fff}
-.role-admin{color:#4ade80}.role-unit{color:#fbbf24}
-select,.btn{font-family:inherit}
-select{background:#0f1e38;color:#fff;border:1px solid #3a4f72;border-radius:5px;padding:5px 8px;font-size:12px;outline:none}
-.btn{background:#1d9e6b;color:#fff;border:none;border-radius:5px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer}
-.btn:hover{background:#178059}
-.btn.red{background:#c62828}.btn.red:hover{background:#b71c1c}
-.btn.ghost{background:transparent;border:1px solid #3a4f72;color:#b0c4de}
-.btn.ghost:hover{background:#243356}
-.btn.orange{background:#e65100;color:#fff}.btn.orange:hover{background:#bf360c}
-.toolbar{background:#fff;border-bottom:1px solid #e4e9f2;padding:8px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:sticky;top:44px;z-index:90}
-.tl-label{font-size:11px;color:#888;font-weight:600}
-.lock-badge{font-size:11px;padding:3px 10px;border-radius:4px;font-weight:600}
-.lock-badge.locked{background:#fce4ec;color:#c62828;border:1px solid #f8bbd0}
-.lock-badge.unlocked{background:#e8f5e9;color:#2e7d32;border:1px solid #c8e6c9}
-
-/* Unit tabs */
-.unit-tabs{display:flex;gap:0;background:#e8eef8;border-radius:6px;overflow:hidden;border:1px solid #c5d0e0}
-.unit-tab{padding:6px 20px;font-size:12px;font-weight:600;cursor:pointer;color:#4a6896;transition:.15s;white-space:nowrap}
-.unit-tab.active{background:#1a2744;color:#fff}
-.unit-tab.disabled{opacity:.35;cursor:not-allowed}
-.unit-tab:not(.active):not(.disabled):hover{background:#d4dff5}
-
-/* content */
-.content{padding:14px 18px;display:flex;flex-direction:column;gap:16px}
-.tab-panel{display:none}
-.tab-panel.active{display:block}
-
-/* LEAN group */
-.lean-group{background:#fff;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.09);overflow:hidden;margin-bottom:14px}
-.lean-head{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#0f1e38;color:#fff;cursor:pointer;user-select:none}
-.lean-badge{font-size:13px;font-weight:700;background:#1d9e6b;border-radius:5px;padding:3px 10px}
-.lean-head .spacer{flex:1}
-.lean-stats{display:flex;gap:18px;font-size:12px}
-.lstat{display:flex;flex-direction:column;align-items:flex-end}
-.lstat-label{font-size:10px;color:#7a9bcc}
-.lstat-val{font-weight:700;font-family:Consolas,monospace}
-.lstat.move .lstat-val{color:#4ade80}
-.lstat.csa  .lstat-val{color:#fbbf24}
-.lean-toggle{font-size:14px;color:#7a9bcc;transition:transform .2s}
-.lean-toggle.open{transform:rotate(90deg)}
-.lean-body{display:none}
-.lean-body.open{display:block}
-
-/* Model section */
-.model-sec{border-bottom:1px solid #e4e9f2}
-.model-sec:last-child{border-bottom:none}
-.model-head{display:flex;align-items:center;gap:10px;padding:8px 14px;background:#f5f7fc;border-bottom:1px solid #e4e9f2;flex-wrap:wrap}
-.model-name{font-size:13px;font-weight:700;color:#1a2744}
-.art-list{font-size:11px;color:#5a7099}
-.badge-out{display:inline-block;font-size:10px;background:#ff9800;color:#fff;border-radius:3px;padding:1px 5px;margin-left:4px}
-.order-tag{font-size:11px;color:#555;background:#f0f4ff;border:1px solid #dde3f2;border-radius:4px;padding:2px 8px}
-.eolr-tag{font-size:10px;background:#e8eefc;color:#3a5ce7;border-radius:3px;padding:2px 7px;font-weight:600}
-.art-stats{margin-left:auto;display:flex;gap:14px;font-size:11px}
-.astat{display:flex;flex-direction:column;align-items:flex-end}
-.astat-label{font-size:10px;color:#888}
-.astat-val{font-weight:700;font-family:Consolas,monospace}
-.astat.move .astat-val{color:#1d7340}
-.astat.csa  .astat-val{color:#c84b00}
-
-/* Tables */
-.table-wrap{overflow-x:auto}
-table{border-collapse:collapse;width:100%;font-size:12px;min-width:600px}
-th{background:#243356;color:#c8d8f0;padding:6px 8px;text-align:left;font-size:10px;font-weight:600;white-space:nowrap}
-th.num,td.num{text-align:right;font-family:Consolas,monospace}
-th.ctr,td.ctr{text-align:center}
-td{padding:5px 8px;border-bottom:1px solid #eef1f7;vertical-align:middle}
-tr:hover td{background:#f7faff}
-.dash{color:#c0c8d8}
-.chk{display:inline-flex;align-items:center;gap:5px;cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap}
-.chk input{width:14px;height:14px;cursor:pointer;accent-color:#1d7340}
-.chk.move{color:#1d7340}.chk.csa{color:#888}
-.chk.disabled{opacity:.4;cursor:not-allowed}
-.csa-lock{font-size:11px;color:#999;background:#f0f0f0;border-radius:3px;padding:2px 7px}
-tr.locked-row td{background:#fafafa;color:#aaa}
-
-/* LEAN footer */
-.lean-footer{display:flex;gap:0;background:#0f1e38;font-size:12px}
-.lf-cell{padding:9px 18px;display:flex;flex-direction:column}
-.lf-label{font-size:10px;color:#7a9bcc;font-weight:600}
-.lf-val{font-family:Consolas,monospace;font-weight:700;font-size:13px}
-.lf-cell.move .lf-val{color:#4ade80}
-.lf-cell.csa  .lf-val{color:#fbbf24}
-.lf-sep{width:1px;background:#243356;margin:8px 0}
-
-/* misc */
-.empty{padding:40px;text-align:center;color:#999}
-.warn{background:#fff8e1;border:1px solid #ffe0a3;border-radius:8px;padding:10px 14px;font-size:12px;color:#8a6d3b;margin:0 0 12px}
-.login-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:300}
-.login-box{background:#fff;border-radius:12px;padding:24px;width:340px;box-shadow:0 8px 32px rgba(0,0,0,.25)}
-.login-box h2{font-size:16px;margin-bottom:6px;color:#1a2744}
-.login-box p{font-size:12px;color:#888;margin-bottom:16px}
-.login-user{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #e4e9f2;border-radius:8px;margin-bottom:8px;cursor:pointer}
-.login-user:hover{background:#f5f7fc;border-color:#4a6cf7}
-.login-user .lu-name{font-weight:600;font-size:13px}
-.login-user .lu-role{font-size:11px;color:#888;margin-left:auto}
+body{font-family:'Microsoft JhengHei',Arial,sans-serif;font-size:13px;background:#f5f7fa;color:#333}
+.topbar{background:#1e3a5f;color:#fff;padding:10px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.topbar h1{font-size:15px;font-weight:600;margin-right:auto}
+.topbar a{color:#adc8f0;text-decoration:none;font-size:12px}
+.toolbar{background:#fff;border-bottom:1px solid #dde;padding:8px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.toolbar label{font-size:12px;color:#666;display:flex;gap:4px;align-items:center}
+.toolbar select{padding:4px 8px;border:1px solid #ccd;border-radius:4px;font-size:12px}
+.tab-bar{background:#eef3fb;border-bottom:2px solid #c5d0e0;padding:0 16px;display:flex;gap:0}
+.tab-btn{padding:8px 20px;border:none;background:none;font-size:13px;font-weight:600;color:#6b8ab0;cursor:pointer;border-bottom:3px solid transparent;transition:all .15s}
+.tab-btn.active{color:#1e3a5f;border-bottom-color:#1e3a5f}
+.tab-btn:hover:not(:disabled){color:#1e3a5f}
+.tab-btn:disabled{opacity:.35;cursor:not-allowed}
+.stat-bar{background:#f0f5ff;padding:5px 16px;font-size:12px;color:#555;border-bottom:1px solid #dde;display:flex;align-items:center;gap:16px}
+.stat-bar b{color:#1e3a5f}
+.lock-badge{background:#c62828;color:#fff;padding:2px 9px;border-radius:3px;font-size:11px;font-weight:700}
+.lock-badge.ok{background:#2e7d32}
+.content{padding:12px 16px}
+.zone-section{margin-bottom:18px;border:1px solid #c5d0e0;border-radius:6px;overflow:hidden}
+.zone-header{background:#2d5a9e;color:#fff;padding:7px 14px;font-size:13px;font-weight:700}
+.lean-block{border-top:1px solid #e0e8f0}
+.lean-label{background:#e8eef8;padding:5px 14px 5px 20px;font-size:12px;font-weight:700;color:#1e3a5f;display:flex;align-items:center;gap:12px}
+.lean-label .lean-code{background:#1e3a5f;color:#fff;padding:1px 7px;border-radius:3px;font-family:monospace;font-size:12px}
+.lean-label .lean-stat{font-weight:400;color:#6b8ab0;font-size:11px;margin-left:auto}
+table{width:100%;border-collapse:collapse}
+.shoe-row{background:#f7f9fc;border-top:1px solid #edf0f5}
+.shoe-row td{padding:4px 10px 4px 28px;font-size:12px;color:#2d5a9e;font-weight:600}
+.part-row td{padding:3px 8px;border-bottom:1px solid #edf0f5;font-size:12px;vertical-align:middle}
+.part-row:last-child td{border-bottom:none}
+.part-row:hover td{background:#f0f5ff}
+.part-row td:first-child{width:28px;text-align:center;padding-left:30px}
+.part-row.unchecked td{color:#aaa}
+thead th{padding:4px 8px;background:#e8eef8;font-size:11px;font-weight:600;color:#1e3a5f;border-bottom:1px solid #c5d0e0;white-space:nowrap}
+thead th:first-child{width:28px;padding-left:30px}
+.num{text-align:right}
+.mp-val{font-weight:700;color:#2e7d32}
+.mp-val.zero{color:#bbb;font-weight:400}
+.btn{padding:5px 12px;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600}
+.btn-login{background:#2d5a9e;color:#fff}
+.btn-confirm{background:#ff6f00;color:#fff}
+.btn-confirm.locked{background:#c62828}
+.btn-prefill{background:#2e7d32;color:#fff}
+.btn-fix{background:#6a1b9a;color:#fff}
+.who-badge{background:rgba(255,255,255,.15);padding:2px 10px;border-radius:10px;font-size:12px}
+.no-data{text-align:center;padding:40px;color:#999;font-size:13px}
+.loading{text-align:center;padding:40px;color:#888}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center}
+.overlay.show{display:flex}
+.login-box{background:#fff;border-radius:8px;padding:24px;width:280px}
+.login-box h3{font-size:14px;font-weight:700;color:#1e3a5f;margin-bottom:14px}
+.lrow{margin-bottom:10px}
+.lrow label{display:block;font-size:11px;color:#666;margin-bottom:3px}
+.lrow input{width:100%;padding:6px 8px;border:1px solid #ccd;border-radius:4px;font-size:13px}
+.lbtns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.btn-cancel{background:#eee;color:#555}
+.btn-save{background:#2d5a9e;color:#fff}
+.toast{position:fixed;bottom:20px;right:20px;background:#1e3a5f;color:#fff;padding:9px 16px;border-radius:5px;font-size:12px;display:none;z-index:999}
+input[type=checkbox]{width:14px;height:14px;cursor:pointer}
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <div class="title">勾選分配系統</div>
-  <div class="spacer"></div>
-  <div class="who" id="who">未登入</div>
-  <button class="btn ghost" id="prefillBtn" style="display:none" onclick="doPrefill()">預填 IE (admin)</button>
-  <button class="btn orange" id="lockBtn" style="display:none" onclick="toggleLock()">確認鎖定</button>
-  <button class="btn ghost" onclick="logout()">切換身份</button>
+  <h1>勾選分配表</h1>
+  <span id="whoBadge" class="who-badge"></span>
+  <a href="/ds04">DS-04 →</a>
+  <a href="/bianche">廠務編制表 →</a>
+  <a href="/eolr-settings">EOLR設定 →</a>
+  <button id="btnPrefill" class="btn btn-prefill" onclick="prefill()" style="display:none">⚡ 重新預填</button>
+  <button id="btnFix" class="btn btn-fix" onclick="fixDefaults()" style="display:none">✔ 全部設為外移</button>
+  <button id="btnConfirm" class="btn btn-confirm" onclick="toggleLock()" style="display:none">確認鎖定</button>
+  <button class="btn btn-login" onclick="openLogin()">切換身份</button>
 </div>
 
 <div class="toolbar">
-  <span class="tl-label">月份</span>
-  <select id="monthSel" onchange="onMonthChange()"></select>
-  <span class="tl-label">LEAN</span>
-  <select id="leanSel" onchange="loadAll()"><option value="">全部</option></select>
-  <div class="unit-tabs" id="unitTabs">
-    <div class="unit-tab" data-unit="同材共裁自動化" onclick="switchTab('同材共裁自動化')">同材共裁</div>
-    <div class="unit-tab" data-unit="電腦針車折邊" onclick="switchTab('電腦針車折邊')">電腦針車</div>
-    <div class="unit-tab" data-unit="打粗水洗照射" onclick="switchTab('打粗水洗照射')">打粗水洗</div>
-  </div>
-  <div class="spacer"></div>
+  <label>月份<select id="selMonth" onchange="onMonthChange()">
+    <option value="2026-06">2026-06</option>
+    <option value="2026-07">2026-07</option>
+    <option value="2026-05">2026-05</option>
+  </select></label>
+  <label>LEAN<select id="selLean" onchange="loadData()"><option value="">全部</option></select></label>
   <span id="lockBadge"></span>
 </div>
 
-<div class="content">
-  <div id="warnArea"></div>
-  <div id="tab-同材共裁自動化" class="tab-panel"><div class="empty">載入中…</div></div>
-  <div id="tab-電腦針車折邊"   class="tab-panel"><div class="empty">載入中…</div></div>
-  <div id="tab-打粗水洗照射"   class="tab-panel"><div class="empty">載入中…</div></div>
+<div class="tab-bar">
+  <button class="tab-btn active" id="tab0" onclick="switchTab(0)">同材共裁</button>
+  <button class="tab-btn" id="tab1" onclick="switchTab(1)">電腦針車</button>
+  <button class="tab-btn" id="tab2" onclick="switchTab(2)">打粗水洗</button>
 </div>
 
-<!-- Login modal -->
-<div class="login-modal" id="loginModal" style="display:none">
+<div class="stat-bar">
+  <span id="statText">載入中...</span>
+</div>
+
+<div class="content" id="content"><div class="loading">載入中...</div></div>
+
+<div class="overlay" id="loginOverlay">
   <div class="login-box">
-    <h2>選擇身份</h2>
-    <p>Phase 1 Demo — 直接選身份（無密碼）。部門帳號只能勾選自己部門。</p>
-    <div id="loginUsers"></div>
+    <h3>切換身份</h3>
+    <div class="lrow"><label>帳號</label><input id="lUser" placeholder="jim / tongcai / dianno / dacu"></div>
+    <div class="lrow"><label>密碼</label><input id="lPass" type="password" placeholder="tongcai"></div>
+    <div class="lbtns">
+      <button class="btn btn-cancel" onclick="closeLogin()">取消</button>
+      <button class="btn btn-save" onclick="doLogin()">登入</button>
+    </div>
   </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
-const USERS = [
-  {u:'jim',     name:'Jim',          role:'admin',     unit:null},
-  {u:'tongcai', name:'同材共裁自動化', role:'unit_user', unit:'同材共裁自動化'},
-  {u:'dianno',  name:'電腦針車折邊',  role:'unit_user', unit:'電腦針車折邊'},
-  {u:'dacu',    name:'打粗水洗照射',  role:'unit_user', unit:'打粗水洗照射'},
+const LEAN_ORDER = [
+  '1A','1B','1C','2A','2B','2C','3A','3B','3C','4A','4B','4C',
+  '5A','5B','5C','6A','6B','6C','7A','7B','7C','8A','8B','8C',
+  '9A','9B','9C','10A','10B','10C','11A1','11A2','11B1','11B2','11C'
 ];
-const UNITS = ['同材共裁自動化','電腦針車折邊','打粗水洗照射'];
-const F = {credentials:'same-origin'};
-let ME = null, MONTH = '2026-06', curUnit = '同材共裁自動化', isLocked = false;
+function leanKey(l) { const i = LEAN_ORDER.indexOf(l); return i >= 0 ? i : 999; }
 
-// Month select init
-(function(){
-  const s = document.getElementById('monthSel');
-  ['2026-04','2026-05','2026-06','2026-07'].forEach(m => {
-    const o = document.createElement('option'); o.value = m; o.textContent = m;
-    if(m===MONTH) o.selected=true; s.appendChild(o);
-  });
-})();
-
-function api(path, opts){ return fetch(path, Object.assign({},F,opts)).then(r=>r.json().then(j=>({status:r.status,j}))); }
-
-// ─── Login ───
-function showLogin(){
-  const box=document.getElementById('loginUsers');
-  box.innerHTML=USERS.map(u=>`<div class="login-user" onclick="login('${u.u}')">
-    <div><div class="lu-name">${u.name}</div><div style="font-size:11px;color:#aaa">${u.u}</div></div>
-    <div class="lu-role ${u.role==='admin'?'role-admin':'role-unit'}">${u.role==='admin'?'admin':'unit_user · '+(u.unit||'')}</div>
-  </div>`).join('');
-  document.getElementById('loginModal').style.display='flex';
-}
-async function login(u){
-  const {j}=await api('/api/allocation/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u})});
-  if(j.ok){document.getElementById('loginModal').style.display='none'; await whoami();}
-  else alert('登入失敗: '+(j.error||''));
-}
-async function logout(){ await api('/api/allocation/logout',{method:'POST'}); ME=null; showLogin(); }
-
-async function whoami(){
-  const{j}=await api('/api/allocation/me');
-  ME=j.user;
-  if(!ME){showLogin();return;}
-  const rc=ME.role==='admin'?'role-admin':'role-unit';
-  document.getElementById('who').innerHTML=`<b>${ME.name}</b> · <span class="${rc}">${ME.role}</span>`;
-  document.getElementById('prefillBtn').style.display=ME.role==='admin'?'':'none';
-  document.getElementById('lockBtn').style.display=ME.role==='admin'?'':'none';
-
-  // Unit tab visibility
-  if(ME.role==='unit_user'){
-    curUnit=ME.unit;
-    document.querySelectorAll('.unit-tab').forEach(t=>{
-      if(t.dataset.unit!==ME.unit) t.classList.add('disabled');
-    });
+const TABS = [
+  {
+    name: '同材共裁', unit: '同材共裁自動化',
+    zones: [
+      {key:'ATOM',     label:'ATOM 區'},
+      {key:'Laser',    label:'Laser 區'},
+      {key:'EMMA',     label:'EMMA 區'},
+      {key:'YINGHUI',  label:'YINGHUI 區'},
+    ],
+    cols: [
+      {key:'process_name', label:'部件名稱', cls:''},
+      {key:'ct_sec',       label:'CT (秒)',  cls:'num'},
+      {key:'_output',      label:'Output',   cls:'num'},
+      {key:'theory_mp',    label:'理論人數', cls:'num'},
+    ]
+  },
+  {
+    name: '電腦針車', unit: '電腦針車折邊',
+    zones: [
+      {key:'電腦針車', label:'電腦針車 區'},
+      {key:'折边',     label:'折边 區'},
+    ],
+    cols: [
+      {key:'process_name', label:'配件名稱', cls:''},
+      {key:'ct_sec',       label:'CT (秒)',  cls:'num'},
+      {key:'theory_mp',    label:'理論人數', cls:'num'},
+    ]
+  },
+  {
+    name: '打粗水洗', unit: '打粗水洗照射',
+    zones: [
+      {key:'打粗', label:'打粗 區'},
+      {key:'照射', label:'照射 區'},
+    ],
+    cols: [
+      {key:'process_name', label:'流程名稱', cls:''},
+      {key:'ct_sec',       label:'TCT (秒)', cls:'num'},
+      {key:'_stf_mp',      label:'需求人力', cls:'num'},
+    ]
   }
-  switchTab(curUnit, true);
-  await loadLeans();
+];
+
+let _role=null, _unit=null, _username=null;
+let _locked=false, _curTab=0, _allData=null;
+
+async function init() {
+  await checkSession();
+  await loadFilters();
   await loadLockStatus();
-  loadAll();
+  loadData();
 }
 
-// ─── Lock ───
-async function loadLockStatus(){
-  const{j}=await api('/api/allocation/lock?month='+MONTH);
-  isLocked=j.locked||false;
-  const badge=document.getElementById('lockBadge');
-  const btn=document.getElementById('lockBtn');
-  if(isLocked){
-    badge.innerHTML='<span class="lock-badge locked">🔒 已鎖定</span>';
-    btn.textContent='解鎖';btn.classList.add('red');btn.classList.remove('orange');
-  } else {
-    badge.innerHTML='<span class="lock-badge unlocked">未鎖定</span>';
-    btn.textContent='確認鎖定';btn.classList.add('orange');btn.classList.remove('red');
-  }
-}
-async function toggleLock(){
-  const action=isLocked?'unlock':'lock';
-  if(action==='lock'&&!confirm(`鎖定 ${MONTH} 勾選表？鎖定後各部門無法再修改。`)) return;
-  const{j}=await api('/api/allocation/lock',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,month:MONTH})});
-  if(j.ok){await loadLockStatus();loadAll();}
-  else alert('失敗: '+(j.error||''));
+async function checkSession() {
+  try {
+    const r = await fetch('/api/allocation/me').then(r=>r.json());
+    if (r.ok && r.username) { _role=r.role; _unit=r.unit; _username=r.username; }
+    else { _role=null; _unit=null; _username=null; }
+  } catch { _role=null; }
+  updateWhoUI();
 }
 
-// ─── Tabs ───
-function switchTab(unit, init=false){
-  if(ME&&ME.role==='unit_user'&&unit!==ME.unit) return;
-  curUnit=unit;
-  document.querySelectorAll('.unit-tab').forEach(t=>t.classList.toggle('active',t.dataset.unit===unit));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  const panel=document.getElementById('tab-'+unit);
-  if(panel){panel.classList.add('active');}
-  if(!init) loadUnit(unit);
+async function loadFilters() {
+  const f = await fetch('/api/ds04/filters').then(r=>r.json());
+  const sl = document.getElementById('selLean');
+  (f.leans||[]).forEach(l=>{ const o=document.createElement('option'); o.value=l; o.textContent=l; sl.appendChild(o); });
 }
 
-// ─── LEAN dropdown ───
-async function loadLeans(){
-  const{j}=await api('/api/allocation/leans?month='+MONTH);
-  const s=document.getElementById('leanSel');
-  const cur=s.value;
-  s.innerHTML='<option value="">全部</option>'+(j.leans||[]).map(l=>`<option value="${esc(l)}">${esc(l)}</option>`).join('');
-  if(cur) s.value=cur;
-}
-function onMonthChange(){ MONTH=document.getElementById('monthSel').value; loadLeans(); loadLockStatus(); loadAll(); }
+function currentMonth(){ return document.getElementById('selMonth').value; }
+function currentLean() { return document.getElementById('selLean').value; }
 
-// ─── Prefill ───
-async function doPrefill(){
-  if(!confirm('從 IE 細表預填所有後製工序勾選清單？')) return;
-  const{j}=await api('/api/allocation/prefill',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({month:MONTH})});
-  if(j.ok){alert(`預填完成：新增 ${j.inserted} 筆`);await loadLeans();loadAll();}
-  else alert('預填失敗: '+(j.error||''));
+async function loadLockStatus() {
+  const r = await fetch(`/api/allocation/lock?month=${currentMonth()}`).then(r=>r.json());
+  _locked = r.locked||false;
+  updateLockBadge();
 }
 
-// ─── Load all tabs ───
-function loadAll(){ UNITS.forEach(u=>loadUnit(u)); }
-
-async function loadUnit(unit){
-  const lean=document.getElementById('leanSel').value;
-  const panel=document.getElementById('tab-'+unit);
-  if(!panel) return;
-  panel.innerHTML='<div class="empty">載入中…</div>';
-  const q=`/api/allocation/parts?month=${MONTH}&unit=${encodeURIComponent(unit)}&lean=${encodeURIComponent(lean)}`;
-  const{j}=await api(q);
-  if(!j.ok){panel.innerHTML=`<div class="empty">載入失敗: ${esc(j.error||'')}</div>`;return;}
-  if(!j.leans||!j.leans.length){
-    panel.innerHTML=`<div class="empty">此月份尚無勾選項目。${ME&&ME.role==='admin'?'點右上「預填」從 IE 細表建立清單。':'請通知 admin 預填。'}</div>`;
-    return;
-  }
-  panel.innerHTML=j.leans.map(lg=>renderLean(lg,unit)).join('');
+function updateLockBadge() {
+  document.getElementById('lockBadge').innerHTML = _locked
+    ? '<span class="lock-badge">🔒 已鎖定</span>'
+    : '<span class="lock-badge ok">未鎖定</span>';
+  const cb = document.getElementById('btnConfirm');
+  if (cb) { cb.textContent=_locked?'🔒 已鎖定（點此解鎖）':'確認鎖定'; cb.className='btn btn-confirm'+(_locked?' locked':''); }
 }
 
-// ─── Render LEAN group ───
-function renderLean(lg, unit){
-  const label=lg.lean||'—';
-  const body=lg.models.map(mg=>renderModel(mg,unit)).filter(Boolean).join('');
-  if(!body) return '';
-  return `<div class="lean-group">
-    <div class="lean-head" onclick="toggleLean(this)">
-      <span class="lean-badge">${esc(label)}</span>
-      <div class="spacer"></div>
-      <div class="lean-stats">
-        <div class="lstat move"><span class="lstat-label">外移MP</span><span class="lstat-val">${fmt(lg.allocated_mp)}</span></div>
-        <div class="lstat csa"><span class="lstat-label">留CSA</span><span class="lstat-val">${fmt(lg.csa_mp)}</span></div>
-      </div>
-      <span class="lean-toggle open">▶</span>
-    </div>
-    <div class="lean-body open">
-      ${body}
-      <div class="lean-footer">
-        <div class="lf-cell move"><span class="lf-label">外移MP合計</span><span class="lf-val">${fmt(lg.allocated_mp)}</span></div>
-        <div class="lf-sep"></div>
-        <div class="lf-cell csa"><span class="lf-label">留CSA合計</span><span class="lf-val">${fmt(lg.csa_mp)}</span></div>
-      </div>
-    </div>
-  </div>`;
-}
-
-function renderModel(mg, unit){
-  const canEdit=ME&&(ME.role==='admin'||ME.unit===unit)&&!isLocked;
-  const UNIT_ZONES={
-    '同材共裁自動化':['ATOM','Laser','EMMA','YINGHUI'],
-    '電腦針車折邊':['電腦針車','折边'],
-    '打粗水洗照射':['打粗','照射'],
-  };
-  const zones=UNIT_ZONES[unit]||[];
-  const items=mg.items.filter(it=>zones.includes(it.zone));
-  if(!items.length) return '';
-
-  let thead='', rows='';
-  if(unit==='同材共裁自動化'){
-    thead=`<tr><th>部件名稱</th><th>機台</th><th class="num">刀數/H</th><th class="num">層數</th><th class="num">片數/雙</th><th class="num">總片數</th><th class="num">CT(秒)</th><th class="num">Output</th><th class="num">理論人數</th><th class="ctr">勾選</th></tr>`;
-    rows=items.map(it=>{
-      const chkHtml=buildChk(it,canEdit);
-      return `<tr${it.is_csa_locked?' class="locked-row"':''}>
-        <td>${esc(it.part_name||'—')}</td>
-        <td><span style="font-size:10px;background:#e8eefc;color:#3a5ce7;border-radius:3px;padding:1px 5px">${esc(it.zone)}</span></td>
-        <td class="num">${fmtN(it.cut_per_hour)}</td>
-        <td class="num">${fmtN(it.layers)}</td>
-        <td class="num">${fmtN(it.qty_per_pair)}</td>
-        <td class="num">${it.total_pieces!=null?fmtInt(it.total_pieces):'<span class="dash">—</span>'}</td>
-        <td class="num">${fmtN(it.ct_sec)}</td>
-        <td class="num">${fmtN(it.output)}</td>
-        <td class="num">${fmtN(it.theory_mp)}</td>
-        <td class="ctr">${chkHtml}</td>
-      </tr>`;
-    }).join('');
-  } else if(unit==='電腦針車折邊'){
-    thead=`<tr><th>部件名稱</th><th>機台</th><th class="num">CT(秒)</th><th class="num">理論人數</th><th class="ctr">勾選</th></tr>`;
-    rows=items.map(it=>`<tr>
-      <td>${esc(it.part_name||'—')}</td>
-      <td><span style="font-size:10px;background:#e8eefc;color:#3a5ce7;border-radius:3px;padding:1px 5px">${esc(it.zone)}</span></td>
-      <td class="num">${fmtN(it.ct_sec)}</td>
-      <td class="num">${fmtN(it.theory_mp)}</td>
-      <td class="ctr">${buildChk(it,canEdit)}</td>
-    </tr>`).join('');
-  } else {
-    // 打粗水洗：顯示需求人力
-    thead=`<tr><th>流程名稱</th><th>機台</th><th class="num">TCT(秒)</th><th class="num">需求人力</th><th class="ctr">勾選</th></tr>`;
-    rows=items.map(it=>{
-      const tct=it.ct_sec, qty=mg.order_qty;
-      const demand=tct&&qty ? round2(qty*tct/3600/222) : null;
-      return `<tr>
-        <td>${esc(it.part_name||'—')}</td>
-        <td><span style="font-size:10px;background:#e8eefc;color:#3a5ce7;border-radius:3px;padding:1px 5px">${esc(it.zone)}</span></td>
-        <td class="num">${fmtN(tct)}</td>
-        <td class="num">${demand!=null?demand:'<span class="dash">—</span>'}</td>
-        <td class="ctr">${buildChk(it,canEdit)}</td>
-      </tr>`;
-    }).join('');
-  }
-
-  return `<div class="model-sec">
-    <div class="model-head">
-      <div>
-        <span class="model-name">${esc(mg.model_name)}</span>
-        ${mg.model_name.trim()!==mg.art?`<span class="art-list"> · ${esc(mg.art)}</span>`:''}
-        ${mg.art&&mg.art.includes(',')?' ...':''}
-      </div>
-      <span class="order-tag">訂單 ${fmtInt(mg.order_qty)} 雙</span>
-      <span class="eolr-tag">EOLR ${mg.eolr}</span>
-      <div class="art-stats">
-        <div class="astat move"><span class="astat-label">外移MP</span><span class="astat-val">${fmt(mg.allocated_mp)}</span></div>
-        <div class="astat csa"><span class="astat-label">留CSA</span><span class="astat-val">${fmt(mg.csa_mp)}</span></div>
-      </div>
-    </div>
-    <div class="table-wrap">
-      <table><thead>${thead}</thead><tbody>${rows}</tbody></table>
-    </div>
-  </div>`;
-}
-
-function buildChk(it, canEdit){
-  if(it.is_csa_locked) return `<span class="csa-lock">留CSA（主裁斷）</span>`;
-  const dis=canEdit?'':'disabled';
-  const cls=it.is_checked?'move':'csa';
-  return `<label class="chk ${cls} ${canEdit?'':'disabled'}">
-    <input type="checkbox" ${it.is_checked?'checked':''} ${dis} onchange="toggle(${it.id},this)">
-    ${it.is_checked?'外移':'留CSA'}
-  </label>`;
-}
-
-function toggleLean(head){
-  const body=head.nextElementSibling;
-  const icon=head.querySelector('.lean-toggle');
-  const open=body.classList.toggle('open');
-  icon.classList.toggle('open',open);
-}
-
-async function toggle(id,el){
-  if(isLocked){el.checked=!el.checked;alert('已鎖定，無法修改');return;}
-  const checked=el.checked;
-  const{status,j}=await api('/api/allocation/check',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({id,is_checked:checked?1:0})
+function updateWhoUI() {
+  const isAdmin = _role==='admin';
+  document.getElementById('whoBadge').textContent = _username
+    ? `${_username} (${isAdmin?'管理員':_unit||''})`  : '未登入';
+  document.getElementById('btnPrefill').style.display = isAdmin?'':'none';
+  document.getElementById('btnFix').style.display     = isAdmin?'':'none';
+  document.getElementById('btnConfirm').style.display = isAdmin?'':'none';
+  TABS.forEach((t,i)=>{
+    const btn=document.getElementById('tab'+i);
+    btn.disabled = (_role==='unit_user') ? (_unit!==t.unit) : false;
   });
-  if(!j.ok){
-    el.checked=!checked;
-    alert((status===403?'⛔ 權限不足：':'失敗：')+(j.error||status));
-    return;
+  if (_role==='unit_user' && _unit) {
+    const idx=TABS.findIndex(t=>t.unit===_unit);
+    if (idx>=0) switchTab(idx);
   }
-  // Refresh current tab
-  loadUnit(curUnit);
 }
 
-function fmt(v){if(v==null)return '—';const n=Number(v);return isNaN(n)?String(v):Number.isInteger(n)?String(n):n.toFixed(4);}
-function fmtN(v){if(v==null)return '<span class="dash">—</span>';const n=Number(v);return isNaN(n)?String(v):Number.isInteger(n)?String(n):n.toFixed(1);}
-function fmtInt(v){if(!v)return '0';return Math.round(Number(v)).toLocaleString();}
-function round2(v){return Math.round(v*100)/100;}
-function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+async function onMonthChange(){ _allData=null; await loadLockStatus(); loadData(); }
 
-whoami();
+async function loadData() {
+  document.getElementById('content').innerHTML='<div class="loading">載入中...</div>';
+  const month=currentMonth(), lean=currentLean();
+  let url=`/api/allocation/parts?month=${month}`;
+  if(lean) url+=`&lean=${encodeURIComponent(lean)}`;
+  const res=await fetch(url).then(r=>r.json());
+  _allData=res;
+  renderTab(_curTab);
+}
+
+function switchTab(idx) {
+  _curTab=idx;
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
+  if(_allData) renderTab(idx); else loadData();
+}
+
+function renderTab(tabIdx) {
+  const tab=TABS[tabIdx];
+  const leans=(_allData&&_allData.leans)||[];
+
+  // flatten all items with lean/model metadata
+  const flat=[];
+  leans.forEach(lg=>{
+    lg.models.forEach(mg=>{
+      const mname=(mg.model_name||'').split('Target Output')[0].trim();
+      mg.items.forEach(item=>{
+        flat.push({...item, lean:lg.lean, model_name:mname, art:mg.art,
+                   order_qty:mg.order_qty||0, eolr:mg.eolr||120});
+      });
+    });
+  });
+
+  // group: zone → lean → modelKey → {meta, items[]}
+  const zoneMap={};
+  tab.zones.forEach(z=>{ zoneMap[z.key]={}; });
+  flat.forEach(item=>{
+    const z=item.zone;
+    if(!zoneMap[z]) return;
+    const lk=item.lean||'—';
+    if(!zoneMap[z][lk]) zoneMap[z][lk]={};
+    const mk=(item.art||'')+'||'+(item.model_name||'');
+    if(!zoneMap[z][lk][mk]) zoneMap[z][lk][mk]={model_name:item.model_name, art:item.art, order_qty:item.order_qty, eolr:item.eolr, items:[]};
+    zoneMap[z][lk][mk].items.push(item);
+  });
+
+  const tabFlat=flat.filter(i=>tab.zones.some(z=>z.key===i.zone));
+  const movedMP=tabFlat.filter(i=>i.is_checked).reduce((s,i)=>s+(i.theory_mp||0),0);
+  const csaMP  =tabFlat.filter(i=>!i.is_checked).reduce((s,i)=>s+(i.theory_mp||0),0);
+  document.getElementById('statText').innerHTML=
+    `${tab.name}　外移MP: <b>${movedMP.toFixed(2)}</b>　留CSA: <b>${csaMP.toFixed(2)}</b>　共 <b>${tabFlat.length}</b> 筆`;
+
+  const ncols=tab.cols.length+1;
+  let html='';
+
+  tab.zones.forEach(zone=>{
+    const leanMap=zoneMap[zone.key]||{};
+    const hasData=Object.keys(leanMap).some(lk=>Object.keys(leanMap[lk]).length>0);
+    html+=`<div class="zone-section"><div class="zone-header">${esc(zone.label)}`;
+    if(!hasData) html+=' <span style="font-size:11px;opacity:.6;font-weight:400">（無資料）</span>';
+    html+='</div>';
+
+    const sortedLeans=Object.keys(leanMap).sort((a,b)=>leanKey(a)-leanKey(b));
+    sortedLeans.forEach(lean=>{
+      const modelMap=leanMap[lean];
+      const leanItems=Object.values(modelMap).flatMap(m=>m.items);
+      const lMoved=leanItems.filter(i=>i.is_checked).reduce((s,i)=>s+(i.theory_mp||0),0);
+      const lCsa  =leanItems.filter(i=>!i.is_checked).reduce((s,i)=>s+(i.theory_mp||0),0);
+
+      html+=`<div class="lean-block">
+        <div class="lean-label">
+          <span class="lean-code">${esc(lean)}</span>
+          <span class="lean-stat">外移 ${lMoved.toFixed(2)} MP　留CSA ${lCsa.toFixed(2)} MP</span>
+        </div>
+        <table><thead><tr><th></th>`;
+      tab.cols.forEach(c=>{ html+=`<th class="${c.cls}">${esc(c.label)}</th>`; });
+      html+='</tr></thead><tbody>';
+
+      Object.values(modelMap).forEach(mg=>{
+        html+=`<tr class="shoe-row"><td colspan="${ncols}">
+          ▸ ${esc(mg.model_name)}
+          <span style="color:#777;font-weight:400;margin-left:6px">${esc(mg.art)}</span>
+          <span style="color:#999;font-size:11px;margin-left:8px">訂單 ${(mg.order_qty||0).toLocaleString()} 雙</span>
+        </td></tr>`;
+
+        mg.items.forEach(item=>{
+          const chk=item.is_checked?1:0;
+          const dis=_locked?'disabled':'';
+          const ct=item.ct_sec;
+          const outVal=ct?(3600/ct).toFixed(1):'—';
+          const stfMp=(ct&&mg.order_qty>0)?(mg.order_qty/(3600/ct)/222).toFixed(3):'—';
+          const mpv=item.theory_mp;
+
+          html+=`<tr class="part-row${chk?'':' unchecked'}">
+            <td><input type="checkbox" ${chk?'checked':''} ${dis} onchange="toggle(${item.id},this)"></td>`;
+          tab.cols.forEach(c=>{
+            let v;
+            if     (c.key==='process_name') v=esc(item.process_name||item.part_name||'');
+            else if(c.key==='ct_sec')       v=ct?ct.toFixed(1):'—';
+            else if(c.key==='_output')      v=outVal;
+            else if(c.key==='_stf_mp')      v=stfMp;
+            else if(c.key==='theory_mp')    v=mpv!=null?`<span class="mp-val${(!mpv||mpv===0)?' zero':''}">${mpv.toFixed(4)}</span>`:'—';
+            else v=esc(String(item[c.key]||'—'));
+            html+=`<td class="${c.cls}">${v}</td>`;
+          });
+          html+='</tr>';
+        });
+      });
+      html+='</tbody></table></div>';
+    });
+    html+='</div>';
+  });
+
+  if(!html) html='<div class="no-data">無資料（請先執行「重新預填」）</div>';
+  document.getElementById('content').innerHTML=html;
+}
+
+async function toggle(itemId, el) {
+  if(_locked){ el.checked=!el.checked; showToast('已鎖定，無法修改'); return; }
+  const checked=el.checked?1:0;
+  const r=await fetch('/api/allocation/check',{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({id:itemId, is_checked:checked})
+  }).then(r=>r.json());
+  if(!r.ok){ el.checked=!el.checked; showToast('錯誤: '+(r.error||'')); return; }
+  // update cache
+  const leans=(_allData&&_allData.leans)||[];
+  outer: for(const lg of leans) for(const mg of lg.models) for(const item of mg.items)
+    if(item.id===itemId){ item.is_checked=checked; break outer; }
+  renderTab(_curTab);
+}
+
+async function prefill(){
+  if(!confirm('重新預填將從IE資料刷新分配項目，確定？')) return;
+  const r=await fetch('/api/allocation/prefill',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({month:currentMonth()})}).then(r=>r.json());
+  if(r.ok){ showToast(`預填完成：${r.inserted} 筆`); _allData=null; loadData(); }
+  else showToast('錯誤: '+(r.error||''));
+}
+
+async function fixDefaults(){
+  if(!confirm('將本月所有非裁斷機部件設為「外移」？')) return;
+  const r=await fetch('/api/allocation/fix_defaults',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({month:currentMonth()})}).then(r=>r.json());
+  if(r.ok){ showToast(`已更新 ${r.updated} 筆為外移`); _allData=null; loadData(); }
+  else showToast('錯誤: '+(r.error||''));
+}
+
+async function toggleLock(){
+  const month=currentMonth();
+  if(_locked){
+    if(!confirm(`解鎖 ${month}？`)) return;
+    const r=await fetch('/api/allocation/lock',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'unlock',month})}).then(r=>r.json());
+    if(r.ok){ _locked=false; updateLockBadge(); showToast('已解鎖'); }
+    else showToast('錯誤: '+(r.error||''));
+  } else {
+    if(!confirm(`確認鎖定 ${month}？鎖定後外移資料送入廠務編制計算。`)) return;
+    const r=await fetch('/api/allocation/lock',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({month})}).then(r=>r.json());
+    if(r.ok){ _locked=true; updateLockBadge(); showToast(`${month} 已鎖定`); }
+    else showToast('錯誤: '+(r.error||''));
+  }
+}
+
+function openLogin(){ document.getElementById('loginOverlay').classList.add('show'); }
+function closeLogin(){ document.getElementById('loginOverlay').classList.remove('show'); }
+async function doLogin(){
+  const u=document.getElementById('lUser').value.trim();
+  const p=document.getElementById('lPass').value;
+  const r=await fetch('/api/allocation/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})}).then(r=>r.json());
+  if(r.ok){ _role=r.role; _unit=r.unit; _username=r.username; closeLogin(); updateWhoUI(); showToast(`已切換：${r.name}`); _allData=null; loadData(); }
+  else showToast('登入失敗: '+(r.error||''));
+}
+document.getElementById('loginOverlay').addEventListener('click',function(e){if(e.target===this)closeLogin();});
+document.getElementById('lPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';clearTimeout(t._tm);t._tm=setTimeout(()=>{t.style.display='none';},2500);}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+init();
 </script>
 </body>
 </html>

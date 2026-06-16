@@ -1281,6 +1281,17 @@ def alloc_lock_post():
         return jsonify(db.alloc_unlock_month(month))
     return jsonify(db.alloc_lock_month(month, u.get('username', '')))
 
+
+@app.route('/api/allocation/fix_defaults', methods=['POST'])
+def alloc_fix_defaults():
+    """Admin: set all non-裁斷機 items to is_checked=1 for a month."""
+    u = _current_user()
+    if not u or u['role'] != 'admin':
+        return jsonify({'ok': False, 'error': 'admin only'}), 403
+    d = request.get_json(force=True) or {}
+    month = d.get('month', '2026-06')
+    return jsonify(db.alloc_fix_default_checked(month))
+
 # ── Health check ─────────────────────────────────────────────────────────────
 
 @app.route('/api/health', methods=['GET'])
