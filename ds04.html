@@ -17,8 +17,14 @@ body{font-family:'Microsoft JhengHei',Arial,sans-serif;font-size:13px;background
 .lock-badge{background:#c62828;color:#fff;padding:2px 9px;border-radius:3px;font-size:11px;font-weight:700}
 .lock-badge.unlocked{background:#2e7d32}
 .content{padding:12px 16px;overflow-x:auto}
-.lean-group{margin-bottom:16px;border:1px solid #d0d8e8;border-radius:6px;overflow:hidden}
-.lean-header{background:#2d5a9e;color:#fff;padding:6px 12px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600}
+/* Dept section */
+.dept-section{margin-bottom:20px}
+.dept-header{background:#1e3a5f;color:#fff;padding:7px 14px;font-size:13px;font-weight:700;border-radius:5px 5px 0 0;display:flex;align-items:center;gap:10px}
+.dept-header .dept-stats{margin-left:auto;font-size:11px;font-weight:400;opacity:.8}
+/* LEAN group */
+.lean-group{border:1px solid #d0d8e8;border-top:none;overflow:hidden}
+.lean-group:last-child{border-radius:0 0 5px 5px}
+.lean-header{background:#2d5a9e;color:#fff;padding:5px 12px;display:flex;align-items:center;gap:10px;font-size:12px;font-weight:600}
 .lean-header .lc{background:#1e3a5f;padding:1px 7px;border-radius:3px;font-size:12px;font-family:monospace}
 .lean-header .lt{margin-left:auto;font-size:11px;font-weight:400;opacity:.8}
 table{width:100%;border-collapse:collapse;font-size:12px}
@@ -116,6 +122,15 @@ button:disabled{opacity:.4;cursor:not-allowed}
 <div class="toast" id="toast"></div>
 
 <script>
+const DEPT_ORDER = ['1部','2部','3部','5部','6部','7部','8部','9部','10部','11部','11部 (2)','12部'];
+const LEAN_ORDER = [
+  '1A','1B','1C','2A','2B','2C','3A','3B','3C','4A','4B','4C',
+  '5A','5B','5C','6A','6B','6C','7A','7B','7C','8A','8B','8C',
+  '9A','9B','9C','10A','10B','10C','11A1','11A2','11B1','11B2','11C'
+];
+function deptKey(d) { const i = DEPT_ORDER.indexOf(d); return i >= 0 ? i : 999; }
+function leanKey(l) { const i = LEAN_ORDER.indexOf(l); return i >= 0 ? i : 999; }
+
 let _rows = [];
 let _locked = false;
 let _lockedAt = '';
@@ -153,7 +168,6 @@ function updateLockUI() {
     addBtn.disabled = false;
     ls.innerHTML = '<span class="lock-badge unlocked">未鎖定</span>';
   }
-  // Refresh table to enable/disable row buttons
   if (_rows.length) render(_rows);
 }
 
@@ -198,48 +212,74 @@ async function loadData() {
 }
 
 function render(rows) {
-  const wb=rows.filter(r=>r.is_outsource_upper).length;
-  document.getElementById('statText').innerHTML=`共 <span>${rows.length}</span> 筆　外包鞋面 <span>${wb}</span> 筆`;
+  const totalQty = rows.reduce((s,r)=>s+(r.qty||0), 0);
+  const wb = rows.filter(r=>r.is_outsource_upper).length;
+  document.getElementById('statText').innerHTML=
+    `共 <span>${rows.length}</span> 筆　總數量 <span>${totalQty.toLocaleString()}</span> 雙　外包鞋面 <span>${wb}</span> 筆`;
+
   if(!rows.length){document.getElementById('content').innerHTML='<div class="no-data">無資料</div>';return;}
-  const byLean={};
-  rows.forEach(r=>{if(!byLean[r.lean])byLean[r.lean]=[];byLean[r.lean].push(r);});
-  let html='';
-  for(const lean of Object.keys(byLean).sort()){
-    const lr=byLean[lean];
-    const dept=lr[0].dept;
-    const wb=lr.filter(r=>r.is_outsource_upper).length;
-    html+=`<div class="lean-group">
-      <div class="lean-header">
-        <span class="lc">${esc(lean)}</span><span>${esc(dept)}</span>
-        <span class="lt">${lr.length} 筆${wb?` 外包 ${wb}`:''}</span>
-      </div>
-      <table><thead><tr>
-        <th>鞋型名稱</th><th>ART</th><th>訂單號</th><th>數量</th><th>交期</th><th>外包鞋面</th><th>操作</th>
-      </tr></thead><tbody>`;
-    let lastM=null;
-    lr.forEach(r=>{
-      if(r.model_name!==lastM){
-        if(r.model_name) html+=`<tr class="model-sep"><td colspan="7">▸ ${esc(r.model_name)}</td></tr>`;
-        lastM=r.model_name;
-      }
-      const dis = _locked ? 'disabled' : '';
-      const dataR = esc(JSON.stringify(r).replace(/'/g,"&#39;"));
-      html+=`<tr>
-        <td>${esc(r.model_name)}</td>
-        <td>${esc(r.art)}</td>
-        <td style="font-family:monospace;font-size:11px">${esc(r.order_no)}</td>
-        <td><b>${(r.qty||0).toLocaleString()}</b></td>
-        <td style="color:#666">${esc(r.delivery_date)}</td>
-        <td>${r.is_outsource_upper?'<span class="badge-y">Y</span>':''}</td>
-        <td>
-          <button class="btn btn-edit" onclick='openEdit(${JSON.stringify(r)})' ${dis}>編輯</button>
-          <button class="btn btn-del" onclick="delRow(${r.id})" ${dis}>刪除</button>
-        </td>
-      </tr>`;
-    });
-    html+='</tbody></table></div>';
+
+  // Group: dept → lean → rows
+  const byDept = {};
+  rows.forEach(r => {
+    const dk = r.dept||'—';
+    if(!byDept[dk]) byDept[dk] = {};
+    const lk = r.lean||'—';
+    if(!byDept[dk][lk]) byDept[dk][lk] = [];
+    byDept[dk][lk].push(r);
+  });
+
+  const sortedDepts = Object.keys(byDept).sort((a,b) => deptKey(a)-deptKey(b));
+  let html = '';
+
+  for(const dept of sortedDepts) {
+    const deptRows = Object.values(byDept[dept]).flat();
+    const deptQty = deptRows.reduce((s,r)=>s+(r.qty||0),0);
+    html += `<div class="dept-section">
+      <div class="dept-header">
+        ${esc(dept)}
+        <span class="dept-stats">共 ${deptRows.length} 筆，總數量 ${deptQty.toLocaleString()} 雙</span>
+      </div>`;
+
+    const sortedLeans = Object.keys(byDept[dept]).sort((a,b) => leanKey(a)-leanKey(b));
+    for(const lean of sortedLeans) {
+      const lr = byDept[dept][lean];
+      const leanQty = lr.reduce((s,r)=>s+(r.qty||0),0);
+      const wb2 = lr.filter(r=>r.is_outsource_upper).length;
+      html += `<div class="lean-group">
+        <div class="lean-header">
+          <span class="lc">${esc(lean)}</span>
+          <span class="lt">${lr.length} 筆，${leanQty.toLocaleString()} 雙${wb2?` 外包 ${wb2}`:''}</span>
+        </div>
+        <table><thead><tr>
+          <th>鞋型名稱</th><th>ART</th><th>訂單號</th><th>數量</th><th>交期</th><th>預計完成日</th><th>外包鞋面</th><th>操作</th>
+        </tr></thead><tbody>`;
+      let lastM = null;
+      lr.forEach(r => {
+        if(r.model_name !== lastM) {
+          if(r.model_name) html += `<tr class="model-sep"><td colspan="8">▸ ${esc(r.model_name)}</td></tr>`;
+          lastM = r.model_name;
+        }
+        const dis = _locked ? 'disabled' : '';
+        html += `<tr>
+          <td>${esc(r.model_name)}</td>
+          <td>${esc(r.art)}</td>
+          <td style="font-family:monospace;font-size:11px">${esc(r.order_no)}</td>
+          <td><b>${(r.qty||0).toLocaleString()}</b></td>
+          <td style="color:#666">${esc(r.delivery_date)}</td>
+          <td style="color:#999">${esc(r.estimated_completion)||'—'}</td>
+          <td>${r.is_outsource_upper?'<span class="badge-y">Y</span>':''}</td>
+          <td>
+            <button class="btn btn-edit" onclick='openEdit(${JSON.stringify(r)})' ${dis}>編輯</button>
+            <button class="btn btn-del" onclick="delRow(${r.id})" ${dis}>刪除</button>
+          </td>
+        </tr>`;
+      });
+      html += '</tbody></table></div>';
+    }
+    html += '</div>';
   }
-  document.getElementById('content').innerHTML=html;
+  document.getElementById('content').innerHTML = html;
 }
 
 function openAdd() {

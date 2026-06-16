@@ -1800,6 +1800,23 @@ def get_allocation_export_rows(unit, month=None):
 
 # ── DS-04 Production Schedule Orders ────────────────────────────────────────
 
+DS04_DEPT_ORDER = ['1部','2部','3部','5部','6部','7部','8部','9部','10部','11部','11部 (2)','12部']
+DS04_LEAN_ORDER = [
+    '1A','1B','1C','2A','2B','2C','3A','3B','3C','4A','4B','4C',
+    '5A','5B','5C','6A','6B','6C','7A','7B','7C','8A','8B','8C',
+    '9A','9B','9C','10A','10B','10C','11A1','11A2','11B1','11B2','11C',
+]
+
+def _ds04_dept_key(d): return DS04_DEPT_ORDER.index(d) if d in DS04_DEPT_ORDER else 999
+def _ds04_lean_key(l): return DS04_LEAN_ORDER.index(l) if l in DS04_LEAN_ORDER else 999
+
+def _ensure_ds04_ext(conn):
+    """Add estimated_completion column if it doesn't exist yet."""
+    existing = {r[1] for r in conn.execute('PRAGMA table_info(ds04_orders)').fetchall()}
+    if 'estimated_completion' not in existing:
+        conn.execute("ALTER TABLE ds04_orders ADD COLUMN estimated_completion TEXT DEFAULT ''")
+        conn.commit()
+
 def ds04_import(records):
     """Bulk-replace all ds04_orders rows."""
     conn = get_conn()
@@ -1823,9 +1840,10 @@ def ds04_import(records):
         conn.close()
 
 def ds04_get_orders(dept=None, lean=None, outsource=None):
-    """Query ds04_orders with optional filters."""
+    """Query ds04_orders with optional filters, sorted by spec order."""
     conn = get_conn()
     try:
+        _ensure_ds04_ext(conn)
         where, params = [], []
         if dept:
             where.append('dept=?'); params.append(dept)
@@ -1840,20 +1858,26 @@ def ds04_get_orders(dept=None, lean=None, outsource=None):
             sql += ' WHERE ' + ' AND '.join(where)
         sql += ' ORDER BY dept, lean, model_name, id'
         rows = conn.execute(sql, params).fetchall()
-        return {'ok': True, 'rows': [dict(r) for r in rows]}
+        result = [dict(r) for r in rows]
+        result.sort(key=lambda r: (_ds04_dept_key(r.get('dept','')),
+                                   _ds04_lean_key(r.get('lean','')),
+                                   r.get('model_name',''), r.get('id',0)))
+        return {'ok': True, 'rows': result}
     finally:
         conn.close()
 
 def ds04_get_filters():
-    """Return distinct dept and lean values."""
+    """Return distinct dept and lean values sorted by spec order."""
     conn = get_conn()
     try:
-        depts = [r[0] for r in conn.execute(
-            "SELECT DISTINCT dept FROM ds04_orders ORDER BY CAST(REPLACE(dept,'部','') AS INTEGER)"
+        raw_depts = [r[0] for r in conn.execute(
+            'SELECT DISTINCT dept FROM ds04_orders'
         ).fetchall()]
-        leans = [r[0] for r in conn.execute(
-            'SELECT DISTINCT lean FROM ds04_orders ORDER BY lean'
+        raw_leans = [r[0] for r in conn.execute(
+            'SELECT DISTINCT lean FROM ds04_orders'
         ).fetchall()]
+        depts = sorted(raw_depts, key=_ds04_dept_key)
+        leans = sorted(raw_leans, key=_ds04_lean_key)
         return {'ok': True, 'depts': depts, 'leans': leans}
     finally:
         conn.close()
@@ -1912,14 +1936,17 @@ def ds04_add_order(data):
         return lock_err
     conn = get_conn()
     try:
+        _ensure_ds04_ext(conn)
         ts = now_iso()
         cur = conn.execute(
             '''INSERT INTO ds04_orders
-               (dept, lean, model_name, art, order_no, qty, delivery_date, is_outsource_upper, created_at)
-               VALUES (?,?,?,?,?,?,?,?,?)''',
+               (dept, lean, model_name, art, order_no, qty, delivery_date,
+                is_outsource_upper, estimated_completion, created_at)
+               VALUES (?,?,?,?,?,?,?,?,?,?)''',
             (data.get('dept',''), data.get('lean',''), data.get('model_name',''),
              data.get('art',''), data.get('order_no',''), int(data.get('qty',0)),
-             data.get('delivery_date',''), 1 if data.get('is_outsource_upper') else 0, ts)
+             data.get('delivery_date',''), 1 if data.get('is_outsource_upper') else 0,
+             data.get('estimated_completion',''), ts)
         )
         conn.execute(
             'INSERT INTO ds04_edit_log (order_id,action,user_name,new_value,created_at) VALUES (?,?,?,?,?)',
@@ -1942,14 +1969,16 @@ def ds04_update_order(order_id, data):
         old = conn.execute('SELECT * FROM ds04_orders WHERE id=?', (order_id,)).fetchone()
         if not old:
             return {'ok': False, 'error': 'not found'}
+        old_ec = old['estimated_completion'] if 'estimated_completion' in old.keys() else ''
         conn.execute(
             '''UPDATE ds04_orders SET dept=?,lean=?,model_name=?,art=?,order_no=?,
-               qty=?,delivery_date=?,is_outsource_upper=? WHERE id=?''',
+               qty=?,delivery_date=?,is_outsource_upper=?,estimated_completion=? WHERE id=?''',
             (data.get('dept', old['dept']), data.get('lean', old['lean']),
              data.get('model_name', old['model_name']), data.get('art', old['art']),
              data.get('order_no', old['order_no']), int(data.get('qty', old['qty'])),
              data.get('delivery_date', old['delivery_date']),
-             1 if data.get('is_outsource_upper') else 0, order_id)
+             1 if data.get('is_outsource_upper') else 0,
+             data.get('estimated_completion', old_ec), order_id)
         )
         conn.execute(
             'INSERT INTO ds04_edit_log (order_id,action,old_value,new_value,user_name,created_at) VALUES (?,?,?,?,?,?)',

@@ -208,9 +208,10 @@ CREATE TABLE IF NOT EXISTS ds04_orders (
     art                 TEXT NOT NULL DEFAULT '',
     order_no            TEXT NOT NULL DEFAULT '',
     qty                 INTEGER DEFAULT 0,
-    delivery_date       TEXT DEFAULT '',
-    is_outsource_upper  INTEGER DEFAULT 0,
-    created_at          TEXT NOT NULL
+    delivery_date            TEXT DEFAULT '',
+    is_outsource_upper       INTEGER DEFAULT 0,
+    estimated_completion     TEXT DEFAULT '',
+    created_at               TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_ds04_dept   ON ds04_orders(dept);
 CREATE INDEX IF NOT EXISTS idx_ds04_lean   ON ds04_orders(lean);

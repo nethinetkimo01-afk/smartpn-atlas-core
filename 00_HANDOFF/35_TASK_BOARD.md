@@ -120,6 +120,8 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 071 | /eolr-settings 界面修正（LEAN排序+年度橫向表格+年切換） | DATA SYSTEM | ✅完成 | 2026-06-16 | 2026-06-16 | eolr_settings.html: 35 LEAN固定順序+額外LEAN自動補尾; 2026(6月)/2027(12月)橫向表格; 年份切換; 即時儲存; 移除說明文字 |
 
+| 072 | /ds04 明細表修正（部門/LEAN排序+預計完成日欄+統計標題） | DATA SYSTEM | ✅完成 | 2026-06-16 | 2026-06-16 | ds04.html+schema.sql+database.py: 部門→LEAN二層分組; 部門統計(N筆,M雙); LEAN統計(N筆,M雙); 預計完成日欄(空=—); estimated_completion欄位; 排序照規格 |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |
