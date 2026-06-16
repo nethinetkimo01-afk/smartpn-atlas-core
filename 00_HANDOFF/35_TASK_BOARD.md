@@ -114,6 +114,8 @@ Version: v1.0 | 建立: 2026-06-13
 | 067 | 00_MUST_READ_FIRST.md 建立（做事方式+IE規格） | 交接文件 | ✅完成 | 2026-06-16 | 2026-06-16 | 00_HANDOFF/00_MUST_READ_FIRST.md |
 | 068 | IE細表界面重建 + 全量IE導入 + 帳號管理 | DATA SYSTEM | ✅完成 | 2026-06-16 | 2026-06-16 | Step1:Cutting七區zone-type-aware欄位; Step2:全量155xlsx→ie_process 20,434筆(支流2555/0未知sheet); Step3:ie_import_comparison.xlsx; Step4:/admin/users+sys_users表 |
 
+| 069 | IE導入對比表（人員數字） | DATA SYSTEM | ✅完成 | 2026-06-16 | 2026-06-16 | ie_mp_comparison.py; SUM.C2B四段人員 vs Σ(ST)/30 理論人數; 154筆/394紅格; ie_import_comparison.xlsx |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |
