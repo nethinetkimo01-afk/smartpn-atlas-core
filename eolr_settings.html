@@ -9,24 +9,25 @@ body{font-family:'Microsoft JhengHei',Arial,sans-serif;font-size:13px;background
 .topbar{background:#1e3a5f;color:#fff;padding:12px 20px;display:flex;align-items:center;gap:16px}
 .topbar h1{font-size:16px;font-weight:600;margin-right:auto}
 .topbar a{color:#adc8f0;text-decoration:none;font-size:12px}
-.toolbar{background:#fff;border-bottom:1px solid #dde;padding:10px 20px;display:flex;gap:12px;align-items:center}
-.toolbar label{font-size:12px;color:#666;display:flex;gap:6px;align-items:center}
-.toolbar select,.toolbar input{padding:4px 8px;border:1px solid #ccd;border-radius:4px;font-size:12px}
-.content{padding:16px 20px;max-width:600px}
-.info{background:#eef3fb;border:1px solid #c5d7f0;border-radius:4px;padding:10px 14px;font-size:12px;color:#444;margin-bottom:16px}
-table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border:1px solid #d0d8e8;border-radius:6px;overflow:hidden}
-thead tr{background:#e8eef8}
-th{padding:8px 14px;text-align:left;font-weight:600;color:#1e3a5f;border-bottom:1px solid #c5d0e0}
-td{padding:6px 10px;border-bottom:1px solid #edf0f5;vertical-align:middle}
-tr:last-child td{border-bottom:none}
-.eolr-cell select{padding:3px 8px;border:1px solid #ccd;border-radius:3px;font-size:12px;cursor:pointer}
+.toolbar{background:#fff;border-bottom:1px solid #dde;padding:10px 20px;display:flex;gap:10px;align-items:center}
+.year-btn{padding:5px 18px;border:1px solid #bcc;border-radius:4px;background:#f0f4fa;color:#444;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s}
+.year-btn.active{background:#1e3a5f;color:#fff;border-color:#1e3a5f}
+#loading{font-size:12px;color:#888;margin-left:8px}
+.content{padding:16px 20px;overflow-x:auto}
+table{border-collapse:collapse;font-size:12px;background:#fff;border:1px solid #d0d8e8;white-space:nowrap}
+thead tr{background:#1e3a5f}
+th{padding:7px 6px;text-align:center;font-weight:600;color:#fff;border-right:1px solid #2e5080;position:sticky;top:0}
+th.lean-col{min-width:58px;text-align:left;padding-left:10px;left:0;z-index:2}
+td{padding:4px 5px;border-bottom:1px solid #edf0f5;border-right:1px solid #edf0f5;vertical-align:middle;text-align:center}
+td.lean-col{text-align:left;padding-left:10px;font-weight:600;color:#1e3a5f;background:#f7f9fc;position:sticky;left:0;border-right:2px solid #c5d0e0;z-index:1}
+tr:hover td{background:#f0f5ff}
+tr:hover td.lean-col{background:#e8eef8}
+.eolr-cell{position:relative}
+.eolr-cell select{padding:2px 4px;border:1px solid #ccd;border-radius:3px;font-size:12px;cursor:pointer;width:54px}
 .eolr-cell select:focus{outline:none;border-color:#4a90d9}
-.badge-default{background:#f0f4fa;color:#888;font-size:10px;padding:1px 5px;border-radius:3px;margin-left:6px}
-.updated-at{font-size:11px;color:#999}
-.btn{padding:6px 14px;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600}
-.btn-save{background:#2e7d32;color:#fff}
-.btn-save:hover{background:#1b5e20}
-.toast{position:fixed;bottom:20px;right:20px;background:#2e7d32;color:#fff;padding:10px 18px;border-radius:6px;font-size:13px;display:none;z-index:999}
+td.is-default .eolr-cell select{color:#aaa;border-color:#e0e4ec;background:#fafbfd}
+.badge-default{display:block;font-size:10px;color:#bbb;line-height:1;margin-top:1px}
+.toast{position:fixed;bottom:20px;right:20px;background:#2e7d32;color:#fff;padding:10px 18px;border-radius:6px;font-size:13px;display:none;z-index:999;box-shadow:0 2px 8px rgba(0,0,0,.2)}
 </style>
 </head>
 <body>
@@ -38,82 +39,118 @@ tr:last-child td{border-bottom:none}
 </div>
 
 <div class="toolbar">
-  <label>月份
-    <select id="selMonth" onchange="load()">
-      <option value="2026-06">2026-06</option>
-      <option value="2026-07">2026-07</option>
-      <option value="2026-05">2026-05</option>
-    </select>
-  </label>
-  <button class="btn btn-save" onclick="saveAll()">儲存所有變更</button>
+  <button id="btn2026" class="year-btn active" onclick="switchYear(2026)">2026</button>
+  <button id="btn2027" class="year-btn" onclick="switchYear(2027)">2027</button>
+  <span id="loading" style="display:none">載入中…</span>
 </div>
 
-<div class="content">
-  <div class="info">
-    EOLR 設定決定廠務編制表的理論人數計算：<br>
-    EOLR=120 → 理論人數 = 標准時間 ÷ 30　　EOLR=60 → 理論人數 = 標准時間 ÷ 60<br>
-    未設定的 LEAN 預設繼承 120。
-  </div>
-  <table>
-    <thead><tr><th>LEAN</th><th>EOLR</th><th>上次修改</th></tr></thead>
-    <tbody id="tbody"></tbody>
-  </table>
-</div>
+<div class="content" id="content"></div>
 <div class="toast" id="toast"></div>
 
 <script>
-let _changes = {};  // lean → eolr
+const LEAN_ORDER_BASE = [
+  '1A','1B','1C','2A','2B','2C','3A','3B','3C','4A','4B','4C',
+  '5A','5B','5C','6A','6B','6C','7A','7B','7C','8A','8B','8C',
+  '9A','9B','9C','10A','10B','10C','11A1','11A2','11B1','11B2','11C'
+];
+let LEAN_ORDER = [...LEAN_ORDER_BASE];
 
-async function load() {
-  const month = document.getElementById('selMonth').value;
-  _changes = {};
-  const res = await fetch(`/api/eolr-settings?month=${month}`).then(r=>r.json());
-  const tbody = document.getElementById('tbody');
-  tbody.innerHTML = '';
-  (res.settings || []).forEach(s => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${esc(s.lean)}${s.is_default?'<span class="badge-default">預設</span>':''}</td>
-      <td class="eolr-cell">
-        <select data-lean="${esc(s.lean)}" onchange="onChange('${esc(s.lean)}', this.value)">
-          <option value="120" ${s.eolr==120?'selected':''}>120</option>
-          <option value="60"  ${s.eolr==60?'selected':''}>60</option>
-        </select>
-      </td>
-      <td class="updated-at">${s.updated_at ? s.updated_at.slice(0,19).replace('T',' ') : '—'}</td>`;
-    tbody.appendChild(tr);
-  });
-}
+const YEAR_MONTHS = {
+  2026: ['2026-07','2026-08','2026-09','2026-10','2026-11','2026-12'],
+  2027: ['2027-01','2027-02','2027-03','2027-04','2027-05','2027-06',
+         '2027-07','2027-08','2027-09','2027-10','2027-11','2027-12']
+};
 
-function onChange(lean, val) {
-  _changes[lean] = parseInt(val);
-}
+let _data = {};   // lean → month → {eolr, is_default}
+let _curYear = 2026;
 
-async function saveAll() {
-  const month = document.getElementById('selMonth').value;
-  const entries = Object.entries(_changes);
-  if (!entries.length) { showToast('沒有變更'); return; }
-  let ok = 0;
-  for (const [lean, eolr] of entries) {
-    const r = await fetch('/api/eolr-settings', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({lean, month, eolr})
-    }).then(r=>r.json());
-    if (r.ok) ok++;
+async function loadYear(year) {
+  _curYear = year;
+  document.getElementById('loading').style.display = '';
+  const months = YEAR_MONTHS[year];
+  try {
+    const results = await Promise.all(
+      months.map(m => fetch(`/api/eolr-settings?month=${m}`).then(r => r.json()))
+    );
+    _data = {};
+    const extraLeans = new Set();
+    results.forEach((res, i) => {
+      const month = months[i];
+      (res.settings || []).forEach(s => {
+        if (!_data[s.lean]) _data[s.lean] = {};
+        _data[s.lean][month] = { eolr: s.eolr, is_default: s.is_default };
+        if (!LEAN_ORDER_BASE.includes(s.lean)) extraLeans.add(s.lean);
+      });
+    });
+    LEAN_ORDER = [...LEAN_ORDER_BASE, ...[...extraLeans].sort()];
+    render(year);
+  } finally {
+    document.getElementById('loading').style.display = 'none';
   }
-  _changes = {};
-  showToast(`已儲存 ${ok} 筆 EOLR 設定`);
-  load();
+}
+
+function switchYear(year) {
+  document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn' + year).classList.add('active');
+  loadYear(year);
+}
+
+function render(year) {
+  const months = YEAR_MONTHS[year];
+  const mlabel = m => m.slice(5) + '月';   // "07月"
+
+  let html = '<table><thead><tr><th class="lean-col">LEAN</th>';
+  months.forEach(m => { html += `<th>${mlabel(m)}</th>`; });
+  html += '</tr></thead><tbody>';
+
+  LEAN_ORDER.forEach(lean => {
+    html += `<tr><td class="lean-col">${esc(lean)}</td>`;
+    months.forEach(m => {
+      const cell = (_data[lean] || {})[m] || { eolr: 120, is_default: true };
+      const isDef = cell.is_default;
+      html += `<td class="${isDef ? 'is-default' : ''}">
+        <div class="eolr-cell">
+          <select onchange="onChange('${esc(lean)}','${m}',this.value)">
+            <option value="120"${cell.eolr === 120 ? ' selected' : ''}>120</option>
+            <option value="60"${cell.eolr === 60 ? ' selected' : ''}>60</option>
+          </select>${isDef ? '<span class="badge-default">預設</span>' : ''}
+        </div>
+      </td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('content').innerHTML = html;
+}
+
+async function onChange(lean, month, val) {
+  const r = await fetch('/api/eolr-settings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ lean, month, eolr: parseInt(val) })
+  }).then(r => r.json());
+  if (r.ok) {
+    if (!_data[lean]) _data[lean] = {};
+    _data[lean][month] = { eolr: parseInt(val), is_default: false };
+    render(_curYear);
+    showToast(`${lean}  ${month}  EOLR = ${val}  ✓`);
+  }
 }
 
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg; t.style.display = 'block';
-  setTimeout(()=>{ t.style.display='none'; }, 2500);
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(t._tm);
+  t._tm = setTimeout(() => { t.style.display = 'none'; }, 2500);
 }
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-load();
+function esc(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+loadYear(2026);
 </script>
 </body>
 </html>

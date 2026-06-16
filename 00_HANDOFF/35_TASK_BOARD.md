@@ -118,6 +118,8 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 070 | 廠務編制系統驗收+bugfix（allocation prefill+xlsx export） | DATA SYSTEM | ✅完成 | 2026-06-16 | 2026-06-16 | 10項驗收全Pass; prefill lean從ds04_orders查(非ob_header); ws.protection修正; e431ee7 |
 
+| 071 | /eolr-settings 界面修正（LEAN排序+年度橫向表格+年切換） | DATA SYSTEM | ✅完成 | 2026-06-16 | 2026-06-16 | eolr_settings.html: 35 LEAN固定順序+額外LEAN自動補尾; 2026(6月)/2027(12月)橫向表格; 年份切換; 即時儲存; 移除說明文字 |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |
