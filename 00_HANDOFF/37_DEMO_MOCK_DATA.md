@@ -152,3 +152,15 @@ Find Same Material 帶入條件：SPU=SPA-MAT-0001 + SKU=sku-001-BLK-58
 
 S01-S17 PPT 的數據依 16 號規格 LOCKED（Data 1/2/3/4、spu-01 等通用標籤），**不套用本檔真實名稱** — PPT 是教育工具，通用標籤是刻意設計（噪音最小化原則）。
 本檔只管 SMARTPN_DEMO.html / SMARTPN_DEMO_SUPPLIER.html 兩個系統 Demo。
+
+---
+
+## adidas.com 參考學習（2026-06-16）
+Jim 確認 adidas 越南官網的分區分類展示方式值得參考。
+
+應用到 SMARTPN_DEMO.html：
+1. 左側完整 Filter 欄：材料分類 / DPP-ready / 單價範圍 / Max LT / 供應商 / 評分
+2. 頂部橫向分類標籤（可捲動）
+3. 排序選項：Price / LT / Newest / Top Used
+4. 產品卡片加 Best Seller 標示邏輯（= 最多人加入 My Library）
+5. 分頁機制
