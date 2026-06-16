@@ -62,12 +62,12 @@ Jim 在這個對話傳過三張參考圖，Claude 沒有用，逼 Jim 重傳。
 
 ## 六個 Contribution Title（已確認）
 
-P1 — 拿回存在已久，製造端供應鏈內 hidden margin
+P1 — Reclaim your hidden margin from the manufacturing side.
 P2 — Less manpower. More accuracy. In your material library.
-P3 — 鞋型轉移快，品質一致，FOB 談得準
-P4 — 依實際採購量與 supplier 集團議價，FOB 不再靠固定報價
-P5 — 供應商評價線上收集，開發與採購決策有據可查
-P6 — 快時尚設計，找到完全相同的材料，最少 LT，縮短上市時間
+P3 — Fast factory transfer. Consistent quality. Flexible FOB.
+P4 — Reclaim your group purchasing power.
+P5 — Supplier performance. Digitized.
+P6 — Fast fashion. Optimized.
 
 ---
 
