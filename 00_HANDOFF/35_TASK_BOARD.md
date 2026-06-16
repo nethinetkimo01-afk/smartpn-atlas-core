@@ -112,7 +112,7 @@ Version: v1.0 | 建立: 2026-06-13
 | 051 | Cutting段表頭重建 R3 colspan=6 + renderCuttingTab() | DATA SYSTEM | ✅完成 | 2026-06-16 | 2026-06-16 | ie_cell_detail.html: 裁断colspan=6(E-J六欄); CUTTING_ZONE_ORDER; renderCuttingTab() |
 | 066 | 27_WORKING_RULES.md 建立 (完整IE規格+導入策略+帳號體系) | 交接文件 | ✅完成 | 2026-06-16 | 2026-06-16 | 00_HANDOFF/27_WORKING_RULES.md 5段：錯誤檢討/IE規格/Sheet對照/帳號/Excel規則 |
 | 067 | 00_MUST_READ_FIRST.md 建立（做事方式+IE規格） | 交接文件 | ✅完成 | 2026-06-16 | 2026-06-16 | 00_HANDOFF/00_MUST_READ_FIRST.md |
-| 068 | IE細表界面重建 + 全量IE導入 + 帳號管理 | DATA SYSTEM | ✅完成 | 2026-06-16 | 2026-06-16 | Step1:Cutting七區zone-type-aware欄位; Step2:全量155xlsx→ie_process 18k+筆; Step3:ie_import_comparison.xlsx; Step4:/admin/users+sys_users表 |
+| 068 | IE細表界面重建 + 全量IE導入 + 帳號管理 | DATA SYSTEM | ✅完成 | 2026-06-16 | 2026-06-16 | Step1:Cutting七區zone-type-aware欄位; Step2:全量155xlsx→ie_process 20,434筆(支流2555/0未知sheet); Step3:ie_import_comparison.xlsx; Step4:/admin/users+sys_users表 |
 
 ## 待 Jim 決定（不擋工）
 
