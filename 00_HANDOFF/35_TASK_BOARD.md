@@ -109,6 +109,11 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 065 | GitHub 同步+環境確認+新界面盤點（/ds04,/eolr-settings,/bianche） | Infra | ✅完成 | 2026-06-15 | 2026-06-15 | pull faa4e5e→4343876; Py3.14.6/flask3.1.3/flask_cors/openpyxl3.1.5 全裝; app.py import OK(HAS_DS04=True); 3路由皆註冊(send_from_directory '..'); ds04/eolr_settings/bianche.html在repo根; data/atlas.db 172KB(本機有真資料) |
 
+| 051 | Cutting段表頭重建 R3 colspan=6 + renderCuttingTab() | DATA SYSTEM | ✅完成 | 2026-06-16 | 2026-06-16 | ie_cell_detail.html: 裁断colspan=6(E-J六欄); CUTTING_ZONE_ORDER; renderCuttingTab() |
+| 066 | 27_WORKING_RULES.md 建立 (完整IE規格+導入策略+帳號體系) | 交接文件 | ✅完成 | 2026-06-16 | 2026-06-16 | 00_HANDOFF/27_WORKING_RULES.md 5段：錯誤檢討/IE規格/Sheet對照/帳號/Excel規則 |
+| 067 | 00_MUST_READ_FIRST.md 建立（做事方式+IE規格） | 交接文件 | ✅完成 | 2026-06-16 | 2026-06-16 | 00_HANDOFF/00_MUST_READ_FIRST.md |
+| 068 | IE細表界面重建 + 全量IE導入 + 帳號管理 | DATA SYSTEM | ✅完成 | 2026-06-16 | 2026-06-16 | Step1:Cutting七區zone-type-aware欄位; Step2:全量155xlsx→ie_process 18k+筆; Step3:ie_import_comparison.xlsx; Step4:/admin/users+sys_users表 |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |

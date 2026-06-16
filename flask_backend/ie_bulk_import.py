@@ -40,7 +40,7 @@ def classify_sheet(name: str):
     if 'yinghui' in nl or 'yin hui' in nl:       return ('cutting','YINGHUI')
     if re.match(r'^(移印|转印|chuyển in)', nl):   return ('cutting','移印')
     # Stitching
-    if re.match(r'^sub[.\s_-]?stic', nl): return ('stitching','支流')  # Sub-Stiching typo too
+    if re.match(r'^sub[.\s_-]?stic', nl.strip()): return ('stitching','支流')  # Sub-Stiching/Sub.Stitching variants
     if re.match(r'^stitching.*sub', nl):   return ('stitching','支流')
     if re.match(r'^stitching', nl):        return ('stitching','主流')
     if re.match(r'^(电脑针车|cs$|电脑|điện toán)', nl, re.I): return ('stitching','電腦針車')
