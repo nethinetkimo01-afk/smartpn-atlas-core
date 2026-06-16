@@ -258,3 +258,36 @@ CREATE TABLE IF NOT EXISTS ds04_lock (
     locked_at   TEXT NOT NULL,
     locked_by   TEXT DEFAULT ''
 );
+
+-- 廠務編制 per-model manual (CSA tab: 協理給/編制 per 鞋型 per LEAN)
+CREATE TABLE IF NOT EXISTS bianche_model_manual (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    lean        TEXT NOT NULL,
+    model_name  TEXT NOT NULL,
+    month       TEXT NOT NULL,
+    manager_mp  REAL DEFAULT 0,
+    headcount   REAL DEFAULT 0,
+    updated_by  TEXT DEFAULT '',
+    updated_at  TEXT NOT NULL,
+    UNIQUE(lean, model_name, month)
+);
+
+-- 廠務編制 OCS/RB/QC department group headcount
+CREATE TABLE IF NOT EXISTS bianche_dept_hc (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    dept        TEXT NOT NULL,
+    group_name  TEXT NOT NULL,
+    shoe_detail TEXT DEFAULT '',
+    month       TEXT NOT NULL,
+    headcount   REAL DEFAULT 0,
+    updated_by  TEXT DEFAULT '',
+    updated_at  TEXT NOT NULL,
+    UNIQUE(dept, group_name, month)
+);
+
+-- 勾選表月份確認鎖定
+CREATE TABLE IF NOT EXISTS alloc_lock (
+    month       TEXT PRIMARY KEY,
+    locked_at   TEXT NOT NULL,
+    locked_by   TEXT DEFAULT ''
+);

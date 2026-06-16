@@ -5,21 +5,30 @@
 <title>廠務編制表</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Microsoft JhengHei',Arial,sans-serif;font-size:13px;background:#f5f7fa;color:#333}
+body{font-family:'Microsoft JhengHei','Segoe UI',Arial,sans-serif;font-size:13px;background:#f5f7fa;color:#333}
 .topbar{background:#1e3a5f;color:#fff;padding:10px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .topbar h1{font-size:16px;font-weight:600;margin-right:auto}
 .topbar a{color:#adc8f0;text-decoration:none;font-size:12px}
 .toolbar{background:#fff;border-bottom:1px solid #dde;padding:8px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .toolbar label{font-size:12px;color:#666;display:flex;gap:4px;align-items:center}
-.toolbar select,.toolbar input{padding:4px 8px;border:1px solid #ccd;border-radius:4px;font-size:12px}
+.toolbar select{padding:4px 8px;border:1px solid #ccd;border-radius:4px;font-size:12px}
 .btn{padding:5px 13px;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600}
 .btn-toggle{background:#e8eef8;color:#1e3a5f}
 .btn-toggle.active{background:#2d5a9e;color:#fff}
 .btn-dl{background:#2e7d32;color:#fff}
-.summary-bar{background:#1e3a5f;color:#fff;padding:8px 16px;display:flex;gap:20px;font-size:12px;flex-wrap:wrap}
-.summary-bar .kpi{display:flex;gap:5px;align-items:center}
-.summary-bar .kpi strong{font-size:14px;color:#90caf9}
+.btn-imp{background:#1565c0;color:#fff}
+
+/* Sheet Tabs */
+.sheet-tabs{display:flex;gap:0;border-bottom:2px solid #c5d0e0;background:#fff;padding:0 16px}
+.sheet-tab{padding:8px 22px;font-size:13px;font-weight:600;cursor:pointer;color:#5a7099;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap}
+.sheet-tab.active{color:#1e3a5f;border-bottom-color:#2d5a9e}
+.sheet-tab:hover:not(.active){background:#f0f4fa}
+
 .content{padding:12px 16px;overflow-x:auto}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* CSA */
 .lean-group{margin-bottom:16px;border:1px solid #c5d0e0;border-radius:6px;overflow:hidden}
 .lean-hdr{background:#2d5a9e;color:#fff;padding:6px 12px;display:flex;align-items:center;gap:10px;font-weight:600;font-size:13px}
 .lean-hdr .lc{font-family:monospace;background:#1e3a5f;padding:1px 7px;border-radius:3px}
@@ -27,19 +36,35 @@ body{font-family:'Microsoft JhengHei',Arial,sans-serif;font-size:13px;background
 table{width:100%;border-collapse:collapse;font-size:12px}
 thead tr{background:#e8eef8}
 th{padding:5px 8px;text-align:center;font-weight:600;color:#1e3a5f;border-bottom:1px solid #c5d0e0;white-space:nowrap;font-size:11px}
+th.al{text-align:left}
 td{padding:4px 8px;border-bottom:1px solid #eef;vertical-align:middle;text-align:center}
 td.al{text-align:left}
 tr.total-row td{background:#e8eef8;font-weight:700}
-tr.out-row td{background:#fff3e0}
-.badge-out{background:#ff9800;color:#fff;font-size:10px;padding:1px 5px;border-radius:3px}
-.badge-noie{background:#bdbdbd;color:#fff;font-size:10px;padding:1px 5px;border-radius:3px}
 tr.no-ie-row td{color:#aaa}
-tr.no-ie-row td.al{color:#888}
-.mp-cell{font-weight:600;color:#1565c0}
+.badge-out{background:#ff9800;color:#fff;font-size:10px;padding:1px 5px;border-radius:3px;margin-left:4px}
+.badge-noie{background:#bdbdbd;color:#fff;font-size:10px;padding:1px 5px;border-radius:3px}
+.mp-val{font-weight:600;color:#1565c0}
 .zero-mp{color:#bbb}
-.manual-input{width:60px;padding:2px 5px;border:1px solid #ccd;border-radius:3px;font-size:12px;text-align:center}
+.manual-input{width:68px;padding:2px 5px;border:1px solid #ccd;border-radius:3px;font-size:12px;text-align:center;background:#fffde7}
+
+/* Jim view extra cols */
+.jim-col{background:#f9f5ff}
+th.jim-col{background:#ede7ff;color:#6a1b9a}
+td.jim-col{background:#faf7ff;color:#7b1fa2;font-size:11px}
+
+/* OCS/RB/QC */
+.section-hdr{background:#2d5a9e;color:#fff;padding:6px 14px;font-weight:600;font-size:13px;margin-top:14px}
+.dept-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:2px}
+.dept-table th{background:#e8eef8;color:#1e3a5f;padding:5px 10px;text-align:center;border:1px solid #c5d0e0;font-size:11px;font-weight:600}
+.dept-table th.al{text-align:left}
+.dept-table td{border:1px solid #eef;padding:4px 10px;text-align:center;vertical-align:middle}
+.dept-table td.al{text-align:left}
+.dept-input{width:70px;padding:2px 5px;border:1px solid #ccd;border-radius:3px;font-size:12px;text-align:center;background:#fffde7}
+.readonly-hc{color:#888;font-size:12px}
+
 .no-data{text-align:center;padding:40px;color:#999}
 .loading{text-align:center;padding:40px;color:#888}
+.toast{position:fixed;bottom:20px;right:20px;background:#1e3a5f;color:#fff;padding:9px 16px;border-radius:5px;font-size:12px;display:none;z-index:999}
 </style>
 </head>
 <body>
@@ -52,176 +77,252 @@ tr.no-ie-row td.al{color:#888}
 
 <div class="toolbar">
   <label>月份
-    <select id="selMonth" onchange="load()">
-      <option value="2026-06">2026-06</option>
+    <select id="selMonth" onchange="loadAll()">
+      <option value="2026-05">2026-05</option>
+      <option value="2026-06" selected>2026-06</option>
       <option value="2026-07">2026-07</option>
     </select>
   </label>
   <button class="btn btn-toggle" id="btnJim" onclick="toggleJim()">Jim 視圖（隱藏）</button>
-  <button class="btn btn-dl" onclick="exportData()">⬇ 匯出</button>
+  <button class="btn btn-dl" onclick="exportXlsx()">⬇ 匯出 Excel</button>
+  <label class="btn btn-imp" style="cursor:pointer">
+    ⬆ 導入 Excel
+    <input type="file" accept=".xlsx" style="display:none" onchange="importXlsx(this)">
+  </label>
 </div>
 
-<div class="summary-bar" id="summaryBar">
-  <div class="kpi">裁斷MP <strong id="s_cut">—</strong></div>
-  <div class="kpi">針車MP <strong id="s_stch">—</strong></div>
-  <div class="kpi">成型MP <strong id="s_asm">—</strong></div>
-  <div class="kpi">STF MP <strong id="s_stf">—</strong></div>
-  <div class="kpi">合計 <strong id="s_total">—</strong></div>
-  <div class="kpi" style="margin-left:auto;opacity:.7">無IE資料 <strong id="s_noie" style="color:#ffcc80">—</strong> 筆</div>
+<div class="sheet-tabs">
+  <div class="sheet-tab active" onclick="switchTab('CSA')">CSA（裁針成型）</div>
+  <div class="sheet-tab" onclick="switchTab('OCS')">OCS（大底課）</div>
+  <div class="sheet-tab" onclick="switchTab('RB')">RB</div>
+  <div class="sheet-tab" onclick="switchTab('QC')">QC（品管）</div>
 </div>
 
-<div class="content" id="content"><div class="loading">載入中...</div></div>
+<div class="content">
+  <div id="tab-CSA" class="tab-panel active"><div class="loading">載入中...</div></div>
+  <div id="tab-OCS" class="tab-panel"><div class="loading">載入中...</div></div>
+  <div id="tab-RB"  class="tab-panel"><div class="loading">載入中...</div></div>
+  <div id="tab-QC"  class="tab-panel"><div class="loading">載入中...</div></div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
 let _jimMode = false;
-let _rows = [];
+let _csaRows = [];
 
-function toggleJim() {
-  _jimMode = !_jimMode;
-  document.getElementById('btnJim').classList.toggle('active', _jimMode);
-  document.getElementById('btnJim').textContent = _jimMode ? 'Jim 視圖（顯示中）' : 'Jim 視圖（隱藏）';
-  render(_rows);
+function month(){ return document.getElementById('selMonth').value; }
+
+function toggleJim(){
+  _jimMode=!_jimMode;
+  const btn=document.getElementById('btnJim');
+  btn.classList.toggle('active',_jimMode);
+  btn.textContent=_jimMode?'Jim 視圖（顯示中）':'Jim 視圖（隱藏）';
+  renderCSA(_csaRows);
 }
 
-async function load() {
-  const month = document.getElementById('selMonth').value;
-  document.getElementById('content').innerHTML = '<div class="loading">計算中...</div>';
-  try {
-    const res = await fetch(`/api/bianche?month=${month}`).then(r=>r.json());
-    if (!res.ok) { document.getElementById('content').innerHTML=`<div class="no-data">錯誤: ${res.error||'未知'}</div>`; return; }
-    _rows = res.rows || [];
-    updateSummary(res.totals || {}, _rows);
-    render(_rows);
-  } catch(e) {
-    document.getElementById('content').innerHTML=`<div class="no-data">載入失敗: ${e}</div>`;
+function switchTab(tab){
+  document.querySelectorAll('.sheet-tab').forEach((t,i)=>{
+    const tabs=['CSA','OCS','RB','QC'];
+    t.classList.toggle('active',tabs[i]===tab);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  const panel=document.getElementById('tab-'+tab);
+  if(panel) panel.classList.add('active');
+  if(tab==='OCS') loadDept('OCS');
+  else if(tab==='RB') loadDept('RB');
+  else if(tab==='QC') loadDept('QC');
+}
+
+function loadAll(){
+  loadCSA();
+}
+
+// ════════════════════ CSA ════════════════════
+async function loadCSA(){
+  const m=month();
+  document.getElementById('tab-CSA').innerHTML='<div class="loading">計算中...</div>';
+  try{
+    const res=await fetch(`/api/bianche/csa?month=${m}`).then(r=>r.json());
+    if(!res.ok){document.getElementById('tab-CSA').innerHTML=`<div class="no-data">錯誤: ${res.error||'未知'}</div>`;return;}
+    _csaRows=res.rows||[];
+    renderCSA(_csaRows);
+  }catch(e){
+    document.getElementById('tab-CSA').innerHTML=`<div class="no-data">載入失敗: ${e}</div>`;
   }
 }
 
-function updateSummary(t, rows) {
-  document.getElementById('s_cut').textContent   = fmt(t.cutting);
-  document.getElementById('s_stch').textContent  = fmt(t.stitching);
-  document.getElementById('s_asm').textContent   = fmt(t.assembly);
-  document.getElementById('s_stf').textContent   = fmt(t.stf);
-  document.getElementById('s_total').textContent = fmt(t.grand);
-  const noIe = (rows||[]).filter(r=>!r.has_ie).length;
-  const noIeEl = document.getElementById('s_noie');
-  if (noIeEl) noIeEl.textContent = noIe;
-}
+function renderCSA(rows){
+  if(!rows.length){document.getElementById('tab-CSA').innerHTML='<div class="no-data">無資料（DS-04 尚無訂單）</div>';return;}
+  const byLean={};
+  rows.forEach(r=>{byLean[r.lean]=byLean[r.lean]||[];byLean[r.lean].push(r);});
 
-function render(rows) {
-  if (!rows.length) { document.getElementById('content').innerHTML='<div class="no-data">無資料</div>'; return; }
+  let html='';
+  const j=_jimMode;
+  for(const lean of Object.keys(byLean).sort()){
+    const lrows=byLean[lean];
+    const totCut  =sum(lrows,'cutting_mp');
+    const totStch =sum(lrows,'stitching_mp');
+    const totAsm  =sum(lrows,'assembly_mp');
+    const totMgr  =sum(lrows,'manager_mp');
+    const totGrand=round4(totCut+totStch+totAsm+totMgr);
 
-  // Group by lean
-  const byLean = {};
-  rows.forEach(r => { if (!byLean[r.lean]) byLean[r.lean]=[]; byLean[r.lean].push(r); });
-
-  let html = '';
-  for (const lean of Object.keys(byLean).sort()) {
-    const lrows = byLean[lean];
-    const dept = lrows[0]?.dept || '';
-
-    // Lean totals
-    const lTotCut  = lrows.reduce((s,r)=>s+r.cutting_mp,0);
-    const lTotStch = lrows.reduce((s,r)=>s+r.stitching_mp,0);
-    const lTotAsm  = lrows.reduce((s,r)=>s+r.assembly_mp,0);
-    const lTotStf  = lrows.reduce((s,r)=>s+r.stf_mp,0);
-    const lGrand   = lTotCut+lTotStch+lTotAsm+lTotStf;
-
-    html += `<div class="lean-group">
+    html+=`<div class="lean-group">
       <div class="lean-hdr">
         <span class="lc">${esc(lean)}</span>
-        <span class="ls">合計 ${fmt(lGrand)} MP</span>
+        <span class="ls">合計 ${fmt(totGrand)} MP</span>
       </div>
-      <table>
-        <thead><tr>
-          <th>鞋型名稱</th><th>ART</th><th>訂單</th>
-          ${_jimMode ? '<th>IE裁斷</th><th>移出裁</th>' : ''}
-          <th>裁斷MP</th>
-          ${_jimMode ? '<th>IE針車</th><th>移出針</th>' : ''}
-          <th>針車MP</th>
-          ${_jimMode ? '<th>IE成型</th><th>移出成</th>' : ''}
-          <th>成型MP</th><th>STF MP</th><th>協理給</th><th>合計</th><th>編制</th>
-        </tr></thead>
-        <tbody>`;
+      <table><thead><tr>
+        <th class="al">鞋型名稱</th><th class="al">ART</th><th>訂單</th>
+        ${j?'<th class="jim-col">IE裁斷</th><th class="jim-col">移出裁</th>':''}
+        <th>裁斷MP</th>
+        ${j?'<th class="jim-col">IE針車</th><th class="jim-col">移出針</th>':''}
+        <th>針車MP</th>
+        ${j?'<th class="jim-col">IE成型</th><th class="jim-col">移出成</th>':''}
+        <th>成型MP</th>
+        <th>協理給</th><th>合計MP</th><th>編制</th>
+      </tr></thead><tbody>`;
 
-    lrows.forEach(r => {
-      const cut  = r.cutting_mp;
-      const stch = r.stitching_mp;
-      const asm  = r.assembly_mp;
-      const stf  = r.stf_mp;
-      const grand = (cut||0) + (stch||0) + (asm||0) + (stf||0);
-      const mgr = r.manager_mp || 0;
-      const hc  = r.headcount  || 0;
-      const noIe = !r.has_ie;
-      const rowCls = noIe ? 'no-ie-row' : (r.is_outsource ? 'out-row' : '');
-      html += `<tr class="${rowCls}">
+    lrows.forEach(r=>{
+      const noIe=!r.has_ie;
+      const rc=noIe?'no-ie-row':'';
+      const cut=r.cutting_mp, stch=r.stitching_mp, asm=r.assembly_mp, mgr=r.manager_mp||0;
+      const grand=round4((cut||0)+(stch||0)+(asm||0)+mgr);
+      const k=`${esc(lean)}||${esc(r.model_name)}`;
+      html+=`<tr class="${rc}">
         <td class="al">${esc(r.model_name)}
           ${r.is_outsource?'<span class="badge-out">外包鞋面</span>':''}
-          ${noIe?'<span class="badge-noie" title="尚未建IE表">無IE</span>':''}
+          ${noIe?'<span class="badge-noie">無IE</span>':''}
         </td>
-        <td>${esc(r.art)}</td>
+        <td class="al" style="font-size:11px;color:#5a7099">${esc(r.arts)}</td>
         <td>${(r.qty||0).toLocaleString()}</td>
-        ${_jimMode ? `<td class="zero-mp">${fmt(r.cutting_ie_mp)}</td><td class="zero-mp">${fmt(r.cutting_moved)}</td>` : ''}
-        <td class="${cut?'mp-cell':'zero-mp'}">${fmt(cut)}</td>
-        ${_jimMode ? `<td class="zero-mp">${fmt(r.stitching_ie_mp)}</td><td class="zero-mp">${fmt(r.stitching_moved)}</td>` : ''}
-        <td class="${stch?'mp-cell':'zero-mp'}">${fmt(stch)}</td>
-        ${_jimMode ? `<td class="zero-mp">${fmt(r.assembly_ie_mp)}</td><td class="zero-mp">${fmt(r.assembly_moved)}</td>` : ''}
-        <td class="${asm?'mp-cell':'zero-mp'}">${fmt(asm)}</td>
-        <td class="${stf?'mp-cell':'zero-mp'}">${fmt(stf)}</td>
+        ${j?`<td class="jim-col">${fmtN(r.cutting_ie_mp)}</td><td class="jim-col">${fmtN(r.cutting_moved)}</td>`:''}
+        <td class="${mpCls(cut)}">${fmtN(cut)}</td>
+        ${j?`<td class="jim-col">${fmtN(r.stitching_ie_mp)}</td><td class="jim-col">${fmtN(r.stitching_moved)}</td>`:''}
+        <td class="${mpCls(stch)}">${fmtN(stch)}</td>
+        ${j?`<td class="jim-col">${fmtN(r.assembly_ie_mp)}</td><td class="jim-col">${fmtN(r.assembly_moved)}</td>`:''}
+        <td class="${mpCls(asm)}">${fmtN(asm)}</td>
         <td><input class="manual-input" type="number" step="0.01" value="${mgr||''}"
-            onchange="saveManual('${esc(lean)}','manager_mp',this.value, this)" placeholder="—"></td>
-        <td class="${grand?'mp-cell':'zero-mp'}">${fmt(grand + mgr)}</td>
-        <td><input class="manual-input" type="number" step="0.1" value="${hc||''}"
-            onchange="saveManual('${esc(lean)}','headcount',this.value, this)" placeholder="—"></td>
+            onchange="saveModelManual('${k}','manager_mp',this.value,this)" placeholder="0"></td>
+        <td class="${mpCls(grand)}">${fmtN(grand)}</td>
+        <td><input class="manual-input" type="number" step="1" value="${r.headcount||''}"
+            onchange="saveModelManual('${k}','headcount',this.value,this)" placeholder="0"></td>
       </tr>`;
     });
 
     // LEAN total row
-    html += `<tr class="total-row">
-        <td class="al" colspan="3">${esc(lean)} 合計</td>
-        ${_jimMode ? '<td></td><td></td>' : ''}
-        <td>${fmt(lTotCut)}</td>
-        ${_jimMode ? '<td></td><td></td>' : ''}
-        <td>${fmt(lTotStch)}</td>
-        ${_jimMode ? '<td></td><td></td>' : ''}
-        <td>${fmt(lTotAsm)}</td>
-        <td>${fmt(lTotStf)}</td>
-        <td></td>
-        <td>${fmt(lGrand)}</td>
-        <td></td>
-      </tr>`;
-    html += '</tbody></table></div>';
+    html+=`<tr class="total-row">
+      <td class="al" colspan="3">${esc(lean)} 合計</td>
+      ${j?'<td class="jim-col"></td><td class="jim-col"></td>':''}
+      <td>${fmtN(totCut)}</td>
+      ${j?'<td class="jim-col"></td><td class="jim-col"></td>':''}
+      <td>${fmtN(totStch)}</td>
+      ${j?'<td class="jim-col"></td><td class="jim-col"></td>':''}
+      <td>${fmtN(totAsm)}</td>
+      <td></td><td>${fmtN(totGrand)}</td><td></td>
+    </tr>`;
+    html+='</tbody></table></div>';
   }
-  document.getElementById('content').innerHTML = html;
+  document.getElementById('tab-CSA').innerHTML=html;
 }
 
-async function saveManual(lean, field, val, input) {
-  const month = document.getElementById('selMonth').value;
-  const body = {lean, month, [field]: parseFloat(val)||0};
-  const r = await fetch('/api/bianche/manual', {
-    method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+async function saveModelManual(key, field, val, input){
+  const [lean, model]=key.split('||');
+  const m=month();
+  const body={lean:unescape(lean),model_name:unescape(model),month:m,[field]:parseFloat(val)||0};
+  const r=await fetch('/api/bianche/model_manual',{
+    method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
   }).then(r=>r.json());
-  if (!r.ok) { input.style.borderColor='red'; }
-  else { input.style.borderColor=''; }
+  if(!r.ok){input.style.borderColor='red';showToast('儲存失敗');}
+  else{input.style.borderColor='';showToast('已儲存');}
 }
 
-function exportData() {
-  const month = document.getElementById('selMonth').value;
-  // Simple CSV export
-  let csv = '部門,LEAN,鞋型名稱,ART,訂單,裁斷MP,針車MP,成型MP,STF MP,協理給,合計編制\n';
-  _rows.forEach(r => {
-    const tot = r.cutting_mp+r.stitching_mp+r.assembly_mp+r.stf_mp;
-    csv += [r.dept||'',r.lean,r.model_name,r.art,r.qty,r.cutting_mp,r.stitching_mp,r.assembly_mp,r.stf_mp,r.manager_mp||0,tot].join(',') + '\n';
+// ════════════════════ OCS / RB / QC ════════════════════
+async function loadDept(dept){
+  const m=month();
+  const panel=document.getElementById('tab-'+dept);
+  panel.innerHTML='<div class="loading">載入中...</div>';
+  try{
+    const res=await fetch(`/api/bianche/dept/${dept}?month=${m}`).then(r=>r.json());
+    if(!res.ok){panel.innerHTML=`<div class="no-data">錯誤: ${res.error||''}</div>`;return;}
+    renderDept(dept, res.sections||[], panel);
+  }catch(e){
+    panel.innerHTML=`<div class="no-data">載入失敗: ${e}</div>`;
+  }
+}
+
+function renderDept(dept, sections, panel){
+  let html='';
+  sections.forEach(sec=>{
+    html+=`<div class="section-hdr">${esc(sec.section)}</div>
+    <table class="dept-table"><thead><tr>
+      <th class="al">組別</th>`;
+    if(dept==='OCS') html+=`<th class="al">鞋型明細</th>`;
+    html+=`<th>上月編制</th><th>本月編制</th></tr></thead><tbody>`;
+    sec.groups.forEach(g=>{
+      const k=`${esc(dept)}||${esc(g.group)}`;
+      html+=`<tr>
+        <td class="al">${esc(g.group)}</td>`;
+      if(dept==='OCS') html+=`<td class="al"><input style="width:100%;padding:2px 5px;border:1px solid #ccd;border-radius:3px;font-size:11px;background:#fffde7" value="${esc(g.shoe_detail||'')}" onchange="saveDeptShoe('${k}',this.value,this,${JSON.stringify(g.this_month_hc)})" placeholder="鞋型明細"></td>`;
+      html+=`
+        <td class="readonly-hc">${g.last_month_hc!=null?g.last_month_hc:'—'}</td>
+        <td><input class="dept-input" type="number" step="1" value="${g.this_month_hc!=null?g.this_month_hc:''}"
+            onchange="saveDeptHc('${k}',this.value,this)" placeholder="0"></td>
+      </tr>`;
+    });
+    html+='</tbody></table>';
   });
-  const blob = new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = `廠務編制表_${month}.csv`; a.click();
+  panel.innerHTML=html||'<div class="no-data">無組別設定</div>';
 }
 
-function fmt(v) { return v != null ? Number(v).toFixed(4).replace(/\.?0+$/, '') || '0' : '—'; }
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+async function saveDeptHc(key, val, input){
+  const [dept, grp]=key.split('||');
+  const r=await fetch('/api/bianche/dept_hc',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({dept:unescape(dept),group:unescape(grp),month:month(),headcount:parseFloat(val)||0})
+  }).then(r=>r.json());
+  if(!r.ok){input.style.borderColor='red';showToast('儲存失敗');}
+  else{input.style.borderColor='';showToast('已儲存');}
+}
 
-load();
+async function saveDeptShoe(key, shoeDetail, input, currentHc){
+  const [dept, grp]=key.split('||');
+  const r=await fetch('/api/bianche/dept_hc',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({dept:unescape(dept),group:unescape(grp),month:month(),headcount:currentHc||0,shoe_detail:shoeDetail})
+  }).then(r=>r.json());
+  if(!r.ok){input.style.borderColor='red';}
+  else{input.style.borderColor='';}
+}
+
+// ════════════════════ Export / Import ════════════════════
+function exportXlsx(){
+  window.location='/api/bianche/export?month='+month();
+}
+async function importXlsx(input){
+  if(!input.files[0]) return;
+  const fd=new FormData();
+  fd.append('file',input.files[0]);
+  fd.append('month',month());
+  const r=await fetch('/api/bianche/import_manual',{method:'POST',body:fd}).then(r=>r.json());
+  input.value='';
+  if(r.ok){showToast(`導入完成：CSA ${r.updated_csa} 筆，部門 ${r.updated_dept} 筆`);loadAll();}
+  else alert('導入失敗: '+(r.error||''));
+}
+
+// ════════════════════ Utils ════════════════════
+function sum(rows, key){ return round4(rows.reduce((s,r)=>s+(r[key]||0),0)); }
+function round4(v){ return Math.round((v||0)*10000)/10000; }
+function mpCls(v){ if(v==null) return 'zero-mp'; return Number(v)?'mp-val':'zero-mp'; }
+function fmt(v){ return v!=null?Number(v).toFixed(4).replace(/\.?0+$/,'')||'0':'—'; }
+function fmtN(v){ if(v==null) return '<span style="color:#bbb">—</span>'; const n=Number(v); return isNaN(n)?String(v):n.toFixed(2); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';
+  clearTimeout(t._tid);t._tid=setTimeout(()=>t.style.display='none',2000);
+}
+
+loadAll();
 </script>
 </body>
 </html>

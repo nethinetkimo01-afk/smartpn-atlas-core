@@ -2195,3 +2195,245 @@ def set_bianche_manual(lean, month, manager_mp, headcount, updated_by=''):
         conn.rollback(); return {'ok': False, 'error': str(e)}
     finally:
         conn.close()
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 廠務編制 CSA (model-level) + OCS/RB/QC dept headcount + Allocation lock
+# ══════════════════════════════════════════════════════════════════════════════
+
+OCS_DAODI_GROUPS = ['贴1','贴2','贴3','贴5','贴6','贴7','贴8','贴9',
+                    '贴10','贴11','贴12','贴20','贴21','贴22','贴23']
+OCS_OTHER_GROUPS = ['組底配套','自動化','電腦針車','印刷']
+RB_GROUPS  = ['倉庫','物控','廠務維修','清潔']
+QC_GROUPS  = ['外觀品檢','尺寸量測','機能測試','成品入庫','出貨品檢']
+
+DEPT_GROUPS = {
+    'OCS': [('大底課-贴底', OCS_DAODI_GROUPS), ('大底課-其他', OCS_OTHER_GROUPS)],
+    'RB':  [('RB', RB_GROUPS)],
+    'QC':  [('QC', QC_GROUPS)],
+}
+
+
+def _ensure_bianche_ext(conn):
+    conn.executescript('''
+    CREATE TABLE IF NOT EXISTS bianche_model_manual (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        lean TEXT NOT NULL, model_name TEXT NOT NULL, month TEXT NOT NULL,
+        manager_mp REAL DEFAULT 0, headcount REAL DEFAULT 0,
+        updated_by TEXT DEFAULT '', updated_at TEXT NOT NULL,
+        UNIQUE(lean, model_name, month)
+    );
+    CREATE TABLE IF NOT EXISTS bianche_dept_hc (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        dept TEXT NOT NULL, group_name TEXT NOT NULL,
+        shoe_detail TEXT DEFAULT '', month TEXT NOT NULL,
+        headcount REAL DEFAULT 0, updated_by TEXT DEFAULT '', updated_at TEXT NOT NULL,
+        UNIQUE(dept, group_name, month)
+    );
+    CREATE TABLE IF NOT EXISTS alloc_lock (
+        month TEXT PRIMARY KEY, locked_at TEXT NOT NULL, locked_by TEXT DEFAULT ''
+    );
+    ''')
+    conn.commit()
+
+
+def get_bianche_csa_data(month='2026-06'):
+    """CSA tab: per LEAN per model_name, multiple ARTs merged."""
+    conn = get_conn()
+    try:
+        _ensure_bianche_ext(conn)
+        eolr_map = {r['lean']: r['eolr'] for r in conn.execute(
+            'SELECT lean, eolr FROM lean_eolr_settings WHERE month=?', (month,)).fetchall()}
+
+        # DS-04 orders grouped by lean+model
+        order_rows = conn.execute(
+            '''SELECT lean, model_name,
+                      GROUP_CONCAT(DISTINCT art) AS arts,
+                      SUM(qty) AS qty,
+                      MAX(is_outsource_upper) AS is_outsource
+               FROM ds04_orders GROUP BY lean, model_name ORDER BY lean, model_name'''
+        ).fetchall()
+
+        # IE data per art
+        ie_data = {}
+        for r in conn.execute(
+            '''SELECT oa.art, ip.zone, ip.standard_time FROM ie_process ip
+               JOIN ob_articles oa ON oa.header_id=ip.header_id
+               WHERE (ip.flag IS NULL OR ip.flag!='deleted') AND ip.standard_time>0'''):
+            a, z = r['art'], r['zone']
+            ie_data.setdefault(a, {}).setdefault(z, []).append(r['standard_time'] or 0)
+
+        # Moved out per art+zone
+        moved_data = {}
+        for r in conn.execute(
+            '''SELECT art, zone, SUM(theory_mp) AS moved FROM allocation_item
+               WHERE is_checked=1 AND month=? GROUP BY art, zone''', (month,)):
+            moved_data.setdefault(r['art'], {})[r['zone']] = r['moved'] or 0
+
+        # Manual per-model
+        manual_map = {}
+        for r in conn.execute(
+            'SELECT lean, model_name, manager_mp, headcount FROM bianche_model_manual WHERE month=?', (month,)):
+            manual_map[(r['lean'], r['model_name'])] = {'manager_mp': r['manager_mp'] or 0, 'headcount': r['headcount'] or 0}
+
+        results = []
+        for row in order_rows:
+            lean = row['lean']
+            model = row['model_name']
+            arts = [a.strip() for a in (row['arts'] or '').split(',') if a.strip()]
+            qty = row['qty'] or 0
+            is_out = row['is_outsource'] or 0
+            eolr = eolr_map.get(lean, 120)
+            first_art = next((a for a in arts if a in ie_data), None)
+            has_ie = first_art is not None
+
+            if has_ie:
+                d = ie_data[first_art]
+                def _ie(zones): return round(sum(sum(d.get(z, [])) for z in zones) * eolr / 3600.0, 4)
+                def _mv(zones): return round(sum(moved_data.get(a, {}).get(z, 0) for a in arts for z in zones), 4)
+                cut_ie  = _ie(CUTTING_ZONES);  cut_mv  = _mv(AUTO_ZONES)
+                stch_ie = _ie(STITCH_ZONES);   stch_mv = _mv(STITCH_ZONES)
+                asm_ie  = _ie(ASSEMBLY_ZONES); asm_mv  = _mv(ASSEMBLY_ZONES)
+                cut_act  = 0.0 if is_out else round(cut_ie  - cut_mv,  4)
+                stch_act = 0.0 if is_out else round(stch_ie - stch_mv, 4)
+                asm_act  = round(asm_ie - asm_mv, 4)
+            else:
+                cut_ie = stch_ie = asm_ie = None
+                cut_mv = stch_mv = asm_mv = None
+                cut_act = stch_act = asm_act = None
+
+            m = manual_map.get((lean, model), {})
+            results.append({
+                'lean': lean, 'model_name': model, 'arts': row['arts'] or '',
+                'qty': qty, 'is_outsource': is_out, 'has_ie': has_ie, 'eolr': eolr,
+                'cutting_ie_mp': cut_ie, 'cutting_moved': cut_mv, 'cutting_mp': cut_act,
+                'stitching_ie_mp': stch_ie, 'stitching_moved': stch_mv, 'stitching_mp': stch_act,
+                'assembly_ie_mp': asm_ie, 'assembly_moved': asm_mv, 'assembly_mp': asm_act,
+                'manager_mp': m.get('manager_mp', 0), 'headcount': m.get('headcount', 0),
+            })
+        return {'ok': True, 'month': month, 'rows': results}
+    except Exception as e:
+        import traceback; return {'ok': False, 'error': str(e), 'trace': traceback.format_exc()}
+    finally:
+        conn.close()
+
+
+def set_bianche_model_manual(lean, model_name, month, manager_mp=None, headcount=None, updated_by=''):
+    conn = get_conn()
+    try:
+        _ensure_bianche_ext(conn)
+        ex = conn.execute(
+            'SELECT manager_mp, headcount FROM bianche_model_manual WHERE lean=? AND model_name=? AND month=?',
+            (lean, model_name, month)).fetchone()
+        mgr = float(manager_mp) if manager_mp is not None else (float(ex['manager_mp']) if ex else 0)
+        hc  = float(headcount)  if headcount  is not None else (float(ex['headcount'])  if ex else 0)
+        conn.execute(
+            '''INSERT INTO bianche_model_manual (lean,model_name,month,manager_mp,headcount,updated_by,updated_at)
+               VALUES(?,?,?,?,?,?,?)
+               ON CONFLICT(lean,model_name,month) DO UPDATE SET
+               manager_mp=excluded.manager_mp,headcount=excluded.headcount,
+               updated_by=excluded.updated_by,updated_at=excluded.updated_at''',
+            (lean, model_name, month, mgr, hc, updated_by, now_iso()))
+        conn.commit(); return {'ok': True}
+    except Exception as e:
+        conn.rollback(); return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def get_bianche_dept(dept, month):
+    """OCS/RB/QC: groups with last_month and this_month headcounts."""
+    if dept not in DEPT_GROUPS:
+        return {'ok': False, 'error': f'unknown dept: {dept}'}
+    conn = get_conn()
+    try:
+        _ensure_bianche_ext(conn)
+        y, m = int(month[:4]), int(month[5:7])
+        m -= 1
+        if m == 0: m = 12; y -= 1
+        prev = f'{y:04d}-{m:02d}'
+
+        curr_map = {r['group_name']: {'hc': r['headcount'], 'shoe': r['shoe_detail'] or ''} for r in conn.execute(
+            'SELECT group_name, shoe_detail, headcount FROM bianche_dept_hc WHERE dept=? AND month=?', (dept, month))}
+        prev_map = {r['group_name']: r['headcount'] for r in conn.execute(
+            'SELECT group_name, headcount FROM bianche_dept_hc WHERE dept=? AND month=?', (dept, prev))}
+
+        sections = []
+        for section_name, groups in DEPT_GROUPS[dept]:
+            gl = []
+            for g in groups:
+                prev_hc = prev_map.get(g)
+                curr_hc = curr_map.get(g, {}).get('hc')
+                this_hc = curr_hc if curr_hc is not None else (prev_hc if prev_hc is not None else 0)
+                gl.append({'group': g, 'shoe_detail': curr_map.get(g, {}).get('shoe', ''),
+                           'last_month_hc': prev_hc, 'this_month_hc': this_hc})
+            sections.append({'section': section_name, 'groups': gl})
+        return {'ok': True, 'dept': dept, 'month': month, 'sections': sections}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def set_bianche_dept_hc(dept, group_name, month, headcount, shoe_detail='', updated_by=''):
+    if dept not in DEPT_GROUPS:
+        return {'ok': False, 'error': f'unknown dept: {dept}'}
+    conn = get_conn()
+    try:
+        _ensure_bianche_ext(conn)
+        conn.execute(
+            '''INSERT INTO bianche_dept_hc (dept,group_name,shoe_detail,month,headcount,updated_by,updated_at)
+               VALUES(?,?,?,?,?,?,?)
+               ON CONFLICT(dept,group_name,month) DO UPDATE SET
+               shoe_detail=excluded.shoe_detail,headcount=excluded.headcount,
+               updated_by=excluded.updated_by,updated_at=excluded.updated_at''',
+            (dept, group_name, shoe_detail or '', month, float(headcount or 0), updated_by, now_iso()))
+        conn.commit(); return {'ok': True}
+    except Exception as e:
+        conn.rollback(); return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def alloc_get_lock(month):
+    conn = get_conn()
+    try:
+        _ensure_bianche_ext(conn)
+        r = conn.execute('SELECT locked_at, locked_by FROM alloc_lock WHERE month=?', (month,)).fetchone()
+        return {'ok': True, 'locked': bool(r), 'locked_at': r['locked_at'] if r else None, 'locked_by': r['locked_by'] if r else None}
+    finally:
+        conn.close()
+
+
+def alloc_lock_month(month, locked_by=''):
+    conn = get_conn()
+    try:
+        _ensure_bianche_ext(conn)
+        ts = now_iso()
+        conn.execute('INSERT OR REPLACE INTO alloc_lock (month,locked_at,locked_by) VALUES(?,?,?)', (month, ts, locked_by))
+        conn.commit(); return {'ok': True, 'locked_at': ts}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def alloc_unlock_month(month):
+    conn = get_conn()
+    try:
+        _ensure_bianche_ext(conn)
+        conn.execute('DELETE FROM alloc_lock WHERE month=?', (month,))
+        conn.commit(); return {'ok': True}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def get_bianche_export_data(month):
+    """Collect all 4 tabs for xlsx export."""
+    csa = get_bianche_csa_data(month)
+    ocs = get_bianche_dept('OCS', month)
+    rb  = get_bianche_dept('RB',  month)
+    qc  = get_bianche_dept('QC',  month)
+    return {'ok': True, 'month': month, 'csa': csa, 'ocs': ocs, 'rb': rb, 'qc': qc}

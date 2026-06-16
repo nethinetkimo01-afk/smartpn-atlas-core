@@ -1097,11 +1097,184 @@ def api_users_update(uid):
 def api_users_delete(uid):
     return jsonify(db.delete_user(uid))
 
+# ── Bianche CSA (model-level) + OCS/RB/QC + Alloc lock ──────────────────────
+
+@app.route('/api/bianche/csa', methods=['GET'])
+def bianche_csa():
+    return jsonify(db.get_bianche_csa_data(request.args.get('month', '2026-06')))
+
+@app.route('/api/bianche/model_manual', methods=['POST'])
+def bianche_model_manual():
+    d = request.get_json(force=True) or {}
+    return jsonify(db.set_bianche_model_manual(
+        d.get('lean'), d.get('model_name'), d.get('month', '2026-06'),
+        d.get('manager_mp'), d.get('headcount'), d.get('updated_by', '')
+    ))
+
+@app.route('/api/bianche/dept/<dept>', methods=['GET'])
+def bianche_dept(dept):
+    return jsonify(db.get_bianche_dept(dept, request.args.get('month', '2026-06')))
+
+@app.route('/api/bianche/dept_hc', methods=['POST'])
+def bianche_dept_hc():
+    d = request.get_json(force=True) or {}
+    return jsonify(db.set_bianche_dept_hc(
+        d.get('dept'), d.get('group'), d.get('month', '2026-06'),
+        d.get('headcount'), d.get('shoe_detail', ''), d.get('updated_by', '')
+    ))
+
+@app.route('/api/bianche/export', methods=['GET'])
+def bianche_export_xlsx():
+    if not HAS_XLSX:
+        return jsonify({'ok': False, 'error': 'openpyxl not installed'}), 500
+    month = request.args.get('month', '2026-06')
+    data = db.get_bianche_export_data(month)
+    import io, openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, Protection
+    from flask import send_file
+
+    wb = openpyxl.Workbook()
+    wb.security  # make sure security works
+    thin = Side(style='thin', color='C5D0E0')
+    bord = Border(left=thin, right=thin, bottom=thin, top=thin)
+    hdr_font = Font(bold=True, color='FFFFFF')
+    hdr_fill = PatternFill('solid', fgColor='1E3A5F')
+    grey_fill = PatternFill('solid', fgColor='E8EEF8')
+    ctr = Alignment(horizontal='center', vertical='center')
+    lock_prot = Protection(locked=True)
+    edit_prot = Protection(locked=False)
+
+    def _hdr(ws, row, cols):
+        for ci, h in enumerate(cols, 1):
+            c = ws.cell(row=row, column=ci, value=h)
+            c.font = hdr_font; c.fill = hdr_fill; c.border = bord; c.alignment = ctr; c.protection = lock_prot
+
+    def _val(ws, row, col, v, editable=False, fmt=None):
+        c = ws.cell(row=row, column=col, value=v)
+        c.border = bord; c.protection = edit_prot if editable else lock_prot
+        if editable: c.fill = PatternFill('solid', fgColor='FFFDE7')
+        if fmt: c.number_format = fmt
+
+    # === CSA Sheet ===
+    ws = wb.active; ws.title = 'CSA'
+    _hdr(ws, 1, ['LEAN','鞋型名稱','ART','訂單','裁斷MP','針車MP','成型MP','協理給','合計','編制'])
+    ri = 2
+    rows = data.get('csa', {}).get('rows', [])
+    by_lean = {}
+    for r in rows:
+        by_lean.setdefault(r['lean'], []).append(r)
+    for lean, lrows in sorted(by_lean.items()):
+        for r in lrows:
+            s = lambda v: round(float(v), 4) if v is not None else None
+            tot = round((s(r['cutting_mp']) or 0) + (s(r['stitching_mp']) or 0) + (s(r['assembly_mp']) or 0) + (r['manager_mp'] or 0), 4)
+            for ci, (v, ed) in enumerate([
+                (r['lean'], False), (r['model_name'], False), (r['arts'], False), (r['qty'], False),
+                (s(r['cutting_mp']), False), (s(r['stitching_mp']), False), (s(r['assembly_mp']), False),
+                (r['manager_mp'] or 0, True), (tot, False), (r['headcount'] or 0, True)
+            ], 1):
+                _val(ws, ri, ci, v, ed)
+            ri += 1
+        # LEAN subtotal
+        lcut = sum((r['cutting_mp'] or 0) for r in lrows)
+        lstch = sum((r['stitching_mp'] or 0) for r in lrows)
+        lasm = sum((r['assembly_mp'] or 0) for r in lrows)
+        ltot = round(lcut + lstch + lasm, 4)
+        for ci, v in enumerate([lean + ' 合計', '', '', sum(r['qty'] for r in lrows),
+                                  round(lcut,4), round(lstch,4), round(lasm,4), '', ltot, ''], 1):
+            c = ws.cell(row=ri, column=ci, value=v)
+            c.fill = grey_fill; c.font = Font(bold=True); c.border = bord; c.protection = lock_prot
+        ri += 1
+    ws.sheet_protection.sheet = True; ws.sheet_protection.password = 'atlas2026'
+
+    # === OCS / RB / QC sheets ===
+    for dept_key, dept_data in [('OCS', data.get('ocs',{})), ('RB', data.get('rb',{})), ('QC', data.get('qc',{}))]:
+        ws2 = wb.create_sheet(dept_key)
+        _hdr(ws2, 1, ['部門','組別','鞋型明細','上月編制','本月編制'])
+        ri = 2
+        for sec in dept_data.get('sections', []):
+            for g in sec.get('groups', []):
+                _val(ws2, ri, 1, dept_key, False)
+                _val(ws2, ri, 2, g['group'], False)
+                _val(ws2, ri, 3, g.get('shoe_detail',''), True)
+                _val(ws2, ri, 4, g.get('last_month_hc'), False)
+                _val(ws2, ri, 5, g.get('this_month_hc', 0), True)
+                ri += 1
+        ws2.sheet_protection.sheet = True; ws2.sheet_protection.password = 'atlas2026'
+
+    for ws_s in wb.worksheets:
+        ws_s.column_dimensions['A'].width = 14
+        ws_s.column_dimensions['B'].width = 22
+        ws_s.column_dimensions['C'].width = 16
+
+    buf = io.BytesIO(); wb.save(buf); buf.seek(0)
+    return send_file(buf, as_attachment=True, download_name=f'廠務編制表_{month}.xlsx',
+                     mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+@app.route('/api/bianche/import_manual', methods=['POST'])
+def bianche_import_manual():
+    """Import xlsx: only read 協理給/編制/本月編制 columns."""
+    if not HAS_XLSX:
+        return jsonify({'ok': False, 'error': 'openpyxl not installed'}), 500
+    if 'file' not in request.files:
+        return jsonify({'ok': False, 'error': 'file required'}), 400
+    month = request.form.get('month', '2026-06')
+    f = request.files['file']
+    import io, openpyxl, tempfile, os as _os
+    tmp = tempfile.NamedTemporaryFile(suffix='.xlsx', delete=False)
+    f.save(tmp.name); tmp.close()
+    updated_csa = updated_dept = 0
+    try:
+        wb = openpyxl.load_workbook(tmp.name, data_only=True)
+        # CSA sheet: cols A=LEAN B=model C=ART D=qty E=裁斷 F=針 G=成型 H=協理給 I=合計 J=編制
+        if 'CSA' in wb.sheetnames:
+            ws = wb['CSA']
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                lean = str(row[0] or '').strip()
+                model = str(row[1] or '').strip()
+                mgr = row[7]; hc = row[9]
+                if lean and model and lean != lean + ' 合計':
+                    if mgr is not None or hc is not None:
+                        db.set_bianche_model_manual(lean, model, month, mgr, hc, 'import')
+                        updated_csa += 1
+        # OCS/RB/QC: cols A=dept B=group C=shoe_detail D=last_hc E=this_hc
+        for dept_key in ['OCS','RB','QC']:
+            if dept_key in wb.sheetnames:
+                ws = wb[dept_key]
+                for row in ws.iter_rows(min_row=2, values_only=True):
+                    dept = str(row[0] or '').strip()
+                    grp  = str(row[1] or '').strip()
+                    shoe = str(row[2] or '').strip()
+                    hc   = row[4]
+                    if dept and grp and hc is not None:
+                        db.set_bianche_dept_hc(dept, grp, month, hc, shoe, 'import')
+                        updated_dept += 1
+        return jsonify({'ok': True, 'updated_csa': updated_csa, 'updated_dept': updated_dept})
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
+    finally:
+        try: _os.unlink(tmp.name)
+        except: pass
+
+@app.route('/api/allocation/lock', methods=['GET'])
+def alloc_lock_get():
+    return jsonify(db.alloc_get_lock(request.args.get('month', '2026-06')))
+
+@app.route('/api/allocation/lock', methods=['POST'])
+def alloc_lock_post():
+    u = _current_user()
+    if not u or u['role'] != 'admin':
+        return jsonify({'ok': False, 'error': 'admin only'}), 403
+    d = request.get_json(force=True) or {}
+    month = d.get('month', '2026-06')
+    if d.get('action') == 'unlock':
+        return jsonify(db.alloc_unlock_month(month))
+    return jsonify(db.alloc_lock_month(month, u.get('username', '')))
+
 # ── Health check ─────────────────────────────────────────────────────────────
 
 @app.route('/api/health', methods=['GET'])
 def health():
-    return jsonify({'ok': True, 'version': '1.5'})
+    return jsonify({'ok': True, 'version': '1.6'})
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
