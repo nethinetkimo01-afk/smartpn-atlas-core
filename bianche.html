@@ -13,8 +13,6 @@ body{font-family:'Microsoft JhengHei','Segoe UI',Arial,sans-serif;font-size:13px
 .toolbar label{font-size:12px;color:#666;display:flex;gap:4px;align-items:center}
 .toolbar select{padding:4px 8px;border:1px solid #ccd;border-radius:4px;font-size:12px}
 .btn{padding:5px 13px;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600}
-.btn-toggle{background:#e8eef8;color:#1e3a5f}
-.btn-toggle.active{background:#2d5a9e;color:#fff}
 .btn-dl{background:#2e7d32;color:#fff}
 .btn-imp{background:#1565c0;color:#fff}
 
@@ -28,18 +26,22 @@ body{font-family:'Microsoft JhengHei','Segoe UI',Arial,sans-serif;font-size:13px
 .tab-panel{display:none}
 .tab-panel.active{display:block}
 
-/* CSA */
-.lean-group{margin-bottom:16px;border:1px solid #c5d0e0;border-radius:6px;overflow:hidden}
-.lean-hdr{background:#2d5a9e;color:#fff;padding:6px 12px;display:flex;align-items:center;gap:10px;font-weight:600;font-size:13px}
-.lean-hdr .lc{font-family:monospace;background:#1e3a5f;padding:1px 7px;border-radius:3px}
-.lean-hdr .ls{margin-left:auto;font-size:11px;font-weight:400;opacity:.8}
+/* CSA LEAN groups */
+.lean-group{margin-bottom:14px;border:1px solid #c5d0e0;border-radius:6px;overflow:hidden}
+.lean-hdr{background:#2d5a9e;color:#fff;padding:7px 12px;display:flex;align-items:center;gap:14px;font-weight:600;font-size:13px;flex-wrap:wrap}
+.lean-hdr .lc{font-family:monospace;background:#1e3a5f;padding:2px 8px;border-radius:3px;font-size:13px}
+.lean-hdr .lean-qty{font-size:12px;font-weight:400;opacity:.9}
+.lean-hdr .lean-hc-area{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:400}
+.lean-hc-input{width:72px;padding:3px 6px;border:1px solid rgba(255,255,255,.4);border-radius:4px;font-size:12px;text-align:center;background:rgba(255,255,255,.15);color:#fff}
+.lean-hc-input::placeholder{color:rgba(255,255,255,.5)}
+.lean-hc-input:focus{outline:none;background:rgba(255,255,255,.25);border-color:#fff}
+
 table{width:100%;border-collapse:collapse;font-size:12px}
 thead tr{background:#e8eef8}
 th{padding:5px 8px;text-align:center;font-weight:600;color:#1e3a5f;border-bottom:1px solid #c5d0e0;white-space:nowrap;font-size:11px}
 th.al{text-align:left}
 td{padding:4px 8px;border-bottom:1px solid #eef;vertical-align:middle;text-align:center}
 td.al{text-align:left}
-tr.total-row td{background:#e8eef8;font-weight:700}
 tr.no-ie-row td{color:#aaa}
 .badge-out{background:#ff9800;color:#fff;font-size:10px;padding:1px 5px;border-radius:3px;margin-left:4px}
 .badge-noie{background:#bdbdbd;color:#fff;font-size:10px;padding:1px 5px;border-radius:3px}
@@ -47,19 +49,15 @@ tr.no-ie-row td{color:#aaa}
 .zero-mp{color:#bbb}
 .manual-input{width:68px;padding:2px 5px;border:1px solid #ccd;border-radius:3px;font-size:12px;text-align:center;background:#fffde7}
 
-/* Jim view extra cols */
-.jim-col{background:#f9f5ff}
-th.jim-col{background:#ede7ff;color:#6a1b9a}
-td.jim-col{background:#faf7ff;color:#7b1fa2;font-size:11px}
-
 /* OCS/RB/QC */
-.section-hdr{background:#2d5a9e;color:#fff;padding:6px 14px;font-weight:600;font-size:13px;margin-top:14px}
-.dept-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:2px}
+.section-hdr{background:#2d5a9e;color:#fff;padding:6px 14px;font-weight:600;font-size:13px;margin-top:12px;border-radius:4px 4px 0 0}
+.dept-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px}
 .dept-table th{background:#e8eef8;color:#1e3a5f;padding:5px 10px;text-align:center;border:1px solid #c5d0e0;font-size:11px;font-weight:600}
 .dept-table th.al{text-align:left}
 .dept-table td{border:1px solid #eef;padding:4px 10px;text-align:center;vertical-align:middle}
 .dept-table td.al{text-align:left}
 .dept-input{width:70px;padding:2px 5px;border:1px solid #ccd;border-radius:3px;font-size:12px;text-align:center;background:#fffde7}
+.shoe-input{width:100%;padding:2px 5px;border:1px solid #ccd;border-radius:3px;font-size:11px;background:#fffde7}
 .readonly-hc{color:#888;font-size:12px}
 
 .no-data{text-align:center;padding:40px;color:#999}
@@ -83,7 +81,6 @@ td.jim-col{background:#faf7ff;color:#7b1fa2;font-size:11px}
       <option value="2026-07">2026-07</option>
     </select>
   </label>
-  <button class="btn btn-toggle" id="btnJim" onclick="toggleJim()">Jim 視圖（隱藏）</button>
   <button class="btn btn-dl" onclick="exportXlsx()">⬇ 匯出 Excel</button>
   <label class="btn btn-imp" style="cursor:pointer">
     ⬆ 導入 Excel
@@ -92,10 +89,10 @@ td.jim-col{background:#faf7ff;color:#7b1fa2;font-size:11px}
 </div>
 
 <div class="sheet-tabs">
-  <div class="sheet-tab active" onclick="switchTab('CSA')">CSA（裁針成型）</div>
-  <div class="sheet-tab" onclick="switchTab('OCS')">OCS（大底課）</div>
+  <div class="sheet-tab active" onclick="switchTab('CSA')">CSA</div>
+  <div class="sheet-tab" onclick="switchTab('OCS')">OCS</div>
   <div class="sheet-tab" onclick="switchTab('RB')">RB</div>
-  <div class="sheet-tab" onclick="switchTab('QC')">QC（品管）</div>
+  <div class="sheet-tab" onclick="switchTab('QC')">QC</div>
 </div>
 
 <div class="content">
@@ -108,23 +105,20 @@ td.jim-col{background:#faf7ff;color:#7b1fa2;font-size:11px}
 <div class="toast" id="toast"></div>
 
 <script>
-let _jimMode = false;
-let _csaRows = [];
+const LEAN_ORDER = [
+  '1A','1B','1C','2A','2B','2C','3A','3B','3C','4A','4B','4C',
+  '5A','5B','5C','6A','6B','6C','7A','7B','7C','8A','8B','8C',
+  '9A','9B','9C','10A','10B','10C','11A1','11A2','11B1','11B2','11C'
+];
+function leanKey(l){ const i=LEAN_ORDER.indexOf(l); return i>=0?i:999; }
+
+let _csaRows = [], _leanHc = {};
 
 function month(){ return document.getElementById('selMonth').value; }
 
-function toggleJim(){
-  _jimMode=!_jimMode;
-  const btn=document.getElementById('btnJim');
-  btn.classList.toggle('active',_jimMode);
-  btn.textContent=_jimMode?'Jim 視圖（顯示中）':'Jim 視圖（隱藏）';
-  renderCSA(_csaRows);
-}
-
 function switchTab(tab){
   document.querySelectorAll('.sheet-tab').forEach((t,i)=>{
-    const tabs=['CSA','OCS','RB','QC'];
-    t.classList.toggle('active',tabs[i]===tab);
+    t.classList.toggle('active',['CSA','OCS','RB','QC'][i]===tab);
   });
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   const panel=document.getElementById('tab-'+tab);
@@ -134,9 +128,7 @@ function switchTab(tab){
   else if(tab==='QC') loadDept('QC');
 }
 
-function loadAll(){
-  loadCSA();
-}
+function loadAll(){ loadCSA(); }
 
 // ════════════════════ CSA ════════════════════
 async function loadCSA(){
@@ -146,49 +138,49 @@ async function loadCSA(){
     const res=await fetch(`/api/bianche/csa?month=${m}`).then(r=>r.json());
     if(!res.ok){document.getElementById('tab-CSA').innerHTML=`<div class="no-data">錯誤: ${res.error||'未知'}</div>`;return;}
     _csaRows=res.rows||[];
-    renderCSA(_csaRows);
+    _leanHc=res.lean_hc||{};
+    renderCSA();
   }catch(e){
     document.getElementById('tab-CSA').innerHTML=`<div class="no-data">載入失敗: ${e}</div>`;
   }
 }
 
-function renderCSA(rows){
-  if(!rows.length){document.getElementById('tab-CSA').innerHTML='<div class="no-data">無資料（DS-04 尚無訂單）</div>';return;}
+function renderCSA(){
+  if(!_csaRows.length){document.getElementById('tab-CSA').innerHTML='<div class="no-data">無資料（DS-04 尚無訂單）</div>';return;}
+
   const byLean={};
-  rows.forEach(r=>{byLean[r.lean]=byLean[r.lean]||[];byLean[r.lean].push(r);});
+  _csaRows.forEach(r=>{byLean[r.lean]=byLean[r.lean]||[];byLean[r.lean].push(r);});
 
   let html='';
-  const j=_jimMode;
-  for(const lean of Object.keys(byLean).sort()){
+  const sortedLeans=Object.keys(byLean).sort((a,b)=>leanKey(a)-leanKey(b));
+
+  for(const lean of sortedLeans){
     const lrows=byLean[lean];
-    const totCut  =sum(lrows,'cutting_mp');
-    const totStch =sum(lrows,'stitching_mp');
-    const totAsm  =sum(lrows,'assembly_mp');
-    const totMgr  =sum(lrows,'manager_mp');
-    const totGrand=round4(totCut+totStch+totAsm+totMgr);
+    const totalQty=lrows.reduce((s,r)=>s+(r.qty||0),0);
+    const hcVal=_leanHc[lean]!=null?_leanHc[lean]:'';
 
     html+=`<div class="lean-group">
       <div class="lean-hdr">
         <span class="lc">${esc(lean)}</span>
-        <span class="ls">合計 ${fmt(totGrand)} MP</span>
+        <span class="lean-qty">總訂單: ${totalQty.toLocaleString()} 雙</span>
+        <span class="lean-hc-area">編制:
+          <input class="lean-hc-input" type="number" step="1" value="${hcVal}"
+            placeholder="0" onchange="saveLeanHc(${JSON.stringify(lean)},this.value,this)">
+        </span>
       </div>
       <table><thead><tr>
-        <th class="al">鞋型名稱</th><th class="al">ART</th><th>訂單</th>
-        ${j?'<th class="jim-col">IE裁斷</th><th class="jim-col">移出裁</th>':''}
+        <th class="al">鞋型名稱</th>
+        <th class="al">ART</th>
+        <th>訂單</th>
         <th>裁斷MP</th>
-        ${j?'<th class="jim-col">IE針車</th><th class="jim-col">移出針</th>':''}
         <th>針車MP</th>
-        ${j?'<th class="jim-col">IE成型</th><th class="jim-col">移出成</th>':''}
         <th>成型MP</th>
-        <th>協理給</th><th>合計MP</th><th>編制</th>
+        <th>協理給</th>
       </tr></thead><tbody>`;
 
     lrows.forEach(r=>{
       const noIe=!r.has_ie;
       const rc=noIe?'no-ie-row':'';
-      const cut=r.cutting_mp, stch=r.stitching_mp, asm=r.assembly_mp, mgr=r.manager_mp||0;
-      const grand=round4((cut||0)+(stch||0)+(asm||0)+mgr);
-      const k=`${esc(lean)}||${esc(r.model_name)}`;
       html+=`<tr class="${rc}">
         <td class="al">${esc(r.model_name)}
           ${r.is_outsource?'<span class="badge-out">外包鞋面</span>':''}
@@ -196,42 +188,34 @@ function renderCSA(rows){
         </td>
         <td class="al" style="font-size:11px;color:#5a7099">${esc(r.arts)}</td>
         <td>${(r.qty||0).toLocaleString()}</td>
-        ${j?`<td class="jim-col">${fmtN(r.cutting_ie_mp)}</td><td class="jim-col">${fmtN(r.cutting_moved)}</td>`:''}
-        <td class="${mpCls(cut)}">${fmtN(cut)}</td>
-        ${j?`<td class="jim-col">${fmtN(r.stitching_ie_mp)}</td><td class="jim-col">${fmtN(r.stitching_moved)}</td>`:''}
-        <td class="${mpCls(stch)}">${fmtN(stch)}</td>
-        ${j?`<td class="jim-col">${fmtN(r.assembly_ie_mp)}</td><td class="jim-col">${fmtN(r.assembly_moved)}</td>`:''}
-        <td class="${mpCls(asm)}">${fmtN(asm)}</td>
-        <td><input class="manual-input" type="number" step="0.01" value="${mgr||''}"
-            onchange="saveModelManual('${k}','manager_mp',this.value,this)" placeholder="0"></td>
-        <td class="${mpCls(grand)}">${fmtN(grand)}</td>
-        <td><input class="manual-input" type="number" step="1" value="${r.headcount||''}"
-            onchange="saveModelManual('${k}','headcount',this.value,this)" placeholder="0"></td>
+        <td class="${mpCls(r.cutting_mp)}">${fmtN(r.cutting_mp)}</td>
+        <td class="${mpCls(r.stitching_mp)}">${fmtN(r.stitching_mp)}</td>
+        <td class="${mpCls(r.assembly_mp)}">${fmtN(r.assembly_mp)}</td>
+        <td><input class="manual-input" type="number" step="0.01"
+          value="${r.manager_mp||''}" placeholder="0"
+          onchange="saveModelManual(${JSON.stringify(lean)},${JSON.stringify(r.model_name)},this.value,this)">
+        </td>
       </tr>`;
     });
 
-    // LEAN total row
-    html+=`<tr class="total-row">
-      <td class="al" colspan="3">${esc(lean)} 合計</td>
-      ${j?'<td class="jim-col"></td><td class="jim-col"></td>':''}
-      <td>${fmtN(totCut)}</td>
-      ${j?'<td class="jim-col"></td><td class="jim-col"></td>':''}
-      <td>${fmtN(totStch)}</td>
-      ${j?'<td class="jim-col"></td><td class="jim-col"></td>':''}
-      <td>${fmtN(totAsm)}</td>
-      <td></td><td>${fmtN(totGrand)}</td><td></td>
-    </tr>`;
     html+='</tbody></table></div>';
   }
   document.getElementById('tab-CSA').innerHTML=html;
 }
 
-async function saveModelManual(key, field, val, input){
-  const [lean, model]=key.split('||');
-  const m=month();
-  const body={lean:unescape(lean),model_name:unescape(model),month:m,[field]:parseFloat(val)||0};
+async function saveLeanHc(lean, val, input){
+  const r=await fetch('/api/bianche/lean_hc',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({lean, month:month(), headcount:parseFloat(val)||0})
+  }).then(r=>r.json());
+  if(!r.ok){input.style.borderColor='red';showToast('儲存失敗');}
+  else{input.style.borderColor='';_leanHc[lean]=parseFloat(val)||0;showToast('已儲存');}
+}
+
+async function saveModelManual(lean, model_name, val, input){
   const r=await fetch('/api/bianche/model_manual',{
-    method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({lean, model_name, month:month(), manager_mp:parseFloat(val)||0})
   }).then(r=>r.json());
   if(!r.ok){input.style.borderColor='red';showToast('儲存失敗');}
   else{input.style.borderColor='';showToast('已儲存');}
@@ -254,20 +238,27 @@ async function loadDept(dept){
 function renderDept(dept, sections, panel){
   let html='';
   sections.forEach(sec=>{
+    const isShoe=(dept==='OCS' && sec.section==='大底課');
     html+=`<div class="section-hdr">${esc(sec.section)}</div>
     <table class="dept-table"><thead><tr>
       <th class="al">組別</th>`;
-    if(dept==='OCS') html+=`<th class="al">鞋型明細</th>`;
+    if(isShoe) html+=`<th class="al">鞋型明細</th>`;
     html+=`<th>上月編制</th><th>本月編制</th></tr></thead><tbody>`;
+
     sec.groups.forEach(g=>{
-      const k=`${esc(dept)}||${esc(g.group)}`;
+      const key=`${esc(dept)}||${esc(g.group)}`;
       html+=`<tr>
         <td class="al">${esc(g.group)}</td>`;
-      if(dept==='OCS') html+=`<td class="al"><input style="width:100%;padding:2px 5px;border:1px solid #ccd;border-radius:3px;font-size:11px;background:#fffde7" value="${esc(g.shoe_detail||'')}" onchange="saveDeptShoe('${k}',this.value,this,${JSON.stringify(g.this_month_hc)})" placeholder="鞋型明細"></td>`;
-      html+=`
-        <td class="readonly-hc">${g.last_month_hc!=null?g.last_month_hc:'—'}</td>
-        <td><input class="dept-input" type="number" step="1" value="${g.this_month_hc!=null?g.this_month_hc:''}"
-            onchange="saveDeptHc('${k}',this.value,this)" placeholder="0"></td>
+      if(isShoe){
+        html+=`<td class="al"><input class="shoe-input" value="${esc(g.shoe_detail||'')}"
+          onchange="saveDeptShoe(${JSON.stringify(dept)},${JSON.stringify(g.group)},this.value,this,${JSON.stringify(g.this_month_hc)})"
+          placeholder="鞋型明細"></td>`;
+      }
+      html+=`<td class="readonly-hc">${g.last_month_hc!=null?g.last_month_hc:'—'}</td>
+        <td><input class="dept-input" type="number" step="1"
+          value="${g.this_month_hc!=null?g.this_month_hc:''}"
+          onchange="saveDeptHc(${JSON.stringify(dept)},${JSON.stringify(g.group)},this.value,this)"
+          placeholder="0"></td>
       </tr>`;
     });
     html+='</tbody></table>';
@@ -275,30 +266,26 @@ function renderDept(dept, sections, panel){
   panel.innerHTML=html||'<div class="no-data">無組別設定</div>';
 }
 
-async function saveDeptHc(key, val, input){
-  const [dept, grp]=key.split('||');
+async function saveDeptHc(dept, grp, val, input){
   const r=await fetch('/api/bianche/dept_hc',{
     method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({dept:unescape(dept),group:unescape(grp),month:month(),headcount:parseFloat(val)||0})
+    body:JSON.stringify({dept, group:grp, month:month(), headcount:parseFloat(val)||0})
   }).then(r=>r.json());
   if(!r.ok){input.style.borderColor='red';showToast('儲存失敗');}
   else{input.style.borderColor='';showToast('已儲存');}
 }
 
-async function saveDeptShoe(key, shoeDetail, input, currentHc){
-  const [dept, grp]=key.split('||');
+async function saveDeptShoe(dept, grp, shoeDetail, input, currentHc){
   const r=await fetch('/api/bianche/dept_hc',{
     method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({dept:unescape(dept),group:unescape(grp),month:month(),headcount:currentHc||0,shoe_detail:shoeDetail})
+    body:JSON.stringify({dept, group:grp, month:month(), headcount:currentHc||0, shoe_detail:shoeDetail})
   }).then(r=>r.json());
   if(!r.ok){input.style.borderColor='red';}
   else{input.style.borderColor='';}
 }
 
 // ════════════════════ Export / Import ════════════════════
-function exportXlsx(){
-  window.location='/api/bianche/export?month='+month();
-}
+function exportXlsx(){ window.location='/api/bianche/export?month='+month(); }
 async function importXlsx(input){
   if(!input.files[0]) return;
   const fd=new FormData();
@@ -311,10 +298,7 @@ async function importXlsx(input){
 }
 
 // ════════════════════ Utils ════════════════════
-function sum(rows, key){ return round4(rows.reduce((s,r)=>s+(r[key]||0),0)); }
-function round4(v){ return Math.round((v||0)*10000)/10000; }
 function mpCls(v){ if(v==null) return 'zero-mp'; return Number(v)?'mp-val':'zero-mp'; }
-function fmt(v){ return v!=null?Number(v).toFixed(4).replace(/\.?0+$/,'')||'0':'—'; }
 function fmtN(v){ if(v==null) return '<span style="color:#bbb">—</span>'; const n=Number(v); return isNaN(n)?String(v):n.toFixed(2); }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function showToast(msg){

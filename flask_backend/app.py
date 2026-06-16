@@ -1134,6 +1134,17 @@ def bianche_dept_hc():
         d.get('headcount'), d.get('shoe_detail', ''), d.get('updated_by', '')
     ))
 
+@app.route('/api/bianche/lean_hc', methods=['GET'])
+def bianche_lean_hc_get():
+    return jsonify(db.get_bianche_lean_hcs(request.args.get('month', '2026-06')))
+
+@app.route('/api/bianche/lean_hc', methods=['POST'])
+def bianche_lean_hc_post():
+    d = request.get_json(force=True) or {}
+    return jsonify(db.set_bianche_lean_hc(
+        d.get('lean'), d.get('month', '2026-06'), d.get('headcount')
+    ))
+
 @app.route('/api/bianche/export', methods=['GET'])
 def bianche_export_xlsx():
     if not HAS_XLSX:
@@ -1167,34 +1178,36 @@ def bianche_export_xlsx():
         if fmt: c.number_format = fmt
 
     # === CSA Sheet ===
+    LEAN_ORDER_LIST = [
+        '1A','1B','1C','2A','2B','2C','3A','3B','3C','4A','4B','4C',
+        '5A','5B','5C','6A','6B','6C','7A','7B','7C','8A','8B','8C',
+        '9A','9B','9C','10A','10B','10C','11A1','11A2','11B1','11B2','11C'
+    ]
+    def _lean_key(l): i = LEAN_ORDER_LIST.index(l) if l in LEAN_ORDER_LIST else 999; return i
+
     ws = wb.active; ws.title = 'CSA'
-    _hdr(ws, 1, ['LEAN','鞋型名稱','ART','訂單','裁斷MP','針車MP','成型MP','協理給','合計','編制'])
+    _hdr(ws, 1, ['LEAN','鞋型名稱','ART','訂單','裁斷MP','針車MP','成型MP','協理給','LEAN編制'])
     ri = 2
-    rows = data.get('csa', {}).get('rows', [])
+    csa_data = data.get('csa', {})
+    rows = csa_data.get('rows', [])
+    lean_hc = csa_data.get('lean_hc', {})
     by_lean = {}
     for r in rows:
         by_lean.setdefault(r['lean'], []).append(r)
-    for lean, lrows in sorted(by_lean.items()):
-        for r in lrows:
+    for lean in sorted(by_lean.keys(), key=_lean_key):
+        lrows = by_lean[lean]
+        lean_headcount = lean_hc.get(lean, 0)
+        for i, r in enumerate(lrows):
             s = lambda v: round(float(v), 4) if v is not None else None
-            tot = round((s(r['cutting_mp']) or 0) + (s(r['stitching_mp']) or 0) + (s(r['assembly_mp']) or 0) + (r['manager_mp'] or 0), 4)
+            hc_val = lean_headcount if i == 0 else None
+            hc_ed  = i == 0
             for ci, (v, ed) in enumerate([
                 (r['lean'], False), (r['model_name'], False), (r['arts'], False), (r['qty'], False),
                 (s(r['cutting_mp']), False), (s(r['stitching_mp']), False), (s(r['assembly_mp']), False),
-                (r['manager_mp'] or 0, True), (tot, False), (r['headcount'] or 0, True)
+                (r['manager_mp'] or 0, True), (hc_val, hc_ed)
             ], 1):
                 _val(ws, ri, ci, v, ed)
             ri += 1
-        # LEAN subtotal
-        lcut = sum((r['cutting_mp'] or 0) for r in lrows)
-        lstch = sum((r['stitching_mp'] or 0) for r in lrows)
-        lasm = sum((r['assembly_mp'] or 0) for r in lrows)
-        ltot = round(lcut + lstch + lasm, 4)
-        for ci, v in enumerate([lean + ' 合計', '', '', sum(r['qty'] for r in lrows),
-                                  round(lcut,4), round(lstch,4), round(lasm,4), '', ltot, ''], 1):
-            c = ws.cell(row=ri, column=ci, value=v)
-            c.fill = grey_fill; c.font = Font(bold=True); c.border = bord; c.protection = lock_prot
-        ri += 1
     ws.protection.sheet = True; ws.protection.password = 'atlas2026'
 
     # === OCS / RB / QC sheets ===
@@ -1236,17 +1249,23 @@ def bianche_import_manual():
     updated_csa = updated_dept = 0
     try:
         wb = openpyxl.load_workbook(tmp.name, data_only=True)
-        # CSA sheet: cols A=LEAN B=model C=ART D=qty E=裁斷 F=針 G=成型 H=協理給 I=合計 J=編制
+        # CSA sheet: cols A=LEAN B=model C=ART D=qty E=裁斷 F=針 G=成型 H=協理給 I=LEAN編制
         if 'CSA' in wb.sheetnames:
             ws = wb['CSA']
+            seen_lean_hc = set()
             for row in ws.iter_rows(min_row=2, values_only=True):
                 lean = str(row[0] or '').strip()
                 model = str(row[1] or '').strip()
-                mgr = row[7]; hc = row[9]
-                if lean and model and lean != lean + ' 合計':
-                    if mgr is not None or hc is not None:
-                        db.set_bianche_model_manual(lean, model, month, mgr, hc, 'import')
-                        updated_csa += 1
+                if not lean or not model:
+                    continue
+                mgr = row[7]
+                lean_hc_val = row[8]
+                if mgr is not None:
+                    db.set_bianche_model_manual(lean, model, month, mgr, None, 'import')
+                    updated_csa += 1
+                if lean_hc_val is not None and lean not in seen_lean_hc:
+                    db.set_bianche_lean_hc(lean, month, lean_hc_val)
+                    seen_lean_hc.add(lean)
         # OCS/RB/QC: cols A=dept B=group C=shoe_detail D=last_hc E=this_hc
         for dept_key in ['OCS','RB','QC']:
             if dept_key in wb.sheetnames:

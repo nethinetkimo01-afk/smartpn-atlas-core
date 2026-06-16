@@ -2237,14 +2237,39 @@ def set_bianche_manual(lean, month, manager_mp, headcount, updated_by=''):
 
 OCS_DAODI_GROUPS = ['贴1','贴2','贴3','贴5','贴6','贴7','贴8','贴9',
                     '贴10','贴11','贴12','贴20','贴21','贴22','贴23']
-OCS_OTHER_GROUPS = ['組底配套','自動化','電腦針車','印刷']
-RB_GROUPS  = ['倉庫','物控','廠務維修','清潔']
-QC_GROUPS  = ['外觀品檢','尺寸量測','機能測試','成品入庫','出貨品檢']
+
+RB_GROUPS = [
+    '預備組','生管','倉庫生管','出半成品','模具',
+    '密練A','密練B','混A','混B','混C',
+    '熱A','熱B','熱C','整理A','整理B','整理C','技術組','硫化組',
+]
+
+QC_GROUPS_MAIN = [
+    'OCPT','實驗室','課部助理','協理助理','QA','樣品室QC','開發QA',
+    '檢驗真皮組','檢驗副料組','收料組','底料檢驗組','EVC檢驗',
+    'T2中底廠商','T3外包底料','印刷高周波QC','外包QC部件','QCRB','外包RBQC',
+    '自動化中心','電腦針車QC','QC貼底課','外包QC貼底',
+    'QC1','QC2','QC3','QC5','QC6','QC7','QC8','QC9','QC10','QC11','QC12','QC YH',
+    'QC YH（針車鞋面）','美城QC','驗貨員','包裝員','驗貨員（專員）',
+    '美興QC','JIATAI','美君','品包1組','品包2組','品包3組','掃描組','貼外箱標組','QC入庫和領料樣品室',
+]
 
 DEPT_GROUPS = {
-    'OCS': [('大底課-贴底', OCS_DAODI_GROUPS), ('大底課-其他', OCS_OTHER_GROUPS)],
-    'RB':  [('RB', RB_GROUPS)],
-    'QC':  [('QC', QC_GROUPS)],
+    'OCS': [
+        ('大底課', OCS_DAODI_GROUPS),
+        ('組底配套', ['組底倉庫','整理組','外包組','打粗組','UV水洗組','配套組']),
+        ('自動化', ['同材共裁1,2組','自動裁斷1,2組','鞋墊手工組','保全技術組','倉庫']),
+        ('電腦針車', ['折邊','電腦針車','倉庫','保全技術組']),
+        ('印刷', ['高周波','印刷組','配套組','網板組','印刷房','印刷開發','加工組']),
+        ('設備工程', ['保全','西工']),
+        ('副總室', ['副總室']),
+        ('現場技轉/KTHT', ['現場技轉/KTHT']),
+    ],
+    'RB': [('RB', RB_GROUPS)],
+    'QC': [
+        ('QC', QC_GROUPS_MAIN),
+        ('設備工程', ['保全','西工','副總室','現場技轉']),
+    ],
 }
 
 
@@ -2264,11 +2289,45 @@ def _ensure_bianche_ext(conn):
         headcount REAL DEFAULT 0, updated_by TEXT DEFAULT '', updated_at TEXT NOT NULL,
         UNIQUE(dept, group_name, month)
     );
+    CREATE TABLE IF NOT EXISTS bianche_lean_hc (
+        lean TEXT NOT NULL, month TEXT NOT NULL,
+        headcount REAL DEFAULT 0, updated_at TEXT NOT NULL,
+        PRIMARY KEY(lean, month)
+    );
     CREATE TABLE IF NOT EXISTS alloc_lock (
         month TEXT PRIMARY KEY, locked_at TEXT NOT NULL, locked_by TEXT DEFAULT ''
     );
     ''')
     conn.commit()
+
+
+def get_bianche_lean_hcs(month):
+    conn = get_conn()
+    try:
+        _ensure_bianche_ext(conn)
+        rows = conn.execute('SELECT lean, headcount FROM bianche_lean_hc WHERE month=?', (month,)).fetchall()
+        return {'ok': True, 'lean_hc': {r['lean']: r['headcount'] for r in rows}}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def set_bianche_lean_hc(lean, month, headcount):
+    conn = get_conn()
+    try:
+        _ensure_bianche_ext(conn)
+        conn.execute(
+            'INSERT INTO bianche_lean_hc (lean,month,headcount,updated_at) VALUES(?,?,?,?) '
+            'ON CONFLICT(lean,month) DO UPDATE SET headcount=excluded.headcount, updated_at=excluded.updated_at',
+            (lean, month, float(headcount or 0), now_iso())
+        )
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        conn.rollback(); return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
 
 
 def get_bianche_csa_data(month='2026-06'):
@@ -2343,9 +2402,11 @@ def get_bianche_csa_data(month='2026-06'):
                 'cutting_ie_mp': cut_ie, 'cutting_moved': cut_mv, 'cutting_mp': cut_act,
                 'stitching_ie_mp': stch_ie, 'stitching_moved': stch_mv, 'stitching_mp': stch_act,
                 'assembly_ie_mp': asm_ie, 'assembly_moved': asm_mv, 'assembly_mp': asm_act,
-                'manager_mp': m.get('manager_mp', 0), 'headcount': m.get('headcount', 0),
+                'manager_mp': m.get('manager_mp', 0),
             })
-        return {'ok': True, 'month': month, 'rows': results}
+        lean_hc = {r['lean']: r['headcount'] for r in conn.execute(
+            'SELECT lean, headcount FROM bianche_lean_hc WHERE month=?', (month,)).fetchall()}
+        return {'ok': True, 'month': month, 'rows': results, 'lean_hc': lean_hc}
     except Exception as e:
         import traceback; return {'ok': False, 'error': str(e), 'trace': traceback.format_exc()}
     finally:

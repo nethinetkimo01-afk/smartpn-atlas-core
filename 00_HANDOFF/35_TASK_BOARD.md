@@ -124,6 +124,8 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 073 | /allocation 勾選分配系統完整重建（機台分區+LEAN分組+訂單來源） | DATA SYSTEM | ✅完成 | 2026-06-16 | 2026-06-16 | allocation.html 全重建：3 tabs(同材共裁/電腦針車/打粗水洗)+zone區段+LEAN分組+鞋型×ART子表頭+部件行(☑/CT/Output/理論人數)+STF需求人力公式; database.py: order_qty→ds04_orders JOIN/prefill is_checked=1/alloc_fix_default_checked; app.py: fix_defaults route; T1-T4全Pass(12067筆prefill/3A ATOM 3項/toggle ok) |
 
+| 074 | /bianche 廠務編制表完整修正（CSA/OCS/RB/QC） | DATA SYSTEM | ✅完成 | 2026-06-16 | 2026-06-16 | bianche.html: 標籤CSA/OCS; LEAN固定排序; LEAN標題行(總訂單+編制input); 欄位=鞋型/ART/訂單/裁斷/針車/成型/協理給(刪合計MP+合計行); OCS 8區段(大底課/組底配套/自動化/電腦針車/印刷/設備工程/副總室/現場技轉KTHT); 大底課顯示鞋型明細; RB 18組; QC 48+4組; database.py: DEPT_GROUPS更新+bianche_lean_hc表+get/set函數; app.py: lean_hc GET/POST routes+export/import更新; T1-T6全Pass |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |
