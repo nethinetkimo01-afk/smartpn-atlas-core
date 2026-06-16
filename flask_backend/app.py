@@ -1097,6 +1097,17 @@ def api_users_update(uid):
 def api_users_delete(uid):
     return jsonify(db.delete_user(uid))
 
+# ── Test-output file downloads ───────────────────────────────────────────────
+
+@app.route('/download/<path:filename>')
+def download_test_output(filename):
+    from flask import send_from_directory
+    safe = os.path.basename(filename)
+    return send_from_directory(
+        os.path.join(os.path.dirname(__file__), 'test_output'),
+        safe, as_attachment=True
+    )
+
 # ── Bianche CSA (model-level) + OCS/RB/QC + Alloc lock ──────────────────────
 
 @app.route('/api/bianche/csa', methods=['GET'])
