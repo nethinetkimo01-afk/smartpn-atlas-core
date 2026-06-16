@@ -342,208 +342,179 @@ function renderCuttingTab(data) {
   return h;
 }
 
-// ── Cutting zone card (all zones unified: 裁斷機/ATOM/LASER/YINGHUI/EMMA/移印/轉印) ──
-// ── Cutting 區帶編號 (照 LA TRAINER OG xlsx Cutting (da thật) 結構) ────
-const CUTTING_ZONE_NUM = {'裁斷機':'①','ATOM':'②','EMMA':'③','Laser':'④','YINGHUI':'⑤','移印':'⑥','轉印':'⑦'};
+// ── Cutting zone card — 各區欄位照 27_WORKING_RULES.md 定案 ──────────────────
+// A=裁斷機(19) B=ATOM/EMMA(18) C=Laser(8) D=YINGHUI(12) E=移印/轉印(5)
+const CUTTING_ZONE_NUM  = {'裁斷機':'①','ATOM':'②','EMMA':'③','Laser':'④','YINGHUI':'⑤','移印':'⑥','轉印':'⑦'};
+const CUTTING_ZONE_TYPE = {'裁斷機':'A','ATOM':'B','EMMA':'B','Laser':'C','YINGHUI':'D','移印':'E','轉印':'E'};
 
 function renderCuttingZoneCard(z, eolr) {
   const zone  = z.zone;
   const zoneJ = esc(JSON.stringify(zone));
   const num   = CUTTING_ZONE_NUM[zone] || '';
-  const isAuto = CUTTING_NO_POST.has(zone);
+  const type  = CUTTING_ZONE_TYPE[zone] || 'A';
+  const rows  = z.rows || [];
   let h = `<div class="zone-card">
-    <div class="zone-header">
-      <div class="zone-left">
-        <span class="zone-name">${num ? num + ' ' : ''}${esc(zone)}</span>
-        <span class="zone-count">${z.rows.length} 道</span>
-        ${isAuto ? '<span class="badge" style="background:#e8eaf6;color:#3949ab">自動裁</span>' : ''}
-      </div>
-      <div class="zone-actions">
-        <button class="btn-group" onclick="openGroupModal(${zoneJ})">分組</button>
-      </div>
+  <div class="zone-header">
+    <div class="zone-left">
+      <span class="zone-name">${num ? num + ' ' : ''}${esc(zone)}</span>
+      <span class="zone-count">${rows.length} 道</span>
     </div>
-    <div class="zone-body"><table class="proc-table cut-table">
-    <thead>
-    <!-- R3: 中文群組 (xlsx R9) B-D各自，E-J=裁断 colspan=6，K-T後製工序 -->
-    <tr>
-      <th rowspan="4" style="width:22px;padding:2px"></th>
-      <th class="th-cut-group" style="background:#1a2744;color:#555"></th>
-      <th class="th-cut-group" style="background:#1a2744;color:#555"></th>
-      <th class="th-cut-group left" style="background:#1a2744;color:#555;min-width:110px"></th>
-      <th colspan="6" class="th-cut-group">裁断</th>
-      <th colspan="2" class="th-post-group">印线/画线</th>
-      <th colspan="2" class="th-post-group">削皮</th>
-      <th colspan="2" class="th-post-group">贴补强</th>
-      <th colspan="2" class="th-post-group">涂边/烘毛边</th>
-      <th colspan="2" class="th-post-group">热压</th>
-    </tr>
-    <!-- R4: 越文欄位名 (照 xlsx R10) -->
-    <tr>
-      <th class="th-vi">Phân loại<br>NL</th>
-      <th class="th-vi">STT</th>
-      <th class="th-vi left">Tên phối kiện</th>
-      <th class="th-vi">Số<br>lớp</th>
-      <th class="th-vi">Số phối<br>kiện/đôi</th>
-      <th class="th-vi">Số<br>dao/H</th>
-      <th class="th-vi">Tiêu chuẩn<br>thời gian</th>
-      <th class="th-vi">Số người<br>lý luận</th>
-      <th class="th-vi">Số người cần<br>máy cắt</th>
-      <th class="th-vi">Tiêu chuẩn<br>thời gian</th>
-      <th class="th-vi">Số người<br>lý luận</th>
-      <th class="th-vi">Tiêu chuẩn<br>thời gian</th>
-      <th class="th-vi">Số người<br>lý luận</th>
-      <th class="th-vi">Tiêu chuẩn<br>thời gian</th>
-      <th class="th-vi">Số người<br>lý luận</th>
-      <th class="th-vi">Tiêu chuẩn<br>thời gian</th>
-      <th class="th-vi">Số người<br>lý luận</th>
-      <th class="th-vi">Tiêu chuẩn<br>thời gian</th>
-      <th class="th-vi">Số người<br>lý luận</th>
-    </tr>
-    <!-- R5: 英文欄位名 (照 xlsx R11) -->
-    <tr>
-      <th class="th-en">Classification<br>Material</th>
-      <th class="th-en">Seq.<br>No</th>
-      <th class="th-en left">Name of Parts</th>
-      <th class="th-en">No.of<br>Layer</th>
-      <th class="th-en">Qty of<br>Parts(Pr)</th>
-      <th class="th-en">Cut<br>(Pair/H)</th>
-      <th class="th-en">Standard<br>time(s)</th>
-      <th class="th-en">Operators<br>in theory</th>
-      <th class="th-en">No.of<br>Operators</th>
-      <th class="th-en">Standard<br>time(s)</th>
-      <th class="th-en">Operators<br>in theory</th>
-      <th class="th-en">Standard<br>time(s)</th>
-      <th class="th-en">Operators<br>in theory</th>
-      <th class="th-en">Standard<br>time(s)</th>
-      <th class="th-en">Operators<br>in theory</th>
-      <th class="th-en">Standard<br>time(s)</th>
-      <th class="th-en">Operators<br>in theory</th>
-      <th class="th-en">Standard<br>time(s)</th>
-      <th class="th-en">Operators<br>in theory</th>
-    </tr>
-    <!-- R6: 中文欄位名 (照 xlsx R12) -->
-    <tr>
-      <th class="th-zh">材料類別</th>
-      <th class="th-zh">序號</th>
-      <th class="th-zh left">部件名稱</th>
-      <th class="th-zh">層數</th>
-      <th class="th-zh">件數</th>
-      <th class="th-zh">刀數/H</th>
-      <th class="th-zh th-formula-col">標准時間<br><span style="font-size:8px;font-weight:400">(秒/雙)</span></th>
-      <th class="th-zh th-theory-col">理論人數</th>
-      <th class="th-zh th-actual-col">裁機<br>要求人數</th>
-      <th class="th-zh th-formula-col">標准時間</th>
-      <th class="th-zh th-theory-col">理論人數</th>
-      <th class="th-zh th-formula-col">標准時間</th>
-      <th class="th-zh th-theory-col">理論人數</th>
-      <th class="th-zh th-formula-col">標准時間</th>
-      <th class="th-zh th-theory-col">理論人數</th>
-      <th class="th-zh th-formula-col">標准時間</th>
-      <th class="th-zh th-theory-col">理論人數</th>
-      <th class="th-zh th-formula-col">標准時間</th>
-      <th class="th-zh th-theory-col">理論人數</th>
-    </tr>
-    </thead>
-    <tbody id="tbody-cut-${esc(zone)}">`;
-  for (const row of z.rows) h += renderCuttingRow(row, zone, eolr);
+    <div class="zone-actions"><button class="btn-group" onclick="openGroupModal(${zoneJ})">分組</button></div>
+  </div>
+  <div class="zone-body"><table class="proc-table cut-table">
+  <thead>${_cutHead(type)}</thead>
+  <tbody id="tbody-cut-${esc(zone)}">`;
+  for (const row of rows) h += renderCuttingRow(row, zone, type, eolr);
   h += renderAddTriggerRow(zone, 'cutting');
   h += '</tbody></table></div></div>';
   return h;
 }
 
-function renderCuttingRow(row, zone, eolr) {
+// ── 表頭生成器 (R3 群組行 + R4越文 + R5英文 + R6中文) ────────────────────────
+function _cutHead(type) {
+  const G  = (n, t) => `<th colspan="${n}" class="th-cut-group">${t}</th>`;
+  const GP = (n, t) => `<th colspan="${n}" class="th-post-group">${t}</th>`;
+  const GB = ()     => `<th class="th-cut-group" style="background:#1a2744;color:#555"></th>`;
+  const vi = (t)    => `<th class="th-vi">${t}</th>`;
+  const en = (t)    => `<th class="th-en">${t}</th>`;
+  const zh = (t, c) => `<th class="th-zh${c ? ' '+c : ''}">${t}</th>`;
+  const DEL = '<th rowspan="4" style="width:22px;padding:2px"></th>';
+  const B3  = GB()+GB()+'<th class="th-cut-group left" style="background:#1a2744;color:#555;min-width:110px"></th>';
+  const V3  = vi('Phân loại<br>NL')+vi('STT')+vi('Tên phối kiện');
+  const E3  = en('Classification<br>Material')+en('Seq.<br>No')+en('Name of Parts');
+  const Z3  = zh('材料類別','')+zh('序號','')+zh('部件名稱','left');
+  const P5G = GP(2,'印线/画线')+GP(2,'削皮')+GP(2,'贴补强')+GP(2,'涂边/烘毛边')+GP(2,'热压');
+  const P5V = (vi('TC<br>thời gian')+vi('Số người<br>lý luận')).repeat(5);
+  const P5E = (en('Std time<br>(Secs)')+en('Operators<br>theory')).repeat(5);
+  const P5Z = (zh('標准時間','th-formula-col')+zh('理論人數','th-theory-col')).repeat(5);
+  const CV  = vi('Số<br>lớp')+vi('Số pk<br>/đôi')+vi('TC<br>thời gian')+vi('Số người<br>lý luận')+vi('Yêu cầu<br>máy cắt');
+  const CE  = en('No.of<br>Layer')+en('Qty<br>(1Prs)')+en('Std time<br>(Secs)')+en('Operators<br>theory')+en('No.of<br>Oper.');
+  const CZ  = zh('層數','')+zh('件數','')+zh('標准時間','')+zh('理論人數','th-theory-col')+zh('裁機<br>要求人數','th-actual-col');
+  let r3,r4,r5,r6;
+  if (type === 'A') {
+    r3 = DEL+B3+G(6,'裁断')+P5G;
+    r4 = V3+vi('Số<br>lớp')+vi('Số pk<br>/đôi')+vi('Số<br>dao/H')+vi('TC<br>thời gian')+vi('Số người<br>lý luận')+vi('Yêu cầu<br>máy cắt')+P5V;
+    r5 = E3+en('No.of<br>Layer')+en('Qty<br>(1Prs)')+en('Cut<br>(Pr/H)')+en('Std time<br>(Secs)')+en('Operators<br>theory')+en('No.of<br>Oper.')+P5E;
+    r6 = Z3+zh('層數','')+zh('件數','')+zh('刀數/H','')+zh('標准時間<br><span style="font-size:8px;font-weight:400">(秒/雙)</span>','th-formula-col')+zh('理論人數','th-theory-col')+zh('裁機<br>要求人數','th-actual-col')+P5Z;
+  } else if (type === 'B') {
+    r3 = DEL+B3+G(5,'裁断')+P5G;
+    r4 = V3+CV+P5V; r5 = E3+CE+P5E; r6 = Z3+CZ+P5Z;
+  } else if (type === 'C') {
+    r3 = DEL+B3+G(5,'裁断');
+    r4 = V3+CV; r5 = E3+CE; r6 = Z3+CZ;
+  } else if (type === 'D') {
+    r3 = DEL+B3+G(5,'裁断')+GP(2,'烘鞋垫')+GP(2,'轉印鞋垫');
+    r4 = V3+CV+vi('TC<br>thời gian')+vi('Số người<br>lý luận')+vi('TC<br>thời gian')+vi('Số người<br>lý luận');
+    r5 = E3+CE+en('Std time<br>(Secs)')+en('Operators<br>theory')+en('Std time<br>(Secs)')+en('Operators<br>theory');
+    r6 = Z3+CZ+zh('烘鞋垫<br>標時','th-formula-col')+zh('理論人數','th-theory-col')+zh('轉印鞋垫<br>標時','th-formula-col')+zh('理論人數','th-theory-col');
+  } else {
+    r3 = DEL+B3+G(2,'裁断');
+    r4 = V3+vi('TC<br>thời gian')+vi('Số người<br>lý luận');
+    r5 = E3+en('Std time<br>(Secs)')+en('Operators<br>theory');
+    r6 = Z3+zh('標准時間','')+zh('理論人數','th-theory-col');
+  }
+  return `<tr>${r3}</tr><tr>${r4}</tr><tr>${r5}</tr><tr>${r6}</tr>`;
+}
+
+// ── 資料行渲染 — 依 type 決定欄位 ───────────────────────────────────────────
+function renderCuttingRow(row, zone, type, eolr) {
   const pid     = row.id;
   const divisor = 3600 / eolr;
-  function dv(v) { return v != null ? fmtNum(v) : '—'; }
-  function opsDisp(std) {
-    if (std == null || std <= 0) return '—';
-    return fmtNum(parseFloat((std / divisor).toFixed(4)));
-  }
-  const stdTime = row.standard_time;
-  const theory  = (stdTime != null && stdTime > 0) ? stdTime / divisor : null;
-  const thDisp  = theory != null ? fmtNum(parseFloat(theory.toFixed(4))) : '—';
-  const viet = esc((LANG === 'vi' && row.process_name_vi) ? row.process_name_vi : (row.process_name || ''));
-  const zh   = esc(row.process_name_zh || '');
-  const nameCell = zh
-    ? `<td class="name left" style="white-space:normal">${viet}<div class="name-zh">${zh}</div></td>`
-    : `<td class="name left" style="white-space:normal">${viet}</td>`;
+  const dv  = (v)   => (v != null && v !== '') ? fmtNum(v) : '—';
+  const ops = (std) => { const s = parseFloat(std); return (!isNaN(s)&&s>0) ? fmtNum(parseFloat((s/divisor).toFixed(4))) : '—'; };
+  const edM = (fld, v) => `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'${fld}')" data-tip="點擊編輯">${dv(v)}</td>`;
+  const fmC = (v)      => `<td class="formula-cell">${dv(v)}</td>`;
+  const thC = (std)    => `<td class="formula-cell theory-cell" data-stdtime="${std??''}" data-zone="${esc(zone)}">${ops(std)}</td>`;
+  const actC = ()      => `<td class="actual-cell clickable" onclick="startEdit(this,${pid},'actual_operators')" data-tip="點擊編輯">${dv(row.actual_operators)}</td>`;
+  const post5 = () => ['post_marking_std','post_skiving_std','post_attach_std','post_edge_std','post_heat_std'].map(sc => {
+    const ps = row[sc];
+    return edM(sc,ps)+`<td class="formula-cell th-post-ops-cell" style="background:#e8f5e9;color:#2e7d32" data-poststd="${ps??''}">${ops(ps)}</td>`;
+  }).join('');
+  const std = row.standard_time;
+  const viet = esc((LANG==='vi'&&row.process_name_vi)?row.process_name_vi:(row.process_name||''));
+  const zh2  = esc(row.process_name_zh||'');
+  const nmC  = zh2 ? `<td class="name left" style="white-space:normal">${viet}<div class="name-zh">${zh2}</div></td>`
+                   : `<td class="name left" style="white-space:normal">${viet}</td>`;
   let h = '<tr>';
   h += `<td class="del-cell"><button class="btn-del" onclick="deleteRow(${pid})">×</button></td>`;
-  h += `<td class="num" style="background:#fff;cursor:text;font-size:9px" onclick="startTextEdit(this,${pid},'mat_cat')" data-tip="點擊編輯">${esc(row.mat_cat || '—')}</td>`;
-  h += `<td class="seq">${row.seq ?? ''}</td>`;
-  h += nameCell;
-  h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'layers_per_cut')" data-tip="點擊編輯">${dv(row.layers_per_cut)}</td>`;
-  h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'qty_per_pair')" data-tip="點擊編輯">${dv(row.qty_per_pair)}</td>`;
-  h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'cut_per_hour')" data-tip="點擊編輯">${dv(row.cut_per_hour)}</td>`;
-  h += `<td class="formula-cell">${stdTime != null ? fmtNum(stdTime) : '—'}</td>`;
-  h += `<td class="formula-cell theory-cell" data-stdtime="${stdTime ?? ''}" data-zone="${esc(zone)}">${thDisp}</td>`;
-  h += `<td class="actual-cell clickable" onclick="startEdit(this,${pid},'actual_operators')" data-tip="點擊編輯">${dv(row.actual_operators)}</td>`;
-  const postCols = ['post_marking_std','post_skiving_std','post_attach_std','post_edge_std','post_heat_std'];
-  for (const col of postCols) {
-    const ps = row[col];
-    h += `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'${col}')" data-tip="點擊編輯">${dv(ps)}</td>`;
-    h += `<td class="formula-cell th-post-ops-cell" style="background:#e8f5e9;color:#2e7d32" data-poststd="${ps ?? ''}">${opsDisp(ps)}</td>`;
+  h += `<td class="num" style="background:#fff;cursor:text;font-size:9px;min-width:50px" onclick="startTextEdit(this,${pid},'mat_cat')" data-tip="點擊編輯">${esc(row.mat_cat||'—')}</td>`;
+  h += `<td class="seq">${row.seq??''}</td>`;
+  h += nmC;
+  if (type === 'A') {
+    h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('cut_per_hour',row.cut_per_hour)+fmC(std)+thC(std)+actC()+post5();
+  } else if (type === 'B') {
+    h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('standard_time',std)+thC(std)+actC()+post5();
+  } else if (type === 'C') {
+    h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('standard_time',std)+thC(std)+actC();
+  } else if (type === 'D') {
+    const pk = row.post_marking_std, ps2 = row.post_skiving_std;
+    h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('standard_time',std)+thC(std)+actC();
+    h += edM('post_marking_std',pk)+`<td class="formula-cell th-post-ops-cell" style="background:#e8f5e9;color:#2e7d32">${ops(pk)}</td>`;
+    h += edM('post_skiving_std',ps2)+`<td class="formula-cell th-post-ops-cell" style="background:#e8f5e9;color:#2e7d32">${ops(ps2)}</td>`;
+  } else {
+    h += edM('standard_time',std)+thC(std);
   }
   h += '</tr>';
   return h;
 }
 
-// ── Inline add row for all cutting zones ─────────────────────────────────────
+// ── Inline 新增行 — 依 zone type 顯示對應欄位 ────────────────────────────────
 function addCuttingRow(zone) {
-  const tbody = document.getElementById('tbody-cut-' + zone);
+  const tbody = document.getElementById('tbody-cut-'+zone);
   if (!tbody) return;
   if (tbody.querySelector('.add-row-inline')) { tbody.querySelector('.add-inp')?.focus(); return; }
-  const zJ = esc(JSON.stringify(zone));
-  const cells = `
-    <td><input class="add-inp" id="add-mat-${esc(zone)}" placeholder="材料" style="min-width:46px;font-size:10px"></td>
-    <td style="text-align:center;color:#aaa;font-size:10px">—</td>
-    <td><input class="add-inp" id="add-name-${esc(zone)}" placeholder="部件名稱" style="min-width:90px"></td>
-    <td><input class="add-inp add-num" id="add-lay-${esc(zone)}" type="number" placeholder="層" style="min-width:28px"></td>
-    <td><input class="add-inp add-num" id="add-qty-${esc(zone)}" type="number" placeholder="件" style="min-width:28px"></td>
-    <td><input class="add-inp add-num" id="add-cph-${esc(zone)}" type="number" placeholder="刀/H" style="min-width:34px"></td>
-    <td><input class="add-inp add-num" id="add-std-${esc(zone)}" type="number" placeholder="標時" style="min-width:38px"></td>
-    <td class="formula-cell" style="font-size:9px;color:#aaa">公式</td>
-    <td><input class="add-inp add-num" id="add-act-${esc(zone)}" type="number" placeholder="人" style="min-width:28px"></td>
-    <td colspan="10" style="background:#f1f8e9;text-align:center;font-size:9px;color:#aaa;border:1px dashed #c8e6c9">後製工序（新增後填入）</td>
-    <td style="white-space:nowrap">
-      <button class="btn-inline-ok" onclick="confirmAddCuttingRow(${zJ})">✓</button>
-      <button class="btn-inline-cancel" onclick="cancelAddCuttingRow(${zJ})">✗</button>
-    </td>`;
+  const type = CUTTING_ZONE_TYPE[zone] || 'A';
+  const zJ   = esc(JSON.stringify(zone));
+  const zE   = esc(zone);
+  const fm   = () => `<td class="formula-cell" style="font-size:9px;color:#aaa">公式</td>`;
+  const ni   = (id, ph) => `<td><input class="add-inp add-num" id="${id}" type="number" placeholder="${ph}" style="min-width:28px"></td>`;
+  const ok   = `<td style="white-space:nowrap"><button class="btn-inline-ok" onclick="confirmAddCuttingRow(${zJ})">✓</button><button class="btn-inline-cancel" onclick="cancelAddCuttingRow(${zJ})">✗</button></td>`;
+  let c = `<td></td><td><input class="add-inp" id="add-mat-${zE}" placeholder="材料" style="min-width:46px;font-size:10px"></td><td style="text-align:center;color:#aaa;font-size:10px">—</td><td><input class="add-inp" id="add-name-${zE}" placeholder="部件名稱" style="min-width:90px"></td>`;
+  if (type === 'A') {
+    c += ni('add-lay-'+zE,'層')+ni('add-qty-'+zE,'件')+ni('add-cph-'+zE,'刀/H')+fm()+fm()+ni('add-act-'+zE,'人');
+    c += `<td colspan="10" style="background:#f1f8e9;text-align:center;font-size:9px;color:#aaa;border:1px dashed #c8e6c9">後製工序（新增後填入）</td>`;
+  } else if (type === 'B') {
+    c += ni('add-lay-'+zE,'層')+ni('add-qty-'+zE,'件')+ni('add-std-'+zE,'標時')+fm()+ni('add-act-'+zE,'人');
+    c += `<td colspan="10" style="background:#f1f8e9;text-align:center;font-size:9px;color:#aaa;border:1px dashed #c8e6c9">後製工序（新增後填入）</td>`;
+  } else if (type === 'C') {
+    c += ni('add-lay-'+zE,'層')+ni('add-qty-'+zE,'件')+ni('add-std-'+zE,'標時')+fm()+ni('add-act-'+zE,'人');
+  } else if (type === 'D') {
+    c += ni('add-lay-'+zE,'層')+ni('add-qty-'+zE,'件')+ni('add-std-'+zE,'標時')+fm()+ni('add-act-'+zE,'人');
+    c += `<td colspan="4" style="background:#f1f8e9;text-align:center;font-size:9px;color:#aaa;border:1px dashed #c8e6c9">烘/轉印鞋垫（新增後填入）</td>`;
+  } else {
+    c += ni('add-std-'+zE,'標時')+fm();
+  }
+  c += ok;
   const tr = document.createElement('tr');
   tr.className = 'add-row-inline';
-  tr.innerHTML = cells;
+  tr.innerHTML = c;
   const trigger = tbody.querySelector('.add-trigger-row');
   if (trigger) tbody.insertBefore(tr, trigger); else tbody.appendChild(tr);
-  tr.addEventListener('keydown', e => {
-    if (e.key === 'Enter')  confirmAddCuttingRow(zone);
-    if (e.key === 'Escape') cancelAddCuttingRow(zone);
-  });
-  document.getElementById('add-name-' + zone)?.focus();
+  tr.addEventListener('keydown', e => { if(e.key==='Enter') confirmAddCuttingRow(zone); if(e.key==='Escape') cancelAddCuttingRow(zone); });
+  document.getElementById('add-name-'+zE)?.focus();
 }
 
 async function confirmAddCuttingRow(zone) {
-  const name = document.getElementById('add-name-' + zone)?.value?.trim();
+  const type = CUTTING_ZONE_TYPE[zone] || 'A';
+  const zE   = esc(zone);
+  const name = document.getElementById('add-name-'+zE)?.value?.trim();
   if (!name) { alert('請輸入部件名稱'); return; }
-  const payload = {header_id: HID, segment: SEG, zone, stage_id: STAGE?.id, user: 'demo', process_name: name};
-  const mat = document.getElementById('add-mat-' + zone)?.value?.trim() || null;
-  const lay = parseFloat(document.getElementById('add-lay-' + zone)?.value) || null;
-  const qty = parseFloat(document.getElementById('add-qty-' + zone)?.value) || null;
-  const cph = parseFloat(document.getElementById('add-cph-' + zone)?.value) || null;
-  const std = parseFloat(document.getElementById('add-std-' + zone)?.value) || null;
-  const act = parseFloat(document.getElementById('add-act-' + zone)?.value) || null;
-  Object.assign(payload, {mat_cat: mat, layers_per_cut: lay, qty_per_pair: qty, cut_per_hour: cph, standard_time: std, actual_operators: act});
-  const r = await fetch('/api/ie/cell/add_row', {
-    method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify(payload),
-  });
+  const payload = {header_id:HID, segment:SEG, zone, stage_id:STAGE?.id, user:'demo', process_name:name};
+  const mat = document.getElementById('add-mat-'+zE)?.value?.trim()||null;
+  const g = (id) => parseFloat(document.getElementById(id)?.value)||null;
+  Object.assign(payload, {mat_cat:mat});
+  if (type==='A') Object.assign(payload, {layers_per_cut:g('add-lay-'+zE),qty_per_pair:g('add-qty-'+zE),cut_per_hour:g('add-cph-'+zE),actual_operators:g('add-act-'+zE)});
+  else if (type==='B'||type==='C'||type==='D') Object.assign(payload, {layers_per_cut:g('add-lay-'+zE),qty_per_pair:g('add-qty-'+zE),standard_time:g('add-std-'+zE),actual_operators:g('add-act-'+zE)});
+  else Object.assign(payload, {standard_time:g('add-std-'+zE)});
+  const r = await fetch('/api/ie/cell/add_row', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
   const j = await r.json();
-  if (j.ok) loadSegment(SEG);
-  else alert('新增失敗: ' + (j.error || ''));
+  if (j.ok) loadSegment(SEG); else alert('新增失敗: '+(j.error||''));
 }
 
 function cancelAddCuttingRow(zone) {
-  document.getElementById('tbody-cut-' + zone)?.querySelector('.add-row-inline')?.remove();
+  document.getElementById('tbody-cut-'+esc(zone))?.querySelector('.add-row-inline')?.remove();
 }
+
 
 // ── Generic zone card (stitching / assembly / stf / WS / _summary) ─────────────
 function renderZoneCard(z, seg, eolr) {

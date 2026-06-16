@@ -46,7 +46,108 @@ def init_db():
             [(v, z, ts) for v, z in DEFAULT_LOOKUP.items()]
         )
     conn.commit()
+    # Migration: sys_users table
+    utbls = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()]
+    if 'sys_users' not in utbls:
+        conn.execute('''CREATE TABLE IF NOT EXISTS sys_users (
+            id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            username     TEXT    NOT NULL UNIQUE,
+            display_name TEXT    NOT NULL DEFAULT '',
+            role         TEXT    NOT NULL DEFAULT 'read_only',
+            password_hash TEXT   NOT NULL DEFAULT '',
+            active       INTEGER NOT NULL DEFAULT 1,
+            locked       INTEGER NOT NULL DEFAULT 0,
+            created_at   TEXT    NOT NULL DEFAULT (datetime('now')),
+            updated_at   TEXT    NOT NULL DEFAULT (datetime('now'))
+        )''')
+        # Seed fixed external unit accounts (no password = locked, login not needed via UI)
+        ts = now_iso()
+        conn.executemany(
+            '''INSERT OR IGNORE INTO sys_users (username, display_name, role, locked, created_at, updated_at)
+               VALUES (?,?,?,1,?,?)''',
+            [('tongcai','同材共裁自動化','read_only',ts,ts),
+             ('dianno', '電腦針車折邊',  'read_only',ts,ts),
+             ('dacu',   '打粗水洗照射',  'read_only',ts,ts)]
+        )
+        conn.commit()
     conn.close()
+
+# ── User management ──────────────────────────────────────────────────────────
+
+def _hash_pw(pw: str) -> str:
+    import hashlib
+    return hashlib.sha256(pw.encode()).hexdigest()
+
+def list_users():
+    conn = get_conn()
+    rows = conn.execute(
+        'SELECT id,username,display_name,role,active,locked,created_at FROM sys_users ORDER BY id'
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+def create_user(username, display_name, role, password, active=1):
+    if not username or not display_name or not password:
+        return {'ok': False, 'error': '帳號、名稱、密碼不能空白'}
+    if role not in ('admin','data_entry','read_only'):
+        return {'ok': False, 'error': '角色無效'}
+    conn = get_conn()
+    try:
+        conn.execute(
+            '''INSERT INTO sys_users (username, display_name, role, password_hash, active, updated_at)
+               VALUES (?,?,?,?,?,datetime('now'))''',
+            (username.strip().lower(), display_name.strip(), role, _hash_pw(password), int(active))
+        )
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+def update_user(uid, display_name=None, role=None, password=None, active=None):
+    conn = get_conn()
+    row = conn.execute('SELECT * FROM sys_users WHERE id=?', (uid,)).fetchone()
+    if not row:
+        conn.close()
+        return {'ok': False, 'error': '帳號不存在'}
+    if row['locked']:
+        conn.close()
+        return {'ok': False, 'error': '系統帳號不可修改'}
+    sets, vals = [], []
+    if display_name is not None: sets.append('display_name=?'); vals.append(display_name.strip())
+    if role is not None:
+        if role not in ('admin','data_entry','read_only'):
+            conn.close()
+            return {'ok': False, 'error': '角色無效'}
+        sets.append('role=?'); vals.append(role)
+    if password:
+        sets.append('password_hash=?'); vals.append(_hash_pw(password))
+    if active is not None:
+        sets.append('active=?'); vals.append(int(active))
+    if not sets:
+        conn.close()
+        return {'ok': True}
+    sets.append("updated_at=datetime('now')")
+    vals.append(uid)
+    conn.execute(f'UPDATE sys_users SET {", ".join(sets)} WHERE id=?', vals)
+    conn.commit()
+    conn.close()
+    return {'ok': True}
+
+def delete_user(uid):
+    conn = get_conn()
+    row = conn.execute('SELECT locked FROM sys_users WHERE id=?', (uid,)).fetchone()
+    if not row:
+        conn.close()
+        return {'ok': False, 'error': '帳號不存在'}
+    if row['locked']:
+        conn.close()
+        return {'ok': False, 'error': '系統帳號不可刪除'}
+    conn.execute('DELETE FROM sys_users WHERE id=?', (uid,))
+    conn.commit()
+    conn.close()
+    return {'ok': True}
 
 # ── DS-03 OB ────────────────────────────────────────────────────────────────
 

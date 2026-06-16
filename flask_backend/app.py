@@ -1063,6 +1063,40 @@ def ds04_export():
     return send_file(buf, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                      as_attachment=True, download_name='ds04_進度表.xlsx')
 
+# ── User management (/admin/users) ───────────────────────────────────────────
+
+@app.route('/admin/users')
+def admin_users_page():
+    return send_from_directory('..', 'admin_users.html')
+
+@app.route('/api/users', methods=['GET'])
+def api_users_list():
+    return jsonify({'ok': True, 'users': db.list_users()})
+
+@app.route('/api/users', methods=['POST'])
+def api_users_create():
+    d = request.get_json(force=True) or {}
+    return jsonify(db.create_user(
+        d.get('username',''), d.get('display_name',''),
+        d.get('role','read_only'), d.get('password',''),
+        d.get('active',1)
+    ))
+
+@app.route('/api/users/<int:uid>', methods=['PUT'])
+def api_users_update(uid):
+    d = request.get_json(force=True) or {}
+    return jsonify(db.update_user(
+        uid,
+        display_name=d.get('display_name'),
+        role=d.get('role'),
+        password=d.get('password') or None,
+        active=d.get('active')
+    ))
+
+@app.route('/api/users/<int:uid>', methods=['DELETE'])
+def api_users_delete(uid):
+    return jsonify(db.delete_user(uid))
+
 # ── Health check ─────────────────────────────────────────────────────────────
 
 @app.route('/api/health', methods=['GET'])

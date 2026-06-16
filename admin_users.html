@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>帳號管理 — SmartPN Atlas</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Microsoft JhengHei',Arial,sans-serif;background:#f5f7fa;color:#333;font-size:14px}
+.topbar{background:#1a2744;color:#fff;padding:12px 24px;display:flex;align-items:center;gap:16px}
+.topbar a{color:#aad4ff;text-decoration:none;font-size:13px}
+.topbar a:hover{color:#fff}
+.topbar .title{font-size:16px;font-weight:bold;flex:1}
+.page{max-width:900px;margin:24px auto;padding:0 16px}
+h2{font-size:18px;margin-bottom:16px;color:#1a2744}
+.card{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.1);padding:20px;margin-bottom:20px}
+table{width:100%;border-collapse:collapse}
+th{background:#1a2744;color:#fff;padding:8px 10px;text-align:left;font-weight:normal;font-size:13px}
+td{padding:8px 10px;border-bottom:1px solid #eee;vertical-align:middle}
+tr:hover td{background:#f8f9ff}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:bold}
+.badge-admin{background:#fce4d6;color:#c00}
+.badge-data_entry{background:#d0f0d0;color:#060}
+.badge-read_only{background:#e0e0e0;color:#555}
+.btn{padding:5px 12px;border:none;border-radius:4px;cursor:pointer;font-size:13px}
+.btn-primary{background:#1a2744;color:#fff}
+.btn-primary:hover{background:#243460}
+.btn-danger{background:#e53935;color:#fff}
+.btn-danger:hover{background:#b71c1c}
+.btn-sm{padding:3px 8px;font-size:12px}
+.btn-edit{background:#1565c0;color:#fff}
+.btn-edit:hover{background:#0d47a1}
+.inactive td{opacity:.5}
+form label{display:block;font-size:12px;color:#666;margin-bottom:2px;margin-top:10px}
+form input,form select{width:100%;padding:7px 10px;border:1px solid #ccc;border-radius:4px;font-size:14px}
+form input:focus,form select:focus{outline:none;border-color:#1a2744}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.msg{padding:8px 12px;border-radius:4px;margin-bottom:10px;font-size:13px;display:none}
+.msg.ok{background:#d0f0d0;color:#060;display:block}
+.msg.err{background:#ffd0d0;color:#c00;display:block}
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center}
+.modal-backdrop.open{display:flex}
+.modal{background:#fff;border-radius:8px;padding:24px;width:400px;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.modal h3{margin-bottom:12px;color:#1a2744}
+.modal-actions{margin-top:16px;display:flex;gap:8px;justify-content:flex-end}
+.role-hint{font-size:11px;color:#888;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="title">帳號管理</span>
+  <a href="/">首頁</a>
+  <a href="/ie">IE表</a>
+  <a href="/admin">管理後台</a>
+</div>
+
+<div class="page">
+  <h2>系統帳號管理</h2>
+
+  <div class="card">
+    <div id="msg" class="msg"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <strong>帳號列表</strong>
+      <button class="btn btn-primary" onclick="openAdd()">+ 新增帳號</button>
+    </div>
+    <table id="tbl">
+      <thead>
+        <tr>
+          <th>帳號</th>
+          <th>顯示名稱</th>
+          <th>角色</th>
+          <th>狀態</th>
+          <th>建立時間</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="card" style="font-size:13px;color:#555">
+    <strong>角色說明</strong>
+    <ul style="margin-top:8px;padding-left:18px;line-height:2">
+      <li><span class="badge badge-admin">管理員</span> — 建帳號、指派任務、核准修改、鎖定合格版、決定主表顯示版本</li>
+      <li><span class="badge badge-data_entry">資料建立</span> — 填寫IE資料、送審</li>
+      <li><span class="badge badge-read_only">只讀</span> — 看資料不能改</li>
+    </ul>
+    <div style="margin-top:10px"><strong>固定外移單位帳號：</strong>
+      tongcai（同材共裁自動化）、dianno（電腦針車折邊）、dacu（打粗水洗照射）
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <h3 id="modal-title">新增帳號</h3>
+    <div id="modal-msg" class="msg"></div>
+    <input type="hidden" id="edit-id">
+    <div class="form-row">
+      <div>
+        <label>帳號 *</label>
+        <input type="text" id="f-username" placeholder="lowercase, no spaces" autocomplete="off">
+      </div>
+      <div>
+        <label>顯示名稱 *</label>
+        <input type="text" id="f-displayname" placeholder="e.g. Jim (Admin)">
+      </div>
+    </div>
+    <div class="form-row">
+      <div>
+        <label>角色 *</label>
+        <select id="f-role">
+          <option value="admin">管理員</option>
+          <option value="data_entry" selected>資料建立</option>
+          <option value="read_only">只讀</option>
+        </select>
+        <div class="role-hint" id="role-hint"></div>
+      </div>
+      <div>
+        <label id="pw-label">密碼 *</label>
+        <input type="password" id="f-password" placeholder="留空=不修改（編輯時）" autocomplete="new-password">
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <label><input type="checkbox" id="f-active" checked> 帳號啟用</label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveUser()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ROLE_LABELS = {admin:'管理員', data_entry:'資料建立', read_only:'只讀'};
+const ROLE_BADGES = {admin:'badge-admin', data_entry:'badge-data_entry', read_only:'badge-read_only'};
+const ROLE_HINTS  = {
+  admin:'建帳號、核准修改、鎖定合格版',
+  data_entry:'填寫IE資料、送審',
+  read_only:'看資料不能改'
+};
+
+async function loadUsers() {
+  const r = await fetch('/api/users');
+  const d = await r.json();
+  if (!d.ok) { showMsg('err', d.error); return; }
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+  for (const u of d.users) {
+    const tr = document.createElement('tr');
+    if (!u.active) tr.className = 'inactive';
+    tr.innerHTML = `
+      <td><strong>${esc(u.username)}</strong></td>
+      <td>${esc(u.display_name)}</td>
+      <td><span class="badge ${ROLE_BADGES[u.role]||''}">${ROLE_LABELS[u.role]||u.role}</span></td>
+      <td>${u.active ? '✅ 啟用' : '⛔ 停用'}</td>
+      <td style="font-size:12px;color:#888">${(u.created_at||'').slice(0,16)}</td>
+      <td>
+        ${u.locked ? '<span style="color:#888;font-size:12px">系統帳號</span>' :
+          `<button class="btn btn-sm btn-edit" onclick="openEdit(${JSON.stringify(u)})">編輯</button>
+           <button class="btn btn-sm btn-danger" onclick="deleteUser(${u.id},'${esc(u.username)}')" style="margin-left:4px">刪除</button>`}
+      </td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function openAdd() {
+  document.getElementById('modal-title').textContent = '新增帳號';
+  document.getElementById('edit-id').value = '';
+  document.getElementById('f-username').value = '';
+  document.getElementById('f-username').disabled = false;
+  document.getElementById('f-displayname').value = '';
+  document.getElementById('f-role').value = 'data_entry';
+  document.getElementById('f-password').value = '';
+  document.getElementById('f-password').placeholder = '請設定密碼';
+  document.getElementById('pw-label').textContent = '密碼 *';
+  document.getElementById('f-active').checked = true;
+  document.getElementById('modal-msg').className = 'msg';
+  document.getElementById('modal').classList.add('open');
+  updateRoleHint();
+}
+
+function openEdit(u) {
+  document.getElementById('modal-title').textContent = '編輯帳號';
+  document.getElementById('edit-id').value = u.id;
+  document.getElementById('f-username').value = u.username;
+  document.getElementById('f-username').disabled = true;
+  document.getElementById('f-displayname').value = u.display_name;
+  document.getElementById('f-role').value = u.role;
+  document.getElementById('f-password').value = '';
+  document.getElementById('f-password').placeholder = '留空＝不修改密碼';
+  document.getElementById('pw-label').textContent = '新密碼（選填）';
+  document.getElementById('f-active').checked = !!u.active;
+  document.getElementById('modal-msg').className = 'msg';
+  document.getElementById('modal').classList.add('open');
+  updateRoleHint();
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+function updateRoleHint() {
+  const v = document.getElementById('f-role').value;
+  document.getElementById('role-hint').textContent = ROLE_HINTS[v] || '';
+}
+document.getElementById('f-role').addEventListener('change', updateRoleHint);
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+document.getElementById('modal').addEventListener('click', e => { if(e.target===document.getElementById('modal')) closeModal(); });
+
+async function saveUser() {
+  const id = document.getElementById('edit-id').value;
+  const body = {
+    username:     document.getElementById('f-username').value.trim().toLowerCase(),
+    display_name: document.getElementById('f-displayname').value.trim(),
+    role:         document.getElementById('f-role').value,
+    password:     document.getElementById('f-password').value,
+    active:       document.getElementById('f-active').checked ? 1 : 0,
+  };
+  if (!body.username || !body.display_name) {
+    document.getElementById('modal-msg').className = 'msg err';
+    document.getElementById('modal-msg').textContent = '帳號和顯示名稱不能空白';
+    return;
+  }
+  if (!id && !body.password) {
+    document.getElementById('modal-msg').className = 'msg err';
+    document.getElementById('modal-msg').textContent = '新帳號必須設定密碼';
+    return;
+  }
+  const url = id ? `/api/users/${id}` : '/api/users';
+  const method = id ? 'PUT' : 'POST';
+  const r = await fetch(url, {method, headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+  const d = await r.json();
+  if (d.ok) {
+    closeModal();
+    showMsg('ok', id ? '帳號已更新' : '帳號已建立');
+    loadUsers();
+  } else {
+    document.getElementById('modal-msg').className = 'msg err';
+    document.getElementById('modal-msg').textContent = d.error || '操作失敗';
+  }
+}
+
+async function deleteUser(id, uname) {
+  if (!confirm(`確認刪除帳號「${uname}」？此操作無法復原。`)) return;
+  const r = await fetch(`/api/users/${id}`, {method:'DELETE'});
+  const d = await r.json();
+  if (d.ok) { showMsg('ok', `帳號「${uname}」已刪除`); loadUsers(); }
+  else showMsg('err', d.error || '刪除失敗');
+}
+
+function showMsg(type, text) {
+  const el = document.getElementById('msg');
+  el.className = 'msg ' + type;
+  el.textContent = text;
+  setTimeout(() => { el.className = 'msg'; }, 4000);
+}
+
+loadUsers();
+</script>
+</body>
+</html>
