@@ -60,6 +60,22 @@ Jim 在這個對話傳過三張參考圖，Claude 沒有用，逼 Jim 重傳。
 
 ---
 
+## CV 格式與結構（已確認 2026-06-16）
+
+**格式：** 橫式，多頁 PDF
+
+**頁面順序：**
+- 第 1 頁：Section 1 — 針對該公司的貢獻（六個點）
+- 第 2-7 頁：P1-P6 六張圖，每張一頁，圖多字少
+- 第 8 頁：Section 3 — What I'm Looking For
+- 第 9 頁：Section 2 — Who I Am（含聯絡資訊）
+
+**設計邏輯：**
+高層第一頁看貢獻，六張圖看痛點，最後才看人是誰。
+記住的是問題，不是背景。
+
+---
+
 ## 六個 Contribution Title（已確認）
 
 P1 — Reclaim your hidden margin from the manufacturing side.
