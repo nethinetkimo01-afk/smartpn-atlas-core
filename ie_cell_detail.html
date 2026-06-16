@@ -312,7 +312,7 @@ async function loadSegment(seg) {
 }
 
 // ── Render dispatcher ──────────────────────────────────────────────────────────
-const CUTTING_FIXED_ORDER = ['裁斷機','ATOM','EMMA','Laser','YINGHUI','移印','轉印'];
+const CUTTING_ZONE_ORDER = ['裁斷機','ATOM','EMMA','Laser','YINGHUI','移印','轉印'];
 
 function renderZones(data) {
   ZONE_ROWS = {};
@@ -322,23 +322,24 @@ function renderZones(data) {
       name: (LANG === 'vi' && r.process_name_vi) ? r.process_name_vi : (r.process_name || ''),
     }));
   }
-  let html = '';
-  if (data.segment === 'cutting') {
-    const zoneMap = new Map(data.zones.map(z => [z.zone, z]));
-    // ①–⑦ 固定順序，無資料也渲染（空 rows）
-    for (const name of CUTTING_FIXED_ORDER) {
-      html += renderCuttingZoneCard(zoneMap.get(name) || { zone: name, rows: [] }, data.eolr);
-    }
-    // ⑧ 手工總人數行
-    html += renderZoneCard(zoneMap.get('_summary') || { zone: '_summary', rows: [] }, data.segment, data.eolr);
-    // ⑨ 水蜘蛛
-    html += renderZoneCard(zoneMap.get(WS) || { zone: WS, rows: [] }, data.segment, data.eolr);
-  } else {
-    for (const z of data.zones) {
-      html += renderZoneCard(z, data.segment, data.eolr);
-    }
-  }
+  let html = data.segment === 'cutting'
+    ? renderCuttingTab(data)
+    : (() => { let h = ''; for (const z of data.zones) h += renderZoneCard(z, data.segment, data.eolr); return h; })();
   document.getElementById('mainContent').innerHTML = html;
+}
+
+// ── renderCuttingTab ── 七個區固定顯示，照 xlsx Cutting_TC B-T欄 ─────────────
+function renderCuttingTab(data) {
+  const eolr    = data.eolr || EOLR;
+  const zoneMap = new Map((data.zones || []).map(z => [z.zone, z]));
+  let h = '';
+  for (const name of CUTTING_ZONE_ORDER) {
+    h += renderCuttingZoneCard(zoneMap.get(name) || { zone: name, rows: [] }, eolr);
+  }
+  const smry = zoneMap.get('_summary');
+  if (smry) h += renderZoneCard(smry, 'cutting', eolr);
+  h += renderZoneCard(zoneMap.get(WS) || { zone: WS, rows: [] }, 'cutting', eolr);
+  return h;
 }
 
 // ── Cutting zone card (all zones unified: 裁斷機/ATOM/LASER/YINGHUI/EMMA/移印/轉印) ──
@@ -363,17 +364,13 @@ function renderCuttingZoneCard(z, eolr) {
     </div>
     <div class="zone-body"><table class="proc-table cut-table">
     <thead>
-    <!-- R3: 群組行 (照 xlsx R9 中文群組名) -->
+    <!-- R3: 中文群組 (xlsx R9) B-D各自，E-J=裁断 colspan=6，K-T後製工序 -->
     <tr>
       <th rowspan="4" style="width:22px;padding:2px"></th>
-      <th class="th-cut-group" style="background:#1a2744;color:#888"></th>
-      <th class="th-cut-group" style="background:#1a2744;color:#888"></th>
-      <th class="th-cut-group left" style="background:#1a2744;color:#888;min-width:110px"></th>
-      <th class="th-cut-group" style="background:#1a2744;color:#888"></th>
-      <th class="th-cut-group" style="background:#1a2744;color:#888"></th>
-      <th class="th-cut-group" style="background:#1a2744;color:#888"></th>
-      <th colspan="2" class="th-cut-group">裁断</th>
-      <th class="th-actual" style="background:#1a2744;color:#888"></th>
+      <th class="th-cut-group" style="background:#1a2744;color:#555"></th>
+      <th class="th-cut-group" style="background:#1a2744;color:#555"></th>
+      <th class="th-cut-group left" style="background:#1a2744;color:#555;min-width:110px"></th>
+      <th colspan="6" class="th-cut-group">裁断</th>
       <th colspan="2" class="th-post-group">印线/画线</th>
       <th colspan="2" class="th-post-group">削皮</th>
       <th colspan="2" class="th-post-group">贴补强</th>
