@@ -16,7 +16,8 @@ os.makedirs(OUT_DIR, exist_ok=True)
 # ── Sheet 名稱對照表（照 27_WORKING_RULES.md 定案）──────────────────────────
 SKIP_PAT = re.compile(
     r'^(sum[.\s]|sum$|sheet\d+$|chi ti|同材共裁|ac$|stt$|bang ke|nhân|nhan luc|'
-    r'summary|bộ phận|bo phan|tong hop|khai bao|%cs|%ac|tc$)',
+    r'summary|bộ phận|bo phan|tong hop|khai bao|%cs|%ac|tc$|so sánh|so sanh|'
+    r'kaizen|gcn$|sheet\d+\s*\()',
     re.I
 )
 
@@ -25,22 +26,28 @@ def classify_sheet(name: str):
     n = name.strip()
     nl = n.lower()
     if SKIP_PAT.match(nl): return 'skip'
-    if re.match(r'^ac[_\s\-\(]', nl, re.I): return 'skip'
+    if re.match(r'^ac[_\s\-\(\.]', nl, re.I): return 'skip'
     if re.match(r'^%', nl): return 'skip'
+    if re.match(r'^\(%', nl): return 'skip'
     # Cutting
     if re.match(r'^cutting[_\s\-\(]?emma', nl): return ('cutting','EMMA')
     if re.match(r'^cutting[_\s\-\(]?tc', nl):   return ('cutting','裁斷機')
     if re.match(r'^cutting', nl):                return ('cutting','裁斷機')
     if nl == 'atom':                             return ('cutting','ATOM')
-    if re.match(r'^atom\s*[-–]\s*laser', nl):    return ('cutting','_auto')  # ATOM-LASER mixed
+    if nl == 'emma':                             return ('cutting','EMMA')
+    if re.match(r'^atom\s*[-–]\s*laser', nl):    return ('cutting','_auto')
+    if re.match(r'^atom[_&]laser', nl):          return ('cutting','_auto')  # ATOM_LASER / Atom&Laser
+    if re.match(r'^atom.*自动', nl):             return ('cutting','_auto')  # ATOM-自动化
+    if re.match(r'^atom[._\d]', nl):             return ('cutting','ATOM')   # ATOM.1 / ATOM_KK4437
     if re.match(r'^自动[裁化]', nl) or re.match(r'^自动化', nl): return ('cutting','_auto')
     if '自动化' in nl and re.search(r'(màu|color)', nl, re.I): return ('cutting','_auto')
     if nl in ('tự động cắt','tat dong cat'): return ('cutting','_auto')
     if re.match(r'^laser', nl):                  return ('cutting','Laser')
     if 'yinghui' in nl or 'yin hui' in nl:       return ('cutting','YINGHUI')
     if re.match(r'^(移印|转印|chuyển in)', nl):   return ('cutting','移印')
+    if '鞋头' in n or '鞋羽' in n:              return ('cutting','裁斷機')  # toe/tongue cutting
     # Stitching
-    if re.match(r'^sub[.\s_-]?stic', nl.strip()): return ('stitching','支流')  # Sub-Stiching/Sub.Stitching variants
+    if re.match(r'^sub[.\s_-]?sti', nl.strip()): return ('stitching','支流')  # Sub-Stiching typo + Sub.Stitching
     if re.match(r'^stitching.*sub', nl):   return ('stitching','支流')
     if re.match(r'^stitching', nl):        return ('stitching','主流')
     if re.match(r'^(电脑针车|cs$|电脑|điện toán)', nl, re.I): return ('stitching','電腦針車')
@@ -57,6 +64,8 @@ def classify_sheet(name: str):
     if '水洗' in n:                              return ('stf','水洗')
     if '贴大底' in n or '貼大底' in n or '贴底' in n or '貼底' in n: return ('stf','貼底')
     if '贴中底' in n or '貼中底' in n:           return ('stf','貼底')
+    if '贴鞋垫' in n or '貼鞋墊' in n:          return ('stf','貼底')
+    if '贴胶中底' in n or '貼膠中底' in n:       return ('stf','貼底')
     if '组底面照射' in n or '組底面照射' in n or re.match(r'^sum.?stock', nl): return ('stf','照射')
     if '照射' in n:                              return ('stf','照射')  # standalone 照射 → STF
     if '橡膠' in n or '橡胶' in n:              return ('stf','貼底')
