@@ -1443,11 +1443,10 @@ def prefill_allocation(header_id=None, month=None):
 
         inserted = 0
         for hid in hdr_ids:
-            meta = conn.execute('SELECT eolr, lean FROM ob_header WHERE id=?', (hid,)).fetchone()
+            meta = conn.execute('SELECT eolr FROM ob_header WHERE id=?', (hid,)).fetchone()
             if not meta:
                 continue
             eolr = int(meta['eolr'] or 120)
-            lean_val = meta['lean']
             divisor = 3600.0 / eolr
             arts = [r['art'] for r in conn.execute(
                 'SELECT art FROM ob_articles WHERE header_id=? ORDER BY id', (hid,)).fetchall()]
@@ -1465,6 +1464,10 @@ def prefill_allocation(header_id=None, month=None):
             except Exception:
                 rows = []
             for art in arts:
+                # look up lean from ds04_orders for this art
+                lean_row = conn.execute(
+                    'SELECT lean FROM ds04_orders WHERE art=? LIMIT 1', (art,)).fetchone() if art else None
+                lean_val = lean_row['lean'] if lean_row else ''
                 for r in rows:
                     zone = r['zone']
                     st = r['standard_time']

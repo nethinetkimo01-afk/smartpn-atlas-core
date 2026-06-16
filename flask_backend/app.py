@@ -1184,7 +1184,7 @@ def bianche_export_xlsx():
             c = ws.cell(row=ri, column=ci, value=v)
             c.fill = grey_fill; c.font = Font(bold=True); c.border = bord; c.protection = lock_prot
         ri += 1
-    ws.sheet_protection.sheet = True; ws.sheet_protection.password = 'atlas2026'
+    ws.protection.sheet = True; ws.protection.password = 'atlas2026'
 
     # === OCS / RB / QC sheets ===
     for dept_key, dept_data in [('OCS', data.get('ocs',{})), ('RB', data.get('rb',{})), ('QC', data.get('qc',{}))]:
@@ -1199,7 +1199,7 @@ def bianche_export_xlsx():
                 _val(ws2, ri, 4, g.get('last_month_hc'), False)
                 _val(ws2, ri, 5, g.get('this_month_hc', 0), True)
                 ri += 1
-        ws2.sheet_protection.sheet = True; ws2.sheet_protection.password = 'atlas2026'
+        ws2.protection.sheet = True; ws2.protection.password = 'atlas2026'
 
     for ws_s in wb.worksheets:
         ws_s.column_dimensions['A'].width = 14
