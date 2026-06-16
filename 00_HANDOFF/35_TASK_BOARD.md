@@ -116,6 +116,8 @@ Version: v1.0 | 建立: 2026-06-13
 
 | 069 | IE導入對比表（人員數字） | DATA SYSTEM | ✅完成 | 2026-06-16 | 2026-06-16 | ie_mp_comparison.py; SUM.C2B四段人員 vs Σ(ST)/30 理論人數; 154筆/394紅格; ie_import_comparison.xlsx |
 
+| 070 | 廠務編制系統驗收+bugfix（allocation prefill+xlsx export） | DATA SYSTEM | ✅完成 | 2026-06-16 | 2026-06-16 | 10項驗收全Pass; prefill lean從ds04_orders查(非ob_header); ws.protection修正; e431ee7 |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |
