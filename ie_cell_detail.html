@@ -162,23 +162,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#f0f2
   <button class="btn-save-all" id="btnSaveAll" onclick="submitAllEdits()">提交審核</button>
 </div>
 
-<!-- 分組 Modal -->
-<div class="modal-overlay" id="groupModal">
-  <div class="modal-box">
-    <div class="modal-title" id="groupModalTitle">設定人力分組</div>
-    <label class="modal-label">選擇工序（同一組共用人力）</label>
-    <div class="proc-check-list" id="groupProcList"></div>
-    <label class="modal-label">實際人數（此組合計）</label>
-    <input class="modal-input" type="number" step="0.5" min="0.5" id="groupHeadcount" placeholder="例如: 2">
-    <label class="modal-label">備注（選填）</label>
-    <input class="modal-input" type="text" id="groupNote" placeholder="例如: 甲班配置">
-    <div class="modal-footer">
-      <button class="btn-mcancel" onclick="closeGroupModal()">取消</button>
-      <button class="btn-mok" onclick="submitGroup()">儲存分組</button>
-    </div>
-  </div>
-</div>
-
 <!-- 新增工序 Modal（非cutting段用） -->
 <div class="modal-overlay" id="addRowModal">
   <div class="modal-box">
@@ -255,7 +238,7 @@ applyLangUI(LANG);
 async function init() {
   const [sr, lr] = await Promise.all([
     fetch('/api/ie/stages/' + HID).then(r => r.json()).catch(() => ({})),
-    fetch('/api/ie/list').then(r => r.json()).catch(() => ({})),
+    fetch('/api/ie/detail/' + HID).then(r => r.json()).catch(() => ({})),
   ]);
 
   if (sr.ok && sr.stages && sr.stages.length) {
@@ -271,17 +254,15 @@ async function init() {
     if (STAGE) sel.value = STAGE.id;
   }
 
-  if (lr.ok) {
-    const rec = (lr.records || []).find(r => r.id === HID);
-    if (rec) {
-      const cleanName = (rec.model_name || '').replace(/\s+Target Output.*$/i, '').trim();
-      document.getElementById('modelName').textContent = cleanName;
-      const parts = [];
-      if (rec.season)   parts.push(rec.season);
-      if (rec.material) parts.push(rec.material.substring(0, 30));
-      document.getElementById('modelMeta').textContent = parts.join('  |  ');
-      document.title = cleanName + ' — IE 細表';
-    }
+  if (lr.ok && lr.header) {
+    const rec = lr.header;
+    const cleanName = (rec.model_name || '').replace(/\s+Target Output.*$/i, '').trim();
+    document.getElementById('modelName').textContent = cleanName;
+    const parts = [];
+    if (rec.season)   parts.push(rec.season);
+    if (rec.material) parts.push(rec.material.substring(0, 30));
+    document.getElementById('modelMeta').textContent = parts.join('  |  ');
+    document.title = cleanName + ' — IE 細表';
   }
   loadSegment('cutting');
 }
@@ -359,7 +340,7 @@ function renderCuttingZoneCard(z, eolr) {
       <span class="zone-name">${num ? num + ' ' : ''}${esc(zone)}</span>
       <span class="zone-count">${rows.length} 道</span>
     </div>
-    <div class="zone-actions"><button class="btn-group" onclick="openGroupModal(${zoneJ})">分組</button></div>
+    <div class="zone-actions"></div>
   </div>
   <div class="zone-body"><table class="proc-table cut-table">
   <thead>${_cutHead(type)}</thead>
@@ -542,9 +523,6 @@ function renderZoneCard(z, seg, eolr) {
     </div>
     <div class="zone-actions">`;
 
-  if (!isSummary) {
-    h += `<button class="btn-group" onclick="openGroupModal(${zoneJ})">分組</button>`;
-  }
   h += `</div></div>`;
 
   if (isSummary) {
