@@ -131,6 +131,7 @@ Version: v1.0 | 建立: 2026-06-13
 | 077 | 自我驗收所有界面：×首欄+寬放率手工格 | DATA SYSTEM | ✅完成 | 2026-06-17 | 2026-06-17 | ie_cell_detail.html renderZoneCard ×移首欄 / allowance_pct白底可編輯 / addRowInline佔位格 |
 | 078 | IE細表界面視覺重設計（白底/公式灰字/手工黑字/黑框輸入） | DATA SYSTEM | ✅完成 | 2026-06-17 | 2026-06-17 | ie_cell_detail.html: formula-cell去灰底改#aaa灰字; num/.actual改#222黑字; input黑框#333; 移除所有background:#fff顯式設定 |
 | 079 | IE細表合併功能完整版（rowspan/解除/多段/popup） | DATA SYSTEM | ✅完成 | 2026-06-17 | 2026-06-17 | renderGroupActualCell(rowspan) / openGroupAction popup / unmergeGroup / 全段支援 / DB: update+delete_group |
+| 080 | 合併功能完整自測並修正所有問題 | DATA SYSTEM | ✅完成 | 2026-06-17 | 2026-06-17 | 4項全通過：Test1清空✅ Test2過濾✅ Test3改人數✅ Test4Stitching✅ 無需程式修正 |
 
 ## 待 Jim 決定（不擋工）
 
