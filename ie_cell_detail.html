@@ -921,10 +921,9 @@ let MERGE_SEG  = null;
 function renderGroupActualCell(gi, rowspan, zone, seg) {
   const zoneJ = esc(JSON.stringify(zone));
   const segJ  = esc(JSON.stringify(seg));
-  const badge = rowspan > 1 ? `<span class="group-badge">×${rowspan}</span>` : '';
   return `<td class="actual-cell group-cell" rowspan="${rowspan}" style="cursor:pointer;vertical-align:middle;text-align:right"
     onclick="openGroupAction(event,${gi.group_id},${gi.headcount},${zoneJ},${segJ})"
-    title="點擊修改人數或解除合併">${fmtNum(gi.headcount)}${badge}</td>`;
+    title="點擊修改人數或解除合併">${fmtNum(gi.headcount)}</td>`;
 }
 
 // Mini popup for editing / unmerging an existing group
