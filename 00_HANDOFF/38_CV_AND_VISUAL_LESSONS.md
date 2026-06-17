@@ -273,3 +273,39 @@ Jim 核心差異點：
 ### 新教訓
 - 錯誤 12：漏掉既定元素（P2 忘放 CURRENT/CONTRIBUTION 底色框）。預防：每頁產出前對照「全套共通元素清單」逐項核對。
 - 錯誤 13：prompt 沒寫「左右位置完全相同」，致 IE 圖左右人物排列不一致。預防：凡對比圖，prompt 必含「兩側結構/位置完全相同，只有變化部分不同」。
+
+## 2026-06-17（續）CV 統一版面框架 + 四張表格完成
+
+### 統一版面框架（所有對比頁共用，已對齊）
+- 每頁固定位置：系統名稱 eyebrow（橘色小標，主標上方）→ 主題大標 → CURRENT/CONTRIBUTION 底色框 → 內容區 → 底部金句。
+- CURRENT / CONTRIBUTION 底色框：**等寬 150px、同樣式、同位置**（CURRENT 淺灰底深灰字、CONTRIBUTION 橘底白字）。
+- P1–P6 系統 eyebrow 一律 MATERIAL IDENTITY MANAGEMENT；IE 頁不要主題大標，只放系統名稱 IE & WORKFORCE PLANNING（當標題大小）。
+- 排版抄 Apple keynote 做法（eyebrow + 大標）。Jim 對排版細節不出意見，Claude 主動判斷。
+
+### 封面頁（已定）
+- 極簡，應徵職位為主角、名字次要。版式：APPLICATION FOR（橘 eyebrow）→ Product Owner / AI Products & Data（大標兩行）→ VF Corporation → 橘色短線 → Jim Kao → 聯絡資訊。
+- 聯絡資訊（jim.kao@smartpn.com.tw · linkedin.com/in/jim-k-969579339）已從 About Me 移到封面。About Me 不再放聯絡。
+
+### 派工與目前狀態
+- Claude 排（表格型，已完成並填入統一框架）：P2、P3、P4、P6。
+- GPT 生（圖示型，待 Jim 重生「不含標題純圖」後由 Claude 嵌入框架）：P1、P5、IE。
+  原因：標題要全頁統一，圖內不可自帶標題；標題由排版層統一加。
+- P2 細節定案：下區「Supplier」橘色（Brand 黑）；today/MTL-3/MTL-4 橘；Real-time 兩箭頭指上 MTL-2 價(10) 與下 MTL-2 價(8)；Real-time 與 More Complete 標記框左緣對齊、箭頭轉折對齊成一條竖線（x=940）。
+- 第2頁 Performance：圖區留白待重做；底部句已定：Both systems were built with AI tools — but only clear AI communication logic makes AI work. Without direction, AI is just a word. Currently applied to internal department management.
+
+### 技術環境（接手須知）
+- CV 是用 Python + playwright(chromium) + Inter 字體（@fontsource/inter, npm 安裝）渲染成多頁 PDF，非 GitHub 程式碼。
+- 主色橘 #B5540D、白底、Inter/SF Pro、16:9（1280x720）。
+- Jim 上傳的圖：CV_P1_hidden_margin（含標題版）、P5（含標題版）、What I Have Built（第2頁）。純圖版待 Jim 重生。
+- 最新檔：Jim_Kao_CV_VF_v3.pdf（12 頁：封面/開場/Performance/P1留白/P2/P3/P4/P5留白/P6/IE留白/What I'm Looking For/About Me）。
+
+### 待辦（下次接手）
+1. 給 Jim P1、P5、IE 的「不含標題純圖」prompt（圖內不放標題、頂部留白；其餘內容照各頁定案）。
+2. Jim 重生純圖後，Claude 嵌入統一框架（標題由框架統一加）。
+3. 第2頁 Performance 重做。
+4. 全部到齊後輸出完整 CV PDF。
+
+### 新教訓
+- 錯誤 14：CURRENT/CONTRIBUTION 底色框各頁大小不一（寬度跟著文字跑）。預防：底色框固定等寬同樣式同位置，全 CV 一致。
+- 錯誤 15：標記框與箭頭未對齊（Real-time/More Complete 歪）。預防：右側標記框左緣對齊、箭頭轉折統一在同一 x。
+- 錯誤 16：圖內自帶標題導致與排版頁字體不一致。預防：圖一律生成「不含標題純圖」，標題由排版層統一加。
