@@ -17,24 +17,36 @@ body{font-family:'Microsoft JhengHei',Arial,sans-serif;font-size:13px;background
 .lock-badge{background:#c62828;color:#fff;padding:2px 9px;border-radius:3px;font-size:11px;font-weight:700}
 .lock-badge.unlocked{background:#2e7d32}
 .content{padding:12px 16px;overflow-x:auto}
-/* Dept section */
-.dept-section{margin-bottom:20px}
-.dept-header{background:#1e3a5f;color:#fff;padding:7px 14px;font-size:13px;font-weight:700;border-radius:5px 5px 0 0;display:flex;align-items:center;gap:10px}
+
+/* Layer 1: 部門 */
+.dept-section{margin-bottom:16px;border-radius:5px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.dept-header{background:#1e3a5f;color:#fff;padding:8px 14px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.dept-header:hover{background:#254b7a}
+.dept-header .toggle-arrow{font-size:11px;width:14px;flex-shrink:0}
 .dept-header .dept-stats{margin-left:auto;font-size:11px;font-weight:400;opacity:.8}
-/* LEAN group */
-.lean-group{border:1px solid #d0d8e8;border-top:none;overflow:hidden}
-.lean-group:last-child{border-radius:0 0 5px 5px}
-.lean-header{background:#2d5a9e;color:#fff;padding:5px 12px;display:flex;align-items:center;gap:10px;font-size:12px;font-weight:600}
+.dept-section.collapsed .dept-header{border-radius:5px}
+.dept-body{border:1px solid #d0d8e8;border-top:none}
+.dept-section.collapsed .dept-body{display:none}
+
+/* Layer 2: LEAN */
+.lean-group{border-top:1px solid #d0d8e8}
+.lean-group:first-child{border-top:none}
+.lean-header{background:#2d5a9e;color:#fff;padding:6px 12px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;cursor:pointer;user-select:none}
+.lean-header:hover{background:#3569b8}
+.lean-toggle{font-size:10px;width:12px;flex-shrink:0}
 .lean-header .lc{background:#1e3a5f;padding:1px 7px;border-radius:3px;font-size:12px;font-family:monospace}
 .lean-header .lt{margin-left:auto;font-size:11px;font-weight:400;opacity:.8}
+
+/* Layer 3: 訂單明細 */
+.lean-body{display:none}
+.lean-group.expanded .lean-body{display:block}
 table{width:100%;border-collapse:collapse;font-size:12px}
 thead tr{background:#e8eef8}
 th{padding:5px 8px;text-align:left;font-weight:600;color:#1e3a5f;border-bottom:1px solid #c5d0e0;white-space:nowrap}
 td{padding:4px 8px;border-bottom:1px solid #edf0f5;vertical-align:middle}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:#f5f8ff}
-.model-sep{background:#f0f4fa}
-.model-sep td{padding:3px 8px;font-size:11px;color:#4a7ac5;font-weight:600}
+
 .badge-y{background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:600}
 .btn{padding:4px 10px;border:none;border-radius:3px;cursor:pointer;font-size:11px;font-weight:600}
 .btn-edit{background:#e3f2fd;color:#1565c0}
@@ -48,6 +60,7 @@ tr:hover td{background:#f5f8ff}
 .btn-confirm.locked{background:#c62828}
 .btn-confirm.locked:hover{background:#b71c1c}
 .no-data,.loading{text-align:center;padding:40px;color:#999}
+
 /* Modal */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;display:none;align-items:center;justify-content:center}
 .overlay.show{display:flex}
@@ -231,35 +244,44 @@ function render(rows) {
 
   const sortedDepts = Object.keys(byDept).sort((a,b) => deptKey(a)-deptKey(b));
   let html = '';
+  let di = 0;
 
   for(const dept of sortedDepts) {
     const deptRows = Object.values(byDept[dept]).flat();
     const deptQty = deptRows.reduce((s,r)=>s+(r.qty||0),0);
-    html += `<div class="dept-section">
-      <div class="dept-header">
+    const dId = `d${di++}`;
+
+    // Layer 1: 部門（預設展開）
+    html += `<div class="dept-section" id="${dId}">
+      <div class="dept-header" onclick="toggleDept('${dId}')">
+        <span class="toggle-arrow">▼</span>
         ${esc(dept)}
         <span class="dept-stats">共 ${deptRows.length} 筆，總數量 ${deptQty.toLocaleString()} 雙</span>
-      </div>`;
+      </div>
+      <div class="dept-body">`;
 
     const sortedLeans = Object.keys(byDept[dept]).sort((a,b) => leanKey(a)-leanKey(b));
+    let li = 0;
     for(const lean of sortedLeans) {
       const lr = byDept[dept][lean];
       const leanQty = lr.reduce((s,r)=>s+(r.qty||0),0);
       const wb2 = lr.filter(r=>r.is_outsource_upper).length;
-      html += `<div class="lean-group">
-        <div class="lean-header">
+      const lId = `${dId}_l${li++}`;
+
+      // Layer 2: LEAN（預設收合）
+      html += `<div class="lean-group" id="${lId}">
+        <div class="lean-header" onclick="toggleLean('${lId}')">
+          <span class="lean-toggle">▶</span>
           <span class="lc">${esc(lean)}</span>
           <span class="lt">${lr.length} 筆，${leanQty.toLocaleString()} 雙${wb2?` 外包 ${wb2}`:''}</span>
         </div>
-        <table><thead><tr>
-          <th>鞋型名稱</th><th>ART</th><th>訂單號</th><th>數量</th><th>交期</th><th>預計完成日</th><th>外包鞋面</th><th>操作</th>
-        </tr></thead><tbody>`;
-      let lastM = null;
+        <div class="lean-body">
+          <table><thead><tr>
+            <th>鞋型名稱</th><th>ART</th><th>訂單號</th><th>數量</th><th>交期</th><th>預計完成日</th><th>外包鞋面</th><th>操作</th>
+          </tr></thead><tbody>`;
+
+      // Layer 3: 訂單明細
       lr.forEach(r => {
-        if(r.model_name !== lastM) {
-          if(r.model_name) html += `<tr class="model-sep"><td colspan="8">▸ ${esc(r.model_name)}</td></tr>`;
-          lastM = r.model_name;
-        }
         const dis = _locked ? 'disabled' : '';
         html += `<tr>
           <td>${esc(r.model_name)}</td>
@@ -275,11 +297,24 @@ function render(rows) {
           </td>
         </tr>`;
       });
-      html += '</tbody></table></div>';
+
+      html += '</tbody></table></div></div>';
     }
-    html += '</div>';
+    html += '</div></div>';
   }
   document.getElementById('content').innerHTML = html;
+}
+
+function toggleDept(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('collapsed');
+  el.querySelector('.toggle-arrow').textContent = el.classList.contains('collapsed') ? '▶' : '▼';
+}
+
+function toggleLean(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('expanded');
+  el.querySelector('.lean-toggle').textContent = el.classList.contains('expanded') ? '▼' : '▶';
 }
 
 function openAdd() {
