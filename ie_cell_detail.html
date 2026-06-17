@@ -121,6 +121,15 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#f0f2
 .add-trigger-cell{text-align:center;padding:1px 2px!important;width:22px;min-width:22px}
 .btn-add-zone{background:transparent;border:1px dashed #c8e6c9;border-radius:3px;color:#bbb;font-size:13px;font-weight:700;cursor:pointer;padding:1px 6px;line-height:1.6}
 .btn-add-zone:hover{color:#1d9e6b;border-color:#1d9e6b;background:#f8fff8}
+/* Group-action mini popup */
+.group-action-popup{position:fixed;background:#fff;border:1px solid #ddd;border-radius:6px;padding:10px;z-index:400;box-shadow:0 4px 16px rgba(0,0,0,.15);min-width:170px}
+.gap-title{font-size:11px;font-weight:700;color:#1a2744;margin-bottom:8px}
+.gap-row{display:flex;gap:4px;margin-bottom:6px;align-items:center}
+.gap-label{font-size:10px;color:#666;white-space:nowrap}
+.gap-inp{width:64px;border:1px solid #333;border-radius:3px;padding:3px 6px;font-size:11px;font-family:Consolas,monospace;text-align:right;outline:none}
+.gap-btn-save{background:#1a2744;color:#fff;border:none;border-radius:3px;padding:4px 8px;font-size:10px;cursor:pointer;flex-shrink:0}
+.gap-btn-del{background:transparent;color:#c62828;border:1px solid #e57373;border-radius:3px;padding:5px;font-size:10px;cursor:pointer;width:100%;margin-top:4px}
+.gap-btn-del:hover{background:#fce4ec}
 /* Custom tooltip */
 #cellTip{position:fixed;background:#1a2744;color:#c8d8f0;font-size:10px;padding:2px 8px;border-radius:4px;pointer-events:none;z-index:500;display:none;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25)}
 </style>
@@ -364,7 +373,16 @@ function renderCuttingZoneCard(z, eolr) {
   <div class="zone-body"><table class="proc-table cut-table">
   <thead>${_cutHead(type)}</thead>
   <tbody id="tbody-cut-${esc(zone)}">`;
-  for (const row of rows) h += renderCuttingRow(row, zone, type, eolr);
+  // Pre-compute group sizes for rowspan
+  const groupSize = new Map(), groupFirstId = new Map();
+  for (const row of rows) {
+    if (row.group_info) {
+      const gid = row.group_info.group_id;
+      if (!groupFirstId.has(gid)) groupFirstId.set(gid, row.id);
+      groupSize.set(gid, (groupSize.get(gid) || 0) + 1);
+    }
+  }
+  for (const row of rows) h += renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize);
   h += renderAddTriggerRow(zone, 'cutting');
   h += '</tbody></table></div></div>';
   return h;
@@ -417,7 +435,7 @@ function _cutHead(type) {
 }
 
 // ── 資料行渲染 — 依 type 決定欄位 ───────────────────────────────────────────
-function renderCuttingRow(row, zone, type, eolr) {
+function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
   const pid     = row.id;
   const divisor = 3600 / eolr;
   const dv  = (v)   => (v != null && v !== '') ? fmtNum(v) : '—';
@@ -426,10 +444,15 @@ function renderCuttingRow(row, zone, type, eolr) {
   const fmC = (v)      => `<td class="formula-cell">${dv(v)}</td>`;
   const thC = (std)    => `<td class="formula-cell theory-cell" data-stdtime="${std??''}" data-zone="${esc(zone)}">${ops(std)}</td>`;
   const zoneJ = esc(JSON.stringify(zone));
+  // Returns: html string | null (null = skip this cell — covered by rowspan above)
   const actC = () => {
     if (row.group_info) {
       const gi = row.group_info;
-      return `<td class="actual-cell group-cell" onclick="openMergeModal(${zoneJ},${pid})" style="cursor:pointer" title="點擊重新設定">${fmtNum(gi.headcount)}<span class="group-badge">組</span></td>`;
+      const gid = gi.group_id;
+      const isFirst = groupFirstId?.get(gid) === row.id;
+      if (!isFirst) return null;
+      const n = groupSize?.get(gid) || 1;
+      return renderGroupActualCell(gi, n, zone, 'cutting');
     }
     return `<td class="actual-cell" style="padding:2px 4px">
       <div style="display:flex;align-items:center;gap:2px;justify-content:flex-end">
@@ -437,7 +460,7 @@ function renderCuttingRow(row, zone, type, eolr) {
           value="${row.actual_operators ?? ''}" placeholder="—"
           onblur="saveSingleActual(this,${pid})"
           onkeydown="if(event.key==='Enter')this.blur()">
-        <button class="cut-merge-btn" onclick="openMergeModal(${zoneJ},${pid})" title="合併多工序">合</button>
+        <button class="cut-merge-btn" onclick="openMergeModal(${zoneJ},${pid},'cutting')" title="合併多工序">合</button>
       </div></td>`;
   };
   const post5 = () => ['post_marking_std','post_skiving_std','post_attach_std','post_edge_std','post_heat_std'].map(sc => {
@@ -454,15 +477,16 @@ function renderCuttingRow(row, zone, type, eolr) {
   h += `<td class="num" style="cursor:text;font-size:9px;min-width:50px" onclick="startTextEdit(this,${pid},'mat_cat')" data-tip="點擊編輯">${esc(row.mat_cat||'—')}</td>`;
   h += `<td class="seq">${row.seq??''}</td>`;
   h += nmC;
+  const act = actC();
   if (type === 'A') {
-    h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('cut_per_hour',row.cut_per_hour)+fmC(std)+thC(std)+actC()+post5();
+    h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('cut_per_hour',row.cut_per_hour)+fmC(std)+thC(std)+(act||'')+post5();
   } else if (type === 'B') {
-    h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('standard_time',std)+thC(std)+actC()+post5();
+    h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('standard_time',std)+thC(std)+(act||'')+post5();
   } else if (type === 'C') {
-    h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('standard_time',std)+thC(std)+actC();
+    h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('standard_time',std)+thC(std)+(act||'');
   } else if (type === 'D') {
     const pk = row.post_marking_std, ps2 = row.post_skiving_std;
-    h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('standard_time',std)+thC(std)+actC();
+    h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('standard_time',std)+thC(std)+(act||'');
     h += edM('post_marking_std',pk)+`<td class="formula-cell th-post-ops-cell">${ops(pk)}</td>`;
     h += edM('post_skiving_std',ps2)+`<td class="formula-cell th-post-ops-cell">${ops(ps2)}</td>`;
   } else {
@@ -576,12 +600,32 @@ function renderZoneCard(z, seg, eolr) {
     }
     h += `</tr></thead><tbody id="tbody-gen-${esc(zone)}">`;
 
+    // Pre-compute group sizes for rowspan
+    const gSize = new Map(), gFirst = new Map();
+    for (const row of z.rows) {
+      if (row.group_info) {
+        const gid = row.group_info.group_id;
+        if (!gFirst.has(gid)) gFirst.set(gid, row.id);
+        gSize.set(gid, (gSize.get(gid) || 0) + 1);
+      }
+    }
+
     for (const row of z.rows) {
       h += '<tr>';
       h += row.is_locked
         ? '<td class="del-cell"></td>'
         : `<td class="del-cell"><button class="btn-del" onclick="deleteRow(${row.id})" title="刪除">×</button></td>`;
-      for (const col of cols) h += renderCell(row, col, zone, seg, eolr);
+      for (const col of cols) {
+        if (col === 'actual_operators' && row.group_info) {
+          const gid = row.group_info.group_id;
+          if (gFirst.get(gid) === row.id) {
+            h += renderGroupActualCell(row.group_info, gSize.get(gid) || 1, zone, seg);
+          }
+          // else: skip — covered by rowspan above
+        } else {
+          h += renderCell(row, col, zone, seg, eolr);
+        }
+      }
       h += '</tr>';
     }
     h += renderAddTriggerRow(zone, seg);
@@ -657,13 +701,16 @@ function renderCell(row, col, zone, seg, eolr) {
   }
 
   if (col === 'actual_operators') {
-    if (row.group_info) {
-      const gi = row.group_info;
-      return `<td class="actual-cell group-cell">${fmtNum(gi.headcount)}<span class="group-badge">組</span></td>`;
-    }
+    // group_info rows are handled by group-aware callers (renderZoneCard/renderCuttingRow); skip here
+    if (row.group_info) return '';
     if (locked) return `<td class="actual-cell locked-cell">${val != null ? fmtNum(val) : '—'}</td>`;
     if (row.flag === '待手工') return `<td class="actual-cell" style="background:#fff3e0;color:#e65100;text-align:center">⚠ 待手工</td>`;
-    return `<td class="actual-cell clickable" onclick="startEdit(this,${pid},'actual_operators')" data-tip="點擊編輯">${val != null ? fmtNum(val) : '—'}</td>`;
+    if (zone === WS) {
+      return `<td class="actual-cell clickable" onclick="startEdit(this,${pid},'actual_operators')" data-tip="點擊編輯">${val != null ? fmtNum(val) : '—'}</td>`;
+    }
+    const zoneJ = esc(JSON.stringify(zone));
+    const segJ  = esc(JSON.stringify(seg));
+    return `<td class="actual-cell clickable" onclick="openMergeModal(${zoneJ},${pid},${segJ})" data-tip="點擊設定/合併">${val != null ? fmtNum(val) : '—'}</td>`;
   }
 
   if (col === 'allowance_pct') {
@@ -799,38 +846,106 @@ async function deleteRow(pid) {
   else alert('刪除失敗: ' + (j.error || ''));
 }
 
-// ── 合併人數 Modal（Cutting段 actual_operators）────────────────────────────────
+// ── 合併人數：Modal + Group Action popup ──────────────────────────────────────
 let MERGE_ZONE = null;
+let MERGE_SEG  = null;
 
-function openMergeModal(zone, clickedPid) {
+// Render a grouped actual_operators cell with rowspan (used by renderZoneCard & renderCuttingRow)
+function renderGroupActualCell(gi, rowspan, zone, seg) {
+  const zoneJ = esc(JSON.stringify(zone));
+  const segJ  = esc(JSON.stringify(seg));
+  const badge = rowspan > 1 ? `<span class="group-badge">×${rowspan}</span>` : '';
+  return `<td class="actual-cell group-cell" rowspan="${rowspan}" style="cursor:pointer;vertical-align:middle;text-align:right"
+    onclick="openGroupAction(event,${gi.group_id},${gi.headcount},${zoneJ},${segJ})"
+    title="點擊修改人數或解除合併">${fmtNum(gi.headcount)}${badge}</td>`;
+}
+
+// Mini popup for editing / unmerging an existing group
+function openGroupAction(event, groupId, headcount, zone, seg) {
+  event.stopPropagation();
+  closeGroupAction();
+  const px = Math.min(event.clientX, window.innerWidth - 210);
+  const py = Math.min(event.clientY + 4, window.innerHeight - 130);
+  const p = document.createElement('div');
+  p.id = 'groupActionPopup';
+  p.className = 'group-action-popup';
+  p.style.left = px + 'px';
+  p.style.top  = py + 'px';
+  p.innerHTML = `
+    <div class="gap-title">合併格 · ${esc(zone)}</div>
+    <div class="gap-row">
+      <span class="gap-label">人數</span>
+      <input class="gap-inp" id="gapHc" type="number" step="0.5" min="0" value="${headcount}">
+      <button class="gap-btn-save" onclick="saveGroupHc(${groupId})">更新</button>
+    </div>
+    <button class="gap-btn-del" onclick="unmergeGroup(${groupId})">解除合併（清空人數）</button>`;
+  document.body.appendChild(p);
+  const inp = document.getElementById('gapHc');
+  inp.focus(); inp.select();
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter')  saveGroupHc(groupId);
+    if (e.key === 'Escape') closeGroupAction();
+  });
+  setTimeout(() => {
+    document.addEventListener('click', function _cls(ev) {
+      if (!p.contains(ev.target)) { closeGroupAction(); document.removeEventListener('click', _cls); }
+    });
+  }, 0);
+}
+
+function closeGroupAction() {
+  document.getElementById('groupActionPopup')?.remove();
+}
+
+async function saveGroupHc(groupId) {
+  const hcVal = document.getElementById('gapHc')?.value ?? '';
+  const hc = parseFloat(hcVal);
+  if (isNaN(hc) || hc < 0) { alert('請填寫正確人數'); return; }
+  closeGroupAction();
+  const r = await fetch('/api/ie/cell/update_group', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({group_id: groupId, headcount: hc})
+  });
+  const j = await r.json();
+  if (j.ok) loadSegment(SEG);
+  else alert('更新失敗: ' + (j.error || ''));
+}
+
+async function unmergeGroup(groupId) {
+  closeGroupAction();
+  if (!confirm('解除合併後，各工序回到獨立輸入格，人數清空。確認？')) return;
+  const r = await fetch('/api/ie/cell/delete_group', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({group_id: groupId})
+  });
+  const j = await r.json();
+  if (j.ok) loadSegment(SEG);
+  else alert('解除失敗: ' + (j.error || ''));
+}
+
+// Merge modal: open for any unmerged actual_operators cell (all segments)
+function openMergeModal(zone, clickedPid, seg) {
   MERGE_ZONE = zone;
+  MERGE_SEG  = seg || SEG;
   document.getElementById('mergeModalTitle').textContent = `設定實際人數 — ${zone}`;
 
-  // Gather all rows in this zone from current DATA
   const zoneData = DATA?.zones?.find(z => z.zone === zone);
   const rows = zoneData?.rows || [];
 
-  // Determine pre-selections and pre-filled headcount
-  let preSelectedPids = new Set([clickedPid]);
-  let preHeadcount = '';
+  // Only show rows that are NOT already in a group (this call is only for unmerged rows)
+  const eligible = rows.filter(r => !r.group_info);
   const clickedRow = rows.find(r => r.id === clickedPid);
-  if (clickedRow?.group_info) {
-    preHeadcount = clickedRow.group_info.headcount;
-    const groupId = clickedRow.group_info.group_id;
-    rows.forEach(r => { if (r.group_info?.group_id === groupId) preSelectedPids.add(r.id); });
-  } else {
-    preHeadcount = clickedRow?.actual_operators ?? '';
-  }
+  const preHc = clickedRow?.actual_operators ?? '';
 
   const list = document.getElementById('mergeProcList');
-  list.innerHTML = rows.length
-    ? rows.map((r, i) => `<div class="proc-check-item">
-        <input type="checkbox" id="mp${i}" value="${r.id}" ${preSelectedPids.has(r.id) ? 'checked' : ''}>
-        <label for="mp${i}" style="cursor:pointer">${esc(r.process_name || '工序 ' + r.id)}${r.group_info ? ' <span style="color:#1d9e6b;font-size:9px">[已編組]</span>' : ''}</label>
+  list.innerHTML = eligible.length
+    ? eligible.map((r, i) => `<div class="proc-check-item">
+        <input type="checkbox" id="mp${i}" value="${r.id}" ${r.id === clickedPid ? 'checked' : ''}>
+        <label for="mp${i}" style="cursor:pointer">${esc(r.process_name || '工序 ' + r.id)}</label>
       </div>`).join('')
-    : '<div style="color:#aaa;font-size:11px;padding:8px">此區暫無工序</div>';
+    : '<div style="color:#aaa;font-size:11px;padding:8px">此區無可合併工序</div>';
 
-  document.getElementById('mergeHeadcount').value = preHeadcount;
+  document.getElementById('mergeHeadcount').value = preHc;
   document.getElementById('mergeModal').style.display = 'flex';
   setTimeout(() => document.getElementById('mergeHeadcount').focus(), 50);
 }
@@ -838,6 +953,7 @@ function openMergeModal(zone, clickedPid) {
 function closeMergeModal() {
   document.getElementById('mergeModal').style.display = 'none';
   MERGE_ZONE = null;
+  MERGE_SEG  = null;
 }
 
 async function submitMerge() {
@@ -847,16 +963,30 @@ async function submitMerge() {
   if (hcStr === '') { alert('請填寫人數'); return; }
   const headcount = parseFloat(hcStr);
   if (isNaN(headcount) || headcount < 0) { alert('請填寫正確人數'); return; }
-  const r = await fetch('/api/ie/cell/save_group', {
-    method: 'POST', headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({header_id: HID, segment: 'cutting', zone: MERGE_ZONE,
-      stage_id: STAGE?.id, process_ids: checked, headcount, note: ''})
-  });
-  const j = await r.json();
-  if (j.ok) { closeMergeModal(); loadSegment(SEG); }
-  else alert('儲存失敗: ' + (j.error || ''));
+
+  if (checked.length === 1) {
+    // Single process: save directly to actual_operators field
+    const r = await fetch('/api/ie/cell/save', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({cell_id: checked[0], stage_id: STAGE?.id, field: 'actual_operators', value: headcount, user: 'demo_user'})
+    });
+    const j = await r.json();
+    if (j.ok) { closeMergeModal(); loadSegment(SEG); }
+    else alert('儲存失敗: ' + (j.error || ''));
+  } else {
+    // Multiple processes: save to ie_process_group (rowspan display)
+    const r = await fetch('/api/ie/cell/save_group', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({header_id: HID, segment: MERGE_SEG, zone: MERGE_ZONE,
+        stage_id: STAGE?.id, process_ids: checked, headcount, note: ''})
+    });
+    const j = await r.json();
+    if (j.ok) { closeMergeModal(); loadSegment(SEG); }
+    else alert('儲存失敗: ' + (j.error || ''));
+  }
 }
 
+// Cutting WS / direct inline save (blur)
 async function saveSingleActual(inp, pid) {
   const val = inp.value.trim();
   if (val === '') return;

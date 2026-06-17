@@ -1236,6 +1236,37 @@ def save_ie_process_group(header_id, segment, zone, stage_id, process_ids, headc
         conn.close()
 
 
+def update_ie_process_group(group_id, headcount):
+    """Update headcount for an existing group."""
+    conn = get_conn()
+    try:
+        conn.execute('UPDATE ie_process_group SET headcount=? WHERE id=?', (headcount, group_id))
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def delete_ie_process_group(group_id):
+    """Delete a group and clear actual_operators for all its processes."""
+    import json as _json
+    conn = get_conn()
+    try:
+        row = conn.execute('SELECT process_ids FROM ie_process_group WHERE id=?', (group_id,)).fetchone()
+        if row:
+            for pid in _json.loads(row['process_ids']):
+                conn.execute('UPDATE ie_process SET actual_operators=NULL WHERE id=?', (pid,))
+        conn.execute('DELETE FROM ie_process_group WHERE id=?', (group_id,))
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
 def get_ie_process_groups(header_id, segment):
     """Return all groupings for a header/segment."""
     conn = get_conn()

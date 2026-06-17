@@ -378,6 +378,16 @@ def ie_cell_save_group():
         d.get('headcount'), d.get('note', '')
     ))
 
+@app.route('/api/ie/cell/update_group', methods=['POST'])
+def ie_cell_update_group():
+    d = request.get_json(force=True)
+    return jsonify(db.update_ie_process_group(d.get('group_id'), d.get('headcount')))
+
+@app.route('/api/ie/cell/delete_group', methods=['POST'])
+def ie_cell_delete_group():
+    d = request.get_json(force=True)
+    return jsonify(db.delete_ie_process_group(d.get('group_id')))
+
 @app.route('/api/ie/<int:header_id>/groups', methods=['GET'])
 def ie_get_groups(header_id):
     segment = request.args.get('segment', 'cutting')
