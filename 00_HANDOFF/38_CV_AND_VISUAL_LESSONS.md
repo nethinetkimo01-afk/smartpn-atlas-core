@@ -123,3 +123,107 @@ Claude 的角色：Central brain — 分析、討論、拆解、派工、抓錯�
 - 圖片：待 ChatGPT 生成（P1–P6 prompt 待 Claude 輸出）
 - Section 2 / Section 3 文字：待細化
 - CV 文件整合：待圖片確認後進行
+
+---
+
+## CV 完整結構（最終確認 2026-06-16）
+
+頁面順序：
+第1頁：Section 1 — VF 開頭 + 六個貢獻點
+第2頁：What I Have Built（System 01 + System 02）
+第3-8頁：P1-P6 六張圖
+第9頁：Section 3 — What I'm Looking For
+第10頁：Section 2 — Who I Am
+
+## What I Have Built（第2頁確認）
+
+System 01 — Material Identity Management
+三主軸：Identity / Governance / Decision
+底部：Demo available in a confidential setting
+
+System 02 — IE & Workforce Planning
+數字：290 shoe models / 20,434 IE process records / 4 departments / 20+ factory users
+技術：Python · Flask · SQLite · AI
+
+底部句子：Both systems were designed and built using AI. Both are available for confidential demonstration.
+圖片：已由 ChatGPT 生成確認 ✅
+
+## P1-P6 六張圖核心邏輯（已確認）
+
+P1：料號統一 → 價差透明 → 拿回隱藏利潤
+視覺：Brand-MTL-Code vs Unified-code（紅）
+圖片：已由 ChatGPT 生成確認 ✅
+
+P2：Supplier 自維護 → Brand 少做反而得到更大更新更完整的材料庫
+視覺：紙標籤人工收集 vs 數位化乾淨
+圖片：已由 ChatGPT 生成（待修改，精髓未完整表達）
+
+P3：Shared BOM → 品牌拿回對材料的掌控權 → 品質透明可控
+視覺：同款鞋 不同布+不同 code vs 同款鞋 相同布+Shared BOM
+圖片：已由 ChatGPT 生成確認 ✅
+
+P4：料號統一 + Supplier 母子公司對應 → 第一次有真實採購量 → 議價從被動變主動
+視覺：三廠分散採購 vs 合併總量一個數字議價
+圖片：待生成
+
+P5：線上收集 Supplier performance → 取代 audit → 機密設置只供品牌內部
+視覺：待生成
+
+P6：Find Same Material → 最短 LT → 加快上市時間
+視覺：待生成
+
+## Section 2 最終確認版
+
+Experience: 20 years on the manufacturing side of footwear and apparel.
+Specialization: PDM / ERP / material standardization across 4 factories in 3 countries in Southeast Asia.
+Current Work: Designed and deployed an internal manufacturing AI system: 290 shoe models, 20,434 IE process records, automated monthly workforce planning across 4 departments, serving 20+ factory users via LAN. Built with Python / Flask / SQLite using AI throughout the design and development process.
+Perspective: I understand how Brand, Factory, and Supplier actually work together — and where the gaps are.
+On working with AI: The first mile, you must build yourself — the goal, the strategy, the structure, the first visible result. Once that foundation exists, AI can help you build the next 99. If you expect AI to build all 100 miles from nothing, it never will. Without direction, AI is just a word. With it, AI becomes the most powerful tool you have ever used.
+Language: English is not my first language. Please consider this before interview.
+
+## Demo 策略（已確認）
+
+面試時攜帶兩個 Demo：
+
+System 1 — Material Identity Management
+說法："I've been designing a material identity governance system for footwear and apparel manufacturing. I can share more in a confidential setting if you're interested."
+
+System 2 — IE 分析系統
+說法："I also built an internal workforce planning system using Python and AI, currently used by 20+ factory staff across 4 departments."
+
+兩個都帶 laptop，現場 demo。
+
+## 各品牌職位分析（已確認）
+
+共同要求：
+1. 供應鏈 domain 知識（製造/採購/品質/計劃）
+2. 把業務痛點轉成產品需求
+3. 和工程師/數據科學家有效溝通
+4. 有真實產品交付經驗
+
+各品牌差異：
+VF：AI 數據產品 + 供應鏈 domain，翻譯官角色
+Nike：數據產品生命週期，工具經驗
+Adidas：SCM 流程和系統 Product Owner
+ON Running：高速成長，供應鏈 AI 轉型
+
+現階段符合的職缺：
+優先：VF Corporation 新加坡（立刻投）
+追蹤：Nike 新加坡 / ON Running 亞洲區
+
+Jim 核心差異點：
+20年製造端經驗 + PDM/ERP 標準化（4廠3國）+ 兩個真實 AI 系統 = 市場上沒有其他人能說這句話
+
+---
+
+## CV 最終結構修正（2026-06-17）
+
+第1頁：VF 開頭 + 兩個 AI 系統開場（簡短，讓高層想繼續翻）
+第2頁：What I Have Built（System 01 + System 02 詳細展開）
+第3-8頁：P1-P6 六張圖
+第9頁：Section 3 — What I'm Looking For
+第10頁：Section 2 — Who I Am
+
+第1頁 vs 第2頁差別：
+- 第1頁：兩個系統標題 + 一句話，吸引高層翻下去
+- 第2頁：兩個系統完整細節（Identity/Governance/Decision + 數字）
