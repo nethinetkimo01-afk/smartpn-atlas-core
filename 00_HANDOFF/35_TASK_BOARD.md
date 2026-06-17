@@ -135,6 +135,7 @@ Version: v1.0 | 建立: 2026-06-13
 | 081 | IE細表最終全面驗收（Step1-8）+ Cutting表頭對齊修正 | DATA SYSTEM | ✅完成 | 2026-06-17 | 2026-06-17 | V3/E3 th-vi/th-en left class; 全8步驗收通過：Cutting七區/表頭/×+/公式手工/Stitching-STF欄位/合併Test1-4/頂部功能/主表EOLR分行 |
 | 082 | 完整角色模擬驗收 — 全功能實作（S1-S20） | DATA SYSTEM | ✅完成 | 2026-06-17 | 2026-06-17 | login/me/assign/review/approve/stage_approve; M004 migration; login.html; ie_interface.html(···menu/assign modal); ie_cell_detail.html(submit/approve); admin_users.html(assign panel); S1-S20全通過 |
 | 083 | 主表 /ie 新增操作入口 | DATA SYSTEM | ✅完成 | 2026-06-17 | 2026-06-17 | 新增鞋型modal(多ART/材料/季度/階段); ···選單(+修改季度材料); manager角色; 移除舊+×按鈕; admin_users.html manager支援 |
+| 084 | IE細表格子改表單風格（公式格/手工格/無hover） | DATA SYSTEM | ✅完成 | 2026-06-17 | 2026-06-17 | ie_cell_detail.html: formula-cell白底灰框灰字cursor:default; num白底黑框黑字; actual-cell同步; 移除所有hover; 移除inline color:#aaa覆蓋 |
 
 ## 待 Jim 決定（不擋工）
 

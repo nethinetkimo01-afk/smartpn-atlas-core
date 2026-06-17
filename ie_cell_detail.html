@@ -54,22 +54,20 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#f0f2
 .proc-table th.th-theory{background:#455a64;color:#cfd8dc}
 .proc-table th.th-actual{background:#fff;color:#444}
 .proc-table td{padding:4px 8px;border:1px solid #e8ecf4;vertical-align:middle;white-space:nowrap}
-.proc-table tr:hover td{background:#f5f8ff}
+.proc-table tr:hover td{background:transparent}
 .proc-table tr:hover td.locked-cell{background:#fff8e1}
 .proc-table tr.add-row-inline:hover td{background:#f0fff4!important}
 .proc-table td.seq{text-align:center;color:#888;font-weight:600;min-width:30px}
 .proc-table td.name{text-align:left;min-width:120px;max-width:220px;white-space:normal;line-height:1.4}
-.proc-table td.num{text-align:right;min-width:60px;color:#222;font-family:Consolas,monospace}
-.formula-cell{color:#aaa;text-align:right;min-width:60px;font-family:Consolas,monospace;cursor:default}
-.actual-cell{color:#222;text-align:right;min-width:60px;font-family:Consolas,monospace;font-weight:700}
-.actual-cell.clickable{cursor:text}
-.actual-cell.clickable:hover{outline:1px dashed #999}
+.proc-table td.num{text-align:right;min-width:60px;color:#222;font-family:Consolas,monospace;background:#fff;border:1px solid #333;cursor:text}
+.formula-cell{color:#888;text-align:right;min-width:60px;font-family:Consolas,monospace;cursor:default;background:#fff;border:1px solid #ddd}
+.actual-cell{color:#222;text-align:right;min-width:60px;font-family:Consolas,monospace;font-weight:700;background:#fff;border:1px solid #ddd}
+.actual-cell.clickable{cursor:text;border:1px solid #333}
 .actual-cell input{width:100%;box-sizing:border-box;border:1px solid #333;border-radius:2px;padding:1px 4px;font-size:11px;font-family:Consolas,monospace;text-align:right;outline:none;background:#fff}
-.cut-act-inp{border:1px solid #ddd;border-radius:2px;padding:1px 3px;font-size:10px;text-align:right;outline:none;width:44px}
-.cut-act-inp:focus{border-color:#333}
+.cut-act-inp{border:1px solid #333;border-radius:2px;padding:1px 3px;font-size:10px;text-align:right;outline:none;width:44px}
 .cut-merge-btn{background:transparent;border:1px solid #c5cae9;border-radius:2px;color:#9fa8da;font-size:9px;cursor:pointer;padding:1px 3px;flex-shrink:0;line-height:1.4}
 .cut-merge-btn:hover{border-color:#4a6cf7;color:#4a6cf7}
-.locked-cell{background:#fff8e1;color:#795548;font-weight:600}
+.locked-cell{background:#fff8e1;color:#795548;font-weight:600;border:1px solid #e0c060!important;cursor:default}
 .del-cell{width:22px;text-align:center;padding:2px 4px;border:1px solid #e8ecf4}
 .btn-del{background:transparent;border:none;color:#ccc;font-size:14px;cursor:pointer;padding:0 2px;border-radius:3px;line-height:1}
 .btn-del:hover{color:#c62828;background:#fce4ec}
@@ -572,7 +570,7 @@ function addCuttingRow(zone) {
   const type = CUTTING_ZONE_TYPE[zone] || 'A';
   const zJ   = esc(JSON.stringify(zone));
   const zE   = esc(zone);
-  const fm   = () => `<td class="formula-cell" style="font-size:9px;color:#aaa">公式</td>`;
+  const fm   = () => `<td class="formula-cell" style="font-size:9px">公式</td>`;
   const ni   = (id, ph) => `<td><input class="add-inp add-num" id="${id}" type="number" placeholder="${ph}" style="min-width:28px"></td>`;
   const ok   = `<td style="white-space:nowrap"><button class="btn-inline-ok" onclick="confirmAddCuttingRow(${zJ})">✓</button><button class="btn-inline-cancel" onclick="cancelAddCuttingRow(${zJ})">✗</button></td>`;
   let c = `<td></td><td><input class="add-inp" id="add-mat-${zE}" placeholder="材料" style="min-width:46px;font-size:10px"></td><td style="text-align:center;color:#aaa;font-size:10px">—</td><td><input class="add-inp" id="add-name-${zE}" placeholder="部件名稱" style="min-width:90px"></td>`;
@@ -1180,10 +1178,10 @@ function addRowInline(zone, seg) {
     } else if (col === 'standard_time') {
       const isFormula = (seg === 'stitching' || seg === 'assembly') || (seg === 'stf' && zone === '貼底');
       cells += isFormula
-        ? `<td class="formula-cell" style="font-size:9px;color:#aaa">公式</td>`
+        ? `<td class="formula-cell" style="font-size:9px">公式</td>`
         : `<td><input class="add-inp add-num" id="add-gen-std-${esc(zone)}" type="number" placeholder="TCT" style="min-width:55px"></td>`;
     } else if (col === 'production_target' || col === 'theory_operators') {
-      cells += `<td class="formula-cell" style="font-size:9px;color:#aaa">公式</td>`;
+      cells += `<td class="formula-cell" style="font-size:9px">公式</td>`;
     } else if (col === 'actual_operators') {
       cells += `<td><input class="add-inp add-num" id="add-gen-act-${esc(zone)}" type="number" placeholder="人數" style="min-width:40px"></td>`;
     } else {
