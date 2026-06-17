@@ -222,7 +222,7 @@ const LANGS = {
     title:'IE 標準化界面 · MP 一覽',
     col_season:'生產季度',col_model:'鞋型',col_arts:'ART 列表',col_mat:'材料類',
     col_eolr:'EOLR',col_cut:'裁斷MP',col_stitch:'針車MP',col_asm:'成型MP',col_sf:'貼底',
-    search_ph:'搜尋鞋型 / ART...',btn_reload:'重新載入',
+    search_ph:'搜尋鞋型 / ART...',btn_reload:'重新載入',btn_new:'＋ 新增鞋型',
     stats:(n,m)=>`共 ${n} 款鞋型 · ${m} 款缺 MP`,
     loading:'載入中...',offline:'伺服器離線',empty:'無記錄',back:'← DS-03',
     detail:'▶ 細表',
@@ -231,7 +231,7 @@ const LANGS = {
     title:'IE Interface · MP Overview',
     col_season:'Season',col_model:'Model Name',col_arts:'ART List',col_mat:'Material',
     col_eolr:'EOLR',col_cut:'Cutting MP',col_stitch:'Stitching MP',col_asm:'Assembly MP',col_sf:'Stockfitting',
-    search_ph:'Search model / ART...',btn_reload:'Reload',
+    search_ph:'Search model / ART...',btn_reload:'Reload',btn_new:'+ New Model',
     stats:(n,m)=>`${n} models · ${m} missing MP`,
     loading:'Loading...',offline:'Server offline',empty:'No records',back:'← DS-03',
     detail:'▶ Detail',
@@ -240,7 +240,7 @@ const LANGS = {
     title:'Giao diện IE · Tổng quan MP',
     col_season:'Mùa',col_model:'Tên giày',col_arts:'Danh sách ART',col_mat:'Nguyên liệu',
     col_eolr:'EOLR',col_cut:'MP Cắt',col_stitch:'MP May',col_asm:'MP Lắp ráp',col_sf:'Stockfitting',
-    search_ph:'Tìm kiểu giày / ART...',btn_reload:'Tải lại',
+    search_ph:'Tìm kiểu giày / ART...',btn_reload:'Tải lại',btn_new:'+ Thêm kiểu',
     stats:(n,m)=>`${n} kiểu giày · ${m} thiếu MP`,
     loading:'Đang tải...',offline:'Máy chủ offline',empty:'Không có dữ liệu',back:'← DS-03',
     detail:'▶ Chi tiết',
@@ -269,6 +269,7 @@ function setLang(lang){
   document.getElementById('search').placeholder      = d.search_ph;
   document.getElementById('btn-reload').textContent  = d.btn_reload;
   document.getElementById('btn-back').textContent    = d.back;
+  document.getElementById('btn-new-model').textContent = d.btn_new;
   document.querySelectorAll('.btn-lang').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
   updateStats();
   // Re-render to update detail link text

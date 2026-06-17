@@ -219,7 +219,8 @@ let SEG    = 'cutting';
 let STAGE  = null;
 let DATA   = null;
 let EDITS  = {};
-let LANG   = localStorage.getItem('ie_lang') || 'zh';
+let _storedLang = localStorage.getItem('ie_lang') || 'zh';
+let LANG   = (_storedLang === 'en') ? 'zh' : _storedLang; // ie_cell only supports ZH/VI
 let ZONE_ROWS = {};
 let ADD_ZONE   = null;
 
@@ -857,8 +858,9 @@ function setLang(l) {
   if (DATA) renderZones(DATA);
 }
 function applyLangUI(l) {
-  document.getElementById('langZH').className = 'tg-btn' + (l === 'zh' ? ' lang-active' : '');
-  document.getElementById('langVI').className  = 'tg-btn' + (l === 'vi' ? ' lang-active' : '');
+  const isVi = (l === 'vi');
+  document.getElementById('langZH').className = 'tg-btn' + (!isVi ? ' lang-active' : '');
+  document.getElementById('langVI').className  = 'tg-btn' + (isVi  ? ' lang-active' : '');
 }
 
 // ── Segment switch ────────────────────────────────────────────────────────────
