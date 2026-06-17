@@ -55,19 +55,18 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#f0f2
 .proc-table th.th-actual{background:#fff;color:#444}
 .proc-table td{padding:4px 8px;border:1px solid #e8ecf4;vertical-align:middle;white-space:nowrap}
 .proc-table tr:hover td{background:#f5f8ff}
-.proc-table tr:hover td.formula-cell{background:#eeeeee}
 .proc-table tr:hover td.locked-cell{background:#fff8e1}
 .proc-table tr.add-row-inline:hover td{background:#f0fff4!important}
 .proc-table td.seq{text-align:center;color:#888;font-weight:600;min-width:30px}
 .proc-table td.name{text-align:left;min-width:120px;max-width:220px;white-space:normal;line-height:1.4}
-.proc-table td.num{text-align:right;min-width:60px;color:#1a4a7a;font-family:Consolas,monospace}
-.formula-cell{background:#f0f0f0;color:#555;text-align:right;min-width:60px;font-family:Consolas,monospace;cursor:default}
-.actual-cell{background:#fff;color:#0d5e2e;text-align:right;min-width:60px;font-family:Consolas,monospace;font-weight:700}
+.proc-table td.num{text-align:right;min-width:60px;color:#222;font-family:Consolas,monospace}
+.formula-cell{color:#aaa;text-align:right;min-width:60px;font-family:Consolas,monospace;cursor:default}
+.actual-cell{color:#222;text-align:right;min-width:60px;font-family:Consolas,monospace;font-weight:700}
 .actual-cell.clickable{cursor:text}
-.actual-cell.clickable:hover{background:#f0fff4;outline:1px dashed #4a6cf7}
-.actual-cell input{width:100%;box-sizing:border-box;border:1px solid #4a6cf7;border-radius:2px;padding:1px 4px;font-size:11px;font-family:Consolas,monospace;text-align:right;outline:none;background:#fff}
-.cut-act-inp{border:1px solid #c8e6c9;border-radius:2px;padding:1px 3px;font-size:10px;text-align:right;outline:none;width:44px}
-.cut-act-inp:focus{border-color:#4a6cf7}
+.actual-cell.clickable:hover{outline:1px dashed #999}
+.actual-cell input{width:100%;box-sizing:border-box;border:1px solid #333;border-radius:2px;padding:1px 4px;font-size:11px;font-family:Consolas,monospace;text-align:right;outline:none;background:#fff}
+.cut-act-inp{border:1px solid #ddd;border-radius:2px;padding:1px 3px;font-size:10px;text-align:right;outline:none;width:44px}
+.cut-act-inp:focus{border-color:#333}
 .cut-merge-btn{background:transparent;border:1px solid #c5cae9;border-radius:2px;color:#9fa8da;font-size:9px;cursor:pointer;padding:1px 3px;flex-shrink:0;line-height:1.4}
 .cut-merge-btn:hover{border-color:#4a6cf7;color:#4a6cf7}
 .locked-cell{background:#fff8e1;color:#795548;font-weight:600}
@@ -423,7 +422,7 @@ function renderCuttingRow(row, zone, type, eolr) {
   const divisor = 3600 / eolr;
   const dv  = (v)   => (v != null && v !== '') ? fmtNum(v) : '—';
   const ops = (std) => { const s = parseFloat(std); return (!isNaN(s)&&s>0) ? fmtNum(parseFloat((s/divisor).toFixed(4))) : '—'; };
-  const edM = (fld, v) => `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'${fld}')" data-tip="點擊編輯">${dv(v)}</td>`;
+  const edM = (fld, v) => `<td class="num" style="cursor:text" onclick="startEdit(this,${pid},'${fld}')" data-tip="點擊編輯">${dv(v)}</td>`;
   const fmC = (v)      => `<td class="formula-cell">${dv(v)}</td>`;
   const thC = (std)    => `<td class="formula-cell theory-cell" data-stdtime="${std??''}" data-zone="${esc(zone)}">${ops(std)}</td>`;
   const zoneJ = esc(JSON.stringify(zone));
@@ -443,7 +442,7 @@ function renderCuttingRow(row, zone, type, eolr) {
   };
   const post5 = () => ['post_marking_std','post_skiving_std','post_attach_std','post_edge_std','post_heat_std'].map(sc => {
     const ps = row[sc];
-    return edM(sc,ps)+`<td class="formula-cell th-post-ops-cell" style="background:#e8f5e9;color:#2e7d32" data-poststd="${ps??''}">${ops(ps)}</td>`;
+    return edM(sc,ps)+`<td class="formula-cell th-post-ops-cell" data-poststd="${ps??''}">${ops(ps)}</td>`;
   }).join('');
   const std = row.standard_time;
   const viet = esc((LANG==='vi'&&row.process_name_vi)?row.process_name_vi:(row.process_name||''));
@@ -452,7 +451,7 @@ function renderCuttingRow(row, zone, type, eolr) {
                    : `<td class="name left" style="white-space:normal">${viet}</td>`;
   let h = '<tr>';
   h += `<td class="del-cell"><button class="btn-del" onclick="deleteRow(${pid})">×</button></td>`;
-  h += `<td class="num" style="background:#fff;cursor:text;font-size:9px;min-width:50px" onclick="startTextEdit(this,${pid},'mat_cat')" data-tip="點擊編輯">${esc(row.mat_cat||'—')}</td>`;
+  h += `<td class="num" style="cursor:text;font-size:9px;min-width:50px" onclick="startTextEdit(this,${pid},'mat_cat')" data-tip="點擊編輯">${esc(row.mat_cat||'—')}</td>`;
   h += `<td class="seq">${row.seq??''}</td>`;
   h += nmC;
   if (type === 'A') {
@@ -464,8 +463,8 @@ function renderCuttingRow(row, zone, type, eolr) {
   } else if (type === 'D') {
     const pk = row.post_marking_std, ps2 = row.post_skiving_std;
     h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('standard_time',std)+thC(std)+actC();
-    h += edM('post_marking_std',pk)+`<td class="formula-cell th-post-ops-cell" style="background:#e8f5e9;color:#2e7d32">${ops(pk)}</td>`;
-    h += edM('post_skiving_std',ps2)+`<td class="formula-cell th-post-ops-cell" style="background:#e8f5e9;color:#2e7d32">${ops(ps2)}</td>`;
+    h += edM('post_marking_std',pk)+`<td class="formula-cell th-post-ops-cell">${ops(pk)}</td>`;
+    h += edM('post_skiving_std',ps2)+`<td class="formula-cell th-post-ops-cell">${ops(ps2)}</td>`;
   } else {
     h += edM('standard_time',std)+thC(std);
   }
@@ -634,8 +633,8 @@ function renderCell(row, col, zone, seg, eolr) {
         const display = computed != null ? fmtNum(parseFloat(computed.toFixed(4))) : '—';
         return `<td class="formula-cell">${display}</td>`;
       }
-      // 打粗/照射: TCT manual, white, editable
-      return `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'standard_time')" data-tip="點擊編輯">${val != null ? fmtNum(val) : '—'}</td>`;
+      // 打粗/照射: TCT manual, editable
+      return `<td class="num" style="cursor:text" onclick="startEdit(this,${pid},'standard_time')" data-tip="點擊編輯">${val != null ? fmtNum(val) : '—'}</td>`;
     }
     const display = computed != null ? fmtNum(parseFloat(computed.toFixed(4))) : '—';
     return `<td class="formula-cell">${display}</td>`;
@@ -671,12 +670,12 @@ function renderCell(row, col, zone, seg, eolr) {
     const defaultAllow = (seg === 'stitching' || seg === 'assembly') ? 10 : null;
     const display = val != null ? fmtNum(val) : (defaultAllow != null ? fmtNum(defaultAllow) : '—');
     if (locked) return `<td class="num locked-cell">${display}</td>`;
-    return `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'allowance_pct')" data-tip="點擊編輯">${display}</td>`;
+    return `<td class="num" style="cursor:text" onclick="startEdit(this,${pid},'allowance_pct')" data-tip="點擊編輯">${display}</td>`;
   }
 
   if (EDITABLE_COLS.has(col)) {
     if (locked) return `<td class="num locked-cell">${val != null ? fmtNum(val) : '—'}</td>`;
-    return `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'${col}')" data-tip="點擊編輯">${val != null ? fmtNum(val) : '—'}</td>`;
+    return `<td class="num" style="cursor:text" onclick="startEdit(this,${pid},'${col}')" data-tip="點擊編輯">${val != null ? fmtNum(val) : '—'}</td>`;
   }
 
   return `<td class="num">${val != null ? fmtNum(val) : '—'}</td>`;
@@ -867,14 +866,14 @@ async function saveSingleActual(inp, pid) {
   });
   const j = await r.json();
   if (!j.ok) alert('儲存失敗: ' + (j.error || ''));
-  else { inp.style.borderColor = '#4a6cf7'; setTimeout(() => { inp.style.borderColor = '#c8e6c9'; }, 1500); }
+  else { inp.style.borderColor = '#333'; setTimeout(() => { inp.style.borderColor = '#ddd'; }, 1500); }
 }
 
 // ── Inline editing ────────────────────────────────────────────────────────────
 function startEdit(td, pid, field) {
   const cur = td.textContent.trim();
   td.innerHTML = `<input type="number" step="any" value="${esc(cur === '—' ? '' : cur)}"
-    style="width:100%;box-sizing:border-box;border:1px solid #4a6cf7;border-radius:2px;padding:1px 4px;font-size:11px;text-align:right;outline:none"
+    style="width:100%;box-sizing:border-box;border:1px solid #333;border-radius:2px;padding:1px 4px;font-size:11px;text-align:right;outline:none;background:#fff"
     onblur="commitEdit(this,${pid},'${field}')"
     onkeydown="editKey(event,this,${pid},'${field}')">`;
   td.querySelector('input').focus();
@@ -882,7 +881,7 @@ function startEdit(td, pid, field) {
 function startTextEdit(td, pid, field) {
   const cur = td.textContent.trim();
   td.innerHTML = `<input type="text" value="${esc(cur === '—' ? '' : cur)}"
-    style="width:100%;border:1px solid #4a6cf7;border-radius:2px;padding:1px 3px;font-size:11px"
+    style="width:100%;border:1px solid #333;border-radius:2px;padding:1px 3px;font-size:11px;background:#fff"
     onblur="commitEdit(this,${pid},'${field}')"
     onkeydown="editKey(event,this,${pid},'${field}')">`;
   td.querySelector('input').focus();
@@ -897,7 +896,7 @@ function commitEdit(inp, pid, field) {
   td.textContent = newVal || '—';
   if (!EDITS[pid]) EDITS[pid] = {};
   EDITS[pid][field] = newVal;
-  td.style.outline = '1px solid #4a6cf7';
+  td.style.outline = '1px solid #333';
   updateSaveBar();
 }
 
