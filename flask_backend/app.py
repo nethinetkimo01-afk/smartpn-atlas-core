@@ -139,6 +139,13 @@ def _require_admin():
         return jsonify({'ok': False, 'error': '需要管理員權限'}), 403
     return None
 
+def _require_manager():
+    """Allow admin or manager roles."""
+    u = _auth_user()
+    if not u or u['role'] not in ('admin', 'manager'):
+        return jsonify({'ok': False, 'error': '需要管理員或主管權限'}), 403
+    return None
+
 # ── Frontend ─────────────────────────────────────────────────────────────────
 
 @app.route('/')
@@ -214,6 +221,8 @@ def ie_sheet_grid(header_id):
 
 @app.route('/api/ie/remove_art', methods=['POST'])
 def ie_remove_art():
+    err = _require_manager()
+    if err: return err
     data = request.get_json(force=True)
     art = data.get('art', '').strip()
     header_id = data.get('header_id')
@@ -224,10 +233,14 @@ def ie_remove_art():
 
 @app.route('/api/ie/<int:header_id>/delete', methods=['POST'])
 def ie_delete_header(header_id):
+    err = _require_manager()
+    if err: return err
     return jsonify(db.delete_ie_header(header_id))
 
 @app.route('/api/ie/create_record', methods=['POST'])
 def ie_create_record():
+    err = _require_manager()
+    if err: return err
     data = request.get_json(force=True)
     art = (data.get('art') or '').strip()
     model_name = (data.get('model_name') or '').strip()
@@ -1398,21 +1411,32 @@ def api_me():
 
 @app.route('/api/ie/<int:header_id>/update_eolr', methods=['POST'])
 def ie_update_eolr(header_id):
-    err = _require_admin()
+    err = _require_manager()
     if err: return err
     d = request.get_json(force=True) or {}
     return jsonify(db.update_ie_header_eolr(header_id, d.get('eolr', 120)))
 
 @app.route('/api/ie/<int:header_id>/update_season', methods=['POST'])
 def ie_update_season(header_id):
-    err = _require_admin()
+    err = _require_manager()
     if err: return err
     d = request.get_json(force=True) or {}
     return jsonify(db.update_ie_header_season(header_id, d.get('season', '')))
 
+@app.route('/api/ie/<int:header_id>/update_meta', methods=['POST'])
+def ie_update_meta(header_id):
+    err = _require_manager()
+    if err: return err
+    d = request.get_json(force=True) or {}
+    return jsonify(db.update_ie_header_meta(
+        header_id,
+        season=d.get('season'),
+        material=d.get('material'),
+    ))
+
 @app.route('/api/ie/add_art', methods=['POST'])
 def ie_add_art():
-    err = _require_admin()
+    err = _require_manager()
     if err: return err
     d = request.get_json(force=True) or {}
     return jsonify(db.add_art_to_header(d.get('art', ''), d.get('header_id')))
@@ -1425,14 +1449,14 @@ def ie_get_assignments(header_id):
 
 @app.route('/api/ie/<int:header_id>/assign', methods=['POST'])
 def ie_assign(header_id):
-    err = _require_admin()
+    err = _require_manager()
     if err: return err
     d = request.get_json(force=True) or {}
     return jsonify(db.set_ie_assignment(header_id, d.get('user_id')))
 
 @app.route('/api/ie/<int:header_id>/unassign', methods=['POST'])
 def ie_unassign(header_id):
-    err = _require_admin()
+    err = _require_manager()
     if err: return err
     d = request.get_json(force=True) or {}
     return jsonify(db.remove_ie_assignment(header_id, d.get('user_id')))

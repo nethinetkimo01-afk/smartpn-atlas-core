@@ -118,7 +118,7 @@ def list_users():
 def create_user(username, display_name, role, password, active=1):
     if not username or not display_name or not password:
         return {'ok': False, 'error': '帳號、名稱、密碼不能空白'}
-    if role not in ('admin','data_entry','read_only'):
+    if role not in ('admin','manager','data_entry','read_only'):
         return {'ok': False, 'error': '角色無效'}
     conn = get_conn()
     try:
@@ -146,7 +146,7 @@ def update_user(uid, display_name=None, role=None, password=None, active=None):
     sets, vals = [], []
     if display_name is not None: sets.append('display_name=?'); vals.append(display_name.strip())
     if role is not None:
-        if role not in ('admin','data_entry','read_only'):
+        if role not in ('admin','manager','data_entry','read_only'):
             conn.close()
             return {'ok': False, 'error': '角色無效'}
         sets.append('role=?'); vals.append(role)
@@ -349,6 +349,26 @@ def update_ie_header_eolr(header_id, eolr):
         return {'ok': False, 'error': 'eolr must be 60 or 120'}
     conn = get_conn()
     conn.execute("UPDATE ob_header SET eolr=?, updated_at=datetime('now') WHERE id=?", (int(eolr), header_id))
+    conn.commit()
+    conn.close()
+    return {'ok': True}
+
+def update_ie_header_material(header_id, material):
+    conn = get_conn()
+    conn.execute("UPDATE ob_header SET material=?, updated_at=datetime('now') WHERE id=?", (material, header_id))
+    conn.commit()
+    conn.close()
+    return {'ok': True}
+
+def update_ie_header_meta(header_id, season=None, material=None):
+    parts, vals = [], []
+    if season  is not None: parts.append("season=?");   vals.append(season)
+    if material is not None: parts.append("material=?"); vals.append(material)
+    if not parts:
+        return {'ok': False, 'error': 'nothing to update'}
+    conn = get_conn()
+    conn.execute(f"UPDATE ob_header SET {','.join(parts)}, updated_at=datetime('now') WHERE id=?",
+                 vals + [header_id])
     conn.commit()
     conn.close()
     return {'ok': True}

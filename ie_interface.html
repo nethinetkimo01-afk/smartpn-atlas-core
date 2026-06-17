@@ -82,11 +82,21 @@ thead th:last-child{border-right:none}
 .empty{text-align:center;padding:30px;color:#aaa;font-size:12px}
 
 .act-cell{text-align:center;padding:2px 4px;white-space:nowrap;border-right:1px solid #e4e9f2;vertical-align:middle}
-.btn-add-rec,.btn-del-rec{background:transparent;border:none;cursor:pointer;font-size:12px;font-weight:700;border-radius:3px;padding:1px 5px;line-height:1.5}
-.btn-add-rec{color:#1a2744}.btn-add-rec:hover{background:#e8eaf6}
-.row-menu{position:absolute;left:0;top:22px;background:#fff;border:1px solid #ddd;border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:100;min-width:160px;padding:4px 0;white-space:nowrap}
+.btn-dot-menu{background:transparent;border:none;cursor:pointer;font-size:15px;font-weight:700;border-radius:3px;padding:1px 6px;line-height:1.5;color:#888;letter-spacing:1px}
+.btn-dot-menu:hover{background:#e8eaf6;color:#1a2744}
+.row-menu{position:absolute;left:0;top:24px;background:#fff;border:1px solid #ddd;border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:100;min-width:160px;padding:4px 0;white-space:nowrap}
 .row-menu div{padding:7px 14px;font-size:13px;cursor:pointer;color:#222}.row-menu div:hover{background:#f5f7ff}
-.btn-del-rec{color:#e53935}.btn-del-rec:hover{background:#ffebee;color:#b71c1c}
+.row-menu .menu-danger{color:#c62828}.row-menu .menu-danger:hover{background:#ffebee}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center}
+.modal-box{background:#fff;border-radius:10px;padding:28px;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.modal-title{color:#1a2744;margin-bottom:16px;font-size:16px;font-weight:600}
+.form-label{display:block;font-size:12px;color:#666;margin-bottom:3px;margin-top:10px}
+.form-inp{width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:14px;box-sizing:border-box}
+.form-inp:focus{border-color:#4a6cf7;outline:none}
+.form-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modal-hint{font-size:11px;color:#aaa;margin-top:3px}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.modal-errmsg{font-size:12px;color:#c00;min-height:16px;margin-top:8px}
 </style>
 </head>
 <body>
@@ -117,30 +127,52 @@ thead th:last-child{border-right:none}
 </div>
 
 <!-- New Model Modal -->
-<div id="modal-new-model" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center">
-  <div style="background:#fff;border-radius:10px;padding:28px;width:380px;box-shadow:0 8px 32px rgba(0,0,0,.3)">
-    <h3 style="color:#1a2744;margin-bottom:16px;font-size:16px">新增鞋型</h3>
-    <label style="font-size:12px;color:#666">鞋型名稱 *</label>
-    <input id="nm-name" type="text" placeholder="e.g. TOKYO W" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;margin-bottom:10px;font-size:14px">
-    <label style="font-size:12px;color:#666">ART *</label>
-    <input id="nm-art" type="text" placeholder="e.g. TEST001" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;margin-bottom:10px;font-size:14px">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+<div id="modal-new-model" class="modal-overlay">
+  <div class="modal-box" style="width:420px">
+    <h3 class="modal-title">新增鞋型</h3>
+    <label class="form-label">鞋型名稱 *</label>
+    <input id="nm-name" class="form-inp" type="text" placeholder="e.g. TOKYO W">
+    <label class="form-label">ART（多個用逗號分隔）*</label>
+    <input id="nm-art" class="form-inp" type="text" placeholder="e.g. IF0010, IF0011">
+    <div class="form-row2" style="margin-top:10px">
       <div>
-        <label style="font-size:12px;color:#666">EOLR</label>
-        <select id="nm-eolr" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:14px">
-          <option value="120">120</option>
-          <option value="60">60</option>
+        <label class="form-label" style="margin-top:0">EOLR</label>
+        <select id="nm-eolr" class="form-inp">
+          <option value="120">120（量產）</option>
+          <option value="60">60（試產）</option>
         </select>
       </div>
       <div>
-        <label style="font-size:12px;color:#666">季度</label>
-        <input id="nm-season" type="text" placeholder="FW26" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:14px">
+        <label class="form-label" style="margin-top:0">生產季度</label>
+        <input id="nm-season" class="form-inp" type="text" placeholder="FW26">
       </div>
     </div>
-    <div id="nm-msg" style="font-size:12px;color:#c00;min-height:16px;margin-bottom:8px"></div>
-    <div style="display:flex;justify-content:flex-end;gap:8px">
+    <label class="form-label">材料類</label>
+    <input id="nm-material" class="form-inp" type="text" placeholder="越文/English/中文">
+    <div class="modal-hint">多語系用「/」分隔，例：Da tổng hợp/Synthetic/合成革</div>
+    <label class="form-label">階段（版本名稱）</label>
+    <input id="nm-stage" class="form-inp" type="text" placeholder="量產（留空可後續建立）">
+    <div class="modal-errmsg" id="nm-msg"></div>
+    <div class="modal-actions">
       <button onclick="closeNewModelModal()" style="padding:7px 16px;border:1px solid #ccc;border-radius:4px;cursor:pointer;background:#fff">取消</button>
       <button onclick="submitNewModel()" style="padding:7px 16px;background:#1a2744;color:#fff;border:none;border-radius:4px;cursor:pointer">建立</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Meta Modal (season + material) -->
+<div id="modal-meta" class="modal-overlay">
+  <div class="modal-box" style="width:380px">
+    <h3 class="modal-title" id="meta-title">修改季度 / 材料類</h3>
+    <label class="form-label">生產季度</label>
+    <input id="meta-season" class="form-inp" type="text" placeholder="FW26">
+    <label class="form-label">材料類</label>
+    <input id="meta-material" class="form-inp" type="text" placeholder="越文/English/中文">
+    <div class="modal-hint">多語系用「/」分隔，例：Da tổng hợp/Synthetic/合成革</div>
+    <div class="modal-errmsg" id="meta-msg"></div>
+    <div class="modal-actions">
+      <button onclick="closeMetaModal()" style="padding:7px 16px;border:1px solid #ccc;border-radius:4px;cursor:pointer;background:#fff">取消</button>
+      <button onclick="submitMeta()" style="padding:7px 16px;background:#1a2744;color:#fff;border:none;border-radius:4px;cursor:pointer">儲存</button>
     </div>
   </div>
 </div>
@@ -333,18 +365,19 @@ function renderGroup(g){
 
   let rows = '';
 
-  const isAdmin = CURRENT_USER && CURRENT_USER.role === 'admin';
+  const canEdit = CURRENT_USER && ['admin','manager'].includes(CURRENT_USER.role);
   const menuId  = `menu-${linkId}`;
-  const actBtn  = isAdmin
-    ? `<button class="btn-add-rec" onclick="toggleMenu('${menuId}',${linkId},${modelJ},event)" title="操作">···</button>`
+  const actBtn  = canEdit
+    ? `<button class="btn-dot-menu" onclick="toggleMenu('${menuId}',event)" title="操作選單">···</button>`
     : '';
-  const actMenu = isAdmin
+  const actMenu = canEdit
     ? `<div id="${menuId}" class="row-menu" style="display:none">
         <div onclick="addArtToModel(${linkId},${modelJ})">＋ 新增 ART</div>
         <div onclick="removeArtFromModel(${linkId})">－ 移除 ART</div>
         <div onclick="changeEolrModal(${linkId})">⇄ 修改 EOLR</div>
+        <div onclick="openMetaModal(${linkId},${modelJ})">✎ 修改季度 / 材料類</div>
         <div onclick="openAssignModal(${linkId},${modelJ})">👤 指派帳號</div>
-        <div onclick="delIeRecord(${linkId})" style="color:#c62828">✕ 刪除鞋型</div>
+        <div class="menu-danger" onclick="delIeRecord(${linkId},${modelJ})">✕ 刪除鞋型</div>
        </div>`
     : '';
 
@@ -431,7 +464,7 @@ async function initAuth(){
   if(CURRENT_USER){
     badge.textContent = CURRENT_USER.display_name || CURRENT_USER.username;
     logoutBtn.style.display = 'inline';
-    if(CURRENT_USER.role === 'admin') newBtn.style.display = 'inline-block';
+    if(['admin','manager'].includes(CURRENT_USER.role)) newBtn.style.display = 'inline-block';
   }
 }
 
@@ -441,7 +474,7 @@ async function doLogout(){
 }
 
 // ── Row menu ──────────────────────────────────────────────────────────────────
-function toggleMenu(menuId, headerId, modelName, ev){
+function toggleMenu(menuId, ev){
   ev.stopPropagation();
   document.querySelectorAll('.row-menu').forEach(m=>{ if(m.id!==menuId) m.style.display='none'; });
   const m = document.getElementById(menuId);
@@ -451,22 +484,6 @@ function toggleMenu(menuId, headerId, modelName, ev){
 document.addEventListener('click', ()=>document.querySelectorAll('.row-menu').forEach(m=>m.style.display='none'));
 
 // ── Actions ───────────────────────────────────────────────────────────────────
-async function addIeRecord(modelName){
-  const art = prompt(`新增 ART（鞋型：${modelName}）：`);
-  if(!art || !art.trim()) return;
-  const eolrStr = prompt('EOLR（60 或 120）：','120');
-  const eolr = parseInt(eolrStr);
-  if(![60,120].includes(eolr)){ alert('EOLR 只能是 60 或 120'); return; }
-  const r = await fetch('/api/ie/create_record',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({art:art.trim(), model_name:modelName, eolr}),
-  });
-  const j = await r.json();
-  if(j.ok) loadData();
-  else alert('新增失敗：'+(j.error||''));
-}
-
 async function addArtToModel(headerId, modelName){
   const art = prompt(`新增 ART（鞋型：${modelName}）：`);
   if(!art||!art.trim()) return;
@@ -496,8 +513,9 @@ async function changeEolrModal(headerId){
   if(j.ok) loadData(); else alert('修改失敗：'+(j.error||''));
 }
 
-async function delIeRecord(id){
-  if(!confirm('確認刪除此鞋型記錄？此操作不可復原。')) return;
+async function delIeRecord(id, modelName){
+  const label = modelName || '此鞋型';
+  if(!confirm(`確認刪除「${label}」？所有相關 IE 資料將一併標記刪除，此操作不可復原。`)) return;
   const r = await fetch('/api/ie/'+id+'/delete',{method:'POST'});
   const j = await r.json();
   if(j.ok) loadData();
@@ -506,33 +524,77 @@ async function delIeRecord(id){
 
 // ── New Model Modal ────────────────────────────────────────────────────────────
 function openNewModelModal(){
-  document.getElementById('nm-name').value='';
-  document.getElementById('nm-art').value='';
-  document.getElementById('nm-season').value='';
+  ['nm-name','nm-art','nm-season','nm-material','nm-stage'].forEach(id=>{ document.getElementById(id).value=''; });
+  document.getElementById('nm-eolr').value='120';
   document.getElementById('nm-msg').textContent='';
   document.getElementById('modal-new-model').style.display='flex';
   document.getElementById('nm-name').focus();
 }
 function closeNewModelModal(){ document.getElementById('modal-new-model').style.display='none'; }
 async function submitNewModel(){
-  const name   = document.getElementById('nm-name').value.trim();
-  const art    = document.getElementById('nm-art').value.trim();
-  const eolr   = parseInt(document.getElementById('nm-eolr').value);
-  const season = document.getElementById('nm-season').value.trim();
-  const msg    = document.getElementById('nm-msg');
-  if(!name||!art){ msg.textContent='鞋型名稱和ART不能空白'; return; }
+  const name     = document.getElementById('nm-name').value.trim();
+  const artRaw   = document.getElementById('nm-art').value.trim();
+  const eolr     = parseInt(document.getElementById('nm-eolr').value);
+  const season   = document.getElementById('nm-season').value.trim();
+  const material = document.getElementById('nm-material').value.trim();
+  const stage    = document.getElementById('nm-stage').value.trim();
+  const msg      = document.getElementById('nm-msg');
+  if(!name || !artRaw){ msg.textContent='鞋型名稱和ART不能空白'; return; }
+  // Parse ARTs (comma-separated)
+  const arts = artRaw.split(',').map(s=>s.trim()).filter(Boolean);
+  if(!arts.length){ msg.textContent='請輸入至少一個 ART'; return; }
+  // Create with first ART
   const r = await fetch('/api/ie/create_record',{method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({art, model_name:name, eolr})});
+    body:JSON.stringify({art:arts[0], model_name:name, eolr})});
   const j = await r.json();
-  if(j.ok){
-    if(season){
-      await fetch(`/api/ie/${j.header_id}/update_season`,{method:'POST',
-        headers:{'Content-Type':'application/json'}, body:JSON.stringify({season})});
-    }
-    closeNewModelModal();
-    loadData();
-  } else { msg.textContent = j.error||'建立失敗'; }
+  if(!j.ok){ msg.textContent = j.error||'建立失敗'; return; }
+  const hid = j.header_id;
+  // Add additional ARTs
+  for(let i=1;i<arts.length;i++){
+    await fetch('/api/ie/add_art',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({header_id:hid, art:arts[i]})});
+  }
+  // Update season + material
+  if(season || material){
+    await fetch(`/api/ie/${hid}/update_meta`,{method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({season:season||null, material:material||null})});
+  }
+  // Create initial stage if provided
+  if(stage){
+    await fetch(`/api/ie/stages/${hid}`,{method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({stage_name:stage})});
+  }
+  closeNewModelModal();
+  loadData();
+}
+
+// ── Edit Meta Modal (season + material) ──────────────────────────────────────
+let _metaHeaderId = null;
+function openMetaModal(headerId, modelName){
+  _metaHeaderId = headerId;
+  document.getElementById('meta-title').textContent = `修改季度 / 材料類 — ${modelName}`;
+  // Pre-fill from current group data
+  const g = allGroups.find(x=>x.id60===headerId||x.id120===headerId);
+  document.getElementById('meta-season').value   = (g && g.season)   ? g.season   : '';
+  document.getElementById('meta-material').value = (g && g.mat)      ? g.mat      : '';
+  document.getElementById('meta-msg').textContent = '';
+  document.getElementById('modal-meta').style.display='flex';
+  document.getElementById('meta-season').focus();
+}
+function closeMetaModal(){ document.getElementById('modal-meta').style.display='none'; }
+async function submitMeta(){
+  const season   = document.getElementById('meta-season').value.trim();
+  const material = document.getElementById('meta-material').value.trim();
+  const msg      = document.getElementById('meta-msg');
+  const r = await fetch(`/api/ie/${_metaHeaderId}/update_meta`,{method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({season:season||null, material:material||null})});
+  const j = await r.json();
+  if(j.ok){ closeMetaModal(); loadData(); }
+  else { msg.textContent = j.error||'儲存失敗'; }
 }
 
 // ── Assign Modal ────────────────────────────────────────────────────────────────

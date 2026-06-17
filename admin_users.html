@@ -19,6 +19,7 @@ td{padding:8px 10px;border-bottom:1px solid #eee;vertical-align:middle}
 tr:hover td{background:#f8f9ff}
 .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:bold}
 .badge-admin{background:#fce4d6;color:#c00}
+.badge-manager{background:#e3f2fd;color:#01579b}
 .badge-data_entry{background:#d0f0d0;color:#060}
 .badge-read_only{background:#e0e0e0;color:#555}
 .btn{padding:5px 12px;border:none;border-radius:4px;cursor:pointer;font-size:13px}
@@ -90,6 +91,7 @@ form input:focus,form select:focus{outline:none;border-color:#1a2744}
     <strong>角色說明</strong>
     <ul style="margin-top:8px;padding-left:18px;line-height:2">
       <li><span class="badge badge-admin">管理員</span> — 建帳號、指派任務、核准修改、鎖定合格版、決定主表顯示版本</li>
+      <li><span class="badge badge-manager">主管</span> — 新增/編輯/刪除鞋型、指派任務（不可管理帳號）</li>
       <li><span class="badge badge-data_entry">資料建立</span> — 填寫IE資料、送審</li>
       <li><span class="badge badge-read_only">只讀</span> — 看資料不能改</li>
     </ul>
@@ -120,6 +122,7 @@ form input:focus,form select:focus{outline:none;border-color:#1a2744}
         <label>角色 *</label>
         <select id="f-role">
           <option value="admin">管理員</option>
+          <option value="manager">主管</option>
           <option value="data_entry" selected>資料建立</option>
           <option value="read_only">只讀</option>
         </select>
@@ -141,10 +144,11 @@ form input:focus,form select:focus{outline:none;border-color:#1a2744}
 </div>
 
 <script>
-const ROLE_LABELS = {admin:'管理員', data_entry:'資料建立', read_only:'只讀'};
-const ROLE_BADGES = {admin:'badge-admin', data_entry:'badge-data_entry', read_only:'badge-read_only'};
+const ROLE_LABELS = {admin:'管理員', manager:'主管', data_entry:'資料建立', read_only:'只讀'};
+const ROLE_BADGES = {admin:'badge-admin', manager:'badge-manager', data_entry:'badge-data_entry', read_only:'badge-read_only'};
 const ROLE_HINTS  = {
-  admin:'建帳號、核准修改、鎖定合格版',
+  admin:'建帳號、核准修改、鎖定合格版、全部管理權限',
+  manager:'新增/編輯/刪除鞋型、指派任務（不可管理帳號）',
   data_entry:'填寫IE資料、送審',
   read_only:'看資料不能改'
 };
@@ -277,7 +281,7 @@ async function loadAssignPanel() {
     fetch('/api/ie/list_all').then(r=>r.json())
   ]);
   if (!ru.ok || !ri.ok) { content.innerHTML = '<span style="color:red">載入失敗</span>'; return; }
-  const editors = (ru.users||[]).filter(u=>u.role==='data_entry' && u.active && !u.locked);
+  const editors = (ru.users||[]).filter(u=>['data_entry','manager'].includes(u.role) && u.active && !u.locked);
   const models  = ri.records || [];
   if (!editors.length) { content.innerHTML = '（目前沒有資料建立人員帳號）'; return; }
 
