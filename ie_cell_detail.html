@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -572,8 +572,8 @@ function addCuttingRow(zone) {
   const zE   = esc(zone);
   const fm   = () => `<td class="formula-cell" style="font-size:9px">公式</td>`;
   const ni   = (id, ph) => `<td><input class="add-inp add-num" id="${id}" type="text" placeholder="${ph}" style="min-width:28px"></td>`;
-  const ok   = `<td style="white-space:nowrap"><button class="btn-inline-ok" onclick="confirmAddCuttingRow(${zJ})">✓</button><button class="btn-inline-cancel" onclick="cancelAddCuttingRow(${zJ})">✗</button></td>`;
-  let c = `<td></td><td><input class="add-inp" id="add-mat-${zE}" placeholder="材料" style="min-width:46px;font-size:10px"></td><td style="text-align:center;color:#aaa;font-size:10px">—</td><td><input class="add-inp" id="add-name-${zE}" placeholder="部件名稱" style="min-width:90px"></td>`;
+  const ok   = `<td style="white-space:nowrap"><button class="btn-inline-ok" onclick="confirmAddCuttingRow(${zJ})">✓</button></td>`;
+  let c = `<td class="del-cell"><button class="btn-del" onclick="cancelAddCuttingRow(${zJ})" title="取消">✕</button></td><td><input class="add-inp" id="add-mat-${zE}" placeholder="材料" style="min-width:46px;font-size:10px"></td><td style="text-align:center;color:#aaa;font-size:10px">—</td><td><input class="add-inp" id="add-name-${zE}" placeholder="部件名稱" style="min-width:90px"></td>`;
   if (type === 'A') {
     c += ni('add-lay-'+zE,'層')+ni('add-qty-'+zE,'件')+ni('add-cph-'+zE,'刀/H')+fm()+fm()+ni('add-act-'+zE,'人');
     c += `<td colspan="10" style="background:#f1f8e9;text-align:center;font-size:9px;color:#aaa;border:1px dashed #c8e6c9">後製工序（新增後填入）</td>`;
@@ -1164,7 +1164,7 @@ function addRowInline(zone, seg) {
   if (!cols) return;
   const zJ   = esc(JSON.stringify(zone));
   const segJ = esc(JSON.stringify(seg));
-  let cells = '<td></td>';
+  let cells = `<td class="del-cell"><button class="btn-del" onclick="cancelAddRowInline(${zJ})" title="取消">✕</button></td>`;
   for (const col of cols) {
     if (col === 'seq') {
       cells += `<td style="text-align:center;color:#aaa">—</td>`;
@@ -1187,10 +1187,7 @@ function addRowInline(zone, seg) {
       cells += `<td></td>`;
     }
   }
-  cells += `<td style="white-space:nowrap;border:1px solid #c8e6c9">
-    <button class="btn-inline-ok" onclick="confirmAddRowInline(${zJ},${segJ})">✓</button>
-    <button class="btn-inline-cancel" onclick="cancelAddRowInline(${zJ})">✗</button>
-  </td>`;
+  cells += `<td style="white-space:nowrap;border:1px solid #c8e6c9"><button class="btn-inline-ok" onclick="confirmAddRowInline(${zJ},${segJ})">✓</button></td>`;
   const tr = document.createElement('tr');
   tr.className = 'add-row-inline';
   tr.innerHTML = cells;
