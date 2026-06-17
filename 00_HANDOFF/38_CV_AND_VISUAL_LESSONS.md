@@ -227,3 +227,49 @@ Jim 核心差異點：
 第1頁 vs 第2頁差別：
 - 第1頁：兩個系統標題 + 一句話，吸引高層翻下去
 - 第2頁：兩個系統完整細節（Identity/Governance/Decision + 數字）
+
+## 2026-06-17 CV 製作進度（六張圖內容全部定案）
+
+### 視覺系統（全套統一）
+- 白底 Apple 風格、Inter / SF Pro 字體、主色橘 #B5540D。
+- 每頁底色框標籤：CURRENT（淺灰底深灰字）/ CONTRIBUTION（橘底白字），固定左上。
+- 橘色只用在 Contribution 側。CURRENT 側中性黑灰。
+- 每頁底部一句洞察金句（母語語感，不中翻英）。
+- 設計鐵律：左右或上下結構必須一致，只有「變化的部分」不同。
+- 標題一致性：標題由排版層統一加（靠左、同字體大小顏色），圖一律生成「不含標題純圖」再嵌入。
+
+### CV 結構（順序）
+1. 封面頁（極簡：應徵職位為主角、名字次要。兩版 A/B 待 Jim 選。職位：VF Product Owner, AI Products & Data）
+2. 開場（VF CORPORATION — WHAT I CAN CONTRIBUTE + 合併段）
+3. Performance and Potential Contribution to VF（What I Have Built 圖 + 句：Both systems were built with AI tools — but only clear AI communication logic makes AI work. Without direction, AI is just a word. Currently applied to internal department management.）※Jim 預計重做
+4. System 01 區塊 P1–P6（六張滿版圖）
+5. System 02：IE & Workforce Planning
+6. What I'm Looking For（三圖示卡）
+7. About Me（AI 心得 + Language + 聯絡）
+
+### 六張圖定案
+- P1（圖已生成）Reclaim your hidden margin from the manufacturing side. 雙欄同布同吊牌，吊牌兩行 Brand/Factory。左 Brand=Brand-MTL-Code $10、Factory $8 → With Hidden Margin；右 Brand 寫成 Factory-MTL-Code $8（橘不劃掉）→ No Hidden Margin。金句：Hidden margin exists when the same material carries different identities. Unify the identity, and the gap disappears.
+- P2（Claude 排表格）Less manpower. More complete. Real-time. 上下比較，欄 MTL|Updated by|Updated|Price。Updated by 合併（上 Brand 跨2、下 Supplier 跨4）。上 CURRENT 2 筆 past 10；下 CONTRIBUTION 4 筆 MTL-2 today橘/8、MTL-3、MTL-4橘 today。標記 Less Manpower（Brand↔Supplier）、Real-time（兩箭頭指上下 MTL-2 價 10 與 8）、More Complete（指 MTL-3/4），Real-time 與 More Complete 右側對齊。金句：Accurate, real-time data is the supplier's responsibility — because they are the source.
+- P3（Claude 排表格）Fast factory transfer. Consistent quality. Flexible FOB. 左右比較，身份合併格 Brand BOM/Factory BOM。左 Factory BOM 用 FTY-Code-01/02/03；右 Factory BOM 改 MTL-Code-1/2/3（橘）=Shared BOM。Brand BOM 不變。右側不要 callout 框。金句：A shared BOM makes sure every factory uses the same materials — easy to transfer, consistent in quality.
+- P4（Claude 排表格）Reclaim your group purchasing power. 左 MTL|Volume|Supplier（10/20/30）；右多一欄 Supplier Group 合併格「Supplier-group」橘跨三列。不算總量。金句：Link suppliers to their parent company, and negotiate with the combined volume — not the scattered parts.
+- P5（圖已生成）Supplier performance. Digitized. 左 Performance→mail→3人中2人收到；右 Performance→系統(隱私鎖)→3人全到。中性不貶低。金句：Performance, recorded in real time and kept private — for your purchasing and development teams to evaluate materials.
+- P6（Claude 排表格）Fast fashion. Optimized. 欄 MTL|Product|Density|Supplier|LT。左 1 筆 MTL-1/Foam/30/Supplier-1/30；右 MTL-1 同料（MTL/Product/Density 合併跨三列），Supplier-1/2/3，LT 30/35/20，最短 20 橘。金句：The "Search Same Material" function finds the shortest LT to support fast-fashion design demand.
+- IE（System 02 圖示型）IE & Workforce Planning。左 CURRENT—Fragmented：3 人各自電腦各連自己硬碟；右 CONTRIBUTION—Centralized：3 人位置與左相同，全連中央資料庫（橘）。金句：From fragmented local files to one centralized system — IE data, shared and consistent.
+
+### 派工原則
+- 表格型 P2/P3/P4/P6 → Claude 程式排版。
+- 具象圖示型 P1/P5/IE → GPT 生成。
+- 視覺/排版專業細節 Claude 主動判斷並建議，不反問 Jim。
+
+### 待辦（下次開機接續）
+1. 封面頁：Jim 選 A 或 B。
+2. 第1頁：On the supply chain → On the manufacturing-side supply chain。
+3. 第4頁 P2：補上 CURRENT/CONTRIBUTION 底色框（前版漏）。
+4. 標題全頁統一。
+5. IE 頁重做到 P5 品質。
+6. 圖改「不含標題純圖」，標題由排版層加。
+7. 第2頁 Jim 預計重做。
+
+### 新教訓
+- 錯誤 12：漏掉既定元素（P2 忘放 CURRENT/CONTRIBUTION 底色框）。預防：每頁產出前對照「全套共通元素清單」逐項核對。
+- 錯誤 13：prompt 沒寫「左右位置完全相同」，致 IE 圖左右人物排列不一致。預防：凡對比圖，prompt 必含「兩側結構/位置完全相同，只有變化部分不同」。
