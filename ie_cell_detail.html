@@ -53,7 +53,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#f0f2
 .proc-table th.left{text-align:left}
 .proc-table th.th-theory{background:#455a64;color:#cfd8dc}
 .proc-table th.th-actual{background:#fff;color:#444}
-.proc-table td{padding:4px 8px;border:1px solid #e8ecf4;vertical-align:middle;white-space:nowrap}
+.proc-table td{padding:4px 8px;border:1px solid #ddd;vertical-align:middle;white-space:nowrap}
 .proc-table tr:hover td{background:transparent}
 .proc-table tr:hover td.locked-cell{background:#fff8e1}
 .proc-table tr.add-row-inline:hover td{background:#f0fff4!important}
@@ -68,7 +68,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#f0f2
 .cut-merge-btn{background:transparent;border:1px solid #c5cae9;border-radius:2px;color:#9fa8da;font-size:9px;cursor:pointer;padding:1px 3px;flex-shrink:0;line-height:1.4}
 .cut-merge-btn:hover{border-color:#4a6cf7;color:#4a6cf7}
 .locked-cell{background:#fff8e1;color:#795548;font-weight:600;border:1px solid #e0c060!important;cursor:default}
-.del-cell{width:22px;text-align:center;padding:2px 4px;border:1px solid #e8ecf4}
+.del-cell{width:22px;text-align:center;padding:2px 4px;border:1px solid #ddd}
 .btn-del{background:transparent;border:none;color:#ccc;font-size:14px;cursor:pointer;padding:0 2px;border-radius:3px;line-height:1}
 .btn-del:hover{color:#c62828;background:#fce4ec}
 .group-cell{background:#e8f5e9;color:#1a6e3c;font-weight:700;text-align:right;font-family:Consolas,monospace}
@@ -183,7 +183,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#f0f2
     <label class="modal-label">本區工序清單</label>
     <div class="proc-check-list" id="mergeProcList"></div>
     <label class="modal-label">合計人數</label>
-    <input class="modal-input" type="number" step="0.5" min="0" id="mergeHeadcount" placeholder="例如: 2"
+    <input class="modal-input" type="text" id="mergeHeadcount" placeholder="例如: 2"
       onkeydown="if(event.key==='Enter')submitMerge()">
     <div class="modal-footer">
       <button class="btn-mcancel" onclick="closeMergeModal()">取消</button>
@@ -201,7 +201,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#f0f2
     <label class="modal-label">部件名稱（選填）</label>
     <input class="modal-input" type="text" id="addPartName" placeholder="例: 鞋頭面料">
     <label class="modal-label">TCT 秒/雙（選填）</label>
-    <input class="modal-input" type="number" step="any" min="0" id="addTCT" placeholder="例: 30">
+    <input class="modal-input" type="text" id="addTCT" placeholder="例: 30">
     <div class="modal-footer">
       <button class="btn-mcancel" onclick="closeAddModal()">取消</button>
       <button class="btn-mok" onclick="submitAddRow()">新增</button>
@@ -522,7 +522,7 @@ function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
     }
     return `<td class="actual-cell" style="padding:2px 4px">
       <div style="display:flex;align-items:center;gap:2px;justify-content:flex-end">
-        <input type="number" step="any" class="cut-act-inp" data-pid="${pid}"
+        <input type="text" class="cut-act-inp" data-pid="${pid}"
           value="${row.actual_operators ?? ''}" placeholder="—"
           onblur="saveSingleActual(this,${pid})"
           onkeydown="if(event.key==='Enter')this.blur()">
@@ -571,7 +571,7 @@ function addCuttingRow(zone) {
   const zJ   = esc(JSON.stringify(zone));
   const zE   = esc(zone);
   const fm   = () => `<td class="formula-cell" style="font-size:9px">公式</td>`;
-  const ni   = (id, ph) => `<td><input class="add-inp add-num" id="${id}" type="number" placeholder="${ph}" style="min-width:28px"></td>`;
+  const ni   = (id, ph) => `<td><input class="add-inp add-num" id="${id}" type="text" placeholder="${ph}" style="min-width:28px"></td>`;
   const ok   = `<td style="white-space:nowrap"><button class="btn-inline-ok" onclick="confirmAddCuttingRow(${zJ})">✓</button><button class="btn-inline-cancel" onclick="cancelAddCuttingRow(${zJ})">✗</button></td>`;
   let c = `<td></td><td><input class="add-inp" id="add-mat-${zE}" placeholder="材料" style="min-width:46px;font-size:10px"></td><td style="text-align:center;color:#aaa;font-size:10px">—</td><td><input class="add-inp" id="add-name-${zE}" placeholder="部件名稱" style="min-width:90px"></td>`;
   if (type === 'A') {
@@ -942,7 +942,7 @@ function openGroupAction(event, groupId, headcount, zone, seg) {
     <div class="gap-title">合併格 · ${esc(zone)}</div>
     <div class="gap-row">
       <span class="gap-label">人數</span>
-      <input class="gap-inp" id="gapHc" type="number" step="0.5" min="0" value="${headcount}">
+      <input class="gap-inp" id="gapHc" type="text" value="${headcount}">
       <button class="gap-btn-save" onclick="saveGroupHc(${groupId})">更新</button>
     </div>
     <button class="gap-btn-del" onclick="unmergeGroup(${groupId})">解除合併（清空人數）</button>`;
@@ -1069,7 +1069,7 @@ async function saveSingleActual(inp, pid) {
 // ── Inline editing ────────────────────────────────────────────────────────────
 function startEdit(td, pid, field) {
   const cur = td.textContent.trim();
-  td.innerHTML = `<input type="number" step="any" value="${esc(cur === '—' ? '' : cur)}"
+  td.innerHTML = `<input type="text" value="${esc(cur === '—' ? '' : cur)}"
     style="width:100%;box-sizing:border-box;border:1px solid #333;border-radius:2px;padding:1px 4px;font-size:11px;text-align:right;outline:none;background:#fff"
     onblur="commitEdit(this,${pid},'${field}')"
     onkeydown="editKey(event,this,${pid},'${field}')">`;
@@ -1172,18 +1172,18 @@ function addRowInline(zone, seg) {
     } else if (col === 'process_name') {
       cells += `<td><input class="add-inp" id="add-gen-pname-${esc(zone)}" placeholder="工序名稱" style="min-width:110px"></td>`;
     } else if (col === 'normal_time') {
-      cells += `<td><input class="add-inp add-num" id="add-gen-nt-${esc(zone)}" type="number" placeholder="正常時間" style="min-width:55px"></td>`;
+      cells += `<td><input class="add-inp add-num" id="add-gen-nt-${esc(zone)}" type="text" placeholder="正常時間" style="min-width:55px"></td>`;
     } else if (col === 'allowance_pct') {
-      cells += `<td><input class="add-inp add-num" id="add-gen-ap-${esc(zone)}" type="number" value="10" placeholder="10" style="min-width:35px"></td>`;
+      cells += `<td><input class="add-inp add-num" id="add-gen-ap-${esc(zone)}" type="text" value="10" placeholder="10" style="min-width:35px"></td>`;
     } else if (col === 'standard_time') {
       const isFormula = (seg === 'stitching' || seg === 'assembly') || (seg === 'stf' && zone === '貼底');
       cells += isFormula
         ? `<td class="formula-cell" style="font-size:9px">公式</td>`
-        : `<td><input class="add-inp add-num" id="add-gen-std-${esc(zone)}" type="number" placeholder="TCT" style="min-width:55px"></td>`;
+        : `<td><input class="add-inp add-num" id="add-gen-std-${esc(zone)}" type="text" placeholder="TCT" style="min-width:55px"></td>`;
     } else if (col === 'production_target' || col === 'theory_operators') {
       cells += `<td class="formula-cell" style="font-size:9px">公式</td>`;
     } else if (col === 'actual_operators') {
-      cells += `<td><input class="add-inp add-num" id="add-gen-act-${esc(zone)}" type="number" placeholder="人數" style="min-width:40px"></td>`;
+      cells += `<td><input class="add-inp add-num" id="add-gen-act-${esc(zone)}" type="text" placeholder="人數" style="min-width:40px"></td>`;
     } else {
       cells += `<td></td>`;
     }
