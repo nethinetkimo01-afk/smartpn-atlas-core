@@ -70,6 +70,35 @@ def init_db():
              ('dacu',   '打粗水洗照射',  'read_only',ts,ts)]
         )
         conn.commit()
+    # Migration: is_deleted soft-delete for ds04_orders
+    cols_ds04 = [r[1] for r in conn.execute("PRAGMA table_info(ds04_orders)").fetchall()]
+    if 'is_deleted' not in cols_ds04:
+        conn.execute("ALTER TABLE ds04_orders ADD COLUMN is_deleted INTEGER DEFAULT 0")
+        conn.commit()
+    # Migration: alloc_edit_log and bianche_edit_log tables
+    log_tbls = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()]
+    if 'alloc_edit_log' not in log_tbls:
+        conn.execute('''CREATE TABLE alloc_edit_log (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            item_id     INTEGER,
+            action      TEXT NOT NULL,
+            old_value   TEXT DEFAULT '',
+            new_value   TEXT DEFAULT '',
+            user_name   TEXT DEFAULT '',
+            created_at  TEXT NOT NULL
+        )''')
+        conn.commit()
+    if 'bianche_edit_log' not in log_tbls:
+        conn.execute('''CREATE TABLE bianche_edit_log (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            target_type TEXT NOT NULL,
+            target_key  TEXT NOT NULL,
+            old_value   TEXT DEFAULT '',
+            new_value   TEXT DEFAULT '',
+            user_name   TEXT DEFAULT '',
+            created_at  TEXT NOT NULL
+        )''')
+        conn.commit()
     conn.close()
 
 # ── User management ──────────────────────────────────────────────────────────
@@ -1466,7 +1495,7 @@ def prefill_allocation(header_id=None, month=None):
             for art in arts:
                 # look up lean from ds04_orders for this art
                 lean_row = conn.execute(
-                    'SELECT lean FROM ds04_orders WHERE art=? LIMIT 1', (art,)).fetchone() if art else None
+                    'SELECT lean FROM ds04_orders WHERE art=? AND COALESCE(is_deleted,0)=0 LIMIT 1', (art,)).fetchone() if art else None
                 lean_val = lean_row['lean'] if lean_row else ''
                 for r in rows:
                     zone = r['zone']
@@ -1549,11 +1578,16 @@ def set_allocation_check(item_id, is_checked, user='demo'):
     conn = get_conn()
     try:
         _ensure_alloc_tables(conn)
+        old = conn.execute('SELECT is_checked FROM allocation_item WHERE id=?', (item_id,)).fetchone()
+        new_val = 1 if is_checked else 0
         conn.execute(
             'UPDATE allocation_item SET is_checked=?, checked_by=?, checked_at=? WHERE id=?',
-            (1 if is_checked else 0, user, now_iso(), item_id))
+            (new_val, user, now_iso(), item_id))
+        conn.execute(
+            'INSERT INTO alloc_edit_log (item_id,action,old_value,new_value,user_name,created_at) VALUES (?,?,?,?,?,?)',
+            (item_id, 'check', str(old['is_checked'] if old else ''), str(new_val), user, now_iso()))
         conn.commit()
-        return {'ok': True, 'id': item_id, 'is_checked': 1 if is_checked else 0}
+        return {'ok': True, 'id': item_id, 'is_checked': new_val}
     except Exception as e:
         return {'ok': False, 'error': str(e)}
     finally:
@@ -1672,7 +1706,7 @@ def get_allocation_parts(month=None, unit=None, lean=None):
             LEFT JOIN ob_header h ON h.id=ai.header_id
             LEFT JOIN (
                 SELECT art, SUM(qty) AS qty
-                FROM ds04_orders GROUP BY art
+                FROM ds04_orders WHERE COALESCE(is_deleted,0)=0 GROUP BY art
             ) s ON s.art=ai.art
             ORDER BY
                 CASE WHEN ai.lean IS NULL THEN 1 ELSE 0 END,
@@ -1855,6 +1889,7 @@ def ds04_get_orders(dept=None, lean=None, outsource=None):
             where.append('is_outsource_upper=1')
         elif outsource == 'N':
             where.append('is_outsource_upper=0')
+        where.append('COALESCE(is_deleted,0)=0')
         sql = 'SELECT * FROM ds04_orders'
         if where:
             sql += ' WHERE ' + ' AND '.join(where)
@@ -1873,10 +1908,10 @@ def ds04_get_filters():
     conn = get_conn()
     try:
         raw_depts = [r[0] for r in conn.execute(
-            'SELECT DISTINCT dept FROM ds04_orders'
+            'SELECT DISTINCT dept FROM ds04_orders WHERE COALESCE(is_deleted,0)=0'
         ).fetchall()]
         raw_leans = [r[0] for r in conn.execute(
-            'SELECT DISTINCT lean FROM ds04_orders'
+            'SELECT DISTINCT lean FROM ds04_orders WHERE COALESCE(is_deleted,0)=0'
         ).fetchall()]
         depts = sorted(raw_depts, key=_ds04_dept_key)
         leans = sorted(raw_leans, key=_ds04_lean_key)
@@ -2003,10 +2038,10 @@ def ds04_delete_order(order_id, month=''):
         old = conn.execute('SELECT * FROM ds04_orders WHERE id=?', (order_id,)).fetchone()
         if not old:
             return {'ok': False, 'error': 'not found'}
-        conn.execute('DELETE FROM ds04_orders WHERE id=?', (order_id,))
+        conn.execute('UPDATE ds04_orders SET is_deleted=1 WHERE id=?', (order_id,))
         conn.execute(
             'INSERT INTO ds04_edit_log (order_id,action,old_value,user_name,created_at) VALUES (?,?,?,?,?)',
-            (order_id, 'delete', str(dict(old)), '', ts)
+            (order_id, 'soft_delete', str(dict(old)), '', ts)
         )
         conn.commit()
         return {'ok': True}
@@ -2024,7 +2059,7 @@ def get_eolr_settings(month):
     try:
         # All leans from ds04_orders
         all_leans = [r[0] for r in conn.execute(
-            'SELECT DISTINCT lean FROM ds04_orders ORDER BY lean'
+            'SELECT DISTINCT lean FROM ds04_orders WHERE COALESCE(is_deleted,0)=0 ORDER BY lean'
         ).fetchall()]
         # Existing settings for this month
         rows = conn.execute(
@@ -2084,7 +2119,7 @@ def get_bianche_data(month='2026-06'):
         # 2. DS-04 orders grouped by lean + model + art
         order_rows = conn.execute(
             '''SELECT lean, model_name, art, SUM(qty) AS qty, MAX(is_outsource_upper) AS is_outsource
-               FROM ds04_orders
+               FROM ds04_orders WHERE COALESCE(is_deleted,0)=0
                GROUP BY lean, model_name, art
                ORDER BY lean, model_name, art'''
         ).fetchall()
@@ -2216,6 +2251,7 @@ def set_bianche_manual(lean, month, manager_mp, headcount, updated_by=''):
     conn = get_conn()
     try:
         ts = now_iso()
+        old = conn.execute('SELECT manager_mp, headcount FROM bianche_manual WHERE lean=? AND month=?', (lean, month)).fetchone()
         conn.execute(
             '''INSERT INTO bianche_manual (lean, month, manager_mp, headcount, updated_by, updated_at)
                VALUES (?,?,?,?,?,?)
@@ -2223,6 +2259,9 @@ def set_bianche_manual(lean, month, manager_mp, headcount, updated_by=''):
                headcount=excluded.headcount, updated_by=excluded.updated_by, updated_at=excluded.updated_at''',
             (lean, month, float(manager_mp or 0), float(headcount or 0), updated_by, ts)
         )
+        conn.execute(
+            'INSERT INTO bianche_edit_log (target_type,target_key,old_value,new_value,user_name,created_at) VALUES (?,?,?,?,?,?)',
+            ('manual', f'{lean}:{month}', str(dict(old)) if old else '', f'manager_mp={manager_mp},hc={headcount}', updated_by, ts))
         conn.commit()
         return {'ok': True}
     except Exception as e:
@@ -2317,11 +2356,16 @@ def set_bianche_lean_hc(lean, month, headcount):
     conn = get_conn()
     try:
         _ensure_bianche_ext(conn)
+        old = conn.execute('SELECT headcount FROM bianche_lean_hc WHERE lean=? AND month=?', (lean, month)).fetchone()
+        ts_now = now_iso()
         conn.execute(
             'INSERT INTO bianche_lean_hc (lean,month,headcount,updated_at) VALUES(?,?,?,?) '
             'ON CONFLICT(lean,month) DO UPDATE SET headcount=excluded.headcount, updated_at=excluded.updated_at',
-            (lean, month, float(headcount or 0), now_iso())
+            (lean, month, float(headcount or 0), ts_now)
         )
+        conn.execute(
+            'INSERT INTO bianche_edit_log (target_type,target_key,old_value,new_value,user_name,created_at) VALUES (?,?,?,?,?,?)',
+            ('lean_hc', f'{lean}:{month}', str(old['headcount'] if old else ''), str(headcount), '', ts_now))
         conn.commit()
         return {'ok': True}
     except Exception as e:
@@ -2344,7 +2388,8 @@ def get_bianche_csa_data(month='2026-06'):
                       GROUP_CONCAT(DISTINCT art) AS arts,
                       SUM(qty) AS qty,
                       MAX(is_outsource_upper) AS is_outsource
-               FROM ds04_orders GROUP BY lean, model_name ORDER BY lean, model_name'''
+               FROM ds04_orders WHERE COALESCE(is_deleted,0)=0
+               GROUP BY lean, model_name ORDER BY lean, model_name'''
         ).fetchall()
 
         # IE data per art
@@ -2422,13 +2467,17 @@ def set_bianche_model_manual(lean, model_name, month, manager_mp=None, headcount
             (lean, model_name, month)).fetchone()
         mgr = float(manager_mp) if manager_mp is not None else (float(ex['manager_mp']) if ex else 0)
         hc  = float(headcount)  if headcount  is not None else (float(ex['headcount'])  if ex else 0)
+        ts_now = now_iso()
         conn.execute(
             '''INSERT INTO bianche_model_manual (lean,model_name,month,manager_mp,headcount,updated_by,updated_at)
                VALUES(?,?,?,?,?,?,?)
                ON CONFLICT(lean,model_name,month) DO UPDATE SET
                manager_mp=excluded.manager_mp,headcount=excluded.headcount,
                updated_by=excluded.updated_by,updated_at=excluded.updated_at''',
-            (lean, model_name, month, mgr, hc, updated_by, now_iso()))
+            (lean, model_name, month, mgr, hc, updated_by, ts_now))
+        conn.execute(
+            'INSERT INTO bianche_edit_log (target_type,target_key,old_value,new_value,user_name,created_at) VALUES (?,?,?,?,?,?)',
+            ('model_manual', f'{lean}:{model_name}:{month}', str(dict(ex)) if ex else '', f'mgr={mgr},hc={hc}', updated_by, ts_now))
         conn.commit(); return {'ok': True}
     except Exception as e:
         conn.rollback(); return {'ok': False, 'error': str(e)}
@@ -2476,13 +2525,18 @@ def set_bianche_dept_hc(dept, group_name, month, headcount, shoe_detail='', upda
     conn = get_conn()
     try:
         _ensure_bianche_ext(conn)
+        old_hc = conn.execute('SELECT headcount FROM bianche_dept_hc WHERE dept=? AND group_name=? AND month=?', (dept, group_name, month)).fetchone()
+        ts_now = now_iso()
         conn.execute(
             '''INSERT INTO bianche_dept_hc (dept,group_name,shoe_detail,month,headcount,updated_by,updated_at)
                VALUES(?,?,?,?,?,?,?)
                ON CONFLICT(dept,group_name,month) DO UPDATE SET
                shoe_detail=excluded.shoe_detail,headcount=excluded.headcount,
                updated_by=excluded.updated_by,updated_at=excluded.updated_at''',
-            (dept, group_name, shoe_detail or '', month, float(headcount or 0), updated_by, now_iso()))
+            (dept, group_name, shoe_detail or '', month, float(headcount or 0), updated_by, ts_now))
+        conn.execute(
+            'INSERT INTO bianche_edit_log (target_type,target_key,old_value,new_value,user_name,created_at) VALUES (?,?,?,?,?,?)',
+            ('dept_hc', f'{dept}:{group_name}:{month}', str(old_hc['headcount'] if old_hc else ''), str(headcount), updated_by, ts_now))
         conn.commit(); return {'ok': True}
     except Exception as e:
         conn.rollback(); return {'ok': False, 'error': str(e)}

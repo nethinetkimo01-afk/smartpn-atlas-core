@@ -165,3 +165,38 @@ dacu=打粗水洗照射
 鞋型+階段+EOLR = 唯一值（同鞋型多ART共用一份IE表）
 一次上傳一份
 可在網頁補，也可在Excel補，兩種都支援
+
+## 六、數據庫保護規則（2026-06-17定案）
+
+### DB 位置與操作原則
+- 數據庫（atlas.db）存放在 **ME129** 機器
+- 所有用戶連接 ME129 作業，不在本機建立 DB
+- 開發只在 Code 機（Claude Code），不在 ME129 改 DB
+- git pull 只更新程式碼（.py/.html 等），DB 不受影響
+
+### Schema 變更規則
+- 所有 schema 變更必須通過 `python flask_backend/migrate.py`
+- migrate.py 只允許：ADD COLUMN / CREATE TABLE / CREATE INDEX
+- **嚴禁** 直接執行 DROP TABLE / DROP COLUMN
+- migrate.py 執行前自動備份 DB
+
+### 軟刪除規則
+- ds04_orders 刪除 = UPDATE SET is_deleted=1，不執行 DELETE
+- 已刪除記錄保留在 DB 中，可通過 admin 工具查詢
+- 只有 role='admin' 的帳號才可執行不可逆操作
+
+### Edit Log 覆蓋範圍
+| 資料表 | Log 表 | 狀態 |
+|------|------|------|
+| ie_process | ie_edit_log | ✅ 已有 |
+| ds04_orders | ds04_edit_log | ✅ 已有 |
+| allocation_item | alloc_edit_log | ✅ 2026-06-17 建立 |
+| bianche 系列 | bianche_edit_log | ✅ 2026-06-17 建立 |
+
+### 備份機制
+- **每日凌晨2點**：`flask_backend/daily_backup.py` 自動備份，保留30天
+  - 排程指令：`schtasks /create /tn "AtlasBackup" /tr "python D:\smartpn-atlas-core\flask_backend\daily_backup.py" /sc DAILY /st 02:00 /f`
+- **git pull 前**：執行 `flask_backend/pre_update.bat`（取代直接 git pull）
+  - 自動備份 → 備份成功 → git pull
+- **還原**：`python flask_backend/restore.py --date 20260616`
+- 備份位置：`flask_backend/backup/atlas_YYYYMMDD.db`
