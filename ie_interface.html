@@ -83,7 +83,9 @@ thead th:last-child{border-right:none}
 
 .act-cell{text-align:center;padding:2px 4px;white-space:nowrap;border-right:1px solid #e4e9f2;vertical-align:middle}
 .btn-add-rec,.btn-del-rec{background:transparent;border:none;cursor:pointer;font-size:12px;font-weight:700;border-radius:3px;padding:1px 5px;line-height:1.5}
-.btn-add-rec{color:#1d9e6b}.btn-add-rec:hover{background:#e8f5e9;color:#155d3d}
+.btn-add-rec{color:#1a2744}.btn-add-rec:hover{background:#e8eaf6}
+.row-menu{position:absolute;left:0;top:22px;background:#fff;border:1px solid #ddd;border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:100;min-width:160px;padding:4px 0;white-space:nowrap}
+.row-menu div{padding:7px 14px;font-size:13px;cursor:pointer;color:#222}.row-menu div:hover{background:#f5f7ff}
 .btn-del-rec{color:#e53935}.btn-del-rec:hover{background:#ffebee;color:#b71c1c}
 </style>
 </head>
@@ -108,7 +110,56 @@ thead th:last-child{border-right:none}
 <div class="toolbar" id="toolbar">
   <input id="search" class="search-inp" type="text" placeholder="搜尋鞋型 / ART..." oninput="filterTable()">
   <button id="btn-reload" class="btn btn-refresh" onclick="loadData()">重新載入</button>
+  <button id="btn-new-model" class="btn btn-refresh" onclick="openNewModelModal()" style="display:none;background:#1a2744;color:#fff">＋ 新增鞋型</button>
+  <span id="user-badge" style="font-size:12px;color:#555;padding:0 6px"></span>
+  <a id="btn-logout" href="#" onclick="doLogout()" style="display:none;font-size:12px;color:#888;text-decoration:none">登出</a>
   <span id="stats" class="stats">—</span>
+</div>
+
+<!-- New Model Modal -->
+<div id="modal-new-model" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:10px;padding:28px;width:380px;box-shadow:0 8px 32px rgba(0,0,0,.3)">
+    <h3 style="color:#1a2744;margin-bottom:16px;font-size:16px">新增鞋型</h3>
+    <label style="font-size:12px;color:#666">鞋型名稱 *</label>
+    <input id="nm-name" type="text" placeholder="e.g. TOKYO W" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;margin-bottom:10px;font-size:14px">
+    <label style="font-size:12px;color:#666">ART *</label>
+    <input id="nm-art" type="text" placeholder="e.g. TEST001" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;margin-bottom:10px;font-size:14px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div>
+        <label style="font-size:12px;color:#666">EOLR</label>
+        <select id="nm-eolr" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:14px">
+          <option value="120">120</option>
+          <option value="60">60</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:12px;color:#666">季度</label>
+        <input id="nm-season" type="text" placeholder="FW26" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:14px">
+      </div>
+    </div>
+    <div id="nm-msg" style="font-size:12px;color:#c00;min-height:16px;margin-bottom:8px"></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px">
+      <button onclick="closeNewModelModal()" style="padding:7px 16px;border:1px solid #ccc;border-radius:4px;cursor:pointer;background:#fff">取消</button>
+      <button onclick="submitNewModel()" style="padding:7px 16px;background:#1a2744;color:#fff;border:none;border-radius:4px;cursor:pointer">建立</button>
+    </div>
+  </div>
+</div>
+
+<!-- Assign Modal -->
+<div id="modal-assign" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:10px;padding:28px;width:380px;box-shadow:0 8px 32px rgba(0,0,0,.3)">
+    <h3 style="color:#1a2744;margin-bottom:6px;font-size:16px" id="assign-title">指派鞋型</h3>
+    <div style="font-size:12px;color:#888;margin-bottom:14px" id="assign-model-name"></div>
+    <div id="assign-list" style="max-height:200px;overflow-y:auto;border:1px solid #eee;border-radius:4px;padding:8px;margin-bottom:12px;font-size:13px"></div>
+    <label style="font-size:12px;color:#666">新增指派（選擇帳號）</label>
+    <select id="assign-user-sel" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:14px;margin-top:4px;margin-bottom:10px">
+      <option value="">— 選擇資料建立帳號 —</option>
+    </select>
+    <div style="display:flex;justify-content:flex-end;gap:8px">
+      <button onclick="closeAssignModal()" style="padding:7px 16px;border:1px solid #ccc;border-radius:4px;cursor:pointer;background:#fff">關閉</button>
+      <button onclick="submitAssign()" style="padding:7px 16px;background:#1a2744;color:#fff;border:none;border-radius:4px;cursor:pointer">指派</button>
+    </div>
+  </div>
 </div>
 
 <div class="table-wrap">
@@ -282,10 +333,25 @@ function renderGroup(g){
 
   let rows = '';
 
+  const isAdmin = CURRENT_USER && CURRENT_USER.role === 'admin';
+  const menuId  = `menu-${linkId}`;
+  const actBtn  = isAdmin
+    ? `<button class="btn-add-rec" onclick="toggleMenu('${menuId}',${linkId},${modelJ},event)" title="操作">···</button>`
+    : '';
+  const actMenu = isAdmin
+    ? `<div id="${menuId}" class="row-menu" style="display:none">
+        <div onclick="addArtToModel(${linkId},${modelJ})">＋ 新增 ART</div>
+        <div onclick="removeArtFromModel(${linkId})">－ 移除 ART</div>
+        <div onclick="changeEolrModal(${linkId})">⇄ 修改 EOLR</div>
+        <div onclick="openAssignModal(${linkId},${modelJ})">👤 指派帳號</div>
+        <div onclick="delIeRecord(${linkId})" style="color:#c62828">✕ 刪除鞋型</div>
+       </div>`
+    : '';
+
   if(has60){
     const rs = both ? ' rowspan="2"' : '';
     rows += `<tr class="tr-eolr ${both ? 'tr-model-first' : 'tr-single'}">
-      <td class="act-cell"${rs}><button class="btn-add-rec" onclick="addIeRecord(${modelJ})" title="新增ART">＋</button> <button class="btn-del-rec" onclick="delIeRecord(${g.id60})" title="刪除">×</button></td>
+      <td class="act-cell"${rs} style="position:relative">${actBtn}${actMenu}</td>
       ${leftCells(both)}
       <td class="eolr-cell"><span class="eolr-60">60</span></td>
       ${mpRow(g.r60)}
@@ -294,7 +360,7 @@ function renderGroup(g){
 
   if(has120){
     rows += `<tr class="tr-eolr ${both ? 'tr-model-second' : 'tr-single'}">
-      ${!has60 ? `<td class="act-cell"><button class="btn-add-rec" onclick="addIeRecord(${modelJ})" title="新增ART">＋</button> <button class="btn-del-rec" onclick="delIeRecord(${g.id120})" title="刪除">×</button></td>${leftCells(false)}` : ''}
+      ${!has60 ? `<td class="act-cell" style="position:relative">${actBtn}${actMenu}${leftCells(false)}` : ''}
       <td class="eolr-cell"><span class="eolr-120">120</span></td>
       ${mpRow(g.r120)}
     </tr>`;
@@ -302,7 +368,7 @@ function renderGroup(g){
 
   if(!has60 && !has120){
     rows = `<tr class="tr-eolr tr-single">
-      <td class="act-cell"><button class="btn-add-rec" onclick="addIeRecord(${modelJ})" title="新增ART">＋</button></td>
+      <td class="act-cell" style="position:relative">${actBtn}${actMenu}</td>
       ${leftCells(false)}
       <td class="eolr-cell">—</td>
       <td class="mp-cell" colspan="4"><span class="mp-na">—</span></td>
@@ -350,6 +416,40 @@ function filterTable(){
   renderGroupedTable(groupByModel(filtered));
 }
 
+// ── Auth ─────────────────────────────────────────────────────────────────────
+let CURRENT_USER = null;
+
+async function initAuth(){
+  try{
+    const r = await fetch('/api/me');
+    const d = await r.json();
+    CURRENT_USER = d.ok ? d.user : null;
+  }catch{ CURRENT_USER = null; }
+  const badge = document.getElementById('user-badge');
+  const logoutBtn = document.getElementById('btn-logout');
+  const newBtn = document.getElementById('btn-new-model');
+  if(CURRENT_USER){
+    badge.textContent = CURRENT_USER.display_name || CURRENT_USER.username;
+    logoutBtn.style.display = 'inline';
+    if(CURRENT_USER.role === 'admin') newBtn.style.display = 'inline-block';
+  }
+}
+
+async function doLogout(){
+  await fetch('/api/logout', {method:'POST'});
+  window.location.href = '/login';
+}
+
+// ── Row menu ──────────────────────────────────────────────────────────────────
+function toggleMenu(menuId, headerId, modelName, ev){
+  ev.stopPropagation();
+  document.querySelectorAll('.row-menu').forEach(m=>{ if(m.id!==menuId) m.style.display='none'; });
+  const m = document.getElementById(menuId);
+  if(!m) return;
+  m.style.display = m.style.display==='none' ? 'block' : 'none';
+}
+document.addEventListener('click', ()=>document.querySelectorAll('.row-menu').forEach(m=>m.style.display='none'));
+
 // ── Actions ───────────────────────────────────────────────────────────────────
 async function addIeRecord(modelName){
   const art = prompt(`新增 ART（鞋型：${modelName}）：`);
@@ -367,12 +467,115 @@ async function addIeRecord(modelName){
   else alert('新增失敗：'+(j.error||''));
 }
 
+async function addArtToModel(headerId, modelName){
+  const art = prompt(`新增 ART（鞋型：${modelName}）：`);
+  if(!art||!art.trim()) return;
+  const r = await fetch('/api/ie/add_art',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({header_id:headerId, art:art.trim()})});
+  const j = await r.json();
+  if(j.ok) loadData(); else alert('新增失敗：'+(j.error||''));
+}
+
+async function removeArtFromModel(headerId){
+  const art = prompt('輸入要移除的 ART 號碼：');
+  if(!art||!art.trim()) return;
+  if(!confirm(`確認移除 ${art.trim()} ？`)) return;
+  const r = await fetch('/api/ie/remove_art',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({header_id:headerId, art:art.trim()})});
+  const j = await r.json();
+  if(j.ok) loadData(); else alert('移除失敗：'+(j.error||''));
+}
+
+async function changeEolrModal(headerId){
+  const eolrStr = prompt('新的 EOLR（60 或 120）：','120');
+  const eolr = parseInt(eolrStr);
+  if(![60,120].includes(eolr)){ alert('EOLR 只能是 60 或 120'); return; }
+  const r = await fetch(`/api/ie/${headerId}/update_eolr`,{method:'POST',
+    headers:{'Content-Type':'application/json'}, body:JSON.stringify({eolr})});
+  const j = await r.json();
+  if(j.ok) loadData(); else alert('修改失敗：'+(j.error||''));
+}
+
 async function delIeRecord(id){
-  if(!confirm('確認刪除此 EOLR 記錄？此操作不可復原。')) return;
+  if(!confirm('確認刪除此鞋型記錄？此操作不可復原。')) return;
   const r = await fetch('/api/ie/'+id+'/delete',{method:'POST'});
   const j = await r.json();
   if(j.ok) loadData();
   else alert('刪除失敗：'+(j.error||''));
+}
+
+// ── New Model Modal ────────────────────────────────────────────────────────────
+function openNewModelModal(){
+  document.getElementById('nm-name').value='';
+  document.getElementById('nm-art').value='';
+  document.getElementById('nm-season').value='';
+  document.getElementById('nm-msg').textContent='';
+  document.getElementById('modal-new-model').style.display='flex';
+  document.getElementById('nm-name').focus();
+}
+function closeNewModelModal(){ document.getElementById('modal-new-model').style.display='none'; }
+async function submitNewModel(){
+  const name   = document.getElementById('nm-name').value.trim();
+  const art    = document.getElementById('nm-art').value.trim();
+  const eolr   = parseInt(document.getElementById('nm-eolr').value);
+  const season = document.getElementById('nm-season').value.trim();
+  const msg    = document.getElementById('nm-msg');
+  if(!name||!art){ msg.textContent='鞋型名稱和ART不能空白'; return; }
+  const r = await fetch('/api/ie/create_record',{method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({art, model_name:name, eolr})});
+  const j = await r.json();
+  if(j.ok){
+    if(season){
+      await fetch(`/api/ie/${j.header_id}/update_season`,{method:'POST',
+        headers:{'Content-Type':'application/json'}, body:JSON.stringify({season})});
+    }
+    closeNewModelModal();
+    loadData();
+  } else { msg.textContent = j.error||'建立失敗'; }
+}
+
+// ── Assign Modal ────────────────────────────────────────────────────────────────
+let _assignHeaderId = null, _assignModelName = '';
+async function openAssignModal(headerId, modelName){
+  _assignHeaderId = headerId; _assignModelName = modelName;
+  document.getElementById('assign-model-name').textContent = modelName;
+  document.getElementById('assign-title').textContent = `指派鞋型 — ${modelName}`;
+  const [assignRes, usersRes] = await Promise.all([
+    fetch(`/api/ie/${headerId}/assignments`).then(r=>r.json()),
+    fetch('/api/users').then(r=>r.json()),
+  ]);
+  // Current assignments
+  const listEl = document.getElementById('assign-list');
+  const assignments = assignRes.assignments||[];
+  listEl.innerHTML = assignments.length
+    ? assignments.map(a=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0">
+        <span>${esc(a.display_name)} (${esc(a.username)})</span>
+        <button onclick="doUnassign(${headerId},${a.user_id})" style="background:none;border:none;color:#c62828;cursor:pointer;font-size:12px">移除</button>
+      </div>`).join('')
+    : '<span style="color:#aaa;font-size:12px">（尚未指派）</span>';
+  // User dropdown — only data_entry
+  const sel = document.getElementById('assign-user-sel');
+  const editors = (usersRes.users||[]).filter(u=>u.role==='data_entry'&&u.active&&!assignments.find(a=>a.user_id===u.id));
+  sel.innerHTML = '<option value="">— 選擇資料建立帳號 —</option>' +
+    editors.map(u=>`<option value="${u.id}">${esc(u.display_name)} (${esc(u.username)})</option>`).join('');
+  document.getElementById('modal-assign').style.display='flex';
+}
+function closeAssignModal(){ document.getElementById('modal-assign').style.display='none'; }
+async function doUnassign(headerId, userId){
+  const r = await fetch(`/api/ie/${headerId}/unassign`,{method:'POST',
+    headers:{'Content-Type':'application/json'}, body:JSON.stringify({user_id:userId})});
+  const j = await r.json();
+  if(j.ok) openAssignModal(headerId, _assignModelName);
+}
+async function submitAssign(){
+  const uid = parseInt(document.getElementById('assign-user-sel').value);
+  if(!uid){ alert('請選擇帳號'); return; }
+  const r = await fetch(`/api/ie/${_assignHeaderId}/assign`,{method:'POST',
+    headers:{'Content-Type':'application/json'}, body:JSON.stringify({user_id:uid})});
+  const j = await r.json();
+  if(j.ok) openAssignModal(_assignHeaderId, _assignModelName);
+  else alert('指派失敗：'+(j.error||''));
 }
 
 // ── Health check ──────────────────────────────────────────────────────────────
@@ -411,7 +614,7 @@ async function reconnect(){
 
 setLang(currentLang);
 fixStickyOffsets();
-loadData();
+initAuth().then(()=>loadData());
 checkHealth();
 </script>
 </body>

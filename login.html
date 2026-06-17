@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>登入 — SmartPN Atlas</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Microsoft JhengHei',Arial,sans-serif;background:#1a2744;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.card{background:#fff;border-radius:12px;padding:40px 36px;width:360px;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.logo{text-align:center;margin-bottom:28px}
+.logo-title{font-size:22px;font-weight:bold;color:#1a2744;letter-spacing:1px}
+.logo-sub{font-size:12px;color:#888;margin-top:4px}
+label{display:block;font-size:12px;color:#666;margin-bottom:4px;margin-top:14px}
+input{width:100%;padding:9px 12px;border:1px solid #ccc;border-radius:6px;font-size:14px;outline:none;transition:border-color .2s}
+input:focus{border-color:#1a2744}
+.btn-login{margin-top:22px;width:100%;padding:11px;background:#1a2744;color:#fff;border:none;border-radius:6px;font-size:15px;cursor:pointer;font-weight:bold;letter-spacing:.5px}
+.btn-login:hover{background:#243460}
+.btn-login:disabled{background:#999;cursor:not-allowed}
+.msg{margin-top:12px;padding:8px 12px;border-radius:4px;font-size:13px;display:none;text-align:center}
+.msg.err{background:#ffd0d0;color:#c00;display:block}
+.msg.ok{background:#d0f0d0;color:#060;display:block}
+.hint{margin-top:16px;font-size:11px;color:#aaa;text-align:center;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="logo-title">SmartPN Atlas</div>
+    <div class="logo-sub">IE Data Management System</div>
+  </div>
+  <div id="msg" class="msg"></div>
+  <form id="loginForm" onsubmit="doLogin(event)">
+    <label>帳號</label>
+    <input type="text" id="username" placeholder="請輸入帳號" autocomplete="username" required>
+    <label>密碼</label>
+    <input type="password" id="password" placeholder="請輸入密碼" autocomplete="current-password" required>
+    <button class="btn-login" type="submit" id="btnLogin">登入</button>
+  </form>
+  <div class="hint">
+    外移單位：tongcai / dianno / dacu<br>
+    密碼：（無密碼，直接登入）
+  </div>
+</div>
+<script>
+const UNIT_USERS = new Set(['tongcai','dianno','dacu']);
+
+async function doLogin(e) {
+  e.preventDefault();
+  const username = document.getElementById('username').value.trim().toLowerCase();
+  const password = document.getElementById('password').value;
+  const btn = document.getElementById('btnLogin');
+  btn.disabled = true;
+  btn.textContent = '登入中…';
+  try {
+    const r = await fetch('/api/login', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({username, password})
+    });
+    const d = await r.json();
+    if (d.ok) {
+      showMsg('ok', '登入成功，正在跳轉…');
+      // Route based on role
+      const role = d.user.role;
+      const uname = d.user.username;
+      if (UNIT_USERS.has(uname)) {
+        window.location.href = '/allocation';
+      } else {
+        window.location.href = '/ie';
+      }
+    } else {
+      showMsg('err', d.error || '登入失敗');
+      btn.disabled = false;
+      btn.textContent = '登入';
+    }
+  } catch {
+    showMsg('err', '無法連接伺服器');
+    btn.disabled = false;
+    btn.textContent = '登入';
+  }
+}
+
+function showMsg(type, text) {
+  const el = document.getElementById('msg');
+  el.className = 'msg ' + type;
+  el.textContent = text;
+}
+</script>
+</body>
+</html>

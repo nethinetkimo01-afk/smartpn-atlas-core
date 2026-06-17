@@ -124,6 +124,21 @@ def _current_user():
         return {'username': u, **ALLOC_USERS[u]}
     return None
 
+# ── sys_users session auth helper ────────────────────────────────────────────
+
+def _auth_user():
+    """Return current sys_users record from session, or None."""
+    uid = session.get('user_id')
+    if not uid:
+        return None
+    return db.get_user_by_id(uid)
+
+def _require_admin():
+    u = _auth_user()
+    if not u or u['role'] != 'admin':
+        return jsonify({'ok': False, 'error': '需要管理員權限'}), 403
+    return None
+
 # ── Frontend ─────────────────────────────────────────────────────────────────
 
 @app.route('/')
@@ -158,7 +173,29 @@ def allocation_page():
 
 @app.route('/api/ie/list', methods=['GET'])
 def ie_list():
+    u = _auth_user()
+    # data_entry users only see assigned models
+    if u and u['role'] == 'data_entry':
+        assigned_ids = db.get_assigned_header_ids(u['id'])
+        return jsonify(db.list_ie_records(header_ids=assigned_ids or [-1]))
     return jsonify(db.list_ie_records())
+
+@app.route('/api/ie/list_all', methods=['GET'])
+def ie_list_all():
+    # Admin-only: returns ALL records regardless of assignment
+    err = _require_admin()
+    if err: return err
+    return jsonify(db.list_ie_records())
+
+@app.route('/api/ie/assignments_by_user', methods=['GET'])
+def ie_assignments_by_user():
+    err = _require_admin()
+    if err: return err
+    user_id = request.args.get('user_id')
+    if not user_id:
+        return jsonify({'ok': False, 'error': 'user_id required'}), 400
+    ids = db.get_assigned_header_ids(int(user_id))
+    return jsonify({'ok': True, 'header_ids': ids})
 
 @app.route('/api/ie/detail/<int:header_id>')
 def ie_detail_api(header_id):
@@ -1320,6 +1357,133 @@ def alloc_fix_defaults():
     d = request.get_json(force=True) or {}
     month = d.get('month', '2026-06')
     return jsonify(db.alloc_fix_default_checked(month))
+
+# ── Login / Logout / Me ──────────────────────────────────────────────────────
+
+@app.route('/login')
+def login_page():
+    return send_from_directory('..', 'login.html')
+
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    d = request.get_json(force=True) or {}
+    username = (d.get('username') or '').strip().lower()
+    password = d.get('password') or ''
+    user = db.verify_login(username, password)
+    if not user:
+        return jsonify({'ok': False, 'error': '帳號或密碼錯誤'}), 401
+    session['user_id'] = user['id']
+    # Also keep alloc_user for backward compatibility if unit user
+    UNIT_MAP = {'tongcai': '同材共裁自動化', 'dianno': '電腦針車折邊', 'dacu': '打粗水洗照射'}
+    if username in UNIT_MAP:
+        session['alloc_user'] = username
+    return jsonify({'ok': True, 'user': {
+        'id': user['id'], 'username': user['username'],
+        'display_name': user['display_name'], 'role': user['role']
+    }})
+
+@app.route('/api/logout', methods=['POST'])
+def api_logout():
+    session.clear()
+    return jsonify({'ok': True})
+
+@app.route('/api/me', methods=['GET'])
+def api_me():
+    u = _auth_user()
+    if not u:
+        return jsonify({'ok': False, 'user': None})
+    return jsonify({'ok': True, 'user': u})
+
+# ── IE header EOLR / season update ──────────────────────────────────────────
+
+@app.route('/api/ie/<int:header_id>/update_eolr', methods=['POST'])
+def ie_update_eolr(header_id):
+    err = _require_admin()
+    if err: return err
+    d = request.get_json(force=True) or {}
+    return jsonify(db.update_ie_header_eolr(header_id, d.get('eolr', 120)))
+
+@app.route('/api/ie/<int:header_id>/update_season', methods=['POST'])
+def ie_update_season(header_id):
+    err = _require_admin()
+    if err: return err
+    d = request.get_json(force=True) or {}
+    return jsonify(db.update_ie_header_season(header_id, d.get('season', '')))
+
+@app.route('/api/ie/add_art', methods=['POST'])
+def ie_add_art():
+    err = _require_admin()
+    if err: return err
+    d = request.get_json(force=True) or {}
+    return jsonify(db.add_art_to_header(d.get('art', ''), d.get('header_id')))
+
+# ── IE Assignments ────────────────────────────────────────────────────────────
+
+@app.route('/api/ie/<int:header_id>/assignments', methods=['GET'])
+def ie_get_assignments(header_id):
+    return jsonify({'ok': True, 'assignments': db.get_ie_assignments(header_id=header_id)})
+
+@app.route('/api/ie/<int:header_id>/assign', methods=['POST'])
+def ie_assign(header_id):
+    err = _require_admin()
+    if err: return err
+    d = request.get_json(force=True) or {}
+    return jsonify(db.set_ie_assignment(header_id, d.get('user_id')))
+
+@app.route('/api/ie/<int:header_id>/unassign', methods=['POST'])
+def ie_unassign(header_id):
+    err = _require_admin()
+    if err: return err
+    d = request.get_json(force=True) or {}
+    return jsonify(db.remove_ie_assignment(header_id, d.get('user_id')))
+
+# ── IE Review Workflow ────────────────────────────────────────────────────────
+
+@app.route('/api/ie/review/submit', methods=['POST'])
+def ie_review_submit():
+    u = _auth_user()
+    if not u:
+        return jsonify({'ok': False, 'error': '請先登入'}), 401
+    d = request.get_json(force=True) or {}
+    return jsonify(db.submit_ie_review(
+        d.get('header_id'), d.get('stage_id'), u['username']
+    ))
+
+@app.route('/api/ie/review/list', methods=['GET'])
+def ie_review_list():
+    u = _auth_user()
+    if not u:
+        return jsonify({'ok': False, 'error': '請先登入'}), 401
+    status = request.args.get('status')
+    header_id = request.args.get('header_id')
+    reviews = db.get_reviews(
+        header_id=int(header_id) if header_id else None,
+        status=status or None
+    )
+    return jsonify({'ok': True, 'reviews': reviews})
+
+@app.route('/api/ie/review/<int:review_id>/approve', methods=['POST'])
+def ie_review_approve(review_id):
+    err = _require_admin()
+    if err: return err
+    u = _auth_user()
+    return jsonify(db.approve_review(review_id, u['username']))
+
+@app.route('/api/ie/review/<int:review_id>/reject', methods=['POST'])
+def ie_review_reject(review_id):
+    err = _require_admin()
+    if err: return err
+    u = _auth_user()
+    d = request.get_json(force=True) or {}
+    return jsonify(db.reject_review(review_id, u['username'], d.get('reason', '')))
+
+# ── IE Stage Approval ─────────────────────────────────────────────────────────
+
+@app.route('/api/ie/stages/<int:header_id>/<int:stage_id>/approve', methods=['POST'])
+def ie_stage_approve(header_id, stage_id):
+    err = _require_admin()
+    if err: return err
+    return jsonify(db.set_stage_approved(stage_id, header_id))
 
 # ── Health check ─────────────────────────────────────────────────────────────
 

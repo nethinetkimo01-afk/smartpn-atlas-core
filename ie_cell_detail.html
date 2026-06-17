@@ -156,6 +156,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#f0f2
   </div>
   <button class="btn-sm" onclick="showSaveModal()">儲存修改</button>
   <button class="btn-outline" onclick="newStage()">新建版本</button>
+  <button class="btn-outline" id="btn-submit-review" onclick="submitForReview()" style="display:none;border-color:#1d9e6b;color:#1d9e6b">送審</button>
+  <button class="btn-sm" id="btn-approve-stage" onclick="approveCurrentStage()" style="display:none;background:#1d9e6b">✓ 設為合格版</button>
+  <span id="review-status-badge" style="font-size:11px;padding:3px 8px;border-radius:10px;display:none"></span>
 </div>
 
 <div class="tab-bar">
@@ -260,8 +263,72 @@ function getZoneCols(seg, zone) {
   return ['seq','process_name','standard_time','theory_operators','actual_operators'];
 }
 
+// ── Auth & Review ─────────────────────────────────────────────────────────────
+let CELL_USER = null;
+
+async function initCellAuth() {
+  try {
+    const r = await fetch('/api/me');
+    const d = await r.json();
+    CELL_USER = d.ok ? d.user : null;
+  } catch { CELL_USER = null; }
+  if (CELL_USER) {
+    if (CELL_USER.role === 'data_entry') {
+      document.getElementById('btn-submit-review').style.display = 'inline-block';
+    }
+    if (CELL_USER.role === 'admin') {
+      document.getElementById('btn-approve-stage').style.display = 'inline-block';
+    }
+  }
+  loadReviewStatus();
+}
+
+async function loadReviewStatus() {
+  try {
+    const r = await fetch('/api/ie/review/list?header_id=' + HID);
+    const d = await r.json();
+    const reviews = (d.reviews || []);
+    const pending = reviews.find(rv => rv.status === 'pending');
+    const last    = reviews[0];
+    const badge   = document.getElementById('review-status-badge');
+    if (pending) {
+      badge.textContent = '審核中';
+      badge.style.cssText = 'display:inline-block;background:#fff3e0;color:#e65100;font-size:11px;padding:3px 8px;border-radius:10px';
+    } else if (last && last.status === 'rejected') {
+      badge.textContent = '已退回：' + (last.reject_reason || '');
+      badge.style.cssText = 'display:inline-block;background:#fce4ec;color:#c62828;font-size:11px;padding:3px 8px;border-radius:10px';
+    } else if (last && last.status === 'approved') {
+      badge.textContent = '已核准';
+      badge.style.cssText = 'display:inline-block;background:#e8f5e9;color:#1b5e20;font-size:11px;padding:3px 8px;border-radius:10px';
+    } else {
+      badge.style.display = 'none';
+    }
+  } catch {}
+}
+
+async function submitForReview() {
+  if (!confirm('確認送審？')) return;
+  const r = await fetch('/api/ie/review/submit', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({header_id: HID, stage_id: STAGE?.id})
+  });
+  const j = await r.json();
+  if (j.ok) { alert('已送審，等待核准'); loadReviewStatus(); }
+  else alert('送審失敗：' + (j.error || ''));
+}
+
+async function approveCurrentStage() {
+  if (!STAGE) { alert('請先選擇版本'); return; }
+  if (!confirm(`確認將版本「${STAGE.stage_name}」設為合格版？`)) return;
+  const r = await fetch(`/api/ie/stages/${HID}/${STAGE.id}/approve`, {method: 'POST'});
+  const j = await r.json();
+  if (j.ok) { alert('已設為合格版 ✓'); }
+  else alert('操作失敗：' + (j.error || ''));
+}
+
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
 applyLangUI(LANG);
+initCellAuth();
 
 async function init() {
   const [sr, lr] = await Promise.all([

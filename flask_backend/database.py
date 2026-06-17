@@ -178,6 +178,181 @@ def delete_user(uid):
     conn.close()
     return {'ok': True}
 
+def verify_login(username, password):
+    """Returns user dict if credentials valid, else None."""
+    uname = username.strip().lower()
+    conn = get_conn()
+    row = conn.execute(
+        'SELECT id,username,display_name,role,active,locked,password_hash FROM sys_users WHERE username=?',
+        (uname,)
+    ).fetchone()
+    conn.close()
+    if not row or not row['active']:
+        return None
+    if row['locked']:
+        # locked accounts (tongcai/dianno/dacu) — no password required
+        return {k: row[k] for k in ('id','username','display_name','role','active','locked')}
+    if _hash_pw(password) != row['password_hash']:
+        return None
+    return {k: row[k] for k in ('id','username','display_name','role','active','locked')}
+
+def get_user_by_id(uid):
+    conn = get_conn()
+    row = conn.execute(
+        'SELECT id,username,display_name,role,active FROM sys_users WHERE id=? AND active=1', (uid,)
+    ).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+# ── IE Assignments ───────────────────────────────────────────────────────────
+
+def get_ie_assignments(header_id=None, user_id=None):
+    conn = get_conn()
+    if header_id is not None:
+        rows = conn.execute(
+            '''SELECT a.id, a.header_id, a.user_id, u.username, u.display_name
+               FROM ie_assignments a JOIN sys_users u ON a.user_id=u.id
+               WHERE a.header_id=?''', (header_id,)
+        ).fetchall()
+    elif user_id is not None:
+        rows = conn.execute(
+            'SELECT header_id FROM ie_assignments WHERE user_id=?', (user_id,)
+        ).fetchall()
+    else:
+        rows = conn.execute('SELECT header_id, user_id FROM ie_assignments').fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+def set_ie_assignment(header_id, user_id):
+    conn = get_conn()
+    try:
+        conn.execute(
+            "INSERT OR IGNORE INTO ie_assignments (header_id, user_id, assigned_at) VALUES (?,?,datetime('now'))",
+            (header_id, user_id)
+        )
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+def remove_ie_assignment(header_id, user_id):
+    conn = get_conn()
+    conn.execute('DELETE FROM ie_assignments WHERE header_id=? AND user_id=?', (header_id, user_id))
+    conn.commit()
+    conn.close()
+    return {'ok': True}
+
+def get_assigned_header_ids(user_id):
+    conn = get_conn()
+    rows = conn.execute('SELECT header_id FROM ie_assignments WHERE user_id=?', (user_id,)).fetchall()
+    conn.close()
+    return [r['header_id'] for r in rows]
+
+# ── IE Review Workflow ───────────────────────────────────────────────────────
+
+def submit_ie_review(header_id, stage_id, submitted_by):
+    conn = get_conn()
+    try:
+        existing = conn.execute(
+            "SELECT id FROM ie_review WHERE header_id=? AND status='pending'", (header_id,)
+        ).fetchone()
+        if existing:
+            conn.close()
+            return {'ok': False, 'error': '已有待審核的送審記錄'}
+        rid = conn.execute(
+            "INSERT INTO ie_review (header_id, stage_id, submitted_by, submitted_at, status) VALUES (?,?,?,datetime('now'),'pending')",
+            (header_id, stage_id, submitted_by)
+        ).lastrowid
+        conn.commit()
+        return {'ok': True, 'review_id': rid}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+def get_reviews(header_id=None, status=None):
+    conn = get_conn()
+    q = '''SELECT r.id, r.header_id, r.stage_id, r.submitted_by, r.submitted_at,
+                  r.status, r.reviewer, r.reviewed_at, r.reject_reason,
+                  h.model_name
+           FROM ie_review r JOIN ob_header h ON r.header_id=h.id
+           WHERE 1=1'''
+    params = []
+    if header_id: q += ' AND r.header_id=?'; params.append(header_id)
+    if status:    q += ' AND r.status=?';    params.append(status)
+    q += ' ORDER BY r.submitted_at DESC'
+    rows = conn.execute(q, params).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+def approve_review(review_id, reviewer):
+    conn = get_conn()
+    conn.execute(
+        "UPDATE ie_review SET status='approved', reviewer=?, reviewed_at=datetime('now') WHERE id=?",
+        (reviewer, review_id)
+    )
+    conn.commit()
+    conn.close()
+    return {'ok': True}
+
+def reject_review(review_id, reviewer, reason):
+    conn = get_conn()
+    conn.execute(
+        "UPDATE ie_review SET status='rejected', reviewer=?, reviewed_at=datetime('now'), reject_reason=? WHERE id=?",
+        (reviewer, reason, review_id)
+    )
+    conn.commit()
+    conn.close()
+    return {'ok': True}
+
+# ── IE Stage Approval ────────────────────────────────────────────────────────
+
+def set_stage_approved(stage_id, header_id):
+    conn = get_conn()
+    conn.execute('UPDATE ie_stage SET is_approved=0 WHERE header_id=?', (header_id,))
+    conn.execute('UPDATE ie_stage SET is_approved=1 WHERE id=? AND header_id=?', (stage_id, header_id))
+    conn.commit()
+    conn.close()
+    return {'ok': True}
+
+# ── IE ART management ────────────────────────────────────────────────────────
+
+def add_art_to_header(art, header_id):
+    art = art.strip()
+    if not art:
+        return {'ok': False, 'error': 'ART不能空白'}
+    conn = get_conn()
+    try:
+        existing = conn.execute('SELECT id FROM ob_header WHERE id=?', (header_id,)).fetchone()
+        if not existing:
+            conn.close()
+            return {'ok': False, 'error': '鞋型不存在'}
+        conn.execute('INSERT OR IGNORE INTO ob_articles (header_id, art) VALUES (?,?)', (header_id, art))
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+def update_ie_header_season(header_id, season):
+    conn = get_conn()
+    conn.execute("UPDATE ob_header SET season=?, updated_at=datetime('now') WHERE id=?", (season, header_id))
+    conn.commit()
+    conn.close()
+    return {'ok': True}
+
+def update_ie_header_eolr(header_id, eolr):
+    if int(eolr) not in (60, 120):
+        return {'ok': False, 'error': 'eolr must be 60 or 120'}
+    conn = get_conn()
+    conn.execute("UPDATE ob_header SET eolr=?, updated_at=datetime('now') WHERE id=?", (int(eolr), header_id))
+    conn.commit()
+    conn.close()
+    return {'ok': True}
+
 # ── DS-03 OB ────────────────────────────────────────────────────────────────
 
 def save_ob_record(data):
@@ -350,11 +525,11 @@ def delete_ob_record(art, eolr, run):
         conn.close()
 
 
-def list_ie_records():
-    """Return all ob_header rows with their ARTs and MP values for the IE interface."""
+def list_ie_records(header_ids=None):
+    """Return ob_header rows with ARTs and MP values. header_ids filters to specific ids."""
     conn = get_conn()
     try:
-        rows = conn.execute('''
+        base_q = '''
             SELECT h.id, h.model_name, h.eolr, h.season, h.material,
                    e.cutting, e.stitching, e.assembly, e.stock, e.source
             FROM ob_header h
@@ -364,8 +539,15 @@ def list_ie_records():
                 WHERE model_name = h.model_name AND eolr = h.eolr
                 ORDER BY created_at DESC LIMIT 1
             )
-            ORDER BY h.model_name, h.eolr, h.id
-        ''').fetchall()
+        '''
+        if header_ids is not None:
+            if not header_ids:
+                return {'ok': True, 'records': []}
+            placeholders = ','.join('?' * len(header_ids))
+            base_q += f' AND h.id IN ({placeholders})'
+            rows = conn.execute(base_q + ' ORDER BY h.model_name, h.eolr, h.id', header_ids).fetchall()
+        else:
+            rows = conn.execute(base_q + ' ORDER BY h.model_name, h.eolr, h.id').fetchall()
         result = []
         for r in rows:
             arts = [x['art'] for x in conn.execute(

@@ -68,6 +68,31 @@ MIGRATIONS = [
             )'''
         ]
     },
+    {
+        'id': 'M004',
+        'desc': 'Add ie_assignments, ie_review tables + is_approved on ie_stage',
+        'sql': [
+            '''CREATE TABLE IF NOT EXISTS ie_assignments (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                header_id  INTEGER NOT NULL,
+                user_id    INTEGER NOT NULL,
+                assigned_at TEXT NOT NULL DEFAULT (datetime('now')),
+                UNIQUE(header_id, user_id)
+            )''',
+            '''CREATE TABLE IF NOT EXISTS ie_review (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                header_id    INTEGER NOT NULL,
+                stage_id     INTEGER,
+                submitted_by TEXT NOT NULL,
+                submitted_at TEXT NOT NULL DEFAULT (datetime('now')),
+                status       TEXT NOT NULL DEFAULT 'pending',
+                reviewer     TEXT,
+                reviewed_at  TEXT,
+                reject_reason TEXT
+            )''',
+            "ALTER TABLE ie_stage ADD COLUMN is_approved INTEGER DEFAULT 0",
+        ]
+    },
 ]
 
 def _ensure_migration_table(conn):

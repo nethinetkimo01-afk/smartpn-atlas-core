@@ -77,6 +77,15 @@ form input:focus,form select:focus{outline:none;border-color:#1a2744}
     </table>
   </div>
 
+  <!-- Assignment Panel -->
+  <div class="card" id="assign-panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <strong>指派管理（資料建立人員 ↔ 鞋型）</strong>
+      <button class="btn btn-primary btn-sm" onclick="loadAssignPanel()">↻ 重整</button>
+    </div>
+    <div id="assign-content" style="font-size:13px;color:#888">載入中…</div>
+  </div>
+
   <div class="card" style="font-size:13px;color:#555">
     <strong>角色說明</strong>
     <ul style="margin-top:8px;padding-left:18px;line-height:2">
@@ -257,6 +266,108 @@ function showMsg(type, text) {
 }
 
 loadUsers();
+loadAssignPanel();
+
+async function loadAssignPanel() {
+  const content = document.getElementById('assign-content');
+  content.innerHTML = '載入中…';
+  // Load users and all IE records in parallel
+  const [ru, ri] = await Promise.all([
+    fetch('/api/users').then(r=>r.json()),
+    fetch('/api/ie/list_all').then(r=>r.json())
+  ]);
+  if (!ru.ok || !ri.ok) { content.innerHTML = '<span style="color:red">載入失敗</span>'; return; }
+  const editors = (ru.users||[]).filter(u=>u.role==='data_entry' && u.active && !u.locked);
+  const models  = ri.records || [];
+  if (!editors.length) { content.innerHTML = '（目前沒有資料建立人員帳號）'; return; }
+
+  // For each editor, load their assigned header_ids
+  const assignData = await Promise.all(editors.map(u=>
+    fetch(`/api/ie/assignments_by_user?user_id=${u.id}`).then(r=>r.json())
+  ));
+
+  let html = `<table style="width:100%;border-collapse:collapse">
+    <thead><tr>
+      <th style="background:#1a2744;color:#fff;padding:7px 10px;text-align:left;font-size:12px;width:130px">編輯人員</th>
+      <th style="background:#1a2744;color:#fff;padding:7px 10px;text-align:left;font-size:12px">已指派鞋型</th>
+      <th style="background:#1a2744;color:#fff;padding:7px 10px;text-align:left;font-size:12px;width:100px">操作</th>
+    </tr></thead><tbody>`;
+
+  editors.forEach((u, idx) => {
+    const assignedIds = new Set((assignData[idx].header_ids)||[]);
+    const assignedModels = models.filter(m=>assignedIds.has(m.id));
+    const chips = assignedModels.map(m=>
+      `<span style="display:inline-block;background:#e3f2fd;color:#0d47a1;padding:2px 8px;border-radius:10px;margin:2px;font-size:12px">
+        ${esc(m.model_name||m.art||'#'+m.id)}
+        <a href="#" style="color:#c00;text-decoration:none;margin-left:4px" onclick="quickUnassign(${u.id},'${esc(u.display_name)}',${m.id},'${esc(m.model_name||m.art||'')}');return false">×</a>
+      </span>`).join('');
+    html += `<tr>
+      <td style="padding:8px 10px;border-bottom:1px solid #eee;font-weight:bold">${esc(u.display_name)}<br><span style="font-size:11px;color:#888">${esc(u.username)}</span></td>
+      <td style="padding:8px 10px;border-bottom:1px solid #eee">${chips||'<span style="color:#bbb">（尚未指派）</span>'}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid #eee">
+        <button class="btn btn-sm btn-primary" onclick="openQuickAssign(${u.id},'${esc(u.display_name)}')">+ 指派</button>
+      </td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  content.innerHTML = html;
+}
+
+// Quick-assign modal for admin panel
+let _qaUserId = null, _qaUserName = '';
+function openQuickAssign(uid, uname) {
+  _qaUserId = uid; _qaUserName = uname;
+  document.getElementById('qa-title').textContent = '指派鞋型給：' + uname;
+  document.getElementById('qa-search').value = '';
+  loadQaModels('');
+  document.getElementById('qa-modal').classList.add('open');
+}
+function closeQa() { document.getElementById('qa-modal').classList.remove('open'); }
+
+async function loadQaModels(q) {
+  const r = await fetch('/api/ie/list_all');
+  const d = await r.json();
+  const models = (d.records||[]).filter(m=>{
+    const txt = (m.model_name||m.art||'').toLowerCase();
+    return !q || txt.includes(q.toLowerCase());
+  });
+  // Load current assignments for this user
+  const ar = await fetch(`/api/ie/assignments_by_user?user_id=${_qaUserId}`).then(r=>r.json());
+  const assignedIds = new Set(ar.header_ids||[]);
+  const list = document.getElementById('qa-list');
+  list.innerHTML = models.slice(0,30).map(m=>`
+    <label style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #f0f0f0;cursor:pointer">
+      <input type="checkbox" ${assignedIds.has(m.id)?'checked':''} onchange="toggleQaAssign(${m.id},this.checked)">
+      <span>${esc(m.model_name||m.art||'#'+m.id)}</span>
+      <span style="color:#999;font-size:11px">${esc(m.art||'')}</span>
+    </label>`).join('');
+  if (!models.length) list.innerHTML = '<div style="color:#bbb;text-align:center;padding:16px">無符合鞋型</div>';
+}
+
+async function toggleQaAssign(headerId, checked) {
+  const url = checked ? `/api/ie/${headerId}/assign` : `/api/ie/${headerId}/unassign`;
+  await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({user_id:_qaUserId})});
+}
+
+async function quickUnassign(uid, uname, headerId, modelName) {
+  if (!confirm(`取消 ${uname} 對「${modelName}」的指派？`)) return;
+  const r = await fetch(`/api/ie/${headerId}/unassign`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({user_id:uid})});
+  const d = await r.json();
+  if (d.ok) loadAssignPanel();
+  else showMsg('err', d.error||'操作失敗');
+}
 </script>
+
+<!-- Quick Assign Modal -->
+<div class="modal-backdrop" id="qa-modal">
+  <div class="modal" style="width:460px">
+    <h3 id="qa-title">指派鞋型</h3>
+    <input type="text" id="qa-search" placeholder="搜尋鞋型…" oninput="loadQaModels(this.value)" style="width:100%;padding:7px 10px;border:1px solid #ccc;border-radius:4px;font-size:13px;margin-bottom:10px">
+    <div id="qa-list" style="max-height:260px;overflow-y:auto"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeQa();loadAssignPanel()">完成</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
