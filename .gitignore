@@ -3,3 +3,14 @@ flask_backend/data/*.db
 # IE source xlsx (large — kept locally, not pushed to GitHub)
 data/source_files/IE_xlsx/
 data/source_files/IE_xlsx_Jun/
+# 暫存腳本
+_fix_ws2.py
+_inspect_ds04.py
+_inspect_ds04_out.txt
+_migrate_042.py
+_migrate_044.py
+_parse_ds04_out.txt
+_query_actual.py
+_query_actual2.py
+_update_ws.py
+_verify_sum.py
