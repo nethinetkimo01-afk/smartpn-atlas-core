@@ -22,8 +22,8 @@ body{font-family:'Microsoft JhengHei',Arial,sans-serif;font-size:13px;background
 .dept-section{margin-bottom:16px;border-radius:5px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .dept-header{background:#1e3a5f;color:#fff;padding:8px 14px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
 .dept-header:hover{background:#254b7a}
-.dept-header .toggle-arrow{font-size:11px;width:14px;flex-shrink:0}
-.dept-header .dept-stats{margin-left:auto;font-size:11px;font-weight:400;opacity:.8}
+.toggle-arrow{font-size:11px;width:14px;flex-shrink:0}
+.dept-stats{margin-left:auto;font-size:11px;font-weight:400;opacity:.8}
 .dept-section.collapsed .dept-header{border-radius:5px}
 .dept-body{border:1px solid #d0d8e8;border-top:none}
 .dept-section.collapsed .dept-body{display:none}
@@ -36,10 +36,21 @@ body{font-family:'Microsoft JhengHei',Arial,sans-serif;font-size:13px;background
 .lean-toggle{font-size:10px;width:12px;flex-shrink:0}
 .lean-header .lc{background:#1e3a5f;padding:1px 7px;border-radius:3px;font-size:12px;font-family:monospace}
 .lean-header .lt{margin-left:auto;font-size:11px;font-weight:400;opacity:.8}
-
-/* Layer 3: 訂單明細 */
 .lean-body{display:none}
 .lean-group.expanded .lean-body{display:block}
+
+/* Layer 3: 鞋型名稱 */
+.model-group{border-top:1px solid #dde5f0}
+.model-group:first-child{border-top:none}
+.model-header{background:#eef3fb;padding:5px 12px 5px 32px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;cursor:pointer;user-select:none}
+.model-header:hover{background:#e0e9f8}
+.model-toggle{font-size:10px;width:12px;flex-shrink:0;color:#4a7ac5}
+.model-name{color:#1e3a5f}
+.model-stats{margin-left:auto;font-size:11px;font-weight:400;color:#888}
+.model-body{display:none}
+.model-group.expanded .model-body{display:block}
+
+/* Layer 4: 訂單明細 */
 table{width:100%;border-collapse:collapse;font-size:12px}
 thead tr{background:#e8eef8}
 th{padding:5px 8px;text-align:left;font-weight:600;color:#1e3a5f;border-bottom:1px solid #c5d0e0;white-space:nowrap}
@@ -232,14 +243,16 @@ function render(rows) {
 
   if(!rows.length){document.getElementById('content').innerHTML='<div class="no-data">無資料</div>';return;}
 
-  // Group: dept → lean → rows
+  // Group: dept → lean → model → rows
   const byDept = {};
   rows.forEach(r => {
     const dk = r.dept||'—';
-    if(!byDept[dk]) byDept[dk] = {};
     const lk = r.lean||'—';
-    if(!byDept[dk][lk]) byDept[dk][lk] = [];
-    byDept[dk][lk].push(r);
+    const mk = r.model_name||'—';
+    if(!byDept[dk]) byDept[dk] = {};
+    if(!byDept[dk][lk]) byDept[dk][lk] = {};
+    if(!byDept[dk][lk][mk]) byDept[dk][lk][mk] = [];
+    byDept[dk][lk][mk].push(r);
   });
 
   const sortedDepts = Object.keys(byDept).sort((a,b) => deptKey(a)-deptKey(b));
@@ -247,7 +260,7 @@ function render(rows) {
   let di = 0;
 
   for(const dept of sortedDepts) {
-    const deptRows = Object.values(byDept[dept]).flat();
+    const deptRows = Object.values(byDept[dept]).flatMap(l => Object.values(l).flat());
     const deptQty = deptRows.reduce((s,r)=>s+(r.qty||0),0);
     const dId = `d${di++}`;
 
@@ -263,9 +276,9 @@ function render(rows) {
     const sortedLeans = Object.keys(byDept[dept]).sort((a,b) => leanKey(a)-leanKey(b));
     let li = 0;
     for(const lean of sortedLeans) {
-      const lr = byDept[dept][lean];
-      const leanQty = lr.reduce((s,r)=>s+(r.qty||0),0);
-      const wb2 = lr.filter(r=>r.is_outsource_upper).length;
+      const leanRows = Object.values(byDept[dept][lean]).flat();
+      const leanQty = leanRows.reduce((s,r)=>s+(r.qty||0),0);
+      const wb2 = leanRows.filter(r=>r.is_outsource_upper).length;
       const lId = `${dId}_l${li++}`;
 
       // Layer 2: LEAN（預設收合）
@@ -273,32 +286,50 @@ function render(rows) {
         <div class="lean-header" onclick="toggleLean('${lId}')">
           <span class="lean-toggle">▶</span>
           <span class="lc">${esc(lean)}</span>
-          <span class="lt">${lr.length} 筆，${leanQty.toLocaleString()} 雙${wb2?` 外包 ${wb2}`:''}</span>
+          <span class="lt">${leanRows.length} 筆，${leanQty.toLocaleString()} 雙${wb2?` 外包 ${wb2}`:''}</span>
         </div>
-        <div class="lean-body">
-          <table><thead><tr>
-            <th>鞋型名稱</th><th>ART</th><th>訂單號</th><th>數量</th><th>交期</th><th>預計完成日</th><th>外包鞋面</th><th>操作</th>
-          </tr></thead><tbody>`;
+        <div class="lean-body">`;
 
-      // Layer 3: 訂單明細
-      lr.forEach(r => {
-        const dis = _locked ? 'disabled' : '';
-        html += `<tr>
-          <td>${esc(r.model_name)}</td>
-          <td>${esc(r.art)}</td>
-          <td style="font-family:monospace;font-size:11px">${esc(r.order_no)}</td>
-          <td><b>${(r.qty||0).toLocaleString()}</b></td>
-          <td style="color:#666">${esc(r.delivery_date)}</td>
-          <td style="color:#999">${esc(r.estimated_completion)||'—'}</td>
-          <td>${r.is_outsource_upper?'<span class="badge-y">Y</span>':''}</td>
-          <td>
-            <button class="btn btn-edit" onclick='openEdit(${JSON.stringify(r)})' ${dis}>編輯</button>
-            <button class="btn btn-del" onclick="delRow(${r.id})" ${dis}>刪除</button>
-          </td>
-        </tr>`;
-      });
+      const sortedModels = Object.keys(byDept[dept][lean]).sort();
+      let mi = 0;
+      for(const model of sortedModels) {
+        const mr = byDept[dept][lean][model];
+        const modelQty = mr.reduce((s,r)=>s+(r.qty||0),0);
+        const mId = `${lId}_m${mi++}`;
 
-      html += '</tbody></table></div></div>';
+        // Layer 3: 鞋型名稱（預設收合）
+        html += `<div class="model-group" id="${mId}">
+          <div class="model-header" onclick="toggleModel('${mId}')">
+            <span class="model-toggle">▶</span>
+            <span class="model-name">${esc(model)}</span>
+            <span class="model-stats">${mr.length} 筆，${modelQty.toLocaleString()} 雙</span>
+          </div>
+          <div class="model-body">
+            <table><thead><tr>
+              <th>ART</th><th>訂單號</th><th>數量</th><th>交期</th><th>預計完成日</th><th>外包鞋面</th><th>操作</th>
+            </tr></thead><tbody>`;
+
+        // Layer 4: 訂單明細
+        mr.forEach(r => {
+          const dis = _locked ? 'disabled' : '';
+          html += `<tr>
+            <td>${esc(r.art)}</td>
+            <td style="font-family:monospace;font-size:11px">${esc(r.order_no)}</td>
+            <td><b>${(r.qty||0).toLocaleString()}</b></td>
+            <td style="color:#666">${esc(r.delivery_date)}</td>
+            <td style="color:#999">${esc(r.estimated_completion)||'—'}</td>
+            <td>${r.is_outsource_upper?'<span class="badge-y">Y</span>':''}</td>
+            <td>
+              <button class="btn btn-edit" onclick='openEdit(${JSON.stringify(r)})' ${dis}>編輯</button>
+              <button class="btn btn-del" onclick="delRow(${r.id})" ${dis}>刪除</button>
+            </td>
+          </tr>`;
+        });
+
+        html += '</tbody></table></div></div>';
+      }
+
+      html += '</div></div>';
     }
     html += '</div></div>';
   }
@@ -315,6 +346,12 @@ function toggleLean(id) {
   const el = document.getElementById(id);
   el.classList.toggle('expanded');
   el.querySelector('.lean-toggle').textContent = el.classList.contains('expanded') ? '▼' : '▶';
+}
+
+function toggleModel(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('expanded');
+  el.querySelector('.model-toggle').textContent = el.classList.contains('expanded') ? '▼' : '▶';
 }
 
 function openAdd() {
