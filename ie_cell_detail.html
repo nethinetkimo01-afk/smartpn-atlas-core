@@ -64,8 +64,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#f0f2
 .formula-cell{background:#f0f0f0;color:#555;text-align:right;min-width:60px;font-family:Consolas,monospace;cursor:default}
 .actual-cell{background:#fff;color:#0d5e2e;text-align:right;min-width:60px;font-family:Consolas,monospace;font-weight:700}
 .actual-cell.clickable{cursor:text}
-.actual-cell.clickable:hover{background:#f0fff4;outline:1px dashed #1d9e6b}
-.actual-cell input{width:100%;border:1px solid #1d9e6b;border-radius:3px;padding:1px 4px;font-size:11px;font-family:Consolas,monospace;text-align:right;outline:none;background:#f0fff4}
+.actual-cell.clickable:hover{background:#f0fff4;outline:1px dashed #4a6cf7}
+.actual-cell input{width:100%;box-sizing:border-box;border:1px solid #4a6cf7;border-radius:2px;padding:1px 4px;font-size:11px;font-family:Consolas,monospace;text-align:right;outline:none;background:#fff}
+.cut-act-inp{border:1px solid #c8e6c9;border-radius:2px;padding:1px 3px;font-size:10px;text-align:right;outline:none;width:44px}
+.cut-act-inp:focus{border-color:#4a6cf7}
+.cut-merge-btn{background:transparent;border:1px solid #c5cae9;border-radius:2px;color:#9fa8da;font-size:9px;cursor:pointer;padding:1px 3px;flex-shrink:0;line-height:1.4}
+.cut-merge-btn:hover{border-color:#4a6cf7;color:#4a6cf7}
 .locked-cell{background:#fff8e1;color:#795548;font-weight:600}
 .del-cell{width:22px;text-align:center;padding:2px 4px;border:1px solid #e8ecf4}
 .btn-del{background:transparent;border:none;color:#ccc;font-size:14px;cursor:pointer;padding:0 2px;border-radius:3px;line-height:1}
@@ -162,6 +166,23 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#f0f2
   <button class="btn-save-all" id="btnSaveAll" onclick="submitAllEdits()">提交審核</button>
 </div>
 
+<!-- 合併實際人數 Modal（Cutting段） -->
+<div class="modal-overlay" id="mergeModal">
+  <div class="modal-box">
+    <div class="modal-title" id="mergeModalTitle">設定實際人數</div>
+    <div style="font-size:11px;color:#666;margin-bottom:10px">勾選需合併的工序，填入合計人數；只選一個工序 = 單獨設定</div>
+    <label class="modal-label">本區工序清單</label>
+    <div class="proc-check-list" id="mergeProcList"></div>
+    <label class="modal-label">合計人數</label>
+    <input class="modal-input" type="number" step="0.5" min="0" id="mergeHeadcount" placeholder="例如: 2"
+      onkeydown="if(event.key==='Enter')submitMerge()">
+    <div class="modal-footer">
+      <button class="btn-mcancel" onclick="closeMergeModal()">取消</button>
+      <button class="btn-mok" onclick="submitMerge()">儲存</button>
+    </div>
+  </div>
+</div>
+
 <!-- 新增工序 Modal（非cutting段用） -->
 <div class="modal-overlay" id="addRowModal">
   <div class="modal-box">
@@ -189,7 +210,6 @@ let DATA   = null;
 let EDITS  = {};
 let LANG   = localStorage.getItem('ie_lang') || 'zh';
 let ZONE_ROWS = {};
-let GROUP_ZONE = null;
 let ADD_ZONE   = null;
 
 const MACHINE_ZONES = new Set(['裁斷機','ATOM','Laser','EMMA','YINGHUI','移印','轉印']);
@@ -406,7 +426,21 @@ function renderCuttingRow(row, zone, type, eolr) {
   const edM = (fld, v) => `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'${fld}')" data-tip="點擊編輯">${dv(v)}</td>`;
   const fmC = (v)      => `<td class="formula-cell">${dv(v)}</td>`;
   const thC = (std)    => `<td class="formula-cell theory-cell" data-stdtime="${std??''}" data-zone="${esc(zone)}">${ops(std)}</td>`;
-  const actC = ()      => `<td class="actual-cell clickable" onclick="startEdit(this,${pid},'actual_operators')" data-tip="點擊編輯">${dv(row.actual_operators)}</td>`;
+  const zoneJ = esc(JSON.stringify(zone));
+  const actC = () => {
+    if (row.group_info) {
+      const gi = row.group_info;
+      return `<td class="actual-cell group-cell" onclick="openMergeModal(${zoneJ},${pid})" style="cursor:pointer" title="點擊重新設定">${fmtNum(gi.headcount)}<span class="group-badge">組</span></td>`;
+    }
+    return `<td class="actual-cell" style="padding:2px 4px">
+      <div style="display:flex;align-items:center;gap:2px;justify-content:flex-end">
+        <input type="number" step="any" class="cut-act-inp" data-pid="${pid}"
+          value="${row.actual_operators ?? ''}" placeholder="—"
+          onblur="saveSingleActual(this,${pid})"
+          onkeydown="if(event.key==='Enter')this.blur()">
+        <button class="cut-merge-btn" onclick="openMergeModal(${zoneJ},${pid})" title="合併多工序">合</button>
+      </div></td>`;
+  };
   const post5 = () => ['post_marking_std','post_skiving_std','post_attach_std','post_edge_std','post_heat_std'].map(sc => {
     const ps = row[sc];
     return edM(sc,ps)+`<td class="formula-cell th-post-ops-cell" style="background:#e8f5e9;color:#2e7d32" data-poststd="${ps??''}">${ops(ps)}</td>`;
@@ -764,46 +798,81 @@ async function deleteRow(pid) {
   else alert('刪除失敗: ' + (j.error || ''));
 }
 
-// ── Group modal ───────────────────────────────────────────────────────────────
-function openGroupModal(zone) {
-  GROUP_ZONE = zone;
-  document.getElementById('groupModalTitle').textContent = '設定人力分組 — ' + zoneLabel(zone);
-  const rows = ZONE_ROWS[zone] || [];
-  const list = document.getElementById('groupProcList');
+// ── 合併人數 Modal（Cutting段 actual_operators）────────────────────────────────
+let MERGE_ZONE = null;
+
+function openMergeModal(zone, clickedPid) {
+  MERGE_ZONE = zone;
+  document.getElementById('mergeModalTitle').textContent = `設定實際人數 — ${zone}`;
+
+  // Gather all rows in this zone from current DATA
+  const zoneData = DATA?.zones?.find(z => z.zone === zone);
+  const rows = zoneData?.rows || [];
+
+  // Determine pre-selections and pre-filled headcount
+  let preSelectedPids = new Set([clickedPid]);
+  let preHeadcount = '';
+  const clickedRow = rows.find(r => r.id === clickedPid);
+  if (clickedRow?.group_info) {
+    preHeadcount = clickedRow.group_info.headcount;
+    const groupId = clickedRow.group_info.group_id;
+    rows.forEach(r => { if (r.group_info?.group_id === groupId) preSelectedPids.add(r.id); });
+  } else {
+    preHeadcount = clickedRow?.actual_operators ?? '';
+  }
+
+  const list = document.getElementById('mergeProcList');
   list.innerHTML = rows.length
-    ? rows.map((r,i) => `<div class="proc-check-item">
-        <input type="checkbox" id="gp${i}" value="${r.id}">
-        <label for="gp${i}" style="cursor:pointer">${esc(r.name || '工序 ' + r.id)}</label>
+    ? rows.map((r, i) => `<div class="proc-check-item">
+        <input type="checkbox" id="mp${i}" value="${r.id}" ${preSelectedPids.has(r.id) ? 'checked' : ''}>
+        <label for="mp${i}" style="cursor:pointer">${esc(r.process_name || '工序 ' + r.id)}${r.group_info ? ' <span style="color:#1d9e6b;font-size:9px">[已編組]</span>' : ''}</label>
       </div>`).join('')
     : '<div style="color:#aaa;font-size:11px;padding:8px">此區暫無工序</div>';
-  document.getElementById('groupHeadcount').value = '';
-  document.getElementById('groupNote').value = '';
-  document.getElementById('groupModal').style.display = 'flex';
+
+  document.getElementById('mergeHeadcount').value = preHeadcount;
+  document.getElementById('mergeModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('mergeHeadcount').focus(), 50);
 }
-function closeGroupModal() {
-  document.getElementById('groupModal').style.display = 'none';
-  GROUP_ZONE = null;
+
+function closeMergeModal() {
+  document.getElementById('mergeModal').style.display = 'none';
+  MERGE_ZONE = null;
 }
-async function submitGroup() {
-  const checked = [...document.querySelectorAll('#groupProcList input:checked')].map(cb => parseInt(cb.value));
-  const headcount = parseFloat(document.getElementById('groupHeadcount').value);
-  const note = document.getElementById('groupNote').value.trim();
+
+async function submitMerge() {
+  const checked = [...document.querySelectorAll('#mergeProcList input:checked')].map(cb => parseInt(cb.value));
+  const hcStr = document.getElementById('mergeHeadcount').value;
   if (!checked.length) { alert('請選擇至少一道工序'); return; }
-  if (isNaN(headcount) || headcount <= 0) { alert('請填寫正確人數'); return; }
+  if (hcStr === '') { alert('請填寫人數'); return; }
+  const headcount = parseFloat(hcStr);
+  if (isNaN(headcount) || headcount < 0) { alert('請填寫正確人數'); return; }
   const r = await fetch('/api/ie/cell/save_group', {
-    method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({header_id:HID, segment:SEG, zone:GROUP_ZONE,
-      stage_id:STAGE?.id, process_ids:checked, headcount, note}),
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({header_id: HID, segment: 'cutting', zone: MERGE_ZONE,
+      stage_id: STAGE?.id, process_ids: checked, headcount, note: ''})
   });
   const j = await r.json();
-  if (j.ok) { closeGroupModal(); loadSegment(SEG); }
-  else alert('分組失敗: ' + (j.error || ''));
+  if (j.ok) { closeMergeModal(); loadSegment(SEG); }
+  else alert('儲存失敗: ' + (j.error || ''));
+}
+
+async function saveSingleActual(inp, pid) {
+  const val = inp.value.trim();
+  if (val === '') return;
+  const r = await fetch('/api/ie/cell/save', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({cell_id: pid, stage_id: STAGE?.id, field: 'actual_operators', value: val, user: 'demo_user'})
+  });
+  const j = await r.json();
+  if (!j.ok) alert('儲存失敗: ' + (j.error || ''));
+  else { inp.style.borderColor = '#4a6cf7'; setTimeout(() => { inp.style.borderColor = '#c8e6c9'; }, 1500); }
 }
 
 // ── Inline editing ────────────────────────────────────────────────────────────
 function startEdit(td, pid, field) {
   const cur = td.textContent.trim();
   td.innerHTML = `<input type="number" step="any" value="${esc(cur === '—' ? '' : cur)}"
+    style="width:100%;box-sizing:border-box;border:1px solid #4a6cf7;border-radius:2px;padding:1px 4px;font-size:11px;text-align:right;outline:none"
     onblur="commitEdit(this,${pid},'${field}')"
     onkeydown="editKey(event,this,${pid},'${field}')">`;
   td.querySelector('input').focus();
@@ -826,7 +895,7 @@ function commitEdit(inp, pid, field) {
   td.textContent = newVal || '—';
   if (!EDITS[pid]) EDITS[pid] = {};
   EDITS[pid][field] = newVal;
-  td.style.outline = '2px solid #f9a825';
+  td.style.outline = '1px solid #4a6cf7';
   updateSaveBar();
 }
 
@@ -990,6 +1059,11 @@ function fmtNum(v) {
 function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
+// Close merge modal on overlay click
+document.getElementById('mergeModal').addEventListener('click', function(e) {
+  if (e.target === this) closeMergeModal();
+});
 
 init();
 </script>
