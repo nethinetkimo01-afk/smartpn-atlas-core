@@ -132,6 +132,7 @@ Version: v1.0 | 建立: 2026-06-13
 | 078 | IE細表界面視覺重設計（白底/公式灰字/手工黑字/黑框輸入） | DATA SYSTEM | ✅完成 | 2026-06-17 | 2026-06-17 | ie_cell_detail.html: formula-cell去灰底改#aaa灰字; num/.actual改#222黑字; input黑框#333; 移除所有background:#fff顯式設定 |
 | 079 | IE細表合併功能完整版（rowspan/解除/多段/popup） | DATA SYSTEM | ✅完成 | 2026-06-17 | 2026-06-17 | renderGroupActualCell(rowspan) / openGroupAction popup / unmergeGroup / 全段支援 / DB: update+delete_group |
 | 080 | 合併功能完整自測並修正所有問題 | DATA SYSTEM | ✅完成 | 2026-06-17 | 2026-06-17 | 4項全通過：Test1清空✅ Test2過濾✅ Test3改人數✅ Test4Stitching✅ 無需程式修正 |
+| 081 | IE細表最終全面驗收（Step1-8）+ Cutting表頭對齊修正 | DATA SYSTEM | ✅完成 | 2026-06-17 | 2026-06-17 | V3/E3 th-vi/th-en left class; 全8步驗收通過：Cutting七區/表頭/×+/公式手工/Stitching-STF欄位/合併Test1-4/頂部功能/主表EOLR分行 |
 
 ## 待 Jim 決定（不擋工）
 

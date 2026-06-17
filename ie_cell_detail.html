@@ -398,8 +398,8 @@ function _cutHead(type) {
   const zh = (t, c) => `<th class="th-zh${c ? ' '+c : ''}">${t}</th>`;
   const DEL = '<th rowspan="4" style="width:22px;padding:2px"></th>';
   const B3  = GB()+GB()+'<th class="th-cut-group left" style="background:#1a2744;color:#555;min-width:110px"></th>';
-  const V3  = vi('Phân loại<br>NL')+vi('STT')+vi('Tên phối kiện');
-  const E3  = en('Classification<br>Material')+en('Seq.<br>No')+en('Name of Parts');
+  const V3  = vi('Phân loại<br>NL')+vi('STT')+`<th class="th-vi left">Tên phối kiện</th>`;
+  const E3  = en('Classification<br>Material')+en('Seq.<br>No')+`<th class="th-en left">Name of Parts</th>`;
   const Z3  = zh('材料類別','')+zh('序號','')+zh('部件名稱','left');
   const P5G = GP(2,'印线/画线')+GP(2,'削皮')+GP(2,'贴补强')+GP(2,'涂边/烘毛边')+GP(2,'热压');
   const P5V = (vi('TC<br>thời gian')+vi('Số người<br>lý luận')).repeat(5);
