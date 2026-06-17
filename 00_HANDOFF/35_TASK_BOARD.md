@@ -127,6 +127,8 @@ Version: v1.0 | 建立: 2026-06-13
 | 074 | /bianche 廠務編制表完整修正（CSA/OCS/RB/QC） | DATA SYSTEM | ✅完成 | 2026-06-16 | 2026-06-16 | bianche.html: 標籤CSA/OCS; LEAN固定排序; LEAN標題行(總訂單+編制input); 欄位=鞋型/ART/訂單/裁斷/針車/成型/協理給(刪合計MP+合計行); OCS 8區段(大底課/組底配套/自動化/電腦針車/印刷/設備工程/副總室/現場技轉KTHT); 大底課顯示鞋型明細; RB 18組; QC 48+4組; database.py: DEPT_GROUPS更新+bianche_lean_hc表+get/set函數; app.py: lean_hc GET/POST routes+export/import更新; T1-T6全Pass |
 
 | 075 | 數據庫保護與備份機制 | Infra | ✅完成 | 2026-06-17 | 2026-06-17 | soft-delete ds04_orders / alloc+bianche edit_log / backup/ 4腳本 / migrate.py M001-M003 / 27_WORKING_RULES §六 |
+| 076 | ie_cell_detail 手工格藍框+Cutting實際人數合併Modal | DATA SYSTEM | ✅完成 | 2026-06-17 | 2026-06-17 | 藍細框startEdit/commitEdit; cut-act-inp+合按鈕; mergeModal checklist; saveSingleActual; save_group API |
+| 077 | 自我驗收所有界面：×首欄+寬放率手工格 | DATA SYSTEM | ✅完成 | 2026-06-17 | 2026-06-17 | ie_cell_detail.html renderZoneCard ×移首欄 / allowance_pct白底可編輯 / addRowInline佔位格 |
 
 ## 待 Jim 決定（不擋工）
 

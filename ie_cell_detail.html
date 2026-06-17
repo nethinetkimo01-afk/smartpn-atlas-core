@@ -568,20 +568,21 @@ function renderZoneCard(z, seg, eolr) {
   } else {
     const segJ = esc(JSON.stringify(seg));
     h += '<div class="zone-body"><table class="proc-table"><thead><tr>';
+    h += `<th style="width:22px"></th>`;
     for (const col of cols) {
       const lbl = COL_LABELS[col] || col;
       const isLeft = col === 'process_name' || col === 'part_name';
       const cls = (col === 'theory_operators' || col === 'production_target') ? 'th-theory' : col === 'actual_operators' ? 'th-actual' : isLeft ? 'left' : '';
       h += `<th${cls ? ` class="${cls}"` : ''}>${lbl}</th>`;
     }
-    h += `<th style="width:22px"></th></tr></thead><tbody id="tbody-gen-${esc(zone)}">`;
+    h += `</tr></thead><tbody id="tbody-gen-${esc(zone)}">`;
 
     for (const row of z.rows) {
       h += '<tr>';
-      for (const col of cols) h += renderCell(row, col, zone, seg, eolr);
       h += row.is_locked
         ? '<td class="del-cell"></td>'
         : `<td class="del-cell"><button class="btn-del" onclick="deleteRow(${row.id})" title="刪除">×</button></td>`;
+      for (const col of cols) h += renderCell(row, col, zone, seg, eolr);
       h += '</tr>';
     }
     h += renderAddTriggerRow(zone, seg);
@@ -669,7 +670,8 @@ function renderCell(row, col, zone, seg, eolr) {
   if (col === 'allowance_pct') {
     const defaultAllow = (seg === 'stitching' || seg === 'assembly') ? 10 : null;
     const display = val != null ? fmtNum(val) : (defaultAllow != null ? fmtNum(defaultAllow) : '—');
-    return `<td class="formula-cell">${display}</td>`;
+    if (locked) return `<td class="num locked-cell">${display}</td>`;
+    return `<td class="num" style="background:#fff;cursor:text" onclick="startEdit(this,${pid},'allowance_pct')" data-tip="點擊編輯">${display}</td>`;
   }
 
   if (EDITABLE_COLS.has(col)) {
@@ -967,7 +969,7 @@ function addRowInline(zone, seg) {
   if (!cols) return;
   const zJ   = esc(JSON.stringify(zone));
   const segJ = esc(JSON.stringify(seg));
-  let cells = '';
+  let cells = '<td></td>';
   for (const col of cols) {
     if (col === 'seq') {
       cells += `<td style="text-align:center;color:#aaa">—</td>`;
