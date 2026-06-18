@@ -6,26 +6,26 @@
 <title>IE 細表</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#F2F2F7;color:#1C1C1E;min-height:100vh}
+body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#FFFFFF;color:#1C1C1E;min-height:100vh}
 
 /* ── Topbar ───────────────────────────────────────── */
-.topbar{background:#1C1C1E;color:#fff;padding:9px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3);flex-wrap:wrap}
+.topbar{background:#F5F5F7;color:#1D1D1F;padding:9px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;border-bottom:1px solid #E5E5EA;flex-wrap:wrap}
 .topbar-model{font-size:14px;font-weight:700;white-space:nowrap}
 .topbar-meta{font-size:11px;color:#8E8E93;white-space:nowrap}
-.eolr-badge{font-size:10px;background:#2C2C2E;color:#E5E5EA;border:1px solid #3A3A3C;border-radius:4px;padding:2px 7px;font-weight:700;white-space:nowrap}
+.eolr-badge{font-size:10px;background:#F5F5F7;color:#1D1D1F;border:1px solid #C7C7CC;border-radius:4px;padding:2px 7px;font-weight:700;white-space:nowrap}
 .topbar-spacer{flex:1}
-.stage-select{background:#2C2C2E;color:#E5E5EA;border:1px solid #3A3A3C;border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;min-width:90px}
-.stage-select option{background:#1C1C1E;color:#E5E5EA}
-.toggle-group{display:flex;gap:2px;background:#000;border-radius:6px;padding:3px}
+.stage-select{background:#F5F5F7;color:#1D1D1F;border:1px solid #C7C7CC;border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;min-width:90px}
+.stage-select option{background:#fff;color:#1D1D1F}
+.toggle-group{display:flex;gap:2px;background:#E5E5EA;border-radius:6px;padding:3px}
 .tg-btn{background:transparent;color:#8E8E93;border:none;border-radius:4px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s}
 .tg-btn.active{background:#007AFF;color:#fff}
 .tg-btn.lang-active{background:#34C759;color:#fff}
 .btn-sm{background:#007AFF;color:#fff;border:none;border-radius:5px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer}
 .btn-sm:hover{background:#0066CC}
-.btn-outline{background:transparent;color:#8E8E93;border:1px solid #3A3A3C;border-radius:5px;padding:5px 12px;font-size:12px;cursor:pointer}
-.btn-outline:hover{background:#2C2C2E;color:#fff}
-.back-link{color:#8E8E93;text-decoration:none;font-size:11px;display:flex;align-items:center;gap:4px}
-.back-link:hover{color:#fff}
+.btn-outline{background:transparent;color:#1D1D1F;border:1px solid #C7C7CC;border-radius:5px;padding:5px 12px;font-size:12px;cursor:pointer}
+.btn-outline:hover{background:#E5E5EA;color:#1D1D1F}
+.back-link{color:#1D1D1F;text-decoration:none;font-size:11px;display:flex;align-items:center;gap:4px}
+.back-link:hover{color:#0066CC}
 
 /* ── Tab bar ──────────────────────────────────────── */
 .tab-bar{background:#fff;border-bottom:1px solid #E5E5EA;padding:0 18px;display:flex;overflow-x:auto;position:sticky;top:46px;z-index:90}
@@ -36,9 +36,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#F2F2
 /* ── Content / Zone ───────────────────────────────── */
 .content{padding:16px 18px;display:flex;flex-direction:column;gap:14px}
 .zone-card{background:#fff;border-radius:8px;border:1px solid #E5E5EA;overflow:hidden}
-.zone-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#F2F2F7;border-bottom:1px solid #E5E5EA}
-.zone-header.ws{background:#F2F2F7;border-bottom-color:#E5E5EA}
-.zone-header.offline{background:#F2F2F7;border-bottom-color:#E5E5EA}
+.zone-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#F5F5F7;border-bottom:1px solid #E5E5EA}
+.zone-header.ws{background:#F5F5F7;border-bottom-color:#E5E5EA}
+.zone-header.offline{background:#F5F5F7;border-bottom-color:#E5E5EA}
 .zone-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .zone-name{font-size:12px;font-weight:700;color:#1C1C1E}
 .zone-header.ws .zone-name{color:#1C1C1E}
@@ -170,6 +170,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#F2F2
 
 /* ── Custom tooltip ───────────────────────────────── */
 #cellTip{position:fixed;background:#1C1C1E;color:#fff;font-size:10px;padding:2px 8px;border-radius:4px;pointer-events:none;z-index:500;display:none;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+
+/* ── Save dropdown ────────────────────────────────── */
+.save-dropdown{position:relative;display:inline-block}
+.save-dropdown-menu{position:absolute;right:0;top:calc(100% + 4px);background:#fff;border:1px solid #C7C7CC;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:300;min-width:140px;padding:4px 0}
+.save-dropdown-menu button{display:block;width:100%;padding:8px 16px;border:none;background:transparent;text-align:left;font-size:12px;cursor:pointer;color:#1D1D1F;white-space:nowrap}
+.save-dropdown-menu button:hover{background:#F5F5F7}
 </style>
 </head>
 <body>
@@ -192,8 +198,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#F2F2
     <button class="tg-btn" id="eolr60"  onclick="setEolr(60)">EOLR 60</button>
     <button class="tg-btn active" id="eolr120" onclick="setEolr(120)">EOLR 120</button>
   </div>
-  <button class="btn-sm" onclick="showSaveModal()">儲存修改</button>
-  <button class="btn-outline" onclick="newStage()">新建版本</button>
+  <div class="save-dropdown" id="saveDropdown">
+    <button class="btn-sm" onclick="toggleSaveDropdown()">儲存 ▼</button>
+    <div class="save-dropdown-menu" id="saveDropdownMenu" style="display:none">
+      <button onclick="showSaveModal();closeSaveDropdown()">儲存</button>
+      <button onclick="newStage();closeSaveDropdown()">另存新階段</button>
+    </div>
+  </div>
   <button class="btn-outline" id="btn-submit-review" onclick="submitForReview()" style="display:none;border-color:#1d9e6b;color:#1d9e6b">送審</button>
   <button class="btn-sm" id="btn-approve-stage" onclick="approveCurrentStage()" style="display:none;background:#1d9e6b">✓ 設為合格版</button>
   <span id="review-status-badge" style="font-size:11px;padding:3px 8px;border-radius:10px;display:none"></span>
@@ -544,8 +555,8 @@ function _cutHead(type) {
 function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
   const pid     = row.id;
   const divisor = 3600 / eolr;
-  const dv  = (v)   => (v != null && v !== '') ? fmtNum(v) : '—';
-  const ops = (std) => { const s = parseFloat(std); return (!isNaN(s)&&s>0) ? fmtNum(parseFloat((s/divisor).toFixed(4))) : '—'; };
+  const dv  = (v)   => (v != null && v !== '') ? fmtNum(v) : '';
+  const ops = (std) => { const s = parseFloat(std); return (!isNaN(s)&&s>0) ? fmtNum(parseFloat((s/divisor).toFixed(4))) : ''; };
   const edM = (fld, v) => `<td class="num" style="cursor:text" onclick="startEdit(this,${pid},'${fld}')" data-tip="點擊編輯">${dv(v)}</td>`;
   const fmC = (v)      => `<td class="formula-cell">${dv(v)}</td>`;
   const thC = (std)    => `<td class="formula-cell theory-cell" data-stdtime="${std??''}" data-zone="${esc(zone)}">${ops(std)}</td>`;
@@ -562,7 +573,7 @@ function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
     return `<td class="actual-cell" style="padding:2px 4px">
       <div style="display:flex;align-items:center;gap:2px;justify-content:flex-end">
         <input type="text" class="cut-act-inp" data-pid="${pid}"
-          value="${row.actual_operators ?? ''}" placeholder="—"
+          value="${row.actual_operators ?? ''}" placeholder=""
           onblur="saveSingleActual(this,${pid})"
           onkeydown="if(event.key==='Enter')this.blur()">
         <button class="cut-merge-btn" onclick="openMergeModal(${zoneJ},${pid},'cutting')" title="合併多工序">合</button>
@@ -579,7 +590,7 @@ function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
                    : `<td class="name left" style="white-space:normal">${viet}</td>`;
   let h = '<tr>';
   h += `<td class="del-cell"><button class="btn-del" onclick="deleteRow(${pid})">×</button></td>`;
-  h += `<td class="num" style="cursor:text;font-size:9px;min-width:50px" onclick="startTextEdit(this,${pid},'mat_cat')" data-tip="點擊編輯">${esc(row.mat_cat||'—')}</td>`;
+  h += `<td class="num" style="cursor:text;font-size:9px;min-width:50px" onclick="startTextEdit(this,${pid},'mat_cat')" data-tip="點擊編輯">${esc(row.mat_cat||'')}</td>`;
   h += `<td class="seq">${row.seq??''}</td>`;
   h += nmC;
   const act = actC();
@@ -612,7 +623,7 @@ function addCuttingRow(zone) {
   const fm   = () => `<td class="formula-cell" style="font-size:9px">公式</td>`;
   const ni   = (id, ph) => `<td><input class="add-inp add-num" id="${id}" type="text" placeholder="${ph}" style="min-width:28px"></td>`;
   const ok   = `<td style="white-space:nowrap"><button class="btn-inline-ok" onclick="confirmAddCuttingRow(${zJ})">✓</button></td>`;
-  let c = `<td class="del-cell"><button class="btn-del" onclick="cancelAddCuttingRow(${zJ})" title="取消">✕</button></td><td><input class="add-inp" id="add-mat-${zE}" placeholder="材料" style="min-width:46px;font-size:10px"></td><td style="text-align:center;color:#aaa;font-size:10px">—</td><td><input class="add-inp" id="add-name-${zE}" placeholder="部件名稱" style="min-width:90px"></td>`;
+  let c = `<td class="del-cell"><button class="btn-del" onclick="cancelAddCuttingRow(${zJ})" title="取消">✕</button></td><td><input class="add-inp" id="add-mat-${zE}" placeholder="材料" style="min-width:46px;font-size:10px"></td><td></td><td><input class="add-inp" id="add-name-${zE}" placeholder="部件名稱" style="min-width:90px"></td>`;
   if (type === 'A') {
     c += ni('add-lay-'+zE,'層')+ni('add-qty-'+zE,'件')+ni('add-cph-'+zE,'刀/H')+fm()+fm()+ni('add-act-'+zE,'人');
     c += `<td colspan="10" style="background:#f1f8e9;text-align:center;font-size:9px;color:#aaa;border:1px dashed #c8e6c9">後製工序（新增後填入）</td>`;
@@ -763,7 +774,7 @@ function renderCell(row, col, zone, seg, eolr) {
       const allow = row.allowance_pct != null ? row.allowance_pct : 10;
       st = row.normal_time * (1 + allow / 100);
     }
-    const pt = (!isNaN(st) && st > 0) ? fmtNum(Math.round((3600 / st) * 10) / 10) : '—';
+    const pt = (!isNaN(st) && st > 0) ? fmtNum(Math.round((3600 / st) * 10) / 10) : '';
     return `<td class="formula-cell">${pt}</td>`;
   }
 
@@ -774,19 +785,19 @@ function renderCell(row, col, zone, seg, eolr) {
         const allow = row.allowance_pct != null ? row.allowance_pct : 10;
         computed = row.normal_time * (1 + allow / 100);
       }
-      const display = computed != null ? fmtNum(parseFloat(computed.toFixed(4))) : '—';
+      const display = computed != null ? fmtNum(parseFloat(computed.toFixed(4))) : '';
       return `<td class="formula-cell">${display}</td>`;
     }
     if (seg === 'stf') {
       if (zone === '貼底') {
         if (row.normal_time != null) computed = row.normal_time * 1.1;
-        const display = computed != null ? fmtNum(parseFloat(computed.toFixed(4))) : '—';
+        const display = computed != null ? fmtNum(parseFloat(computed.toFixed(4))) : '';
         return `<td class="formula-cell">${display}</td>`;
       }
       // 打粗/照射: TCT manual, editable
-      return `<td class="num" style="cursor:text" onclick="startEdit(this,${pid},'standard_time')" data-tip="點擊編輯">${val != null ? fmtNum(val) : '—'}</td>`;
+      return `<td class="num" style="cursor:text" onclick="startEdit(this,${pid},'standard_time')" data-tip="點擊編輯">${fmtNum(val)}</td>`;
     }
-    const display = computed != null ? fmtNum(parseFloat(computed.toFixed(4))) : '—';
+    const display = computed != null ? fmtNum(parseFloat(computed.toFixed(4))) : '';
     return `<td class="formula-cell">${display}</td>`;
   }
 
@@ -802,36 +813,36 @@ function renderCell(row, col, zone, seg, eolr) {
       st = parseFloat(row.standard_time);
     }
     const stNum = parseFloat(st);
-    const th = (!isNaN(stNum) && stNum > 0) ? fmtNum(stNum / (3600 / eolr)) : '—';
+    const th = (!isNaN(stNum) && stNum > 0) ? fmtNum(stNum / (3600 / eolr)) : '';
     return `<td class="formula-cell theory-cell" data-pid="${pid}" data-stdtime="${stNum || ''}" data-zone="${esc(zone)}">${th}</td>`;
   }
 
   if (col === 'actual_operators') {
     // group_info rows are handled by group-aware callers (renderZoneCard/renderCuttingRow); skip here
     if (row.group_info) return '';
-    if (locked) return `<td class="actual-cell locked-cell">${val != null ? fmtNum(val) : '—'}</td>`;
+    if (locked) return `<td class="actual-cell locked-cell">${fmtNum(val)}</td>`;
     if (row.flag === '待手工') return `<td class="actual-cell" style="background:#fff3e0;color:#e65100;text-align:center">⚠ 待手工</td>`;
     if (zone === WS) {
-      return `<td class="actual-cell clickable" onclick="startEdit(this,${pid},'actual_operators')" data-tip="點擊編輯">${val != null ? fmtNum(val) : '—'}</td>`;
+      return `<td class="actual-cell clickable" onclick="startEdit(this,${pid},'actual_operators')" data-tip="點擊編輯">${fmtNum(val)}</td>`;
     }
     const zoneJ = esc(JSON.stringify(zone));
     const segJ  = esc(JSON.stringify(seg));
-    return `<td class="actual-cell clickable" onclick="openMergeModal(${zoneJ},${pid},${segJ})" data-tip="點擊設定/合併">${val != null ? fmtNum(val) : '—'}</td>`;
+    return `<td class="actual-cell clickable" onclick="openMergeModal(${zoneJ},${pid},${segJ})" data-tip="點擊設定/合併">${fmtNum(val)}</td>`;
   }
 
   if (col === 'allowance_pct') {
     const defaultAllow = (seg === 'stitching' || seg === 'assembly') ? 10 : null;
-    const display = val != null ? fmtNum(val) : (defaultAllow != null ? fmtNum(defaultAllow) : '—');
+    const display = val != null ? fmtNum(val) : (defaultAllow != null ? fmtNum(defaultAllow) : '');
     if (locked) return `<td class="num locked-cell">${display}</td>`;
     return `<td class="num" style="cursor:text" onclick="startEdit(this,${pid},'allowance_pct')" data-tip="點擊編輯">${display}</td>`;
   }
 
   if (EDITABLE_COLS.has(col)) {
-    if (locked) return `<td class="num locked-cell">${val != null ? fmtNum(val) : '—'}</td>`;
-    return `<td class="num" style="cursor:text" onclick="startEdit(this,${pid},'${col}')" data-tip="點擊編輯">${val != null ? fmtNum(val) : '—'}</td>`;
+    if (locked) return `<td class="num locked-cell">${fmtNum(val)}</td>`;
+    return `<td class="num" style="cursor:text" onclick="startEdit(this,${pid},'${col}')" data-tip="點擊編輯">${fmtNum(val)}</td>`;
   }
 
-  return `<td class="num">${val != null ? fmtNum(val) : '—'}</td>`;
+  return `<td class="num">${fmtNum(val)}</td>`;
 }
 
 function zoneLabel(z) {
@@ -866,13 +877,13 @@ function updateTheoryAndTotal() {
         total += th;
       }
     } else {
-      el.textContent = '—';
+      el.textContent = '';
     }
   });
   // Update cutting post-process ops cells
   document.querySelectorAll('.th-post-ops-cell[data-poststd]').forEach(el => {
     const ps = parseFloat(el.dataset.poststd);
-    el.textContent = (!isNaN(ps) && ps > 0) ? fmtNum(parseFloat((ps / divisor).toFixed(4))) : '—';
+    el.textContent = (!isNaN(ps) && ps > 0) ? fmtNum(parseFloat((ps / divisor).toFixed(4))) : '';
   });
   const ht = document.getElementById('handTotalVal');
   if (ht) ht.textContent = fmtNum(total);
@@ -1112,7 +1123,7 @@ async function saveSingleActual(inp, pid) {
 // ── Inline editing ────────────────────────────────────────────────────────────
 function startEdit(td, pid, field) {
   const cur = td.textContent.trim();
-  td.innerHTML = `<input type="text" value="${esc(cur === '—' ? '' : cur)}"
+  td.innerHTML = `<input type="text" value="${esc(cur)}"
     style="width:100%;box-sizing:border-box;border:1px solid #007AFF;border-radius:2px;padding:1px 4px;font-size:11px;text-align:right;outline:none;background:#fff"
     onblur="commitEdit(this,${pid},'${field}')"
     onkeydown="editKey(event,this,${pid},'${field}')">`;
@@ -1120,7 +1131,7 @@ function startEdit(td, pid, field) {
 }
 function startTextEdit(td, pid, field) {
   const cur = td.textContent.trim();
-  td.innerHTML = `<input type="text" value="${esc(cur === '—' ? '' : cur)}"
+  td.innerHTML = `<input type="text" value="${esc(cur)}"
     style="width:100%;border:1px solid #007AFF;border-radius:2px;padding:1px 3px;font-size:11px;background:#fff;outline:none"
     onblur="commitEdit(this,${pid},'${field}')"
     onkeydown="editKey(event,this,${pid},'${field}')">`;
@@ -1128,12 +1139,12 @@ function startTextEdit(td, pid, field) {
 }
 function editKey(e, inp, pid, field) {
   if (e.key === 'Enter')  commitEdit(inp, pid, field);
-  if (e.key === 'Escape') { inp.closest('td').textContent = inp.value || '—'; }
+  if (e.key === 'Escape') { inp.closest('td').textContent = inp.value || ''; }
 }
 function commitEdit(inp, pid, field) {
   const newVal = inp.value.trim();
   const td = inp.closest('td');
-  td.textContent = newVal || '—';
+  td.textContent = newVal || '';
   if (!EDITS[pid]) EDITS[pid] = {};
   EDITS[pid][field] = newVal;
   td.style.outline = '1px solid #007AFF';
@@ -1211,7 +1222,7 @@ function addRowInline(zone, seg) {
   let cells = `<td class="del-cell"><button class="btn-del" onclick="cancelAddRowInline(${zJ})" title="取消">✕</button></td>`;
   for (const col of cols) {
     if (col === 'seq') {
-      cells += `<td style="text-align:center;color:#aaa">—</td>`;
+      cells += `<td></td>`;
     } else if (col === 'process_name') {
       cells += `<td><input class="add-inp" id="add-gen-pname-${esc(zone)}" placeholder="工序名稱" style="min-width:110px"></td>`;
     } else if (col === 'normal_time') {
@@ -1291,13 +1302,30 @@ function cancelAddRowInline(zone) {
 
 // ── Utils ─────────────────────────────────────────────────────────────────────
 function fmtNum(v) {
-  if (v == null) return '—';
+  if (v == null) return '';
   if (typeof v === 'number') return Number.isInteger(v) ? String(v) : parseFloat(v.toFixed(1)).toString();
   const n = parseFloat(v);
   return isNaN(n) ? String(v) : (Number.isInteger(n) ? String(n) : parseFloat(n.toFixed(1)).toString());
 }
 function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Save dropdown ─────────────────────────────────────────────────────────────
+function toggleSaveDropdown() {
+  const m = document.getElementById('saveDropdownMenu');
+  const isOpen = m.style.display !== 'none';
+  m.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) {
+    setTimeout(() => document.addEventListener('click', _closeSaveDDOutside), 0);
+  }
+}
+function closeSaveDropdown() {
+  document.getElementById('saveDropdownMenu').style.display = 'none';
+  document.removeEventListener('click', _closeSaveDDOutside);
+}
+function _closeSaveDDOutside(e) {
+  if (!e.target.closest('#saveDropdown')) closeSaveDropdown();
 }
 
 // Close merge modal on overlay click
