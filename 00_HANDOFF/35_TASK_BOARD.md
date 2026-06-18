@@ -138,6 +138,8 @@ Version: v1.0 | 建立: 2026-06-13
 | 084 | IE細表格子改表單風格（公式格/手工格/無hover） | DATA SYSTEM | ✅完成 | 2026-06-17 | 2026-06-17 | ie_cell_detail.html: formula-cell白底灰框灰字cursor:default; num白底黑框黑字; actual-cell同步; 移除所有hover; 移除inline color:#aaa覆蓋 |
 | 085 | IE細表 input改type=text + 全格線統一 | DATA SYSTEM | ✅完成 | 2026-06-17 | 2026-06-17 | 所有type="number"→type="text"(移除step/min)共10處; proc-table td/del-cell border:#e8ecf4→#ddd統一灰框 |
 | 086 | IE細表視覺全面重設計（Apple 風格） | DATA SYSTEM | ✅完成 | 2026-06-18 | 2026-06-18 | ie_cell_detail.html: 公式格#8E8E93灰字/#E5E5EA邊框/cursor:default; 手工格#1C1C1E黑字/#C7C7CC邊框/點擊#007AFF藍框; 表頭#1C1C1E白字統一; 刪除所有hover背景/綠橙highlight; JS inline border全改Apple色; commit 385bec7 |
+| 087 | IE細表修正：tooltip跟鼠+合併格白底黑框+佔位格補邊 | DATA SYSTEM | ✅完成 | 2026-06-18 | 2026-06-18 | tooltip改mousemove跟隨; renderGroupActualCell移rowspan改inline樣式; renderGroupPlaceholder補#E5E5EA邊框; renderCuttingRow/renderZoneCard改呼叫renderGroupPlaceholder; commit ebd9bd6 |
+| 088 | IE細表§9補完：無「—」+頂部列淺色+儲存▼下拉 | DATA SYSTEM | ✅完成 | 2026-06-18 | 2026-06-18 | 全格「—」→空白(含fmtNum/dv/ops/renderCell); body#FFF/topbar#F5F5F7淺灰; eolr-badge/stage-select/btn-outline全改淺色; 新建版本移除→「儲存▼」下拉(儲存/另存新階段); commit dff469d |
 
 ## 待 Jim 決定（不擋工）
 
