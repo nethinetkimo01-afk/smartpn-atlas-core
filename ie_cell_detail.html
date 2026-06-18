@@ -550,13 +550,12 @@ function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
   const fmC = (v)      => `<td class="formula-cell">${dv(v)}</td>`;
   const thC = (std)    => `<td class="formula-cell theory-cell" data-stdtime="${std??''}" data-zone="${esc(zone)}">${ops(std)}</td>`;
   const zoneJ = esc(JSON.stringify(zone));
-  // Returns: html string | null (null = skip this cell — covered by rowspan above)
   const actC = () => {
     if (row.group_info) {
       const gi = row.group_info;
       const gid = gi.group_id;
       const isFirst = groupFirstId?.get(gid) === row.id;
-      if (!isFirst) return null;
+      if (!isFirst) return renderGroupPlaceholder();
       const n = groupSize?.get(gid) || 1;
       return renderGroupActualCell(gi, n, zone, 'cutting');
     }
@@ -726,8 +725,9 @@ function renderZoneCard(z, seg, eolr) {
           const gid = row.group_info.group_id;
           if (gFirst.get(gid) === row.id) {
             h += renderGroupActualCell(row.group_info, gSize.get(gid) || 1, zone, seg);
+          } else {
+            h += renderGroupPlaceholder();
           }
-          // else: skip — covered by rowspan above
         } else {
           h += renderCell(row, col, zone, seg, eolr);
         }
@@ -957,13 +957,17 @@ async function deleteRow(pid) {
 let MERGE_ZONE = null;
 let MERGE_SEG  = null;
 
-// Render a grouped actual_operators cell with rowspan (used by renderZoneCard & renderCuttingRow)
+// Render a grouped actual_operators cell (first row of group — no rowspan)
 function renderGroupActualCell(gi, rowspan, zone, seg) {
   const zoneJ = esc(JSON.stringify(zone));
   const segJ  = esc(JSON.stringify(seg));
-  return `<td class="actual-cell group-cell" rowspan="${rowspan}" style="cursor:pointer;vertical-align:middle;text-align:right"
+  return `<td class="actual-cell group-cell" style="cursor:pointer;vertical-align:middle;text-align:right;background:#fff;color:#1C1C1E;border:1px solid #C7C7CC"
     onclick="openGroupAction(event,${gi.group_id},${gi.headcount},${zoneJ},${segJ})"
     title="點擊修改人數或解除合併">${fmtNum(gi.headcount)}</td>`;
+}
+// Placeholder for rows covered by a group (previously covered by rowspan)
+function renderGroupPlaceholder() {
+  return '<td style="background:#fff;border:1px solid #E5E5EA"></td>';
 }
 
 // Mini popup for editing / unmerging an existing group
@@ -1266,7 +1270,7 @@ function cancelAddRowInline(zone) {
   if (tbody) tbody.querySelector('.add-row-inline')?.remove();
 }
 
-// ── Custom tooltip ────────────────────────────────────────────────────────────
+// ── Custom tooltip（跟隨滑鼠） ────────────────────────────────────────────────
 (function(){
   const TIP = document.getElementById('cellTip');
   document.addEventListener('mouseover', e => {
@@ -1274,9 +1278,11 @@ function cancelAddRowInline(zone) {
     if (!cell) { TIP.style.display = 'none'; return; }
     TIP.textContent = cell.dataset.tip;
     TIP.style.display = 'block';
-    const r = cell.getBoundingClientRect();
-    TIP.style.left = Math.max(0, r.left + r.width / 2 - TIP.offsetWidth / 2) + 'px';
-    TIP.style.top  = (r.top - TIP.offsetHeight - 5) + 'px';
+  });
+  document.addEventListener('mousemove', e => {
+    if (TIP.style.display === 'none') return;
+    TIP.style.left = (e.clientX + 14) + 'px';
+    TIP.style.top  = (e.clientY - 32) + 'px';
   });
   document.addEventListener('mouseout', e => {
     if (!e.relatedTarget?.closest('[data-tip]')) TIP.style.display = 'none';
