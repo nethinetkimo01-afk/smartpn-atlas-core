@@ -137,6 +137,7 @@ Version: v1.0 | 建立: 2026-06-13
 | 083 | 主表 /ie 新增操作入口 | DATA SYSTEM | ✅完成 | 2026-06-17 | 2026-06-17 | 新增鞋型modal(多ART/材料/季度/階段); ···選單(+修改季度材料); manager角色; 移除舊+×按鈕; admin_users.html manager支援 |
 | 084 | IE細表格子改表單風格（公式格/手工格/無hover） | DATA SYSTEM | ✅完成 | 2026-06-17 | 2026-06-17 | ie_cell_detail.html: formula-cell白底灰框灰字cursor:default; num白底黑框黑字; actual-cell同步; 移除所有hover; 移除inline color:#aaa覆蓋 |
 | 085 | IE細表 input改type=text + 全格線統一 | DATA SYSTEM | ✅完成 | 2026-06-17 | 2026-06-17 | 所有type="number"→type="text"(移除step/min)共10處; proc-table td/del-cell border:#e8ecf4→#ddd統一灰框 |
+| 086 | IE細表視覺全面重設計（Apple 風格） | DATA SYSTEM | ✅完成 | 2026-06-18 | 2026-06-18 | ie_cell_detail.html: 公式格#8E8E93灰字/#E5E5EA邊框/cursor:default; 手工格#1C1C1E黑字/#C7C7CC邊框/點擊#007AFF藍框; 表頭#1C1C1E白字統一; 刪除所有hover背景/綠橙highlight; JS inline border全改Apple色; commit 385bec7 |
 
 ## 待 Jim 決定（不擋工）
 
