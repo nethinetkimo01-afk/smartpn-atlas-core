@@ -309,3 +309,44 @@ Jim 核心差異點：
 - 錯誤 14：CURRENT/CONTRIBUTION 底色框各頁大小不一（寬度跟著文字跑）。預防：底色框固定等寬同樣式同位置，全 CV 一致。
 - 錯誤 15：標記框與箭頭未對齊（Real-time/More Complete 歪）。預防：右側標記框左緣對齊、箭頭轉折統一在同一 x。
 - 錯誤 16：圖內自帶標題導致與排版頁字體不一致。預防：圖一律生成「不含標題純圖」，標題由排版層統一加。
+
+## 2026-06-18 CV 接近完成（v6，12 頁）
+
+### 結構（最終，12 頁）
+封面 → 前言 → 轉場(Performance and Potential Contribution to VF) → System 01: IE & Workforce Planning → System 02 六貢獻(Identity→Governance→Decision 順序) → About Me。What I'm Looking For 已移除。
+
+### 重大變更（全部完成）
+- 系統順序對調：IE = System 01（先）、Material Identity Management = System 02（後）。
+- 轉場頁卡片：左 IE / 右 Material，移除 SYSTEM 01/02 字樣，用程式重排取代舊圖。底部句：Both systems were built with AI tools — but only clear AI communication logic makes AI work. Without direction, AI is just a word. Currently applied to internal department management.
+- 六貢獻按主軸重排：NP1=Less manpower(IDENTITY) / NP2=Fast factory transfer(GOVERNANCE) / NP2b=Shared BOM vs Actual BOM vs Trusted Source(GOVERNANCE,新增S05多廠版) / NP3=Reclaim hidden margin(DECISION) / NP4=Group purchasing(DECISION) / NP5=Supplier performance(DECISION) / NP6=Fast fashion(DECISION)。eyebrow 格式：MATERIAL IDENTITY MANAGEMENT · IDENTITY/GOVERNANCE/DECISION（不放 System 02 字樣）。
+- 標題統一：全頁「橘色系統名稱 eyebrow 在上 + 黑色主標在下」上下排。IE 也給主標：One centralized system for the whole factory.
+- 三張純圖已嵌入（Jim 重生「不含標題純圖」，標題由排版層加）：P1 hidden margin、P5 performance、IE。檔案：/tmp/p1_pure.png、p5_pure.png、ie_pure.png（皆 1672x941，頂部留白）。
+- CURRENT/CONTRIBUTION 底色框全頁等寬 150px、同樣式同位置。
+- 封面已含聯絡資訊；About Me 移除聯絡。
+- 第1頁：On the manufacturing-side supply chain。
+
+### S05 新增頁（NP2b, Governance）
+標題 Shared BOM vs Actual BOM vs Trusted Source.（原 Actual DPP 改 Trusted Source）。
+表格：行=部位(Toe cap/Quarter/Shoelace/Outsole)；欄=Shared BOM(Brand) + Actual BOM 三廠(China/Vietnam/Indonesia)，子標題 MTL Code，料號 -Code。
+Brand 與三廠之間有垂直區隔線（兩區）。Alternative 用橘色：China·Quarter=Factory-China-Alternative、Vietnam·Outsole=Factory-Vietnam-Alternative。
+金句：Material alternatives stay under brand control — and expand easily to a new factory when needed.
+另有 S05 內容 Excel 已交付：/mnt/user-data/outputs/S05_content.xlsx（Jim 要自己做示意圖用）。
+
+### P2 箭頭（最終，已驗證乾淨）
+- Real-time / More Complete 完全對稱：同起點 x=800、同轉折竖線 x=920、標記框 x=965。Real-time 從上 MTL-2 價(10)+下 MTL-2 價(8)匯聚；More Complete 從 MTL-3 價(10)+MTL-4 價(10)匯聚。
+- Less Manpower：拿掉穿表格箭頭（箭頭穿表格會壓字卡線，是設計坑，禁用）。標記置中對齊到「Updated by」欄中心、垂直在兩表之間，靠位置說明 Brand→Supplier 轉變。
+- 下區「Supplier」橘色（Brand 黑）。
+
+### 技術
+- builder: /tmp/build_cv_v4.py 輸出 /mnt/user-data/outputs/Jim_Kao_CV_VF_v6.pdf。Python+playwright(chromium)+Inter 字體。主色橘 #B5540D。
+- 圖示型派 GPT/Jim 生純圖；表格型 Claude 程式排。
+
+### 待辦（下次接手）
+1. hidden margin(NP3) 左右兩塊布看起來不一樣（GPT 無法複製同一塊布）。可靠解法：Jim 重生「單塊布+空白吊牌」單圖，Claude 程式複製成左右兩份保證一致再填吊牌字。Jim 未決定做或維持現狀。
+2. 依各家 JD 分品牌改版：VF 為基礎版；Nike 新加坡(SAP,製造端供應鏈治理角度)、ON Running(Lead TPM Supply Chain AI)。Jim 會給各家 JD，依 JD 決定改封面職位+公司名+強調重點，非只換名。
+3. Jim 可能換掉某些不重要的 slide（剛新增 S05/NP2b，未指定移除哪張）。
+
+### 新教訓
+- 錯誤 17：箭頭穿越表格會壓字、卡線、難對齊——禁止用「箭頭穿進表格指向欄位」的做法；改用置中標記+對齊基準，或從表格邊緣外引線到右側標記。
+- 錯誤 18：元素位置不可隨意擺放，必須有明確對齊基準（如 Less Manpower 對齊到 Updated by 欄中心）。
+- 錯誤 19：細節（壓字、未對齊）Claude 必須自己放大檢查到乾淨再交付，不可讓 Jim 一一糾錯。
