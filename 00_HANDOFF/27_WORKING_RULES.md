@@ -250,3 +250,38 @@ Step 5：驗收
   - 自動備份 → 備份成功 → git pull
 - **還原**：`python flask_backend/restore.py --date 20260616`
 - 備份位置：`flask_backend/backup/atlas_YYYYMMDD.db`
+
+## 八、三台電腦角色定案（2026-06-17）
+
+### 中樞電腦（討論機，白天開，定期關）
+- 與 Jim 討論、看結果、下決策
+- 連 http://ME129:5000 看結果
+- 不存本地 DB，不跑本地 Flask
+- 每次開機：git pull origin main
+
+### ME129（主資料庫，盡量不關）
+- 唯一的 Flask server（http://ME129:5000）
+- 唯一的 atlas.db（員工所有輸入資料存這裡）
+- 員工連 ME129:5000 作業
+- 開機自啟：watchdog + Flask
+- 每天自動 git pull 更新程式碼（不影響 DB）
+- 定時備份：每天把 atlas.db 推送到不關機電腦
+
+### 不關機電腦（Code機，24小時）
+- 跑 Claude Code 開發任務
+- 完成後立刻 git push
+- 接收 ME129 的 atlas.db 備份
+- ME129 關機時可切換成備用 server
+
+### 軟體更新流程
+Code機完成任務 → git push → ME129 git pull → watchdog重啟Flask → 所有人看到新版本
+
+### DB 備份流程（待實作）
+ME129 開機 → 自動把 atlas.db 推送到不關機電腦
+每天定時同步一次
+實作方式：robocopy 內網同步
+
+### 待實作
+- ME129 自動 git pull 排程
+- ME129 → 不關機電腦 DB 同步排程
+- 不關機電腦設定共享資料夾
