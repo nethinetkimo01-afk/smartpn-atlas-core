@@ -1,6 +1,47 @@
 # Current Status
 
-Last updated: 2026-06-15
+Last updated: 2026-06-18
+
+---
+
+## 當前狀態（2026-06-18）
+
+### 系統架構
+- 三台電腦：中樞電腦（白天開）/ ME129（主DB，172.16.1.29:5000）/ 不關機Code機
+- ME129 已部署，開機自動 git pull + 啟動 Flask
+- DB 在中樞電腦 D:\smartpn-atlas-core\flask_backend\data\atlas.db（81MB）
+- 待做：把中樞電腦 atlas.db 複製到 ME129
+
+### IE 表系統現狀
+- 20,434 筆工序資料已導入（290份鞋型）
+- 帳號系統已建（admin/manager/editor/viewer + tongcai/dianno/dacu）
+- 細表四段（Cutting/Stitching/Assembly/STF）功能完成
+- 合併/解除合併實際人數功能完成
+
+### 待修正（新視窗接手）
+界面設計全面修正（照 09 節定案規格）：
+1. 格線統一（顏色粗細一致）
+2. 輸入格/顯示格統一（白底，無「—」）
+3. 表頭 Apple 風格（#F5F5F7底，#1D1D1F字）
+4. 頂部列重設計（左：返回+鞋型+ART；右：語言+EOLR+儲存▼）
+5. 語言切換只切換欄位標題
+6. 分區更明顯
+7. 同一ART各階段對比頁面（待決定後實作）
+
+### 廠務編制系統現狀
+- /ds04 三層折疊（部門/LEAN/鞋型）完成
+- /eolr-settings 年度橫向表格完成
+- /allocation 勾選表框架完成（邏輯待修正）
+- /bianche CSA/OCS/RB/QC 完成
+
+### 下一步優先順序
+1. IE細表界面全面修正（最高優先）
+2. allocation 勾選表邏輯修正（按IE表分區展開）
+3. 把中樞電腦 atlas.db 複製到 ME129
+4. Excel 導出/導入功能
+5. 同一ART階段對比頁面
+
+---
 
 ---
 
