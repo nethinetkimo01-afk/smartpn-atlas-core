@@ -1,309 +1,399 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="utf-8">
-<title>廠務編制表</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>廠務組織編制表</title>
 <style>
+/* ── Identical to ie_cell_detail.html CSS ───────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Microsoft JhengHei','Segoe UI',Arial,sans-serif;font-size:13px;background:#f5f7fa;color:#333}
-.topbar{background:#1e3a5f;color:#fff;padding:10px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.topbar h1{font-size:16px;font-weight:600;margin-right:auto}
-.topbar a{color:#adc8f0;text-decoration:none;font-size:12px}
-.toolbar{background:#fff;border-bottom:1px solid #dde;padding:8px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.toolbar label{font-size:12px;color:#666;display:flex;gap:4px;align-items:center}
-.toolbar select{padding:4px 8px;border:1px solid #ccd;border-radius:4px;font-size:12px}
-.btn{padding:5px 13px;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600}
-.btn-dl{background:#2e7d32;color:#fff}
-.btn-imp{background:#1565c0;color:#fff}
-
-/* Sheet Tabs */
-.sheet-tabs{display:flex;gap:0;border-bottom:2px solid #c5d0e0;background:#fff;padding:0 16px}
-.sheet-tab{padding:8px 22px;font-size:13px;font-weight:600;cursor:pointer;color:#5a7099;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap}
-.sheet-tab.active{color:#1e3a5f;border-bottom-color:#2d5a9e}
-.sheet-tab:hover:not(.active){background:#f0f4fa}
-
-.content{padding:12px 16px;overflow-x:auto}
-.tab-panel{display:none}
-.tab-panel.active{display:block}
-
-/* CSA LEAN groups */
-.lean-group{margin-bottom:14px;border:1px solid #c5d0e0;border-radius:6px;overflow:hidden}
-.lean-hdr{background:#2d5a9e;color:#fff;padding:7px 12px;display:flex;align-items:center;gap:14px;font-weight:600;font-size:13px;flex-wrap:wrap}
-.lean-hdr .lc{font-family:monospace;background:#1e3a5f;padding:2px 8px;border-radius:3px;font-size:13px}
-.lean-hdr .lean-qty{font-size:12px;font-weight:400;opacity:.9}
-.lean-hdr .lean-hc-area{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:400}
-.lean-hc-input{width:72px;padding:3px 6px;border:1px solid rgba(255,255,255,.4);border-radius:4px;font-size:12px;text-align:center;background:rgba(255,255,255,.15);color:#fff}
-.lean-hc-input::placeholder{color:rgba(255,255,255,.5)}
-.lean-hc-input:focus{outline:none;background:rgba(255,255,255,.25);border-color:#fff}
-
-table{width:100%;border-collapse:collapse;font-size:12px}
-thead tr{background:#e8eef8}
-th{padding:5px 8px;text-align:center;font-weight:600;color:#1e3a5f;border-bottom:1px solid #c5d0e0;white-space:nowrap;font-size:11px}
-th.al{text-align:left}
-td{padding:4px 8px;border-bottom:1px solid #eef;vertical-align:middle;text-align:center}
-td.al{text-align:left}
-tr.no-ie-row td{color:#aaa}
-.badge-out{background:#ff9800;color:#fff;font-size:10px;padding:1px 5px;border-radius:3px;margin-left:4px}
-.badge-noie{background:#bdbdbd;color:#fff;font-size:10px;padding:1px 5px;border-radius:3px}
-.mp-val{font-weight:600;color:#1565c0}
-.zero-mp{color:#bbb}
-.manual-input{width:68px;padding:2px 5px;border:1px solid #ccd;border-radius:3px;font-size:12px;text-align:center;background:#fffde7}
-
-/* OCS/RB/QC */
-.section-hdr{background:#2d5a9e;color:#fff;padding:6px 14px;font-weight:600;font-size:13px;margin-top:12px;border-radius:4px 4px 0 0}
-.dept-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px}
-.dept-table th{background:#e8eef8;color:#1e3a5f;padding:5px 10px;text-align:center;border:1px solid #c5d0e0;font-size:11px;font-weight:600}
-.dept-table th.al{text-align:left}
-.dept-table td{border:1px solid #eef;padding:4px 10px;text-align:center;vertical-align:middle}
-.dept-table td.al{text-align:left}
-.dept-input{width:70px;padding:2px 5px;border:1px solid #ccd;border-radius:3px;font-size:12px;text-align:center;background:#fffde7}
-.shoe-input{width:100%;padding:2px 5px;border:1px solid #ccd;border-radius:3px;font-size:11px;background:#fffde7}
-.readonly-hc{color:#888;font-size:12px}
-
-.no-data{text-align:center;padding:40px;color:#999}
-.loading{text-align:center;padding:40px;color:#888}
-.toast{position:fixed;bottom:20px;right:20px;background:#1e3a5f;color:#fff;padding:9px 16px;border-radius:5px;font-size:12px;display:none;z-index:999}
+body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#FFFFFF;color:#1C1C1E;min-height:100vh}
+.topbar{background:#F5F5F7;color:#1D1D1F;padding:9px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;border-bottom:1px solid #E5E5EA;flex-wrap:wrap}
+.topbar-title{font-size:14px;font-weight:700;white-space:nowrap}
+.topbar-spacer{flex:1}
+.back-link{color:#1D1D1F;text-decoration:none;font-size:11px;display:flex;align-items:center;gap:4px}
+.back-link:hover{color:#0066CC}
+.btn-sm{background:#007AFF;color:#fff;border:none;border-radius:5px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer}
+.btn-sm:hover{background:#0066CC}
+.btn-outline{background:transparent;color:#1D1D1F;border:1px solid #C7C7CC;border-radius:5px;padding:5px 12px;font-size:12px;cursor:pointer}
+.btn-outline:hover{background:#E5E5EA}
+.stage-select{background:#F5F5F7;color:#1D1D1F;border:1px solid #C7C7CC;border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;min-width:110px}
+.content{padding:16px 18px;display:flex;flex-direction:column;gap:14px}
+.zone-card{background:#fff;border-radius:8px;border:1px solid #E5E5EA;overflow:hidden}
+.zone-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#F5F5F7;border-bottom:1px solid #E5E5EA}
+.zone-name{font-size:12px;font-weight:700;color:#1C1C1E}
+.zone-count{font-size:10px;color:#8E8E93;margin-left:6px}
+.zone-actions{display:flex;align-items:center;gap:6px}
+.zone-body{overflow-x:auto}
+.proc-table{border-collapse:collapse;width:100%;font-size:11px;border:1px solid #E5E5EA}
+.proc-table th{background:#1C1C1E;color:#fff;padding:5px 8px;text-align:center;font-size:10px;font-weight:600;white-space:nowrap;border:1px solid #3A3A3C}
+.proc-table th.left{text-align:left}
+.proc-table td{padding:4px 8px;border:1px solid #E5E5EA;vertical-align:middle;white-space:nowrap;color:#1C1C1E;background:#fff}
+.proc-table td.left{text-align:left;max-width:220px;white-space:normal;line-height:1.4}
+.proc-table td.num{text-align:right;color:#1C1C1E;font-family:Consolas,monospace}
+.formula-cell{color:#8E8E93;text-align:right;font-family:Consolas,monospace;cursor:default;background:#fff;border:1px solid #E5E5EA}
+.actual-cell{color:#1C1C1E;text-align:right;font-family:Consolas,monospace;font-weight:600;background:#fff;border:1px solid #C7C7CC;padding:0}
+.bz-inp{width:100%;border:none;border-radius:0;padding:3px 6px;font-size:11px;font-family:Consolas,monospace;text-align:right;outline:none;background:#fff;color:#1C1C1E;-moz-appearance:textfield}
+.bz-inp:focus{box-shadow:inset 0 0 0 2px #007AFF}
+.bz-inp::-webkit-outer-spin-button,.bz-inp::-webkit-inner-spin-button{-webkit-appearance:none}
+.subtotal-row td{background:#F5F5F7;font-weight:700}
+.total-row td{background:#F2F2F7;font-weight:700;border-top:2px solid #C7C7CC}
+.lean-card{background:#fff;border-radius:8px;border:1px solid #E5E5EA;overflow:hidden;margin-bottom:10px}
+.lean-hdr{display:flex;align-items:center;padding:7px 12px;background:#F5F5F7;border-bottom:1px solid #E5E5EA;cursor:pointer;user-select:none;gap:10px}
+.lean-hdr:hover{background:#EBEBEF}
+.lean-label{font-size:12px;font-weight:700;color:#1C1C1E;min-width:44px}
+.lean-total-bz{font-size:11px;color:#8E8E93;font-family:Consolas,monospace}
+.lean-total-k{font-size:10px;color:#8E8E93;font-family:Consolas,monospace}
+.lean-collapse-arrow{margin-left:auto;color:#8E8E93;font-size:12px;transition:transform .15s}
+.lean-body{overflow-x:auto}
+.lean-major-hdr{background:#1C1C1E;color:#fff;padding:5px 12px;font-size:11px;font-weight:700;border-bottom:1px solid #3A3A3C}
+.no-data{padding:40px;text-align:center;color:#8E8E93;font-size:13px}
+.loading-msg{padding:40px;text-align:center;color:#8E8E93;font-size:13px}
+.error-msg{padding:20px;color:#FF3B30;font-size:12px}
+.toast{position:fixed;bottom:20px;right:20px;background:#1C1C1E;color:#fff;padding:8px 16px;border-radius:6px;font-size:12px;display:none;z-index:999;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.monthly-table{width:100%;border-collapse:collapse}
+.monthly-table td{padding:5px 10px;border-bottom:1px solid #E5E5EA;font-size:11px;vertical-align:middle}
+.monthly-table td:first-child{color:#8E8E93;font-weight:600;min-width:160px;white-space:nowrap}
+.monthly-table td:last-child{text-align:right;font-family:Consolas,monospace;color:#1C1C1E}
+.monthly-table tr:last-child td{border-bottom:none}
+.mval-formula{color:#8E8E93}
+.mval-strong{font-weight:700;color:#007AFF}
+.badge-outsource{background:#FFF3E0;color:#E65100;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:4px;font-weight:600}
+.badge-noie{background:#F2F2F7;color:#8E8E93;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:4px}
 </style>
 </head>
 <body>
 <div class="topbar">
-  <h1>廠務編制表</h1>
-  <a href="/ds04">← DS-04</a>
-  <a href="/eolr-settings">EOLR設定</a>
-  <a href="/allocation">勾選表</a>
-</div>
-
-<div class="toolbar">
-  <label>月份
-    <select id="selMonth" onchange="loadAll()">
+  <a class="back-link" href="/ds04">← DS-04</a>
+  <div class="topbar-title">廠務組織編制表</div>
+  <label style="font-size:11px;color:#8E8E93;display:flex;align-items:center;gap:4px">月份
+    <select class="stage-select" id="selMonth" onchange="loadAll()">
       <option value="2026-05">2026-05</option>
       <option value="2026-06" selected>2026-06</option>
       <option value="2026-07">2026-07</option>
     </select>
   </label>
-  <button class="btn btn-dl" onclick="exportXlsx()">⬇ 匯出 Excel</button>
-  <label class="btn btn-imp" style="cursor:pointer">
-    ⬆ 導入 Excel
+  <div class="topbar-spacer"></div>
+  <a href="/eolr-settings" style="font-size:11px;color:#8E8E93;text-decoration:none">EOLR設定</a>
+  <a href="/allocation"    style="font-size:11px;color:#8E8E93;text-decoration:none">勾選表</a>
+  <button class="btn-sm"  onclick="exportXlsx()">⬇ 匯出</button>
+  <label class="btn-outline" style="cursor:pointer;font-size:12px">⬆ 匯入
     <input type="file" accept=".xlsx" style="display:none" onchange="importXlsx(this)">
   </label>
 </div>
 
-<div class="sheet-tabs">
-  <div class="sheet-tab active" onclick="switchTab('CSA')">CSA</div>
-  <div class="sheet-tab" onclick="switchTab('OCS')">OCS</div>
-  <div class="sheet-tab" onclick="switchTab('RB')">RB</div>
-  <div class="sheet-tab" onclick="switchTab('QC')">QC</div>
-</div>
-
 <div class="content">
-  <div id="tab-CSA" class="tab-panel active"><div class="loading">載入中...</div></div>
-  <div id="tab-OCS" class="tab-panel"><div class="loading">載入中...</div></div>
-  <div id="tab-RB"  class="tab-panel"><div class="loading">載入中...</div></div>
-  <div id="tab-QC"  class="tab-panel"><div class="loading">載入中...</div></div>
+  <!-- ══ 上半：各單位編制總表 ══ -->
+  <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap">
+    <!-- 單位表 -->
+    <div class="zone-card" style="flex:1;min-width:480px">
+      <div class="zone-header">
+        <span class="zone-name">各單位編制總表</span>
+        <span class="zone-count" id="summaryMonth"></span>
+      </div>
+      <div class="zone-body">
+        <table class="proc-table" id="unitTable">
+          <thead>
+            <tr>
+              <th class="left" rowspan="2">單位</th>
+              <th colspan="2">直工</th>
+              <th colspan="2">間工</th>
+              <th colspan="2">直間比</th>
+            </tr>
+            <tr>
+              <th>上月</th><th>本月</th>
+              <th>上月</th><th>本月</th>
+              <th>上月</th><th>本月</th>
+            </tr>
+          </thead>
+          <tbody id="unitTableBody">
+            <tr><td colspan="7" class="loading-msg" style="padding:20px">載入中…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 月度數字 -->
+    <div class="zone-card" style="min-width:300px">
+      <div class="zone-header"><span class="zone-name">月度數字</span></div>
+      <div class="zone-body" id="monthlyPanel">
+        <div class="loading-msg" style="padding:20px">載入中…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 下半：CSA LEAN 明細 ══ -->
+  <div class="zone-card">
+    <div class="zone-header">
+      <span class="zone-name">CSA 明細</span>
+      <span class="zone-count" id="detailCount"></span>
+    </div>
+    <div id="csaDetailContainer" style="padding:10px 14px">
+      <div class="loading-msg">載入中…</div>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const LEAN_ORDER = [
-  '1A','1B','1C','2A','2B','2C','3A','3B','3C','4A','4B','4C',
-  '5A','5B','5C','6A','6B','6C','7A','7B','7C','8A','8B','8C',
-  '9A','9B','9C','10A','10B','10C','11A1','11A2','11B1','11B2','11C'
-];
-function leanKey(l){ const i=LEAN_ORDER.indexOf(l); return i>=0?i:999; }
+const MONTH_KEYS = ['avg_lc','working_hours','external_hours','deduct_hours','actual_direct'];
+const MONTH_LABELS = {
+  total_qty:       '本月進度表總量',
+  avg_lc:          '本月平均LC',
+  direct_planned:  '本月預計直工數',
+  working_hours:   '本月平均上班時數',
+  total_manhours:  '預計總工時',
+  external_hours:  '本月預計發外工時',
+  deduct_hours:    '本月預計扣減工時',
+  planned_eff:     '本月預計效率',
+  target80_direct: '達80%效率需直工數',
+  actual_direct:   '本月實際直工數',
+  actual_eff:      '本月實際效率',
+};
+const MANUAL_MONTH_KEYS = new Set(['avg_lc','working_hours','external_hours','deduct_hours','actual_direct']);
+const MANUAL_UNIT_FIELDS = new Set(['direct_last','indirect_last','indirect_this']); // direct_this for non-CSA
+const FORMULA_UNITS = new Set(['CSA','C2B合計','合計']);
 
-let _csaRows = [], _leanHc = {};
+let _summaryData = null, _detailData = null, _CAN_EDIT = false;
 
 function month(){ return document.getElementById('selMonth').value; }
 
-function switchTab(tab){
-  document.querySelectorAll('.sheet-tab').forEach((t,i)=>{
-    t.classList.toggle('active',['CSA','OCS','RB','QC'][i]===tab);
-  });
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  const panel=document.getElementById('tab-'+tab);
-  if(panel) panel.classList.add('active');
-  if(tab==='OCS') loadDept('OCS');
-  else if(tab==='RB') loadDept('RB');
-  else if(tab==='QC') loadDept('QC');
+async function loadAll() {
+  document.getElementById('unitTableBody').innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:#8E8E93">載入中…</td></tr>';
+  document.getElementById('monthlyPanel').innerHTML = '<div class="loading-msg" style="padding:20px">載入中…</div>';
+  document.getElementById('csaDetailContainer').innerHTML = '<div class="loading-msg">載入中…</div>';
+  document.getElementById('summaryMonth').textContent = month();
+
+  const [sumR, detR, ceR] = await Promise.all([
+    fetch(`/api/bianzhi/summary?month=${month()}`).then(r=>r.json()).catch(()=>({ok:false})),
+    fetch(`/api/bianzhi/detail?month=${month()}`).then(r=>r.json()).catch(()=>({ok:false})),
+    fetch('/api/ie/1/can_edit').then(r=>r.json()).catch(()=>({can_edit:false})), // proxy for manager check
+  ]);
+  // Actually use require_manager for bianzhi: check /api/bianzhi/can_edit or just test
+  _CAN_EDIT = (ceR && ceR.can_edit === true);
+
+  if (sumR.ok) { _summaryData = sumR; renderSummary(sumR); }
+  else document.getElementById('unitTableBody').innerHTML = `<tr><td colspan="7" class="error-msg">${esc(sumR.error||'載入失敗')}</td></tr>`;
+
+  if (detR.ok) { _detailData = detR; renderDetail(detR); }
+  else document.getElementById('csaDetailContainer').innerHTML = `<div class="error-msg">${esc(detR.error||'載入失敗')}</div>`;
 }
 
-function loadAll(){ loadCSA(); }
+// ══ SUMMARY ══
+function renderSummary(data) {
+  const units = data.units || [];
+  let tbody = '';
+  for (const u of units) {
+    const isSubtotal = u.is_subtotal;
+    const isTotal    = u.is_total;
+    const cls = isTotal ? 'total-row' : (isSubtotal ? 'subtotal-row' : '');
 
-// ════════════════════ CSA ════════════════════
-async function loadCSA(){
-  const m=month();
-  document.getElementById('tab-CSA').innerHTML='<div class="loading">計算中...</div>';
-  try{
-    const res=await fetch(`/api/bianche/csa?month=${m}`).then(r=>r.json());
-    if(!res.ok){document.getElementById('tab-CSA').innerHTML=`<div class="no-data">錯誤: ${res.error||'未知'}</div>`;return;}
-    _csaRows=res.rows||[];
-    _leanHc=res.lean_hc||{};
-    renderCSA();
-  }catch(e){
-    document.getElementById('tab-CSA').innerHTML=`<div class="no-data">載入失敗: ${e}</div>`;
+    const dtCell = (u.unit==='CSA' || u.formula_direct)
+      ? `<td class="formula-cell">${fmtN(u.direct_this)}</td>`
+      : (isSubtotal||isTotal)
+        ? `<td class="formula-cell">${fmtN(u.direct_this)}</td>`
+        : `<td class="actual-cell"><input class="bz-inp" type="number" step="1" value="${u.direct_this??''}" placeholder=""
+             onblur="saveUnitField('${esc(u.unit)}','direct_this',this)" ${_CAN_EDIT?'':'disabled'}></td>`;
+
+    tbody += `<tr class="${cls}">
+      <td class="left">${esc(u.unit)}</td>
+      <td class="actual-cell"><input class="bz-inp" type="number" step="1" value="${u.direct_last??''}" placeholder=""
+        onblur="saveUnitField('${esc(u.unit)}','direct_last',this)" ${_CAN_EDIT&&!isSubtotal&&!isTotal?'':'disabled'}></td>
+      ${dtCell}
+      <td class="actual-cell"><input class="bz-inp" type="number" step="1" value="${u.indirect_last??''}" placeholder=""
+        onblur="saveUnitField('${esc(u.unit)}','indirect_last',this)" ${_CAN_EDIT&&!isSubtotal&&!isTotal?'':'disabled'}></td>
+      <td class="actual-cell"><input class="bz-inp" type="number" step="1" value="${u.indirect_this??''}" placeholder=""
+        onblur="saveUnitField('${esc(u.unit)}','indirect_this',this)" ${_CAN_EDIT&&!isSubtotal&&!isTotal?'':'disabled'}></td>
+      <td class="formula-cell">${fmtRatio(u.ratio_last)}</td>
+      <td class="formula-cell">${fmtRatio(u.ratio_this)}</td>
+    </tr>`;
   }
-}
+  document.getElementById('unitTableBody').innerHTML = tbody;
 
-function renderCSA(){
-  if(!_csaRows.length){document.getElementById('tab-CSA').innerHTML='<div class="no-data">無資料（DS-04 尚無訂單）</div>';return;}
-
-  const byLean={};
-  _csaRows.forEach(r=>{byLean[r.lean]=byLean[r.lean]||[];byLean[r.lean].push(r);});
-
-  let html='';
-  const sortedLeans=Object.keys(byLean).sort((a,b)=>leanKey(a)-leanKey(b));
-
-  for(const lean of sortedLeans){
-    const lrows=byLean[lean];
-    const totalQty=lrows.reduce((s,r)=>s+(r.qty||0),0);
-    const hcVal=_leanHc[lean]!=null?_leanHc[lean]:'';
-
-    html+=`<div class="lean-group">
-      <div class="lean-hdr">
-        <span class="lc">${esc(lean)}</span>
-        <span class="lean-qty">總訂單: ${totalQty.toLocaleString()} 雙</span>
-        <span class="lean-hc-area">編制:
-          <input class="lean-hc-input" type="number" step="1" value="${hcVal}"
-            placeholder="0" onchange="saveLeanHc(${JSON.stringify(lean)},this.value,this)">
-        </span>
-      </div>
-      <table><thead><tr>
-        <th class="al">鞋型名稱</th>
-        <th class="al">ART</th>
-        <th>訂單</th>
-        <th>裁斷MP</th>
-        <th>針車MP</th>
-        <th>成型MP</th>
-        <th>協理給</th>
-      </tr></thead><tbody>`;
-
-    lrows.forEach(r=>{
-      const noIe=!r.has_ie;
-      const rc=noIe?'no-ie-row':'';
-      html+=`<tr class="${rc}">
-        <td class="al">${esc(r.model_name)}
-          ${r.is_outsource?'<span class="badge-out">外包鞋面</span>':''}
-          ${noIe?'<span class="badge-noie">無IE</span>':''}
-        </td>
-        <td class="al" style="font-size:11px;color:#5a7099">${esc(r.arts)}</td>
-        <td>${(r.qty||0).toLocaleString()}</td>
-        <td class="${mpCls(r.cutting_mp)}">${fmtN(r.cutting_mp)}</td>
-        <td class="${mpCls(r.stitching_mp)}">${fmtN(r.stitching_mp)}</td>
-        <td class="${mpCls(r.assembly_mp)}">${fmtN(r.assembly_mp)}</td>
-        <td><input class="manual-input" type="number" step="0.01"
-          value="${r.manager_mp||''}" placeholder="0"
-          onchange="saveModelManual(${JSON.stringify(lean)},${JSON.stringify(r.model_name)},this.value,this)">
-        </td>
-      </tr>`;
-    });
-
-    html+='</tbody></table></div>';
+  // Monthly
+  const m = data.monthly || {};
+  let mhtml = '<table class="monthly-table">';
+  for (const [k, label] of Object.entries(MONTH_LABELS)) {
+    const val = m[k];
+    const isManual = MANUAL_MONTH_KEYS.has(k);
+    let cell;
+    if (isManual) {
+      cell = `<td><input class="bz-inp" type="number" step="0.01" style="width:90px;border:1px solid #C7C7CC;border-radius:3px;text-align:right"
+        value="${val??''}" onblur="saveMonthlyKey('${k}',this)" ${_CAN_EDIT?'':'disabled'}></td>`;
+    } else {
+      cell = `<td class="mval-formula">${fmtM(k,val)}</td>`;
+    }
+    mhtml += `<tr><td>${esc(label)}</td>${cell}</tr>`;
   }
-  document.getElementById('tab-CSA').innerHTML=html;
+  mhtml += '</table>';
+  document.getElementById('monthlyPanel').innerHTML = mhtml;
 }
 
-async function saveLeanHc(lean, val, input){
-  const r=await fetch('/api/bianche/lean_hc',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({lean, month:month(), headcount:parseFloat(val)||0})
-  }).then(r=>r.json());
-  if(!r.ok){input.style.borderColor='red';showToast('儲存失敗');}
-  else{input.style.borderColor='';_leanHc[lean]=parseFloat(val)||0;showToast('已儲存');}
+function fmtRatio(v) {
+  if (v == null || v === '-') return '<span style="color:#C7C7CC">—</span>';
+  if (typeof v === 'string') return v;
+  return parseFloat(v).toFixed(2);
+}
+function fmtM(key, v) {
+  if (v == null) return '<span style="color:#C7C7CC">—</span>';
+  if (key === 'planned_eff' || key === 'actual_eff') return `<span class="mval-strong">${(v*100).toFixed(2)}%</span>`;
+  if (key === 'total_qty' || key === 'total_manhours') return Math.round(v).toLocaleString();
+  if (key === 'target80_direct' || key === 'direct_planned') return `<span class="mval-strong">${Math.round(v)}</span>`;
+  return String(v);
 }
 
-async function saveModelManual(lean, model_name, val, input){
-  const r=await fetch('/api/bianche/model_manual',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({lean, model_name, month:month(), manager_mp:parseFloat(val)||0})
-  }).then(r=>r.json());
-  if(!r.ok){input.style.borderColor='red';showToast('儲存失敗');}
-  else{input.style.borderColor='';showToast('已儲存');}
-}
-
-// ════════════════════ OCS / RB / QC ════════════════════
-async function loadDept(dept){
-  const m=month();
-  const panel=document.getElementById('tab-'+dept);
-  panel.innerHTML='<div class="loading">載入中...</div>';
-  try{
-    const res=await fetch(`/api/bianche/dept/${dept}?month=${m}`).then(r=>r.json());
-    if(!res.ok){panel.innerHTML=`<div class="no-data">錯誤: ${res.error||''}</div>`;return;}
-    renderDept(dept, res.sections||[], panel);
-  }catch(e){
-    panel.innerHTML=`<div class="no-data">載入失敗: ${e}</div>`;
+// ══ DETAIL ══
+function renderDetail(data) {
+  const leans = data.leans || [];
+  if (!leans.length) {
+    document.getElementById('csaDetailContainer').innerHTML = '<div class="no-data">無資料（DS-04 尚無已排程訂單）</div>';
+    document.getElementById('detailCount').textContent = '';
+    return;
   }
+
+  // Group by lean_major
+  const majors = {};
+  for (const lg of leans) {
+    const maj = lg.lean_major || '?';
+    if (!majors[maj]) majors[maj] = [];
+    majors[maj].push(lg);
+  }
+
+  let html = '';
+  let totalModels = 0;
+  for (const [maj, leanGroups] of Object.entries(majors).sort((a,b)=>+a[0]-(+b[0]))) {
+    html += `<div class="lean-major-hdr">LEAN ${maj}</div>`;
+    for (const lg of leanGroups) {
+      const leanId = 'lean-' + lg.lean.replace(/[^a-zA-Z0-9]/g,'_');
+      totalModels += lg.models.length;
+      html += `<div class="lean-card" id="${leanId}">
+        <div class="lean-hdr" onclick="toggleLean('${esc(lg.lean)}')">
+          <span class="lean-label">${esc(lg.lean)}</span>
+          <span style="font-size:10px;color:#8E8E93">EOLR ${lg.eolr}</span>
+          <span class="lean-total-bz">編制 <b>${fmtN(lg.total_bianzhi)}</b></span>
+          <span class="lean-collapse-arrow" id="arr-${leanId}">▼</span>
+        </div>
+        <div class="lean-body" id="body-${leanId}">
+          ${renderLeanTable(lg)}
+        </div>
+      </div>`;
+    }
+  }
+  document.getElementById('csaDetailContainer').innerHTML = html;
+  document.getElementById('detailCount').textContent = `${leans.length} 個LEAN組 / ${totalModels} 款`;
 }
 
-function renderDept(dept, sections, panel){
-  let html='';
-  sections.forEach(sec=>{
-    const isShoe=(dept==='OCS' && sec.section==='大底課');
-    html+=`<div class="section-hdr">${esc(sec.section)}</div>
-    <table class="dept-table"><thead><tr>
-      <th class="al">組別</th>`;
-    if(isShoe) html+=`<th class="al">鞋型明細</th>`;
-    html+=`<th>上月編制</th><th>本月編制</th></tr></thead><tbody>`;
-
-    sec.groups.forEach(g=>{
-      const key=`${esc(dept)}||${esc(g.group)}`;
-      html+=`<tr>
-        <td class="al">${esc(g.group)}</td>`;
-      if(isShoe){
-        html+=`<td class="al"><input class="shoe-input" value="${esc(g.shoe_detail||'')}"
-          onchange="saveDeptShoe(${JSON.stringify(dept)},${JSON.stringify(g.group)},this.value,this,${JSON.stringify(g.this_month_hc)})"
-          placeholder="鞋型明細"></td>`;
-      }
-      html+=`<td class="readonly-hc">${g.last_month_hc!=null?g.last_month_hc:'—'}</td>
-        <td><input class="dept-input" type="number" step="1"
-          value="${g.this_month_hc!=null?g.this_month_hc:''}"
-          onchange="saveDeptHc(${JSON.stringify(dept)},${JSON.stringify(g.group)},this.value,this)"
-          placeholder="0"></td>
-      </tr>`;
-    });
-    html+='</tbody></table>';
-  });
-  panel.innerHTML=html||'<div class="no-data">無組別設定</div>';
+function toggleLean(lean) {
+  const leanId = 'lean-' + lean.replace(/[^a-zA-Z0-9]/g,'_');
+  const body = document.getElementById('body-' + leanId);
+  const arr  = document.getElementById('arr-' + leanId);
+  if (!body) return;
+  const hidden = body.style.display === 'none';
+  body.style.display = hidden ? '' : 'none';
+  if (arr) arr.style.transform = hidden ? '' : 'rotate(-90deg)';
 }
 
-async function saveDeptHc(dept, grp, val, input){
-  const r=await fetch('/api/bianche/dept_hc',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({dept, group:grp, month:month(), headcount:parseFloat(val)||0})
-  }).then(r=>r.json());
-  if(!r.ok){input.style.borderColor='red';showToast('儲存失敗');}
-  else{input.style.borderColor='';showToast('已儲存');}
+function renderLeanTable(lg) {
+  const rows = lg.models || [];
+  if (!rows.length) return '<div class="no-data" style="padding:16px">無訂單</div>';
+  let h = `<table class="proc-table">
+    <thead><tr>
+      <th class="left" style="min-width:160px">鞋型 / ART</th>
+      <th>訂單量</th>
+      <th>裁斷</th><th>針車</th><th>成型</th>
+      <th>合計K</th>
+      <th style="min-width:70px">編制</th>
+      <th title="同材共裁/自動裁斷/折邊">外移P</th>
+      <th title="電腦針車">外移Q</th>
+      <th title="大底課">外移R</th>
+      <th>C2B</th>
+    </tr></thead><tbody>`;
+
+  for (const r of rows) {
+    const noIe = !r.has_ie;
+    h += `<tr>
+      <td class="left">${esc(r.model_name)}${r.is_outsource?'<span class="badge-outsource">外包</span>':''}${noIe?'<span class="badge-noie">無IE</span>':''}<div style="font-size:9px;color:#8E8E93;margin-top:1px">${esc(r.arts)}</div></td>
+      <td class="formula-cell">${r.qty?r.qty.toLocaleString():''}</td>
+      <td class="formula-cell">${fmtN(r.cutting)}</td>
+      <td class="formula-cell">${fmtN(r.stitching)}</td>
+      <td class="formula-cell">${fmtN(r.assembly)}</td>
+      <td class="formula-cell">${fmtN(r.total_k)}</td>
+      <td class="actual-cell"><input class="bz-inp" type="number" step="0.5"
+        value="${r.bianzhi??''}" placeholder=""
+        onblur="saveBianzhi('${esc(lg.lean)}','${esc(r.model_name)}',this)"
+        ${_CAN_EDIT?'':'disabled'}></td>
+      <td class="formula-cell">${fmtN(r.p_ext)||'0'}</td>
+      <td class="formula-cell">${fmtN(r.q_ext)||'0'}</td>
+      <td class="formula-cell">${fmtN(r.r_ext)||'0'}</td>
+      <td class="formula-cell">${fmtN(r.c2b)}</td>
+    </tr>`;
+  }
+  h += '</tbody></table>';
+  return h;
 }
 
-async function saveDeptShoe(dept, grp, shoeDetail, input, currentHc){
-  const r=await fetch('/api/bianche/dept_hc',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({dept, group:grp, month:month(), headcount:currentHc||0, shoe_detail:shoeDetail})
-  }).then(r=>r.json());
-  if(!r.ok){input.style.borderColor='red';}
-  else{input.style.borderColor='';}
+// ══ Save functions ══
+async function saveUnitField(unit, field, inp) {
+  const val = parseFloat(inp.value);
+  const r = await fetch('/api/bianzhi/unit_manual', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({month:month(), unit, field, value: isNaN(val)?null:val})
+  }).then(r=>r.json()).catch(()=>({ok:false}));
+  if (r.ok) { inp.style.boxShadow=''; showToast('已儲存'); loadSummaryOnly(); }
+  else { inp.style.boxShadow='inset 0 0 0 2px #FF3B30'; showToast('儲存失敗'); }
 }
 
-// ════════════════════ Export / Import ════════════════════
-function exportXlsx(){ window.location='/api/bianche/export?month='+month(); }
-async function importXlsx(input){
-  if(!input.files[0]) return;
-  const fd=new FormData();
-  fd.append('file',input.files[0]);
-  fd.append('month',month());
-  const r=await fetch('/api/bianche/import_manual',{method:'POST',body:fd}).then(r=>r.json());
-  input.value='';
-  if(r.ok){showToast(`導入完成：CSA ${r.updated_csa} 筆，部門 ${r.updated_dept} 筆`);loadAll();}
-  else alert('導入失敗: '+(r.error||''));
+async function saveMonthlyKey(key, inp) {
+  const val = parseFloat(inp.value);
+  const r = await fetch('/api/bianzhi/monthly_manual', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({month:month(), key, value: isNaN(val)?0:val})
+  }).then(r=>r.json()).catch(()=>({ok:false}));
+  if (r.ok) { inp.style.boxShadow=''; showToast('已儲存'); loadSummaryOnly(); }
+  else { inp.style.boxShadow='inset 0 0 0 2px #FF3B30'; showToast('儲存失敗'); }
 }
 
-// ════════════════════ Utils ════════════════════
-function mpCls(v){ if(v==null) return 'zero-mp'; return Number(v)?'mp-val':'zero-mp'; }
-function fmtN(v){ if(v==null) return '<span style="color:#bbb">—</span>'; const n=Number(v); return isNaN(n)?String(v):n.toFixed(2); }
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function showToast(msg){
-  const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';
-  clearTimeout(t._tid);t._tid=setTimeout(()=>t.style.display='none',2000);
+async function saveBianzhi(lean, modelName, inp) {
+  const val = parseFloat(inp.value);
+  const r = await fetch('/api/bianzhi/lean_bianzhi', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({lean, model_name:modelName, month:month(), bianzhi: isNaN(val)?null:val})
+  }).then(r=>r.json()).catch(()=>({ok:false}));
+  if (r.ok) { inp.style.boxShadow=''; showToast('已儲存'); loadSummaryOnly(); }
+  else { inp.style.boxShadow='inset 0 0 0 2px #FF3B30'; showToast('儲存失敗'); }
+}
+
+async function loadSummaryOnly() {
+  const sumR = await fetch(`/api/bianzhi/summary?month=${month()}`).then(r=>r.json()).catch(()=>({ok:false}));
+  if (sumR.ok) renderSummary(sumR);
+}
+
+// ══ Export / Import ══
+function exportXlsx() { window.location = '/api/bianche/export?month=' + month(); }
+async function importXlsx(inp) {
+  if (!inp.files[0]) return;
+  const fd = new FormData();
+  fd.append('file', inp.files[0]);
+  fd.append('month', month());
+  const r = await fetch('/api/bianche/import_manual', {method:'POST', body:fd}).then(r=>r.json());
+  inp.value = '';
+  if (r.ok) { showToast(`導入完成`); loadAll(); }
+  else alert('導入失敗: ' + (r.error||''));
+}
+
+// ══ Utils ══
+function fmtN(v) {
+  if (v == null) return '';
+  const n = Number(v);
+  if (isNaN(n)) return String(v);
+  return Number.isInteger(n) ? String(n) : parseFloat(n.toFixed(1)).toString();
+}
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function showToast(msg, ms=2000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(t._t); t._t = setTimeout(()=>t.style.display='none', ms);
 }
 
 loadAll();

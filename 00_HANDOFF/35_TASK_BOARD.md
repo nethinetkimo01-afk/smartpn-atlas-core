@@ -141,6 +141,7 @@ Version: v1.0 | 建立: 2026-06-13
 | 087 | IE細表修正：tooltip跟鼠+合併格白底黑框+佔位格補邊 | DATA SYSTEM | ✅完成 | 2026-06-18 | 2026-06-18 | tooltip改mousemove跟隨; renderGroupActualCell移rowspan改inline樣式; renderGroupPlaceholder補#E5E5EA邊框; renderCuttingRow/renderZoneCard改呼叫renderGroupPlaceholder; commit ebd9bd6 |
 | 088 | IE細表§9補完：無「—」+頂部列淺色+儲存▼下拉 | DATA SYSTEM | ✅完成 | 2026-06-18 | 2026-06-18 | 全格「—」→空白(含fmtNum/dv/ops/renderCell); body#FFF/topbar#F5F5F7淺灰; eolr-badge/stage-select/btn-outline全改淺色; 新建版本移除→「儲存▼」下拉(儲存/另存新階段); commit dff469d |
 | 089 | IE三件：語言切換不洗資料+data_entry權限+實測記錄+§十 | DATA SYSTEM | ✅完成 | 2026-06-18 | 2026-06-18 | setLang→DOM in-place(data-zh/vi); _can_edit_ie+can_edit endpoint+7條路由403; applyReadOnlyDOM; ie_operation_test_log.md; 27_WORKING_RULES §十; ie_list全開 |
+| 090 | 廠務組織編制表：bianche.html完整重建（Apple CSS+上半總表+下半CSA明細） | DATA SYSTEM | ✅完成 | 2026-06-18 | 2026-06-18 | bianche.html完全重建(同ie_cell_detail CSS); 上半13單位表(直工/間工/直間比)+月度數字; 下半CSA LEAN組折疊明細(裁斷/針車/成型/編制/外移/C2B); db.py+app.py新增bianzhi函數5條; bianzhi_compare_10.2024.md; bianzhi_operation_test_log.md |
 
 ## 待 Jim 決定（不擋工）
 

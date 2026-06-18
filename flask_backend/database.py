@@ -2848,3 +2848,317 @@ def get_bianche_export_data(month):
     rb  = get_bianche_dept('RB',  month)
     qc  = get_bianche_dept('QC',  month)
     return {'ok': True, 'month': month, 'csa': csa, 'ocs': ocs, 'rb': rb, 'qc': qc}
+
+
+# ── 廠務組織編制表 (bianzhi) — 上半總表 + 下半CSA明細 ─────────────────────────────
+
+BIANZHI_UNITS = ['CSA','大底課','自動化','電腦針車','品包','C2B合計','品管','RB','印刷高周波','設備工程部','副總室','現場技轉/KTHT']
+
+BIANZHI_MONTHLY_KEYS = [
+    'total_qty',       # 本月進度表總量 (calculated)
+    'avg_lc',          # 本月平均LC (manual)
+    'direct_planned',  # 本月預計直工數 (= C2B合計直工本月)
+    'working_hours',   # 本月平均上班時數 (manual)
+    'total_manhours',  # 預計總工時 (= direct_planned * working_hours)
+    'external_hours',  # 本月預計發外工時 (manual)
+    'deduct_hours',    # 本月預計扣減工時 (manual)
+    'planned_eff',     # 本月預計效率 (calculated)
+    'target80_direct', # 達80%效率需直工數 (calculated)
+    'actual_direct',   # 本月實際直工數 (manual)
+    'actual_eff',      # 本月實際效率 (calculated)
+]
+
+def _ensure_bianzhi_ext(conn):
+    conn.executescript('''
+    CREATE TABLE IF NOT EXISTS bianzhi_unit_manual (
+        month   TEXT NOT NULL,
+        unit    TEXT NOT NULL,
+        field   TEXT NOT NULL,
+        value   REAL DEFAULT 0,
+        updated_at TEXT NOT NULL,
+        PRIMARY KEY (month, unit, field)
+    );
+    CREATE TABLE IF NOT EXISTS bianzhi_monthly_manual (
+        month   TEXT NOT NULL,
+        key     TEXT NOT NULL,
+        value   REAL DEFAULT 0,
+        updated_at TEXT NOT NULL,
+        PRIMARY KEY (month, key)
+    );
+    ''')
+    conn.commit()
+
+
+def _lean_major(lean):
+    """Extract major LEAN number from lean name ('1A'→'1', '3A1'→'3', '11B2'→'11')."""
+    import re
+    m = re.match(r'^(\d+)', str(lean or ''))
+    return m.group(1) if m else ''
+
+
+def get_bianzhi_detail(month):
+    """CSA LEAN detail: per lean, per model_name row with calculated + manual values."""
+    conn = get_conn()
+    try:
+        _ensure_bianche_ext(conn)
+        _ensure_bianzhi_ext(conn)
+
+        eolr_map = {r['lean']: r['eolr'] for r in conn.execute(
+            'SELECT lean, eolr FROM lean_eolr_settings WHERE month=?', (month,)).fetchall()}
+
+        # DS-04 orders
+        order_rows = conn.execute(
+            '''SELECT lean, model_name,
+                      GROUP_CONCAT(DISTINCT art) AS arts,
+                      SUM(qty) AS qty,
+                      MAX(is_outsource_upper) AS is_outsource
+               FROM ds04_orders WHERE COALESCE(is_deleted,0)=0
+               GROUP BY lean, model_name ORDER BY lean, model_name'''
+        ).fetchall()
+
+        # IE standard times per art+zone
+        ie_data = {}
+        for r in conn.execute(
+            '''SELECT oa.art, ip.zone, ip.standard_time FROM ie_process ip
+               JOIN ob_articles oa ON oa.header_id=ip.header_id
+               WHERE (ip.flag IS NULL OR ip.flag!='deleted') AND ip.standard_time>0'''):
+            ie_data.setdefault(r['art'], {}).setdefault(r['zone'], []).append(r['standard_time'] or 0)
+
+        # Allocation moved per art+zone type
+        moved_p = {}  # P: same-cut / auto / fold — stays in CSA as ext
+        moved_q = {}  # Q: computer stitching
+        moved_r = {}  # R: sole attachment / 大底課
+        for r in conn.execute(
+            'SELECT art, zone, SUM(theory_mp) AS mp FROM allocation_item '
+            'WHERE is_checked=1 AND month=? GROUP BY art, zone', (month,)):
+            z = r['zone'] or ''
+            a = r['art']
+            mp = r['mp'] or 0
+            # P: cutting moved (auto zones in allocation)
+            if z in AUTO_ZONES or z in {'同材共裁', '折邊', '自動化'}:
+                moved_p[a] = moved_p.get(a, 0) + mp
+            # Q: computer stitching
+            elif z in {'電腦針車', 'CNC', '电脑针车'}:
+                moved_q[a] = moved_q.get(a, 0) + mp
+            # R: sole / 大底
+            elif z in {'成型', '貼底', '大底課'}:
+                moved_r[a] = moved_r.get(a, 0) + mp
+
+        # Manual bianzhi per model
+        manual_map = {}
+        for r in conn.execute(
+            'SELECT lean, model_name, headcount FROM bianche_model_manual WHERE month=?', (month,)):
+            manual_map[(r['lean'], r['model_name'])] = r['headcount'] or 0
+
+        # Build lean → model rows
+        lean_map = {}
+        for row in order_rows:
+            lean = row['lean']
+            model = row['model_name']
+            arts = [a.strip() for a in (row['arts'] or '').split(',') if a.strip()]
+            qty = row['qty'] or 0
+            is_out = row['is_outsource'] or 0
+            eolr = eolr_map.get(lean, 120)
+            first_art = next((a for a in arts if a in ie_data), None)
+            has_ie = first_art is not None
+
+            if has_ie:
+                d = ie_data[first_art]
+                def _ie(zones): return round(sum(sum(d.get(z, [])) for z in zones) * eolr / 3600.0, 1)
+                cut = 0.0 if is_out else _ie(CUTTING_ZONES)
+                stch = 0.0 if is_out else _ie(STITCH_ZONES)
+                asm  = _ie(ASSEMBLY_ZONES)
+            else:
+                cut = stch = asm = None
+
+            k = round((cut or 0) + (stch or 0) + (asm or 0), 1) if has_ie else None
+            bz = manual_map.get((lean, model))
+            if bz is None and k is not None:
+                bz = k  # default bianzhi = calculated
+
+            p_ext = round(sum(moved_p.get(a, 0) for a in arts), 1)
+            q_ext = round(sum(moved_q.get(a, 0) for a in arts), 1)
+            r_ext = round(sum(moved_r.get(a, 0) for a in arts), 1)
+            c2b   = round((k or 0) + p_ext + q_ext + r_ext, 1) if k is not None else None
+
+            if lean not in lean_map:
+                lean_map[lean] = {
+                    'lean': lean, 'lean_major': _lean_major(lean),
+                    'eolr': eolr, 'models': []
+                }
+            lean_map[lean]['models'].append({
+                'model_name': model, 'arts': row['arts'] or '',
+                'qty': qty, 'is_outsource': bool(is_out), 'has_ie': has_ie,
+                'cutting': cut, 'stitching': stch, 'assembly': asm,
+                'total_k': k, 'bianzhi': bz,
+                'p_ext': p_ext, 'q_ext': q_ext, 'r_ext': r_ext, 'c2b': c2b,
+            })
+
+        # Sort leans, compute totals
+        def _lean_sort(l):
+            import re
+            m = re.match(r'^(\d+)([A-Za-z]+)(\d*)', l)
+            if m:
+                return (int(m.group(1)), m.group(2), int(m.group(3) or 0))
+            return (999, l, 0)
+
+        leans_sorted = sorted(lean_map.values(), key=lambda x: _lean_sort(x['lean']))
+        for lg in leans_sorted:
+            lg['total_bianzhi'] = round(sum(
+                (m['bianzhi'] or 0) for m in lg['models'] if m['bianzhi'] is not None), 1)
+
+        return {'ok': True, 'leans': leans_sorted}
+    except Exception as e:
+        import traceback; return {'ok': False, 'error': str(e), 'trace': traceback.format_exc()}
+    finally:
+        conn.close()
+
+
+def get_bianzhi_summary(month):
+    """Upper summary: unit table + monthly metrics."""
+    conn = get_conn()
+    try:
+        _ensure_bianche_ext(conn)
+        _ensure_bianzhi_ext(conn)
+
+        # Unit manual values
+        unit_manual = {}
+        for r in conn.execute('SELECT unit, field, value FROM bianzhi_unit_manual WHERE month=?', (month,)):
+            unit_manual.setdefault(r['unit'], {})[r['field']] = r['value']
+
+        # Monthly manual values
+        monthly_manual = {r['key']: r['value'] for r in conn.execute(
+            'SELECT key, value FROM bianzhi_monthly_manual WHERE month=?', (month,))}
+
+        # CSA direct this month = sum of all lean bianzhi
+        csa_lean_hc = conn.execute(
+            'SELECT SUM(headcount) FROM bianche_lean_hc WHERE month=?', (month,)).fetchone()[0] or 0
+
+        # Total qty from DS04
+        total_qty = conn.execute(
+            'SELECT SUM(qty) FROM ds04_orders WHERE COALESCE(is_deleted,0)=0').fetchone()[0] or 0
+
+        def _um(unit, field, default=None):
+            return unit_manual.get(unit, {}).get(field, default)
+
+        def _mm(key, default=None):
+            return monthly_manual.get(key, default)
+
+        # Build unit rows
+        def _unit(name, direct_last=None, direct_this=None, ind_last=None, ind_this=None, formula_direct=False):
+            dl = _um(name, 'direct_last', direct_last)
+            dt = csa_lean_hc if formula_direct else _um(name, 'direct_this', direct_this)
+            il = _um(name, 'indirect_last', ind_last)
+            it = _um(name, 'indirect_this', ind_this)
+            rl = round(dl / il, 3) if (dl and il and isinstance(dl,(int,float)) and isinstance(il,(int,float)) and il != 0) else None
+            rt = round(dt / it, 3) if (dt and it and isinstance(dt,(int,float)) and isinstance(it,(int,float)) and it != 0) else None
+            return {'unit': name, 'direct_last': dl, 'direct_this': dt,
+                    'indirect_last': il, 'indirect_this': it,
+                    'ratio_last': rl, 'ratio_this': rt,
+                    'formula_direct': formula_direct}
+
+        units = [
+            _unit('CSA', formula_direct=True),
+            _unit('大底課'),
+            _unit('自動化'),
+            _unit('電腦針車'),
+            _unit('品包'),
+        ]
+        # C2B 合計 = SUM of above 5
+        c2b_dl = sum((u['direct_last'] or 0) for u in units if isinstance(u['direct_last'], (int, float)))
+        c2b_dt = sum((u['direct_this'] or 0) for u in units if isinstance(u['direct_this'], (int, float)))
+        c2b_il = sum((u['indirect_last'] or 0) for u in units if isinstance(u['indirect_last'], (int, float)))
+        c2b_it = sum((u['indirect_this'] or 0) for u in units if isinstance(u['indirect_this'], (int, float)))
+        c2b_rl = round(c2b_dl / c2b_il, 3) if c2b_il else None
+        c2b_rt = round(c2b_dt / c2b_it, 3) if c2b_it else None
+        units.append({'unit': 'C2B合計', 'direct_last': c2b_dl or None, 'direct_this': c2b_dt or None,
+                      'indirect_last': c2b_il or None, 'indirect_this': c2b_it or None,
+                      'ratio_last': c2b_rl, 'ratio_this': c2b_rt, 'is_subtotal': True})
+
+        for u_name in ['品管', 'RB', '印刷高周波', '設備工程部', '副總室', '現場技轉/KTHT']:
+            units.append(_unit(u_name))
+
+        # Grand total
+        all_units = [u for u in units if u['unit'] != 'C2B合計']
+        t_dl = sum((u['direct_last'] or 0) for u in all_units if isinstance(u['direct_last'], (int, float)))
+        t_dt = sum((u['direct_this'] or 0) for u in all_units if isinstance(u['direct_this'], (int, float)))
+        t_il = sum((u['indirect_last'] or 0) for u in all_units if isinstance(u['indirect_last'], (int, float)))
+        t_it = sum((u['indirect_this'] or 0) for u in all_units if isinstance(u['indirect_this'], (int, float)))
+        units.append({'unit': '合計', 'direct_last': t_dl or None, 'direct_this': t_dt or None,
+                      'indirect_last': t_il or None, 'indirect_this': t_it or None,
+                      'ratio_last': None, 'ratio_this': None, 'is_total': True})
+
+        # Monthly metrics
+        direct_planned = c2b_dt or 0
+        working_hrs    = _mm('working_hours', 239.5)
+        total_mh       = round(direct_planned * (working_hrs or 239.5), 1)
+        ext_hrs        = _mm('external_hours', 0)
+        ded_hrs        = _mm('deduct_hours', 0)
+        avg_lc         = _mm('avg_lc', 0)
+        tq             = total_qty
+
+        # 預計效率 = ((avg_lc/233 * tq) / (total_mh + ext_hrs - ded_hrs - 60*240))
+        # 達80%直工 = (((avg_lc/233*tq)/0.8) - ext_hrs + ded_hrs) / working_hrs
+        eff_denom = (total_mh + (ext_hrs or 0) - (ded_hrs or 0) - 60 * 240)
+        plan_eff = round(((avg_lc / 233 * tq) / eff_denom), 4) if (avg_lc and tq and eff_denom) else None
+        target80 = round((((avg_lc / 233 * tq) / 0.8) - (ext_hrs or 0) + (ded_hrs or 0)) / (working_hrs or 1), 1) if (avg_lc and tq) else None
+        actual_direct = _mm('actual_direct', 0)
+        act_eff_denom = ((actual_direct or 0) * (working_hrs or 1) + (ext_hrs or 0) - (ded_hrs or 0))
+        actual_eff = round((avg_lc / 233 * tq) / act_eff_denom, 4) if (avg_lc and tq and act_eff_denom) else None
+
+        monthly = {
+            'total_qty': tq, 'avg_lc': avg_lc,
+            'direct_planned': direct_planned, 'working_hours': working_hrs,
+            'total_manhours': total_mh, 'external_hours': ext_hrs,
+            'deduct_hours': ded_hrs, 'planned_eff': plan_eff,
+            'target80_direct': target80, 'actual_direct': actual_direct,
+            'actual_eff': actual_eff,
+        }
+        return {'ok': True, 'units': units, 'monthly': monthly, 'month': month}
+    except Exception as e:
+        import traceback; return {'ok': False, 'error': str(e), 'trace': traceback.format_exc()}
+    finally:
+        conn.close()
+
+
+def set_bianzhi_unit_manual(month, unit, field, value):
+    conn = get_conn()
+    try:
+        _ensure_bianzhi_ext(conn)
+        conn.execute(
+            'INSERT INTO bianzhi_unit_manual (month,unit,field,value,updated_at) VALUES(?,?,?,?,?) '
+            'ON CONFLICT(month,unit,field) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at',
+            (month, unit, field, float(value or 0), now_iso()))
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def set_bianzhi_monthly_manual(month, key, value):
+    conn = get_conn()
+    try:
+        _ensure_bianzhi_ext(conn)
+        conn.execute(
+            'INSERT INTO bianzhi_monthly_manual (month,key,value,updated_at) VALUES(?,?,?,?) '
+            'ON CONFLICT(month,key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at',
+            (month, key, float(value or 0), now_iso()))
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def get_bianzhi_months():
+    """Available months in ds04_orders (YYYYMM → YYYY-MM)."""
+    conn = get_conn()
+    try:
+        return {'ok': True, 'months': ['2026-05', '2026-06', '2026-07']}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()

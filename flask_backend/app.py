@@ -1048,6 +1048,41 @@ def eolr_settings_page():
 def bianche_page():
     return send_from_directory('..', 'bianche.html')
 
+# ── 廠務組織編制表 (bianzhi) ──────────────────────────────────────────────────
+
+@app.route('/api/bianzhi/summary', methods=['GET'])
+def bianzhi_summary():
+    month = request.args.get('month', '2026-06')
+    return jsonify(db.get_bianzhi_summary(month))
+
+@app.route('/api/bianzhi/detail', methods=['GET'])
+def bianzhi_detail():
+    month = request.args.get('month', '2026-06')
+    return jsonify(db.get_bianzhi_detail(month))
+
+@app.route('/api/bianzhi/lean_bianzhi', methods=['POST'])
+def bianzhi_lean_bianzhi():
+    err = _require_manager()
+    if err: return err
+    d = request.get_json(force=True)
+    return jsonify(db.set_bianche_model_manual(
+        d.get('lean'), d.get('model_name'), d.get('month'),
+        headcount=d.get('bianzhi')))
+
+@app.route('/api/bianzhi/unit_manual', methods=['POST'])
+def bianzhi_unit_manual():
+    err = _require_manager()
+    if err: return err
+    d = request.get_json(force=True)
+    return jsonify(db.set_bianzhi_unit_manual(d.get('month'), d.get('unit'), d.get('field'), d.get('value')))
+
+@app.route('/api/bianzhi/monthly_manual', methods=['POST'])
+def bianzhi_monthly_manual_post():
+    err = _require_manager()
+    if err: return err
+    d = request.get_json(force=True)
+    return jsonify(db.set_bianzhi_monthly_manual(d.get('month'), d.get('key'), d.get('value')))
+
 # ── DS-04 API ─────────────────────────────────────────────────────────────────
 
 @app.route('/api/ds04/order', methods=['POST'])
