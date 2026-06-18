@@ -140,6 +140,7 @@ Version: v1.0 | 建立: 2026-06-13
 | 086 | IE細表視覺全面重設計（Apple 風格） | DATA SYSTEM | ✅完成 | 2026-06-18 | 2026-06-18 | ie_cell_detail.html: 公式格#8E8E93灰字/#E5E5EA邊框/cursor:default; 手工格#1C1C1E黑字/#C7C7CC邊框/點擊#007AFF藍框; 表頭#1C1C1E白字統一; 刪除所有hover背景/綠橙highlight; JS inline border全改Apple色; commit 385bec7 |
 | 087 | IE細表修正：tooltip跟鼠+合併格白底黑框+佔位格補邊 | DATA SYSTEM | ✅完成 | 2026-06-18 | 2026-06-18 | tooltip改mousemove跟隨; renderGroupActualCell移rowspan改inline樣式; renderGroupPlaceholder補#E5E5EA邊框; renderCuttingRow/renderZoneCard改呼叫renderGroupPlaceholder; commit ebd9bd6 |
 | 088 | IE細表§9補完：無「—」+頂部列淺色+儲存▼下拉 | DATA SYSTEM | ✅完成 | 2026-06-18 | 2026-06-18 | 全格「—」→空白(含fmtNum/dv/ops/renderCell); body#FFF/topbar#F5F5F7淺灰; eolr-badge/stage-select/btn-outline全改淺色; 新建版本移除→「儲存▼」下拉(儲存/另存新階段); commit dff469d |
+| 089 | IE三件：語言切換不洗資料+data_entry權限+實測記錄+§十 | DATA SYSTEM | ✅完成 | 2026-06-18 | 2026-06-18 | setLang→DOM in-place(data-zh/vi); _can_edit_ie+can_edit endpoint+7條路由403; applyReadOnlyDOM; ie_operation_test_log.md; 27_WORKING_RULES §十; ie_list全開 |
 
 ## 待 Jim 決定（不擋工）
 

@@ -250,6 +250,18 @@ def get_assigned_header_ids(user_id):
     conn.close()
     return [r['header_id'] for r in rows]
 
+def get_header_id_by_process(process_id):
+    conn = get_conn()
+    row = conn.execute('SELECT header_id FROM ie_process WHERE id=?', (process_id,)).fetchone()
+    conn.close()
+    return row['header_id'] if row else None
+
+def get_header_id_by_group(group_id):
+    conn = get_conn()
+    row = conn.execute('SELECT header_id FROM ie_process_group WHERE id=?', (group_id,)).fetchone()
+    conn.close()
+    return row['header_id'] if row else None
+
 # ── IE Review Workflow ───────────────────────────────────────────────────────
 
 def submit_ie_review(header_id, stage_id, submitted_by):

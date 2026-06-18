@@ -322,3 +322,49 @@ ME129 開機 → 自動把 atlas.db 推送到不關機電腦
 選項B：階段對比頁面（並排顯示，直接對比差異）
 選項C：導出Excel查
 Jim 傾向 B，待確認後實作
+
+## 十、IE細表權限設計定案（2026-06-18）
+
+### 角色與權限
+
+| 角色 | 看 IE 列表 | 開細表 | 編輯格子 |
+|------|-----------|--------|---------|
+| admin | 全部 | 全部 | 全部 |
+| manager | 全部 | 全部 | 全部 |
+| data_entry | 全部（可見） | 全部 | 只限指派的鞋型 |
+| read_only | 全部（可見） | 全部 | 不可編輯 |
+| 未登入 | — | — | 401 |
+
+### 後端強制擋（重點）
+所有寫入 IE 的路由進來先呼叫 `_can_edit_ie(header_id)`：
+- admin/manager：直接通過
+- data_entry：查 `ie_assignments` 表，只有在指派清單內才通過
+- 其他角色/未登入：直接回 403/401
+不可只鎖前端，後端必須強制。
+
+受保護路由（共7條）：
+- `POST /api/ie/stages/<header_id>`（另存新版本）
+- `POST /api/ie/cell/save`（存格）
+- `POST /api/ie/cell/add_row`（新增行）
+- `POST /api/ie/cell/delete_row`（刪除行）
+- `POST /api/ie/cell/save_group`（建立合併格）
+- `POST /api/ie/cell/update_group`（更新合併格）
+- `POST /api/ie/cell/delete_group`（刪除合併格）
+
+### 前端 CAN_EDIT 機制
+`init()` 平行 fetch `/api/ie/<HID>/can_edit`，設 `CAN_EDIT` 全域變數。
+`renderZones()` 結尾：`if (!CAN_EDIT) applyReadOnlyDOM()`
+- 停用所有 input/textarea
+- 隱藏 儲存▼ 按鈕
+- 移除可點格子的 onclick
+- 停用刪除/合併按鈕
+
+### 語言切換不洗資料（定案修法）
+`setLang()` 改為 DOM in-place 更新：
+遍歷 `td.name[data-zh]`，直接替換 innerHTML/textContent。
+禁止在 `setLang` 中呼叫 `renderZones()`（會清空 unsaved inputs）。
+name cell 必須帶 `data-pid`、`data-zh`、`data-vi` 三個屬性。
+
+### 實測標準
+每次 IE 相關修改，必須產出 `flask_backend/test_output/ie_operation_test_log.md`，
+包含語言切換、CAN_EDIT、後端 403 全部逐項確認。

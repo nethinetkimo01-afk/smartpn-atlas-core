@@ -271,6 +271,7 @@ let EDITS  = {};
 let _storedLang = localStorage.getItem('ie_lang') || 'zh';
 let LANG   = (_storedLang === 'en') ? 'zh' : _storedLang; // ie_cell only supports ZH/VI
 let ZONE_ROWS = {};
+let CAN_EDIT  = false;
 let ADD_ZONE   = null;
 
 const MACHINE_ZONES = new Set(['裁斷機','ATOM','Laser','EMMA','YINGHUI','移印','轉印']);
@@ -381,10 +382,12 @@ applyLangUI(LANG);
 initCellAuth();
 
 async function init() {
-  const [sr, lr] = await Promise.all([
+  const [sr, lr, cr] = await Promise.all([
     fetch('/api/ie/stages/' + HID).then(r => r.json()).catch(() => ({})),
     fetch('/api/ie/detail/' + HID).then(r => r.json()).catch(() => ({})),
+    fetch('/api/ie/' + HID + '/can_edit').then(r => r.json()).catch(() => ({can_edit: false})),
   ]);
+  CAN_EDIT = !!(cr && cr.can_edit);
 
   if (sr.ok && sr.stages && sr.stages.length) {
     const sel = document.getElementById('stageSelect');
@@ -452,6 +455,7 @@ function renderZones(data) {
     ? renderCuttingTab(data)
     : (() => { let h = ''; for (const z of data.zones) h += renderZoneCard(z, data.segment, data.eolr); return h; })();
   document.getElementById('mainContent').innerHTML = html;
+  if (!CAN_EDIT) applyReadOnlyDOM();
 }
 
 // ── renderCuttingTab ── 七個區固定顯示，照 xlsx Cutting_TC B-T欄 ─────────────
@@ -584,10 +588,13 @@ function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
     return edM(sc,ps)+`<td class="formula-cell th-post-ops-cell" data-poststd="${ps??''}">${ops(ps)}</td>`;
   }).join('');
   const std = row.standard_time;
-  const viet = esc((LANG==='vi'&&row.process_name_vi)?row.process_name_vi:(row.process_name||''));
+  const zhN  = esc(row.process_name||row.process_name_zh||'');
+  const vi2  = esc(row.process_name_vi||'');
+  const viet = (LANG==='vi'&&vi2) ? vi2 : zhN;
   const zh2  = esc(row.process_name_zh||'');
-  const nmC  = zh2 ? `<td class="name left" style="white-space:normal">${viet}<div class="name-zh">${zh2}</div></td>`
-                   : `<td class="name left" style="white-space:normal">${viet}</td>`;
+  const nmC  = zh2
+    ? `<td class="name left" style="white-space:normal" data-pid="${pid}" data-zh="${zhN}" data-vi="${vi2}">${viet}<div class="name-zh">${zh2}</div></td>`
+    : `<td class="name left" style="white-space:normal" data-pid="${pid}" data-zh="${zhN}" data-vi="${vi2}">${viet}</td>`;
   let h = '<tr>';
   h += `<td class="del-cell"><button class="btn-del" onclick="deleteRow(${pid})">×</button></td>`;
   h += `<td class="num" style="cursor:text;font-size:9px;min-width:50px" onclick="startTextEdit(this,${pid},'mat_cat')" data-tip="點擊編輯">${esc(row.mat_cat||'')}</td>`;
@@ -763,7 +770,7 @@ function renderCell(row, col, zone, seg, eolr) {
     const isVi = LANG === 'vi' && row.process_name_vi;
     const main = esc(isVi ? row.process_name_vi : (row.process_name || ''));
     const sub  = isVi ? `<div style="font-size:9px;color:#aaa;margin-top:1px">${esc(row.process_name || '')}</div>` : '';
-    return `<td class="name">${main}${sub}</td>`;
+    return `<td class="name" data-pid="${pid}" data-zh="${esc(row.process_name||'')}" data-vi="${esc(row.process_name_vi||'')}">${main}${sub}</td>`;
   }
 
   if (col === 'part_name') return `<td class="name" style="color:#888;font-size:10px">${esc(val ?? '')}</td>`;
@@ -904,12 +911,36 @@ function setLang(l) {
   LANG = l;
   localStorage.setItem('ie_lang', l);
   applyLangUI(l);
-  if (DATA) renderZones(DATA);
+  // Update name cells in-place — never re-render (would wipe unsaved inputs)
+  document.querySelectorAll('td.name[data-zh]').forEach(td => {
+    const zh = td.dataset.zh || '';
+    const vi = td.dataset.vi || '';
+    const show = (l === 'vi' && vi) ? vi : zh;
+    if (l === 'vi' && vi) {
+      td.innerHTML = show + `<div style="font-size:9px;color:#aaa;margin-top:1px">${zh}</div>`;
+    } else {
+      td.textContent = zh;
+    }
+  });
 }
 function applyLangUI(l) {
   const isVi = (l === 'vi');
   document.getElementById('langZH').className = 'tg-btn' + (!isVi ? ' lang-active' : '');
   document.getElementById('langVI').className  = 'tg-btn' + (isVi  ? ' lang-active' : '');
+}
+
+// ── Read-only enforcement ─────────────────────────────────────────────────────
+function applyReadOnly() {
+  CAN_EDIT = false;
+  applyReadOnlyDOM();
+}
+function applyReadOnlyDOM() {
+  const mc = document.getElementById('mainContent');
+  if (!mc) return;
+  mc.querySelectorAll('input,textarea').forEach(el => { el.disabled = true; el.style.pointerEvents = 'none'; });
+  mc.querySelectorAll('button.btn-del,button.cut-merge-btn,button.btn-inline-ok').forEach(el => { el.disabled = true; el.style.opacity = '0.3'; });
+  mc.querySelectorAll('td.num[onclick],td.formula-cell[onclick]').forEach(el => { el.removeAttribute('onclick'); el.style.cursor = 'default'; });
+  document.getElementById('saveDropdown')?.style && (document.getElementById('saveDropdown').style.display = 'none');
 }
 
 // ── Segment switch ────────────────────────────────────────────────────────────

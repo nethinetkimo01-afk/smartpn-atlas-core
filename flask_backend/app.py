@@ -146,6 +146,21 @@ def _require_manager():
         return jsonify({'ok': False, 'error': '需要管理員或主管權限'}), 403
     return None
 
+def _can_edit_ie(header_id):
+    """Returns (can_edit: bool, err_tuple_or_None).
+    admin/manager: always yes. data_entry: only assigned. others: no."""
+    u = _auth_user()
+    if not u:
+        return False, (jsonify({'ok': False, 'error': '請先登入'}), 401)
+    if u['role'] in ('admin', 'manager'):
+        return True, None
+    if u['role'] == 'data_entry':
+        assigned = db.get_assigned_header_ids(u['id'])
+        if header_id in (assigned or []):
+            return True, None
+        return False, (jsonify({'ok': False, 'error': '此鞋型未指派給你，無法編輯'}), 403)
+    return False, (jsonify({'ok': False, 'error': '您沒有編輯權限'}), 403)
+
 # ── Frontend ─────────────────────────────────────────────────────────────────
 
 @app.route('/')
@@ -180,11 +195,6 @@ def allocation_page():
 
 @app.route('/api/ie/list', methods=['GET'])
 def ie_list():
-    u = _auth_user()
-    # data_entry users only see assigned models
-    if u and u['role'] == 'data_entry':
-        assigned_ids = db.get_assigned_header_ids(u['id'])
-        return jsonify(db.list_ie_records(header_ids=assigned_ids or [-1]))
     return jsonify(db.list_ie_records())
 
 @app.route('/api/ie/list_all', methods=['GET'])
@@ -374,9 +384,16 @@ def ie_cell_data(header_id):
     eolr    = request.args.get('eolr', 120)
     return jsonify(db.get_ie_cell_data(header_id, segment, eolr))
 
+@app.route('/api/ie/<int:header_id>/can_edit', methods=['GET'])
+def ie_can_edit(header_id):
+    ok, _ = _can_edit_ie(header_id)
+    return jsonify({'can_edit': ok})
+
 @app.route('/api/ie/stages/<int:header_id>', methods=['GET', 'POST'])
 def ie_stages(header_id):
     if request.method == 'POST':
+        ok, err = _can_edit_ie(header_id)
+        if not ok: return err
         d = request.get_json(force=True)
         return jsonify(db.create_ie_stage(header_id, d.get('stage_name', '新版本')))
     return jsonify(db.get_ie_stages(header_id))
@@ -384,6 +401,9 @@ def ie_stages(header_id):
 @app.route('/api/ie/cell/save', methods=['POST'])
 def ie_cell_save():
     d = request.get_json(force=True)
+    hid = db.get_header_id_by_process(d.get('cell_id'))
+    ok, err = _can_edit_ie(hid)
+    if not ok: return err
     return jsonify(db.save_ie_edit(
         d.get('cell_id'), d.get('stage_id'),
         d.get('field'), d.get('value'), d.get('user', 'anonymous')
@@ -397,6 +417,8 @@ def ie_cell_approve():
 @app.route('/api/ie/cell/add_row', methods=['POST'])
 def ie_cell_add_row():
     d = request.get_json(force=True)
+    ok, err = _can_edit_ie(d.get('header_id'))
+    if not ok: return err
     return jsonify(db.add_ie_process_row(
         d.get('header_id'), d.get('segment'), d.get('zone'),
         d.get('process_name', '新工序'), d.get('standard_time'),
@@ -415,6 +437,9 @@ def ie_cell_add_row():
 @app.route('/api/ie/cell/delete_row', methods=['POST'])
 def ie_cell_delete_row():
     d = request.get_json(force=True)
+    hid = db.get_header_id_by_process(d.get('process_id'))
+    ok, err = _can_edit_ie(hid)
+    if not ok: return err
     return jsonify(db.delete_ie_process_row(
         d.get('process_id'), d.get('stage_id'), d.get('user', 'demo')
     ))
@@ -422,6 +447,8 @@ def ie_cell_delete_row():
 @app.route('/api/ie/cell/save_group', methods=['POST'])
 def ie_cell_save_group():
     d = request.get_json(force=True)
+    ok, err = _can_edit_ie(d.get('header_id'))
+    if not ok: return err
     return jsonify(db.save_ie_process_group(
         d.get('header_id'), d.get('segment'), d.get('zone'),
         d.get('stage_id'), d.get('process_ids', []),
@@ -431,11 +458,17 @@ def ie_cell_save_group():
 @app.route('/api/ie/cell/update_group', methods=['POST'])
 def ie_cell_update_group():
     d = request.get_json(force=True)
+    hid = db.get_header_id_by_group(d.get('group_id'))
+    ok, err = _can_edit_ie(hid)
+    if not ok: return err
     return jsonify(db.update_ie_process_group(d.get('group_id'), d.get('headcount')))
 
 @app.route('/api/ie/cell/delete_group', methods=['POST'])
 def ie_cell_delete_group():
     d = request.get_json(force=True)
+    hid = db.get_header_id_by_group(d.get('group_id'))
+    ok, err = _can_edit_ie(hid)
+    if not ok: return err
     return jsonify(db.delete_ie_process_group(d.get('group_id')))
 
 @app.route('/api/ie/<int:header_id>/groups', methods=['GET'])
