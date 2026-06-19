@@ -561,25 +561,33 @@ def list_ie_records(header_ids=None):
     """Return ob_header rows with ARTs and MP values. header_ids filters to specific ids."""
     conn = get_conn()
     try:
+        # One row per (model_name, eolr): keep the header with the latest created_at.
+        # ROW_NUMBER over a CTE — avoids the correlated subquery that mis-filtered
+        # against ob_epph on the LEFT JOIN. LEFT JOIN kept so headers without an
+        # ob_epph row still appear (cutting/stitching just come back NULL).
         base_q = '''
-            SELECT h.id, h.model_name, h.eolr, h.season, h.material,
-                   e.cutting, e.stitching, e.assembly, e.stock, e.source
-            FROM ob_header h
-            LEFT JOIN ob_epph e ON e.header_id = h.id
-            WHERE h.id = (
-                SELECT id FROM ob_header
-                WHERE model_name = h.model_name AND eolr = h.eolr
-                ORDER BY created_at DESC LIMIT 1
+            WITH ranked AS (
+                SELECT h.id, h.model_name, h.eolr, h.season, h.material,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY h.model_name, h.eolr
+                           ORDER BY h.created_at DESC, h.id DESC
+                       ) AS rn
+                FROM ob_header h
             )
+            SELECT r.id, r.model_name, r.eolr, r.season, r.material,
+                   e.cutting, e.stitching, e.assembly, e.stock, e.source
+            FROM ranked r
+            LEFT JOIN ob_epph e ON e.header_id = r.id
+            WHERE r.rn = 1
         '''
         if header_ids is not None:
             if not header_ids:
                 return {'ok': True, 'records': []}
             placeholders = ','.join('?' * len(header_ids))
-            base_q += f' AND h.id IN ({placeholders})'
-            rows = conn.execute(base_q + ' ORDER BY h.model_name, h.eolr, h.id', header_ids).fetchall()
+            base_q += f' AND r.id IN ({placeholders})'
+            rows = conn.execute(base_q + ' ORDER BY r.model_name, r.eolr, r.id', header_ids).fetchall()
         else:
-            rows = conn.execute(base_q + ' ORDER BY h.model_name, h.eolr, h.id').fetchall()
+            rows = conn.execute(base_q + ' ORDER BY r.model_name, r.eolr, r.id').fetchall()
         result = []
         for r in rows:
             arts = [x['art'] for x in conn.execute(
