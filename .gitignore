@@ -16,3 +16,7 @@ _query_actual.py
 _query_actual2.py
 _update_ws.py
 _verify_sum.py
+flask_backend/atlas.db 
+flask_backend/data/atlas.db 
+flask_backend/*.db 
+flask_backend/Run
