@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Watchdog: every 30s checks port 5000; restarts app.py if down."""
+"""Watchdog: every 30s checks port 5000; restarts the server (serve.py) if down."""
 import socket, subprocess, time, os, sys, datetime
 
-APP_PY   = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'app.py')
+# Launch via waitress (serve.py), not app.py — see test_output/ie_stress_waitress.md.
+SERVE_PY = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'serve.py')
 BOOT_LOG = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'flask_boot.log')
 PORT     = 5000
 INTERVAL = 30
@@ -30,19 +31,19 @@ def port_alive():
 
 def start_flask():
     global _proc
-    log('Starting Flask app.py ...')
+    log('Starting server serve.py (waitress) ...')
     boot_fh = open(BOOT_LOG, 'a')
     _proc = subprocess.Popen(
-        [PYTHON, APP_PY],
-        cwd=os.path.dirname(APP_PY),
+        [PYTHON, SERVE_PY],
+        cwd=os.path.dirname(SERVE_PY),
         stdout=boot_fh,
         stderr=boot_fh,
     )
     time.sleep(5)
     if port_alive():
-        log(f'Flask started (pid={_proc.pid})')
+        log(f'Server started (pid={_proc.pid})')
     else:
-        log('WARNING: Flask started but port 5000 still not responding')
+        log('WARNING: Server started but port 5000 still not responding')
 
 
 if __name__ == '__main__':

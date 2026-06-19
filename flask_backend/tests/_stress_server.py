@@ -20,9 +20,15 @@ assert database.DB_PATH == STRESS_DB
 
 import app as flask_app
 
-PORT = int(os.environ.get('STRESS_PORT', '5099'))
+PORT    = int(os.environ.get('STRESS_PORT', '5099'))
+MODE    = os.environ.get('STRESS_SERVER', 'apprun')   # 'apprun' | 'waitress'
+THREADS = int(os.environ.get('STRESS_THREADS', '8'))
 
 if __name__ == '__main__':
-    # Match production invocation: no extra args beyond host/port/debug.
-    # Whatever threading default app.run() uses IS what we are evaluating.
-    flask_app.app.run(host='127.0.0.1', port=PORT, debug=False)
+    if MODE == 'waitress':
+        # Same as production serve.py: waitress multi-threaded WSGI.
+        from waitress import serve
+        serve(flask_app.app, host='127.0.0.1', port=PORT, threads=THREADS)
+    else:
+        # Match old production: app.run() Werkzeug dev server.
+        flask_app.app.run(host='127.0.0.1', port=PORT, debug=False)

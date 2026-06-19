@@ -103,6 +103,31 @@ def summarize(timings):
     return out
 
 
+# ── Read seed counts from the stress DB (for the report header) ──────────────
+def pick_seed_counts():
+    conn = sqlite3.connect(STRESS_DB)
+    c = {
+        'ob_header':     conn.execute('SELECT COUNT(*) FROM ob_header').fetchone()[0],
+        'ob_articles':   conn.execute('SELECT COUNT(*) FROM ob_articles').fetchone()[0],
+        'ie_process':    conn.execute('SELECT COUNT(*) FROM ie_process').fetchone()[0],
+        'ie_sheet_data': conn.execute('SELECT COUNT(*) FROM ie_sheet_data').fetchone()[0],
+        'ie_stage':      conn.execute('SELECT COUNT(*) FROM ie_stage').fetchone()[0],
+    }
+    heavy = conn.execute(
+        'SELECT header_id, COUNT(*) c FROM ie_sheet_data GROUP BY header_id ORDER BY c DESC LIMIT 1'
+    ).fetchone()
+    big = conn.execute(
+        'SELECT sheet_name, COUNT(*) c FROM ie_sheet_data WHERE header_id=? GROUP BY sheet_name ORDER BY c DESC LIMIT 1',
+        (heavy[0],)
+    ).fetchone()
+    c['heavy_header_id'] = heavy[0]
+    c['heavy_header_cells'] = heavy[1]
+    c['heavy_sheet_name'] = big[0]
+    c['heavy_sheet_cells'] = big[1]
+    conn.close()
+    return c
+
+
 # ── Pick targets straight from the stress DB (read-only) ─────────────────────
 def pick_targets():
     conn = sqlite3.connect(STRESS_DB)
@@ -158,26 +183,21 @@ def wait_ready(timeout=40):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-def main():
-    print('=' * 60)
-    print('  IE 真實量級 HTTP 壓力測試')
-    print('=' * 60)
-
-    # 1. (re)seed
-    print('\n[1] Seeding 獨立測試庫 ...')
-    seed_counts = seed_stress_db.build()
-    for k, v in seed_counts.items():
-        print(f'    {k:22} = {v}')
-
-    # 2. launch real server
-    print('\n[2] 啟動 app.run() 伺服器 ...')
-    env = dict(os.environ, STRESS_PORT=str(PORT))
+def run_battery(server_mode='apprun', threads=8):
+    """Launch the server in the given mode against the (already-seeded) stress DB,
+    run baseline + 20-concurrent-mix + concurrent-write tests, return results dict.
+    server_mode: 'apprun' (Werkzeug app.run) | 'waitress' (waitress threads=N)."""
+    seed_counts = pick_seed_counts()
+    label = 'waitress(threads=%d)' % threads if server_mode == 'waitress' else 'app.run()'
+    print(f'\n>>> 啟動伺服器：{label} ...')
+    env = dict(os.environ, STRESS_PORT=str(PORT),
+               STRESS_SERVER=server_mode, STRESS_THREADS=str(threads))
     server = subprocess.Popen([sys.executable, SERVER_PY], env=env,
                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
         if not wait_ready():
             raise RuntimeError('伺服器未就緒')
-        print(f'    伺服器就緒 @ {BASE}')
+        print(f'    伺服器就緒 @ {BASE} ({label})')
 
         tgt = pick_targets()
         heavy_hid = tgt['heavy_hid']
@@ -191,7 +211,8 @@ def main():
         admin = Session()
         assert admin.login(), 'admin 登入失敗'
 
-        results = {'seed_counts': seed_counts, 'targets': tgt}
+        results = {'seed_counts': seed_counts, 'targets': tgt,
+                   'server_mode': server_mode, 'server_label': label}
 
         # ── Test 1: 細表載入 (讀 ie_sheet_data 大表) baseline ───────────────
         print('\n[3] 單線程基準 ...')
@@ -345,7 +366,44 @@ def main():
               f"DB locked={all_locks}, 寫入 ie_edit_log 新增={rows_written} 筆, "
               f"遺失={results['write']['lost']}")
 
-        write_report(results)
+        # ── Test 5: 20 並發純讀 — 真實尺寸細表 (一般 header 的 sheet) ─────────
+        # 細表一次只開一張 sheet；真實 sheet 約數百~千格，遠小於 12000 格的極端值。
+        # 這段量「真實尺寸」下 waitress 的並發表現（與極端 12000 格區隔）。
+        normal_hid = header_ids[seed_stress_db.N_HEAVY + 5]  # 一般 header
+        # find its biggest sheet + cell count
+        conn = sqlite3.connect(STRESS_DB)
+        nrow = conn.execute(
+            'SELECT sheet_name, COUNT(*) c FROM ie_sheet_data WHERE header_id=? GROUP BY sheet_name ORDER BY c DESC LIMIT 1',
+            (normal_hid,)).fetchone()
+        conn.close()
+        normal_sheet, normal_cells = nrow[0], nrow[1]
+        print(f'\n[6] 20 並發純讀真實尺寸細表 (header={normal_hid} sheet={normal_sheet} {normal_cells} cells) ...')
+        nread_timings = []
+        nlock = threading.Lock()
+
+        def nread_worker(tid):
+            s = Session(); s.login()
+            local = []
+            for op in range(8):
+                t0 = time.perf_counter()
+                st, body = s.get(f'/api/ie/{normal_hid}/sheet?name={urllib.parse.quote(normal_sheet)}')
+                ms = (time.perf_counter() - t0) * 1000
+                local.append(('normal_read', ms, st, is_locked(st, body), st == 200))
+            with nlock:
+                nread_timings.extend(local)
+
+        threads = [threading.Thread(target=nread_worker, args=(i,)) for i in range(N_THREADS)]
+        for t in threads: t.start()
+        for t in threads: t.join(timeout=120)
+        results['normal_read'] = {
+            'header_id': normal_hid, 'sheet': normal_sheet, 'cells': normal_cells,
+            'by_op': summarize(nread_timings),
+        }
+        nr = results['normal_read']['by_op'].get('normal_read', {})
+        print(f"    真實尺寸 ({normal_cells} cells) 20並發: avg={nr.get('avg')}ms "
+              f"p95={nr.get('p95')}ms max={nr.get('max')}ms")
+
+        return results
 
     finally:
         server.terminate()
@@ -353,7 +411,19 @@ def main():
             server.wait(timeout=10)
         except Exception:
             server.kill()
-        print('\n[done] 伺服器已關閉')
+        print(f'    伺服器已關閉 ({label})')
+
+
+def main():
+    print('=' * 60)
+    print('  IE 真實量級 HTTP 壓力測試 — app.run()')
+    print('=' * 60)
+    print('\n[1] Seeding 獨立測試庫 ...')
+    seed_counts = seed_stress_db.build()
+    for k, v in seed_counts.items():
+        print(f'    {k:22} = {v}')
+    results = run_battery('apprun')
+    write_report(results)
 
 
 def write_report(r):

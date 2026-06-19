@@ -146,6 +146,10 @@ Version: v1.0 | 建立: 2026-06-13
 | 091 | 強制登入守衛 + 一鍵更新程式燈號（A+B兩件） | DATA SYSTEM | ✅完成 | 2026-06-19 | 2026-06-19 | app.py: before_request白名單守衛(page→/login,api→401); /api/system/version_status+update(manager限定); ds03/ie_interface/ie_cell_detail 頂部列加更新按鈕+5min輪詢 |
 | 092 | IE系統完整測試（功能模擬+資料正確性+20人壓力） | DATA SYSTEM | ✅完成 | 2026-06-19 | 2026-06-19 | tests/run_ie_tests.py; A:31/31 PASS, B:5/5 PASS, C:100req/0失敗/0 DB locks/355ms; 測試庫atlas_test.db不動真資料 |
 
+| 093 | IE壓測重做（真實52萬筆+20並發，獨立測試庫） | Infra | ✅完成 | 2026-06-19 | 2026-06-19 | 舊測試ie_sheet_data=0筆等於空表。tests/seed_stress_db.py建atlas_stress.db(571,200 ie_sheet_data/160 hdr/11,200 ie_process,不碰data/atlas.db); tests/run_stress_real.py真HTTP打app.run()+20獨立連線; 結果:無DB locked/無寫入遺失,但重型細表20並發p95~10.7s(app.run序列化); test_output/ie_stress_test_real.md; commit 3739624 |
+
+| 094 | IE改waitress(threads=8)+並發壓測對照 | Infra | ✅完成 | 2026-06-19 | 2026-06-19 | serve.py(waitress.serve,import app不改邏輯)+watchdog/start.bat改跑serve.py+get_conn加busy_timeout=15000+requirements加waitress; app.run()保留當後備。對照(test_output/ie_stress_waitress.md):真實尺寸600格細表20並發p95 799→438ms✅<1s; worst-case 12000格p95 11628→5517ms(2.1×但未進1s,根因GIL+大payload); DB locked維持0/無遺失。建議下一步=細表分頁減payload(伺服器已最佳化) |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |
