@@ -18,5 +18,9 @@ _update_ws.py
 _verify_sum.py
 flask_backend/atlas.db 
 flask_backend/data/atlas.db 
-flask_backend/*.db 
+flask_backend/*.db
+# Stress-test DB (generated, ~50MB — local only, never push)
+flask_backend/tests/*.db
+flask_backend/tests/*.db-wal
+flask_backend/tests/*.db-shm
 flask_backend/Run
