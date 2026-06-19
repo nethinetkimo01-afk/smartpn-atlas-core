@@ -1,9 +1,11 @@
-from flask import Flask, request, jsonify, send_from_directory, session
+from flask import Flask, request, jsonify, send_from_directory, session, redirect
 from flask_cors import CORS
 import database as db
 import os
 import tempfile
 import json as _json
+import subprocess
+import sys
 
 try:
     from analyze_ds04 import analyze as _ds04_analyze
@@ -160,6 +162,24 @@ def _can_edit_ie(header_id):
             return True, None
         return False, (jsonify({'ok': False, 'error': '此鞋型未指派給你，無法編輯'}), 403)
     return False, (jsonify({'ok': False, 'error': '您沒有編輯權限'}), 403)
+
+# ── Global login guard ───────────────────────────────────────────────────────
+
+_OPEN_PATHS = {'/login', '/api/login', '/api/allocation/login'}
+
+@app.before_request
+def _require_login():
+    if request.endpoint == 'static':
+        return
+    if request.path in _OPEN_PATHS:
+        return
+    uid = session.get('user_id')
+    alloc = session.get('alloc_user')
+    if uid or (alloc and alloc in ALLOC_USERS):
+        return
+    if request.path.startswith('/api/'):
+        return jsonify({'ok': False, 'error': '請先登入'}), 401
+    return redirect('/login')
 
 # ── Frontend ─────────────────────────────────────────────────────────────────
 
@@ -1582,6 +1602,52 @@ def ie_stage_approve(header_id, stage_id):
 @app.route('/api/health', methods=['GET'])
 def health():
     return jsonify({'ok': True, 'version': '1.6'})
+
+# ── System update ─────────────────────────────────────────────────────────────
+
+def _repo_root():
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+@app.route('/api/system/version_status', methods=['GET'])
+def system_version_status():
+    err = _require_manager()
+    if err: return err
+    root = _repo_root()
+    try:
+        subprocess.run(['git', 'fetch', 'origin', 'main'], cwd=root, timeout=15,
+                       capture_output=True)
+        local = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'],
+                               cwd=root, capture_output=True, text=True).stdout.strip()
+        remote = subprocess.run(['git', 'rev-parse', '--short', 'origin/main'],
+                                cwd=root, capture_output=True, text=True).stdout.strip()
+        return jsonify({'ok': True, 'up_to_date': local == remote,
+                        'local_commit': local, 'remote_commit': remote})
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
+@app.route('/api/system/update', methods=['POST'])
+def system_update():
+    err = _require_manager()
+    if err: return err
+    root = _repo_root()
+    try:
+        dirty = subprocess.run(['git', 'status', '--porcelain'], cwd=root,
+                               capture_output=True, text=True).stdout.strip()
+        if dirty:
+            return jsonify({'ok': False, 'error': '本地有改動，請聯絡管理員'}), 409
+        pull = subprocess.run(['git', 'pull', 'origin', 'main'], cwd=root,
+                              capture_output=True, text=True, timeout=60)
+        if pull.returncode != 0:
+            return jsonify({'ok': False, 'error': pull.stderr.strip() or pull.stdout.strip()}), 500
+        new_commit = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'],
+                                    cwd=root, capture_output=True, text=True).stdout.strip()
+        import threading
+        def _restart():
+            import time; time.sleep(1); os._exit(0)
+        threading.Thread(target=_restart, daemon=True).start()
+        return jsonify({'ok': True, 'new_commit': new_commit})
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 

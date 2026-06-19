@@ -143,6 +143,8 @@ Version: v1.0 | 建立: 2026-06-13
 | 089 | IE三件：語言切換不洗資料+data_entry權限+實測記錄+§十 | DATA SYSTEM | ✅完成 | 2026-06-18 | 2026-06-18 | setLang→DOM in-place(data-zh/vi); _can_edit_ie+can_edit endpoint+7條路由403; applyReadOnlyDOM; ie_operation_test_log.md; 27_WORKING_RULES §十; ie_list全開 |
 | 090 | 廠務組織編制表：bianche.html完整重建（Apple CSS+上半總表+下半CSA明細） | DATA SYSTEM | ✅完成 | 2026-06-18 | 2026-06-18 | bianche.html完全重建(同ie_cell_detail CSS); 上半13單位表(直工/間工/直間比)+月度數字; 下半CSA LEAN組折疊明細(裁斷/針車/成型/編制/外移/C2B); db.py+app.py新增bianzhi函數5條; bianzhi_compare_10.2024.md; bianzhi_operation_test_log.md |
 
+| 091 | 強制登入守衛 + 一鍵更新程式燈號（A+B兩件） | DATA SYSTEM | ✅完成 | 2026-06-19 | 2026-06-19 | app.py: before_request白名單守衛(page→/login,api→401); /api/system/version_status+update(manager限定); ds03/ie_interface/ie_cell_detail 頂部列加更新按鈕+5min輪詢 |
+
 ## 待 Jim 決定（不擋工）
 
 | 項目 | 說明 |

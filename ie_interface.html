@@ -113,6 +113,7 @@ thead th:last-child{border-right:none}
     <a href="/" class="btn-link" id="btn-back">← DS-03</a>
     <div id="status-dot" title="伺服器狀態" style="width:8px;height:8px;border-radius:50%;background:#aaa;display:inline-block;flex-shrink:0;cursor:default"></div>
     <button id="btn-reconnect" onclick="reconnect()" style="display:none;background:#ef4444;color:#fff;border:none;border-radius:4px;padding:3px 9px;font-size:11px;cursor:pointer;font-weight:500">重新連線</button>
+    <button id="btn-update" onclick="doUpdate()" style="display:none;border:none;border-radius:4px;padding:3px 9px;font-size:11px;cursor:pointer;font-weight:500;background:#aaa;color:#fff" title="程式版本狀態">已是最新</button>
     <span class="version">v2.0</span>
   </div>
 </div>
@@ -465,7 +466,52 @@ async function initAuth(){
   if(CURRENT_USER){
     badge.textContent = CURRENT_USER.display_name || CURRENT_USER.username;
     logoutBtn.style.display = 'inline';
-    if(['admin','manager'].includes(CURRENT_USER.role)) newBtn.style.display = 'inline-block';
+    if(['admin','manager'].includes(CURRENT_USER.role)){
+      newBtn.style.display = 'inline-block';
+      checkVersionStatus();
+      setInterval(checkVersionStatus, 5*60*1000);
+    }
+  }
+}
+
+async function checkVersionStatus(){
+  const btn = document.getElementById('btn-update');
+  if(!btn) return;
+  try{
+    const r = await fetch('/api/system/version_status');
+    const d = await r.json();
+    if(!d.ok) return;
+    btn.style.display = 'inline-block';
+    if(d.up_to_date){
+      btn.textContent = '已是最新';
+      btn.style.background = '#aaa';
+    } else {
+      btn.textContent = '有新版本，點擊更新';
+      btn.style.background = '#f97316';
+    }
+  }catch{}
+}
+
+async function doUpdate(){
+  const btn = document.getElementById('btn-update');
+  if(!confirm('確認更新程式並重啟伺服器？')) return;
+  btn.disabled = true;
+  btn.textContent = '更新中…';
+  try{
+    const r = await fetch('/api/system/update',{method:'POST'});
+    const d = await r.json();
+    if(d.ok){
+      btn.textContent = '更新完成，重啟中，請稍候…';
+      btn.style.background = '#22c55e';
+      setTimeout(()=>location.reload(), 4000);
+    } else {
+      alert('更新失敗：' + (d.error||'未知錯誤'));
+      btn.disabled = false;
+      btn.textContent = '有新版本，點擊更新';
+    }
+  }catch(e){
+    alert('更新失敗：' + e);
+    btn.disabled = false;
   }
 }
 
