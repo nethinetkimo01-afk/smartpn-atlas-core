@@ -110,6 +110,7 @@ thead th:last-child{border-right:none}
       <button class="btn-lang"        data-lang="vi" onclick="setLang('vi')">VI</button>
     </div>
     <a href="/ie/matrix" class="btn-link" style="background:#0e7490">矩陣</a>
+    <a href="/admin/users" class="btn-link" id="btn-admin-users" style="display:none;background:#5c6bc0">帳號管理</a>
     <a href="/" class="btn-link" id="btn-back">← DS-03</a>
     <div id="status-dot" title="伺服器狀態" style="width:8px;height:8px;border-radius:50%;background:#aaa;display:inline-block;flex-shrink:0;cursor:default"></div>
     <button id="btn-reconnect" onclick="reconnect()" style="display:none;background:#ef4444;color:#fff;border:none;border-radius:4px;padding:3px 9px;font-size:11px;cursor:pointer;font-weight:500">重新連線</button>
@@ -470,6 +471,8 @@ async function initAuth(){
       newBtn.style.display = 'inline-block';
       checkVersionStatus();
       setInterval(checkVersionStatus, 5*60*1000);
+      const adminBtn = document.getElementById('btn-admin-users');
+      if (adminBtn) adminBtn.style.display = 'inline-block';
     }
   }
 }

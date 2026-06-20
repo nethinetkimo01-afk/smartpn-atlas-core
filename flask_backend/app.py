@@ -1215,6 +1215,8 @@ def ds04_export():
 
 @app.route('/admin/users')
 def admin_users_page():
+    err = _require_manager()
+    if err: return err
     return send_from_directory('..', 'admin_users.html')
 
 @app.route('/api/users', methods=['GET'])

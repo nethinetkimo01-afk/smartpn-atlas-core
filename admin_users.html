@@ -48,9 +48,8 @@ form input:focus,form select:focus{outline:none;border-color:#1a2744}
 </head>
 <body>
 <div class="topbar">
+  <a href="/ie" style="background:#2a3a5c;color:#fff;padding:5px 14px;border-radius:5px;text-decoration:none;font-size:13px;font-weight:600">← 返回 IE 清單</a>
   <span class="title">帳號管理</span>
-  <a href="/">首頁</a>
-  <a href="/ie">IE表</a>
   <a href="/admin">管理後台</a>
 </div>
 
@@ -230,16 +229,16 @@ async function saveUser() {
     password:     document.getElementById('f-password').value,
     active:       document.getElementById('f-active').checked ? 1 : 0,
   };
-  if (!body.username || !body.display_name) {
-    document.getElementById('modal-msg').className = 'msg err';
-    document.getElementById('modal-msg').textContent = '帳號和顯示名稱不能空白';
-    return;
-  }
-  if (!id && !body.password) {
-    document.getElementById('modal-msg').className = 'msg err';
-    document.getElementById('modal-msg').textContent = '新帳號必須設定密碼';
-    return;
-  }
+  const showModalErr = (msg) => {
+    const el = document.getElementById('modal-msg');
+    el.className = 'msg err'; el.textContent = msg;
+  };
+  if (!body.username) return showModalErr('帳號不能空白');
+  if (/\s/.test(body.username)) return showModalErr('帳號不能包含空格');
+  if (!body.display_name) return showModalErr('顯示名稱不能空白');
+  if (!body.role) return showModalErr('請選擇角色');
+  if (!id && !body.password) return showModalErr('新帳號必須設定密碼');
+  if (!id && body.password.length < 3) return showModalErr('密碼至少3個字元');
   const url = id ? `/api/users/${id}` : '/api/users';
   const method = id ? 'PUT' : 'POST';
   const r = await fetch(url, {method, headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
@@ -269,8 +268,25 @@ function showMsg(type, text) {
   setTimeout(() => { el.className = 'msg'; }, 4000);
 }
 
+let _MY_ROLE = 'admin';
+
+async function initAdminAuth() {
+  try {
+    const r = await fetch('/api/me');
+    const d = await r.json();
+    if (d.ok && d.user) {
+      _MY_ROLE = d.user.role;
+      if (_MY_ROLE === 'manager') {
+        const adminOpt = document.querySelector('#f-role option[value="admin"]');
+        if (adminOpt) adminOpt.remove();
+      }
+    }
+  } catch {}
+}
+
 loadUsers();
 loadAssignPanel();
+initAdminAuth();
 
 async function loadAssignPanel() {
   const content = document.getElementById('assign-content');

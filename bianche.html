@@ -74,6 +74,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#FFFF
     </select>
   </label>
   <div class="topbar-spacer"></div>
+  <a href="/admin/users" class="btn-outline" id="btn-admin-users" style="display:none">帳號管理</a>
   <a href="/eolr-settings" style="font-size:11px;color:#8E8E93;text-decoration:none">EOLR設定</a>
   <a href="/allocation"    style="font-size:11px;color:#8E8E93;text-decoration:none">勾選表</a>
   <button class="btn-sm"  onclick="exportXlsx()">⬇ 匯出</button>
@@ -397,6 +398,16 @@ function showToast(msg, ms=2000) {
 }
 
 loadAll();
+(async () => {
+  try {
+    const r = await fetch('/api/me');
+    const d = await r.json();
+    if (d.ok && d.user && ['admin','manager'].includes(d.user.role)) {
+      const btn = document.getElementById('btn-admin-users');
+      if (btn) btn.style.display = 'inline-block';
+    }
+  } catch {}
+})();
 </script>
 </body>
 </html>
