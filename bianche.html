@@ -311,6 +311,10 @@ function renderLeanTable(lg) {
       <th>C2B</th>
     </tr></thead><tbody>`;
 
+  const sumFields = ['qty','cutting','stitching','assembly','total_k','p_ext','q_ext','r_ext','c2b'];
+  const sums = {};
+  for (const f of sumFields) sums[f] = 0;
+
   for (const r of rows) {
     const noIe = !r.has_ie;
     h += `<tr>
@@ -329,7 +333,24 @@ function renderLeanTable(lg) {
       <td class="formula-cell">${fmtN(r.r_ext)||'0'}</td>
       <td class="formula-cell">${fmtN(r.c2b)}</td>
     </tr>`;
+    for (const f of sumFields) sums[f] += Number(r[f]) || 0;
   }
+
+  const st = 'border-top:2px solid #C7C7CC;background:#FFFFFF;font-weight:600';
+  const sc = 'class="formula-cell" style="font-weight:600"';
+  h += `<tr class="sum-row" style="${st}">
+    <td class="left" style="font-weight:700">合計</td>
+    <td ${sc}>${sums.qty ? sums.qty.toLocaleString() : '0'}</td>
+    <td ${sc}>${fmtN(sums.cutting)||'0'}</td>
+    <td ${sc}>${fmtN(sums.stitching)||'0'}</td>
+    <td ${sc}>${fmtN(sums.assembly)||'0'}</td>
+    <td ${sc}>${fmtN(sums.total_k)||'0'}</td>
+    <td class="actual-cell"></td>
+    <td ${sc}>${fmtN(sums.p_ext)||'0'}</td>
+    <td ${sc}>${fmtN(sums.q_ext)||'0'}</td>
+    <td ${sc}>${fmtN(sums.r_ext)||'0'}</td>
+    <td ${sc}>${fmtN(sums.c2b)||'0'}</td>
+  </tr>`;
   h += '</tbody></table>';
   return h;
 }
