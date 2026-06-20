@@ -1219,20 +1219,37 @@ def admin_users_page():
 
 @app.route('/api/users', methods=['GET'])
 def api_users_list():
+    err = _require_manager()
+    if err: return err
     return jsonify({'ok': True, 'users': db.list_users()})
 
 @app.route('/api/users', methods=['POST'])
 def api_users_create():
+    err = _require_manager()
+    if err: return err
+    me = _auth_user()
     d = request.get_json(force=True) or {}
+    role = d.get('role', 'read_only')
+    if me.get('role') != 'admin' and role == 'admin':
+        return jsonify({'ok': False, 'error': '無權建立管理員帳號'}), 403
     return jsonify(db.create_user(
         d.get('username',''), d.get('display_name',''),
-        d.get('role','read_only'), d.get('password',''),
+        role, d.get('password',''),
         d.get('active',1)
     ))
 
 @app.route('/api/users/<int:uid>', methods=['PUT'])
 def api_users_update(uid):
+    err = _require_manager()
+    if err: return err
+    me = _auth_user()
     d = request.get_json(force=True) or {}
+    if me.get('role') != 'admin':
+        if d.get('role') == 'admin':
+            return jsonify({'ok': False, 'error': '無權設定管理員角色'}), 403
+        target = db.get_user_by_id(uid)
+        if target and target.get('role') == 'admin':
+            return jsonify({'ok': False, 'error': '無權修改管理員帳號'}), 403
     return jsonify(db.update_user(
         uid,
         display_name=d.get('display_name'),
@@ -1243,6 +1260,13 @@ def api_users_update(uid):
 
 @app.route('/api/users/<int:uid>', methods=['DELETE'])
 def api_users_delete(uid):
+    err = _require_manager()
+    if err: return err
+    me = _auth_user()
+    if me.get('role') != 'admin':
+        target = db.get_user_by_id(uid)
+        if target and target.get('role') == 'admin':
+            return jsonify({'ok': False, 'error': '無權刪除管理員帳號'}), 403
     return jsonify(db.delete_user(uid))
 
 # ── Test-output file downloads ───────────────────────────────────────────────
