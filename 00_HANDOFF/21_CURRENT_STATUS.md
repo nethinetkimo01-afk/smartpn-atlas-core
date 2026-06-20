@@ -1,6 +1,53 @@
 # Current Status
 
-Last updated: 2026-06-18
+Last updated: 2026-06-20
+
+---
+
+## 當前狀態（2026-06-20）
+
+### ★ 最高設計原則（2026-06-20 Jim 定案，凌駕所有功能）
+假設使用者完全不懂、不看說明、會亂點。系統必須：不用教就會用 / 不可能做錯 / 符合直覺 / 錯了能救 / 狀態看得見。詳見 **27_WORKING_RULES.md 第一節** 及 **29_UX_RULES.md**。
+
+### ME129 部署狀態（已上線）
+- waitress 版(serve.py, threads=8)、強制登入、watchdog 守護
+- 啟動鏈：開機 bat(smartpn.bat, `py`) → watchdog.py(sys.executable) → waitress
+- 電源：standby/hibernate 設永不(powercfg=0)，已解10分鐘休眠斷線
+- 員工連 **http://172.16.1.29:5000**（必 http、必 :5000）
+- 帳號：jim/admin123(admin)、manager01、editor01、ie5/Thanh(manager)、tongcai/dianno/dacu(read_only)
+
+#### ME129 未完成待辦
+1. **開機免登入**：netplwiz/regedit 被 GPO 擋，改用工作排程器未設完
+2. **重開機驗證**：開機自動跑尚未實測（挑沒人用時做）
+3. ME129 跑舊版 v1.4，需按更新鍵 pull 最新(含登入/權限/格子/UX修正)
+4. 帳號頁「編輯」按鈕無反應（待修）
+5. jim 密碼 admin123 太弱，穩定後改強
+
+### IE 系統（2026-06-20 做扎實）
+- 功能模擬 31/31、資料正確 5/5 PASS
+- 壓測：waitress 真實尺寸細表 438ms 達標、DB locked 0
+- 強制登入(b150aba)：未登入→/login，API→401
+- 一鍵更新燈號：admin/manager 限定，灰=最新/橘=有新版
+- 帳號權限修正(49b3dcf)：/api/users 加 _require_manager + 提權防護
+- UX 修正(a5aeb23)：存檔靜默/beforeunload攔截/帳號管理入口/手工格統一白框/配色/危險操作確認
+
+### UX 修正完成項目（2026-06-20，commit a5aeb23）
+1. 「儲存」直接靜默存、已儲存✓淡出、另存才跳框
+2. 有未存變更離頁/切版本前攔截警告
+3. admin/manager 頂部見「帳號管理」按鈕；帳號頁有「← 返回 IE 清單」
+4. /admin/users 加 _require_manager 守衛；manager 無法選 admin 角色
+5. 所有手工格 1px solid #C7C7CC 統一白框
+6. 刪除工序/帳號有「無法復原」確認框
+
+### 廠務編制表規格（2026-06-20 完成，待 Jim 拍板）
+規格見 **28_BIANCHE_SPEC.md**。三塊結構完整分析（區塊A彙總+區塊B明細+區塊C月度）。
+**唯一待決策：MP/直工數 = 系統自動從IE標時算 vs 主管手工填（同範本）？**
+決策一定，即可出 code 完整重建廠務編制表。
+
+### 其他
+- demo 脫敏版：make_demo_db.py / serve_demo.py 已建
+- API 金鑰外洩：Jim 已知，選暫不處理
+- 首頁(/)仍是舊 DS-03 深藍界面，可改 redirect→/ie
 
 ---
 
