@@ -71,8 +71,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#FFFF
 .proc-table td.num{text-align:right;min-width:60px;color:#1C1C1E;font-family:Consolas,monospace;background:#fff;border:1px solid #C7C7CC;cursor:text}
 .proc-table td.num:focus-within{border-color:#007AFF}
 
-/* 公式格：灰字 + 淡邊框，不可點擊 */
-.formula-cell{color:#8E8E93;text-align:right;min-width:60px;font-family:Consolas,monospace;cursor:default;background:#fff;border:1px solid #E5E5EA}
+/* 公式格：無框、無底色，純文字顯示（黑字與手工格同） */
+.formula-cell{color:#000000;text-align:right;min-width:60px;font-family:Consolas,monospace;cursor:default;background:transparent!important;border:none!important}
 
 /* 實際人數格（手工） */
 .actual-cell{color:#1C1C1E;text-align:right;min-width:60px;font-family:Consolas,monospace;font-weight:600;background:#fff;border:1px solid #C7C7CC}
@@ -83,15 +83,18 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#FFFF
 .cut-act-inp{border:1px solid #C7C7CC;border-radius:2px;padding:1px 3px;font-size:10px;text-align:right;outline:none;width:44px;background:#fff;-moz-appearance:textfield}
 .cut-act-inp:focus{border-color:#007AFF}
 .cut-act-inp::-webkit-outer-spin-button,.cut-act-inp::-webkit-inner-spin-button{-webkit-appearance:none}
-.cut-merge-btn{background:transparent;border:1px solid #C7C7CC;border-radius:2px;color:#8E8E93;font-size:9px;cursor:pointer;padding:1px 3px;flex-shrink:0;line-height:1.4}
+.cut-merge-btn{background:transparent;border:1px solid #C7C7CC;border-radius:2px;color:#000000;font-size:9px;cursor:pointer;padding:1px 3px;flex-shrink:0;line-height:1.4}
 .cut-merge-btn:hover{border-color:#007AFF;color:#007AFF}
+/* 常駐顯示手工輸入格 */
+.cell-inp{width:100%;box-sizing:border-box;border:none;padding:2px 4px;font-size:11px;font-family:Consolas,monospace;text-align:right;outline:none;background:#fff;color:#000000;-moz-appearance:textfield}
+.cell-inp::-webkit-outer-spin-button,.cell-inp::-webkit-inner-spin-button{-webkit-appearance:none}
 
 /* 鎖定格：同公式格樣式（灰字） */
 .locked-cell{background:#fff;color:#8E8E93;cursor:default;border:1px solid #E5E5EA!important}
 
 /* 刪除格 */
 .del-cell{width:22px;text-align:center;padding:2px 4px;border:1px solid #E5E5EA}
-.btn-del{background:transparent;border:none;color:#C7C7CC;font-size:14px;cursor:pointer;padding:0 2px;border-radius:3px;line-height:1}
+.btn-del{background:transparent;border:none;color:#000000;font-size:14px;cursor:pointer;padding:0 2px;border-radius:3px;line-height:1}
 .btn-del:hover{color:#FF3B30;background:#FFF2F1}
 
 /* 合併格 */
@@ -144,7 +147,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#FFFF
 .name-zh{font-size:9px;color:#8E8E93;margin-top:1px}
 
 /* ── Inline add row ───────────────────────────────── */
-.add-row-inline td{background:#F9F9F9!important;padding:2px 3px}
+.add-row-inline td{background:#FFFFFF!important;padding:2px 3px}
 .add-inp{width:100%;border:1px solid #C7C7CC;border-radius:2px;padding:1px 3px;font-size:10px;background:#fff;outline:none}
 .add-inp:focus{border-color:#007AFF}
 .btn-inline-ok{background:#007AFF;color:#fff;border:none;border-radius:3px;padding:2px 7px;font-size:10px;cursor:pointer;font-weight:700}
@@ -154,7 +157,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#FFFF
 /* ── + trigger row ────────────────────────────────── */
 .add-trigger-row td{background:transparent;border:none;padding:0}
 .add-trigger-cell{text-align:center;padding:1px 2px!important;width:22px;min-width:22px}
-.btn-add-zone{background:transparent;border:1px dashed #C7C7CC;border-radius:3px;color:#8E8E93;font-size:13px;font-weight:700;cursor:pointer;padding:1px 6px;line-height:1.6}
+.btn-add-zone{background:transparent;border:1px dashed #C7C7CC;border-radius:3px;color:#000000;font-size:13px;font-weight:700;cursor:pointer;padding:1px 6px;line-height:1.6}
 .btn-add-zone:hover{color:#007AFF;border-color:#007AFF;background:#F0F7FF}
 
 /* ── Group-action mini popup ──────────────────────── */
@@ -607,7 +610,7 @@ function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
   const divisor = 3600 / eolr;
   const dv  = (v)   => (v != null && v !== '') ? fmtNum(v) : '';
   const ops = (std) => { const s = parseFloat(std); return (!isNaN(s)&&s>0) ? fmtNum(parseFloat((s/divisor).toFixed(4))) : ''; };
-  const edM = (fld, v) => `<td class="num" style="cursor:text" onclick="startEdit(this,${pid},'${fld}')" data-tip="點擊編輯">${dv(v)}</td>`;
+  const edM = (fld, v) => `<td class="num" style="padding:0"><input class="cell-inp" value="${dv(v)}" onblur="commitEditStatic(this,${pid},'${fld}')" onkeydown="if(event.key==='Enter')this.blur()"></td>`;
   const fmC = (v)      => `<td class="formula-cell">${dv(v)}</td>`;
   const thC = (std)    => `<td class="formula-cell theory-cell" data-stdtime="${std??''}" data-zone="${esc(zone)}">${ops(std)}</td>`;
   const zoneJ = esc(JSON.stringify(zone));
@@ -848,7 +851,7 @@ function renderCell(row, col, zone, seg, eolr) {
         return `<td class="formula-cell">${display}</td>`;
       }
       // 打粗/照射: TCT manual, editable
-      return `<td class="num" style="cursor:text" onclick="startEdit(this,${pid},'standard_time')" data-tip="點擊編輯">${fmtNum(val)}</td>`;
+      return `<td class="num" style="padding:0"><input class="cell-inp" value="${fmtNum(val)}" onblur="commitEditStatic(this,${pid},'standard_time')" onkeydown="if(event.key==='Enter')this.blur()"></td>`;
     }
     const display = computed != null ? fmtNum(parseFloat(computed.toFixed(4))) : '';
     return `<td class="formula-cell">${display}</td>`;
@@ -876,7 +879,7 @@ function renderCell(row, col, zone, seg, eolr) {
     if (locked) return `<td class="actual-cell locked-cell">${fmtNum(val)}</td>`;
     if (row.flag === '待手工') return `<td class="actual-cell" style="background:#fff3e0;color:#e65100;text-align:center">⚠ 待手工</td>`;
     if (zone === WS) {
-      return `<td class="actual-cell clickable" onclick="startEdit(this,${pid},'actual_operators')" data-tip="點擊編輯">${fmtNum(val)}</td>`;
+      return `<td class="actual-cell" style="padding:0"><input class="cell-inp" style="font-weight:600" value="${fmtNum(val)}" onblur="commitEditStatic(this,${pid},'actual_operators')" onkeydown="if(event.key==='Enter')this.blur()"></td>`;
     }
     const zoneJ = esc(JSON.stringify(zone));
     const segJ  = esc(JSON.stringify(seg));
@@ -887,12 +890,12 @@ function renderCell(row, col, zone, seg, eolr) {
     const defaultAllow = (seg === 'stitching' || seg === 'assembly') ? 10 : null;
     const display = val != null ? fmtNum(val) : (defaultAllow != null ? fmtNum(defaultAllow) : '');
     if (locked) return `<td class="num locked-cell">${display}</td>`;
-    return `<td class="num" style="cursor:text" onclick="startEdit(this,${pid},'allowance_pct')" data-tip="點擊編輯">${display}</td>`;
+    return `<td class="num" style="padding:0"><input class="cell-inp" value="${display}" onblur="commitEditStatic(this,${pid},'allowance_pct')" onkeydown="if(event.key==='Enter')this.blur()"></td>`;
   }
 
   if (EDITABLE_COLS.has(col)) {
     if (locked) return `<td class="num locked-cell">${fmtNum(val)}</td>`;
-    return `<td class="num" style="cursor:text" onclick="startEdit(this,${pid},'${col}')" data-tip="點擊編輯">${fmtNum(val)}</td>`;
+    return `<td class="num" style="padding:0"><input class="cell-inp" value="${fmtNum(val)}" onblur="commitEditStatic(this,${pid},'${col}')" onkeydown="if(event.key==='Enter')this.blur()"></td>`;
   }
 
   return `<td class="num">${fmtNum(val)}</td>`;
@@ -1225,6 +1228,12 @@ function commitEdit(inp, pid, field) {
   if (!EDITS[pid]) EDITS[pid] = {};
   EDITS[pid][field] = newVal;
   td.style.outline = '1px solid #007AFF';
+  updateSaveBar();
+}
+function commitEditStatic(inp, pid, field) {
+  const newVal = inp.value.trim();
+  if (!EDITS[pid]) EDITS[pid] = {};
+  EDITS[pid][field] = newVal;
   updateSaveBar();
 }
 
