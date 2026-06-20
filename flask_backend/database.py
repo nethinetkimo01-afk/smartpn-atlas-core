@@ -3,7 +3,7 @@ import json
 import os
 from datetime import datetime, timezone
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'data', 'atlas.db')
+DB_PATH = os.environ.get('ATLAS_DB') or os.path.join(os.path.dirname(__file__), 'data', 'atlas.db')
 SCHEMA_PATH = os.path.join(os.path.dirname(__file__), 'schema.sql')
 
 DEFAULT_LOOKUP = {
