@@ -9,11 +9,7 @@ PORT     = 5000
 INTERVAL = 30
 _proc    = None
 
-# Hardcoded to avoid Windows Store Python (python.exe stub) hijacking sys.executable.
-# If this path ever changes, update here.
-PYTHON = r'C:\Users\user\AppData\Local\Python\pythoncore-3.14-64\python.exe'
-if not os.path.isfile(PYTHON):
-    PYTHON = sys.executable  # fallback
+PYTHON = sys.executable
 
 
 def log(msg):
