@@ -1,56 +1,46 @@
-# CV — STATUS（下個 session 先讀這個）　更新：2026-06-22
+# CV — STATUS（下個 session 先讀這個）　更新：2026-06-22 晚
 
-> 換 session 後，Claude 先讀整個 00_HANDOFF 到最新檔（**不要只讀清單上的 24，CV 內容地基在 38**），再讀本資料夾 CV/。不要再叫 Jim 重傳。
+> 換 session：先讀整個 00_HANDOFF 到最新檔（不要只到 24，CV 內容地基在 38），再讀 CV/。不要叫 Jim 重傳。
+> 最高原則：任何產出站「接收者」立場檢查（CV→HR/高層；給 Jim 看→Jim 的螢幕）。內容完整＝可寄出 優先；視覺是加分項，Claude 自己處理，別拿來卡 Jim。
 
-## 0. 這份是什麼
-Jim 的**主動提案型 CV**：主動申請尚未公布、應屬中高階的職位/合作。**主角＝Jim（人）**，系統只是能力佐證，不是產品簡介。寄 HR、請轉交**經營團隊／市場開發(BD) Head**。母版可換公司。首發 Inspectorio。
+## 主角與定位
+主角＝Jim（人），系統只是能力佐證。寄 HR、自我推薦、請轉交經營/業務 Head；目標＝經營或業務類「中高階」職位或合作。不掛品牌名/不用 Founder/不寫對方陌生字/不放技術術語。
 
-## 1. 鐵則
-- 先給結果再問；**先討論確認方向與內容，Jim OK 才生成**；不要丟一堆沒確認的東西要他糾錯。要確認的併成一份一次給他看。
-- 版面/具象圖設計＝GPT 出（Claude 寫 prompt）；**圖回來後 Claude 自己嵌入版面、做後續所有調整，不回 GPT**。GPT 只出圖那一次。
-- 純文字排版不行：**每頁要有一個「一看就懂」的圖當視覺主角**，文字配角、越簡單越好、要有反差。
-- 不寫對方陌生的字、不掛品牌名("SmartPN Atlas")、不用 "Founder"、不放技術術語(Python/Flask/SQLite)。
-- 存檔走 Code（Claude 出工單 → Code commit/push）；Jim 檔案一律在 Downloads（C:\Users\ie5\Downloads\），工單路徑照 Downloads 寫。
-- 先搞懂 scenario 邏輯再畫；不懂先問。
+## 三組「核心」務必分清、各有其頁、不可漏不可混（今天漏過四支柱，慘痛）
+- 四支柱（系統「是什麼」本體）＝ **Identity / Governance / Decision / Motivation**。
+- 四要素（這創新「成功靠什麼」）＝ ①對品牌具體貢獻 ②我建出的結構(Demo已驗證,商業化尚缺) ③東南亞導入團隊(缺guider,人才是成敗) ④data provider 被動→主動。
+- 三大貢獻（帶給對方公司）＝ 增加東南亞客戶 / 為下游建 trusted source＋可信製造端分析 / 提高現有客戶黏著；對客戶＝降費用、供應鏈透明。
+（Motivation 支柱 與 要素④ 同一件事，合併不重複。）
 
-## 2. CV 主軸
-把市場現有條碼/編碼系統**升級到製造端可用**的 innovation：製造端從 STANDARD ZERO ZONE（材料身分不一致→無共同語言→無 trusted source）轉成有 Shared Language 的 STANDARD ZONE。Jim 同時握有讓它成功的四要素能力。
+## CV 主軸
+把市場現有條碼/編碼系統升級到製造端可用的 innovation：製造端從 STANDARD ZERO ZONE(身分不一致→無共同語言→無 trusted source) → 有 Shared Language 的 STANDARD ZONE。SmartPN 就是鏈上「製造端跨 brand/OEM/supplier 身分」那一段（沒人擁有的那一層）。
 
-## 3. 四要素
-1. 對品牌的具體貢獻（用 scenario 證明；**此階段先不挑 scenario**）。
-2. 結構＋Demo 已驗證，商業化經驗坦白尚缺（想得出、建得出；商業化那一哩想藉這份工作走完）。
-3. 東南亞導入團隊(guider)：data provider 缺的是 guider 不是意願；系統不是導入失敗主因，人才是；Jim 能組團隊帶上線。
-4. data provider 被動→主動（見第 6 節）。
+## 目前頁序（15 頁，已出 HTML 預覽 Jim_CV_preview.html）
+1 Why I'm writing（**第一頁**，自我推薦給 HR、請轉交）
+2 Contents
+3 Who I am（三層：製造現場 / 把所知變成系統並落地(不寫程式,靠標準化+協調+平衡) / 與AI獨力做出兩套系統）
+4 System one — IE（290 / 20,434 / 4 / 20+；built with AI）
+5 System two — innovation 簡介（ZERO ZONE→STANDARD ZONE；沒人擁有那層；坦白結構+Demo已驗證、商業化尚缺）
+6 四支柱：Identity / Governance / Decision / Motivation
+7 Shared Language 兩層（Identity+Governance；公開推不動 vs 有permission推得動；非中央庫、數據不離開擁有者）
+8 Decision（trusted source 依工廠實際 BOM 支援決策）
+9 Motivation 被動→主動（用 Passive→Active 臉圖；被搜尋到→有商業價值→才主動；不放收尾句）
+10 四要素總覽
+11 要素③ 東南亞導入團隊（缺 guider；系統不是失敗主因，人才是）
+12 要素① 對品牌具體貢獻（找相同/替代材料、可信評比、降找料成本；**具體 scenario 留空待 Jim 挑**）
+13 三大貢獻
+14 How I'd work（越南/台灣、可出差、英文非母語坦白）
+15 The ask（自我分析+潛在貢獻；無職稱、中高階，主動爭取職位或合作）
 
-## 4. 結構（目錄定案；主角＝Jim）
-1. Why I'm writing — 無對應職稱、屬中高階，主動爭取任職或合作；HR 轉交經營／BD Head。
-2. Who I am（三層）：L1 製造現場(會做鞋/IE/全流程)；L2 系統開發「我能把我懂的轉成系統並落地」(標準化+協調+平衡用戶與開發，不寫程式)；L3 獨立與 AI 合作，帶出兩套系統(IE & Workforce Planning ＋ an innovation: 製造業材料身分與 governance 系統)，結尾過渡到第3段。
-3. Proven results — and what I can bring to you：成果一 IE(290/20,434/4/20+)；成果二 the innovation＋四要素。
-4. How I'd work with you — 越南/台灣、可出差、英文非母語坦白（已刪「退休後支薪/分紅」）。
-5. The ask — 謙抑，爭取任職或合作。
+## 確認數字（來自 38，已確認）
+IE：290 shoe models / 20,434 IE process records / 4 departments / 20+ users。
 
-## 5. 版面系統（Jim 已核准）
-- 16:9 白底 Inter；近黑#1D1D1F 灰#6E6E73 橘金#B5540D 灰卡#F5F5F7 線#D2D2D7。
-- 頂部常駐段別導覽：Why · Who I am · Results · How I'd work · The ask；當前段橘金、其餘淺灰。
-- 內容頁不放大 section title；只放頁內小標 + 圖(視覺主角) + 最少文字。加目錄頁。
-- 三階層級：導覽(段)→頁內小標(頁)→內文＋橘金(帶走點)。
-- 待定：導覽當前段維持橘金，或改深黑把橘金只留內文(目前先橘金)。
+## 視覺
+版面系統已核准：頂部常駐段別導覽(當前段橘金)、無大 section title、頁內小標+視覺主角+最少字、單一橘金、目錄頁、16:9 白底 Inter。具象小圖：GPT 出圖不穩，改用「專業開源圖示庫(Lucide/Tabler 等)」由 Claude 自己組，或用簡單臉圖隱喻；Claude 嵌入版面、後續調整不回 GPT。給 Jim 看：用 HTML 在右側預覽窗格逐頁顯示(Jim_CV_preview.html)，不要丟模糊縮圖、不要叫他開 PDF。
 
-## 6. 「data provider 被動→主動」頁（討論到這）
-- 核心是**因果**：資料能被搜尋到 → 資料有商業價值 → 供應商才從被動變主動（商業價值是因，被動/主動是果）。
-- 視覺主角：GPT 的 Passive(平淡臉)→Active(興奮臉，右上橘金小爆發線)；平淡→興奮，不要負面表情。圖在 Jim 端，需重新提供。
-- 這頁不放收尾句；專表達「資料有無商業價值＝被動/主動的關鍵」。
-- 圖下文字(待定)候選：Searchable data has commercial value — and that is what makes a provider active.
+## 待 Jim
+- 要素① 的具體 scenario（先不挑/之後挑）。
+- 視覺細化（線條→專業圖示庫）為加分項。
 
-## 7. 產出檔
-- cv_builder.py — 全本 14 頁 builder（已核准版面系統；只放確認內容，P11/P12 留空）。唯一渲染來源。
-- 早前 01_COPY_15pages.md / 02_GPT_template_prompts.md 為舊草稿，內容以本 STATUS＋38 為準，勿用草稿裡 Claude 自編的東西(如 GS1/PLM)。
-
-## 8. 渲染環境（重建約 1 分鐘）
-weasyprint + Inter(fontTools 切 400/500/600)。指令：
-pip install weasyprint pymupdf --break-system-packages -q ；下載 Inter 可變字型 raw.githubusercontent.com/google/fonts/main/ofl/inter/Inter[opsz,wght].ttf ；用 instantiateVariableFont 切 400/500/600 存 ~/.fonts ；fc-cache -f ~/.fonts。
-
-## 9. 下一步
-1. 收尾被動→主動頁：取得 Passive→Active 圖 → 嵌入版面＋第6節因果文字 → self-QA。
-2. 逐頁同法：想一看就懂隱喻 → 確認該頁邏輯 → 寫 prompt 給 GPT → 嵌入重做。
-3. 全本套視覺主角後再挑 scenario(要素①、潛在貢獻)。
+## 渲染環境（重建約1分鐘）
+weasyprint + Inter(fontTools 切 400/500/600 存 ~/.fonts；Inter 可變字型來自 raw.githubusercontent.com/google/fonts/main/ofl/inter/Inter[opsz,wght].ttf)。HTML 預覽：cv_html2.py 產生 Jim_CV_preview.html。
