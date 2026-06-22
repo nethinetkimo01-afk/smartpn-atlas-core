@@ -1,76 +1,56 @@
-# CV — STATUS（下個 session 先讀這個）
+# CV — STATUS（下個 session 先讀這個）　更新：2026-06-22
 
-> 用途：這是 Jim 的「主動提案型 CV」工作包的進度入口。換 session 後，Claude 先用 raw 通道讀回本資料夾，**不要再叫 Jim 重傳任何檔**。
-> raw 範例：`https://raw.githubusercontent.com/nethinetkimo01-afk/smartpn-atlas-core/main/CV/cv_builder.py`
+> 換 session 後，Claude 先讀整個 00_HANDOFF 到最新檔（**不要只讀清單上的 24，CV 內容地基在 38**），再讀本資料夾 CV/。不要再叫 Jim 重傳。
 
----
+## 0. 這份是什麼
+Jim 的**主動提案型 CV**：主動申請尚未公布、應屬中高階的職位/合作。**主角＝Jim（人）**，系統只是能力佐證，不是產品簡介。寄 HR、請轉交**經營團隊／市場開發(BD) Head**。母版可換公司。首發 Inspectorio。
 
-## 0. 一句話
-這是 **Jim 的 CV**（主角＝Jim），形式＝主動申請一個尚未公布的職缺。SmartPN Atlas 只是 P7–P13 的能力佐證之一，不是產品簡介。首發 Inspectorio，母版換公司只改變量。
+## 1. 鐵則
+- 先給結果再問；**先討論確認方向與內容，Jim OK 才生成**；不要丟一堆沒確認的東西要他糾錯。要確認的併成一份一次給他看。
+- 版面/具象圖設計＝GPT 出（Claude 寫 prompt）；**圖回來後 Claude 自己嵌入版面、做後續所有調整，不回 GPT**。GPT 只出圖那一次。
+- 純文字排版不行：**每頁要有一個「一看就懂」的圖當視覺主角**，文字配角、越簡單越好、要有反差。
+- 不寫對方陌生的字、不掛品牌名("SmartPN Atlas")、不用 "Founder"、不放技術術語(Python/Flask/SQLite)。
+- 存檔走 Code（Claude 出工單 → Code commit/push）；Jim 檔案一律在 Downloads（C:\Users\ie5\Downloads\），工單路徑照 Downloads 寫。
+- 先搞懂 scenario 邏輯再畫；不懂先問。
 
-## 1. 鐵則（違反過會被糾正）
-- 先給結果再問；不要列清單要 Jim 核；不要一次問一堆。
-- **GPT 只負責「一次性出版型長相」**；版型定案＝規格。之後所有對位/灌字/調整/修錯，**Claude 自己用 builder 做到底、自渲染、自 self-QA、自出 PDF，不回 GPT。**
-- 不糾錯：圖文重疊、附沒用程式碼、沒讀懂指令 → 交付前自己攔。
-- 視覺一致性母規（下方第 4 節）是最高約束，每頁都繼承。
-- 交付給 Jim 只給成品；builder 僅作備援。
-- **成果一律由 Claude 自己存進本資料夾**，不要散掉、不要事後要 Jim 重傳。
+## 2. CV 主軸
+把市場現有條碼/編碼系統**升級到製造端可用**的 innovation：製造端從 STANDARD ZERO ZONE（材料身分不一致→無共同語言→無 trusted source）轉成有 Shared Language 的 STANDARD ZONE。Jim 同時握有讓它成功的四要素能力。
 
-## 2. 流程（現在在哪）
-1. 全貌確認 ✅（15 頁 / 四幕，見 `01_COPY_15pages.md`）
-2. 15 頁英文文案 ✅（`01_COPY_15pages.md`）
-3. GPT 版型 prompt ✅（`02_GPT_template_prompts.md`，含一致性母規＋7 版型）
-4. **第一款基調渲染 ✅**（封面 D01 → `renders/CV_P1_cover_D01.pdf`/`.png`）由新 builder `cv_builder.py` 產出
-5. ⏳ **等 Jim：** 拿基調＋母規去 GPT 出多款視覺方向 → Jim 選一款
-6. ⏳ Jim 選定後：Claude 照基調把 D01–D07 全做到底 → 灌 15 頁 → 出整本 PDF
+## 3. 四要素
+1. 對品牌的具體貢獻（用 scenario 證明；**此階段先不挑 scenario**）。
+2. 結構＋Demo 已驗證，商業化經驗坦白尚缺（想得出、建得出；商業化那一哩想藉這份工作走完）。
+3. 東南亞導入團隊(guider)：data provider 缺的是 guider 不是意願；系統不是導入失敗主因，人才是；Jim 能組團隊帶上線。
+4. data provider 被動→主動（見第 6 節）。
 
-## 3. 待 Jim 補/確認
-- **P6 三個數字**：IE 系統 records / models / users（唯一卡內容的點）。
-- 基調（白底/Inter/單一橘金/左對齊大留白）是否接受。
-- GPT 出的視覺方向選哪一款。
+## 4. 結構（目錄定案；主角＝Jim）
+1. Why I'm writing — 無對應職稱、屬中高階，主動爭取任職或合作；HR 轉交經營／BD Head。
+2. Who I am（三層）：L1 製造現場(會做鞋/IE/全流程)；L2 系統開發「我能把我懂的轉成系統並落地」(標準化+協調+平衡用戶與開發，不寫程式)；L3 獨立與 AI 合作，帶出兩套系統(IE & Workforce Planning ＋ an innovation: 製造業材料身分與 governance 系統)，結尾過渡到第3段。
+3. Proven results — and what I can bring to you：成果一 IE(290/20,434/4/20+)；成果二 the innovation＋四要素。
+4. How I'd work with you — 越南/台灣、可出差、英文非母語坦白（已刪「退休後支薪/分紅」）。
+5. The ask — 謙抑，爭取任職或合作。
 
-## 4. 一致性母規（locked design tokens）
-- 版面：landscape 16:9（1280×720 @96dpi）。純白底 #FFFFFF。
-- 字：Inter。主字近黑 #1D1D1F；次要/標籤灰 #6E6E73；頁碼 #AEAEB2。
-- **唯一強調色** 橘金 #B5540D：每頁只標一個要被記住的重點，絕不裝飾、絕不超過一處。
-- 卡片灰 #F5F5F7，圓角 12–16px；分隔線 #D2D2D7 0.5px。
-- 左對齊網格、邊距 ≥7%、大留白。每頁一個視覺主角（圖），文字配角。
-- 七版型：D01 Quiet Cover / D02 Four Value Cards / D03 Before-After / D04 Concept Model / D05 Proof Metrics / D06 Leadership Narrative / D07 Scenario（共用，複製 17 次）。
+## 5. 版面系統（Jim 已核准）
+- 16:9 白底 Inter；近黑#1D1D1F 灰#6E6E73 橘金#B5540D 灰卡#F5F5F7 線#D2D2D7。
+- 頂部常駐段別導覽：Why · Who I am · Results · How I'd work · The ask；當前段橘金、其餘淺灰。
+- 內容頁不放大 section title；只放頁內小標 + 圖(視覺主角) + 最少文字。加目錄頁。
+- 三階層級：導覽(段)→頁內小標(頁)→內文＋橘金(帶走點)。
+- 待定：導覽當前段維持橘金，或改深黑把橘金只留內文(目前先橘金)。
 
-## 5. 版型 → 頁對照
-| 版型 | 頁 |
-|---|---|
-| D01 Quiet Cover | P1, P5, P15 |
-| D02 Four Value Cards | P7 |
-| D03 Before/After | P9, P10 |
-| D04 Concept Model | P3, P8, P11, P13 |
-| D05 Proof Metrics | P4, P6 |
-| D06 Leadership Narrative | P2, P14 |
-| D07 Scenario（共用） | P12 ＋ 17 場景 |
+## 6. 「data provider 被動→主動」頁（討論到這）
+- 核心是**因果**：資料能被搜尋到 → 資料有商業價值 → 供應商才從被動變主動（商業價值是因，被動/主動是果）。
+- 視覺主角：GPT 的 Passive(平淡臉)→Active(興奮臉，右上橘金小爆發線)；平淡→興奮，不要負面表情。圖在 Jim 端，需重新提供。
+- 這頁不放收尾句；專表達「資料有無商業價值＝被動/主動的關鍵」。
+- 圖下文字(待定)候選：Searchable data has commercial value — and that is what makes a provider active.
 
-## 6. 渲染環境（換 session 重建，約 1 分鐘，不需 Jim）
-容器無瀏覽器，用 **weasyprint**（pango/cairo 已內建）。Inter 用 fontTools 從可變字型切靜態字重：
-```bash
-pip install weasyprint pymupdf --break-system-packages -q
-mkdir -p ~/.fonts && cd ~
-curl -sL -o Inter-var.ttf "https://raw.githubusercontent.com/google/fonts/main/ofl/inter/Inter%5Bopsz%2Cwght%5D.ttf"
-python3 - <<'PY'
-from fontTools import ttLib
-from fontTools.varLib.instancer import instantiateVariableFont
-import os
-for w,fam in {400:"Inter",500:"Inter Medium",600:"Inter SemiBold"}.items():
-    f=ttLib.TTFont("Inter-var.ttf"); instantiateVariableFont(f,{"wght":w,"opsz":18},inplace=True)
-    n=f["name"]
-    for nid,val in [(1,fam),(4,fam),(6,fam.replace(' ','')),(16,fam)]: n.setName(val,nid,3,1,0x409)
-    f.save(os.path.expanduser(f"~/.fonts/{fam.replace(' ','-')}.ttf"))
-PY
-fc-cache -f ~/.fonts
-```
-然後 `python3 CV/cv_builder.py` 即可重出封面。其餘版型依第 4 節母規續寫進同一 builder。
+## 7. 產出檔
+- cv_builder.py — 全本 14 頁 builder（已核准版面系統；只放確認內容，P11/P12 留空）。唯一渲染來源。
+- 早前 01_COPY_15pages.md / 02_GPT_template_prompts.md 為舊草稿，內容以本 STATUS＋38 為準，勿用草稿裡 Claude 自編的東西(如 GS1/PLM)。
 
-## 7. 檔案清單
-- `cv_builder.py` — 新 builder（規格化重做用，唯一渲染來源）
-- `01_COPY_15pages.md` — 15 頁英文文案（含每頁橘金重點＋給 GPT 圖示說明）
-- `02_GPT_template_prompts.md` — 一致性母規 ＋ 7 版型 GPT prompt
-- `renders/CV_P1_cover_D01.pdf` / `.png` — 第一款基調成品
-- `CV_STATUS.md` — 本檔（入口）
+## 8. 渲染環境（重建約 1 分鐘）
+weasyprint + Inter(fontTools 切 400/500/600)。指令：
+pip install weasyprint pymupdf --break-system-packages -q ；下載 Inter 可變字型 raw.githubusercontent.com/google/fonts/main/ofl/inter/Inter[opsz,wght].ttf ；用 instantiateVariableFont 切 400/500/600 存 ~/.fonts ；fc-cache -f ~/.fonts。
+
+## 9. 下一步
+1. 收尾被動→主動頁：取得 Passive→Active 圖 → 嵌入版面＋第6節因果文字 → self-QA。
+2. 逐頁同法：想一看就懂隱喻 → 確認該頁邏輯 → 寫 prompt 給 GPT → 嵌入重做。
+3. 全本套視覺主角後再挑 scenario(要素①、潛在貢獻)。
