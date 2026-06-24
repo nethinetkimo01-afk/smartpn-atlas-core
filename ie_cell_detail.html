@@ -620,9 +620,24 @@ function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
   const divisor = 3600 / eolr;
   const dv  = (v)   => (v != null && v !== '') ? fmtNum(v) : '';
   const ops = (std) => { const s = parseFloat(std); return (!isNaN(s)&&s>0) ? fmtNum(parseFloat((s/divisor).toFixed(4))) : ''; };
-  const edM = (fld, v) => `<td class="num" style="padding:0"><input class="cell-inp" value="${dv(v)}" onblur="commitEditStatic(this,${pid},'${fld}')" onkeydown="if(event.key==='Enter')this.blur()"></td>`;
-  const fmC = (v)      => `<td class="formula-cell">${dv(v)}</td>`;
-  const thC = (std)    => `<td class="formula-cell theory-cell" data-stdtime="${std??''}" data-zone="${esc(zone)}">${ops(std)}</td>`;
+  const edM  = (fld, v) => `<td class="num" style="padding:0"><input class="cell-inp" value="${dv(v)}" onblur="commitEditStatic(this,${pid},'${fld}')" onkeydown="if(event.key==='Enter')this.blur()"></td>`;
+  // Type-A cutting inputs: carry data-cfield + oninput for live std recalc
+  const edMA = (fld, v) => `<td class="num" style="padding:0"><input class="cell-inp" data-cfield="${fld}" value="${dv(v)}" onblur="commitEditStatic(this,${pid},'${fld}')" onkeydown="if(event.key==='Enter')this.blur()" oninput="recalcCuttingStdByPid(${pid})"></td>`;
+  const fmC  = (v)      => `<td class="formula-cell">${dv(v)}</td>`;
+  const thC  = (std)    => `<td class="formula-cell theory-cell" data-stdtime="${std??''}" data-zone="${esc(zone)}">${ops(std)}</td>`;
+  // Type-A live std/theory cells — ignore DB standard_time, compute from three fields
+  const fmCutA = () => {
+    const lay = parseFloat(row.layers_per_cut), qty = parseFloat(row.qty_per_pair), cph = parseFloat(row.cut_per_hour);
+    const v = (lay > 0 && qty > 0 && cph > 0) ? fmtNum(3600 / cph / qty * lay) : '';
+    return `<td class="formula-cell cutting-std-a" data-pid="${pid}">${v}</td>`;
+  };
+  const thCA = () => {
+    const lay = parseFloat(row.layers_per_cut), qty = parseFloat(row.qty_per_pair), cph = parseFloat(row.cut_per_hour);
+    const divisor = 3600 / eolr;
+    let stdRaw = '', thVal = '';
+    if (lay > 0 && qty > 0 && cph > 0) { stdRaw = 3600 / cph / qty * lay; thVal = fmtNum(stdRaw / divisor); }
+    return `<td class="formula-cell theory-cell cutting-th-a" data-pid="${pid}" data-stdtime="${stdRaw}" data-zone="${esc(zone)}">${thVal}</td>`;
+  };
   const zoneJ = esc(JSON.stringify(zone));
   const actC = () => {
     if (row.group_info) {
@@ -661,7 +676,7 @@ function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
   h += nmC;
   const act = actC();
   if (type === 'A') {
-    h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('cut_per_hour',row.cut_per_hour)+fmC(std)+thC(std)+(act||'')+post5();
+    h += edMA('layers_per_cut',row.layers_per_cut)+edMA('qty_per_pair',row.qty_per_pair)+edMA('cut_per_hour',row.cut_per_hour)+fmCutA()+thCA()+(act||'')+post5();
   } else if (type === 'B') {
     h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('standard_time',std)+thC(std)+(act||'')+post5();
   } else if (type === 'C') {
@@ -928,6 +943,29 @@ function calcHandTotal(summaryZone) {
     }
   }
   return total;
+}
+
+function recalcCuttingStdByPid(pid) {
+  const stdCell = document.querySelector(`.cutting-std-a[data-pid="${pid}"]`);
+  const thCell  = document.querySelector(`.cutting-th-a[data-pid="${pid}"]`);
+  if (!stdCell) return;
+  const tr = stdCell.closest('tr');
+  let lay = NaN, qty = NaN, cph = NaN;
+  tr.querySelectorAll('input.cell-inp[data-cfield]').forEach(inp => {
+    const v = parseFloat(inp.value);
+    if (inp.dataset.cfield === 'layers_per_cut') lay = v;
+    if (inp.dataset.cfield === 'qty_per_pair')   qty = v;
+    if (inp.dataset.cfield === 'cut_per_hour')   cph = v;
+  });
+  const divisor = 3600 / EOLR;
+  if (lay > 0 && qty > 0 && cph > 0) {
+    const std = 3600 / cph / qty * lay;
+    stdCell.textContent = fmtNum(std);
+    if (thCell) { thCell.dataset.stdtime = std; thCell.textContent = fmtNum(std / divisor); }
+  } else {
+    stdCell.textContent = '';
+    if (thCell) { thCell.dataset.stdtime = ''; thCell.textContent = ''; }
+  }
 }
 
 function updateTheoryAndTotal() {
