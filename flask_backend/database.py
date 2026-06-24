@@ -1373,6 +1373,19 @@ def add_ie_process_row(header_id, segment, zone, process_name, standard_time, st
                        mat_cat=None, process_name_zh=None, cut_per_hour=None, qty_per_pair=None, layers_per_cut=None, actual_operators=None,
                        normal_time=None, allowance_pct=None):
     """Add a new process row and log the action."""
+    # Auto-compute standard_time from formula inputs when not directly provided
+    if standard_time is None:
+        if normal_time is not None:
+            try:
+                ap = float(allowance_pct) if allowance_pct is not None else 10.0
+                standard_time = round(float(normal_time) * (1 + ap / 100), 4)
+            except (TypeError, ValueError):
+                pass
+        elif cut_per_hour and qty_per_pair and layers_per_cut:
+            try:
+                standard_time = round(3600.0 / float(cut_per_hour) / float(qty_per_pair) * float(layers_per_cut), 4)
+            except (TypeError, ValueError, ZeroDivisionError):
+                pass
     conn = get_conn()
     try:
         # Look up art from existing rows for this header

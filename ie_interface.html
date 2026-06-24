@@ -80,6 +80,9 @@ thead th:last-child{border-right:none}
 
 .loading{text-align:center;padding:40px;color:#888}
 .empty{text-align:center;padding:30px;color:#aaa;font-size:12px}
+.badge-assigned{display:inline-block;background:#e8f5e9;color:#1b5e20;border:1px solid #81c784;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:4px;vertical-align:middle}
+.btn-my-assign{background:#1b5e20;color:#fff}.btn-my-assign:hover{background:#2e7d32}
+.btn-my-assign.inactive{background:#e8f5e9;color:#1b5e20;border:1px solid #81c784}
 
 .act-cell{text-align:center;padding:2px 4px;white-space:nowrap;border-right:1px solid #e4e9f2;vertical-align:middle}
 .btn-dot-menu{background:transparent;border:none;cursor:pointer;font-size:15px;font-weight:700;border-radius:3px;padding:1px 6px;line-height:1.5;color:#888;letter-spacing:1px}
@@ -123,6 +126,7 @@ thead th:last-child{border-right:none}
   <input id="search" class="search-inp" type="text" placeholder="搜尋鞋型 / ART..." oninput="filterTable()">
   <button id="btn-reload" class="btn btn-refresh" onclick="loadData()">重新載入</button>
   <button id="btn-new-model" class="btn btn-refresh" onclick="openNewModelModal()" style="display:none;background:#1a2744;color:#fff">＋ 新增鞋型</button>
+  <button id="btn-my-assign" class="btn btn-my-assign" onclick="toggleMyAssign()" style="display:none">✓ 我的指派</button>
   <span id="user-badge" style="font-size:12px;color:#555;padding:0 6px"></span>
   <a id="btn-logout" href="#" onclick="doLogout()" style="display:none;font-size:12px;color:#888;text-decoration:none">登出</a>
   <span id="stats" class="stats">—</span>
@@ -251,6 +255,8 @@ const LANGS = {
 let currentLang = localStorage.getItem('ie_lang') || 'zh';
 let allRecords = [];
 let allGroups  = [];
+let MY_ASSIGNED_IDS = new Set();
+let showOnlyAssigned = false;
 function L(k){ return LANGS[currentLang][k]; }
 
 function setLang(lang){
@@ -350,9 +356,11 @@ function renderGroup(g){
   const chips      = g.arts.map(a=>`<span class="art-chip">${esc(a)}</span>`).join('');
   const detailHref = linkId ? `/ie/${linkId}/detail` : '#';
   const detailTxt  = L('detail');
+  const isMyAssigned = [g.id60, g.id120].some(id => id && MY_ASSIGNED_IDS.has(id));
+  const assignedBadge = isMyAssigned ? '<span class="badge-assigned">我的指派</span>' : '';
 
   const seasonVal = esc(g.season||'—');
-  const modelVal  = `<a href="/ie/${linkId}" class="model-link">${fmtModel(g.model_name)}</a>`+
+  const modelVal  = `<a href="/ie/${linkId}" class="model-link">${fmtModel(g.model_name)}</a>${assignedBadge}`+
     (linkId ? `<br><a href="${detailHref}" class="detail-link">${esc(detailTxt)}</a>` : '');
   const artsVal   = chips || '<span style="color:#aaa;font-size:11px">—</span>';
   const matVal    = matText(g.mat);
@@ -427,6 +435,7 @@ async function loadData(){
     const res  = await fetch('/api/ie/list');
     const data = await res.json();
     allRecords = data.ok ? (data.records||[]) : [];
+    MY_ASSIGNED_IDS = new Set(allRecords.filter(r=>r.my_assigned).map(r=>r.id));
     allGroups  = groupByModel(allRecords);
     renderGroupedTable(allGroups);
     updateStats();
@@ -438,8 +447,12 @@ async function loadData(){
 
 function renderGroupedTable(groups){
   const tbody = document.getElementById('ie-tbody');
-  if(!groups.length){ tbody.innerHTML=`<tr><td colspan="10" class="empty">${esc(L('empty'))}</td></tr>`; return; }
-  tbody.innerHTML = groups.map(renderGroup).join('');
+  let visible = groups;
+  if(showOnlyAssigned && MY_ASSIGNED_IDS.size > 0){
+    visible = groups.filter(g=>[g.id60,g.id120].some(id=>id && MY_ASSIGNED_IDS.has(id)));
+  }
+  if(!visible.length){ tbody.innerHTML=`<tr><td colspan="10" class="empty">${esc(L('empty'))}</td></tr>`; return; }
+  tbody.innerHTML = visible.map(renderGroup).join('');
 }
 
 function filterTable(){
@@ -450,6 +463,14 @@ function filterTable(){
     (r.arts||[]).some(a=>a.toLowerCase().includes(q))
   );
   renderGroupedTable(groupByModel(filtered));
+}
+
+function toggleMyAssign(){
+  showOnlyAssigned = !showOnlyAssigned;
+  const btn = document.getElementById('btn-my-assign');
+  if(showOnlyAssigned){ btn.classList.remove('inactive'); btn.textContent='✓ 我的指派'; }
+  else { btn.classList.add('inactive'); btn.textContent='全部鞋型'; }
+  filterTable();
 }
 
 // ── Auth ─────────────────────────────────────────────────────────────────────
@@ -473,6 +494,10 @@ async function initAuth(){
       setInterval(checkVersionStatus, 5*60*1000);
       const adminBtn = document.getElementById('btn-admin-users');
       if (adminBtn) adminBtn.style.display = 'inline-block';
+    }
+    if(CURRENT_USER.role === 'data_entry'){
+      const myBtn = document.getElementById('btn-my-assign');
+      if(myBtn){ myBtn.style.display = 'inline-flex'; myBtn.classList.add('inactive'); myBtn.textContent='全部鞋型'; }
     }
   }
 }

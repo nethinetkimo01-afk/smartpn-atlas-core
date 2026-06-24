@@ -215,18 +215,24 @@ def allocation_page():
 
 @app.route('/api/ie/list', methods=['GET'])
 def ie_list():
-    return jsonify(db.list_ie_records())
+    u = _auth_user()
+    result = db.list_ie_records()
+    if result.get('ok') and u and u['role'] == 'data_entry':
+        assigned = set(db.get_assigned_header_ids(u['id']))
+        for rec in result.get('records', []):
+            rec['my_assigned'] = rec['id'] in assigned
+    return jsonify(result)
 
 @app.route('/api/ie/list_all', methods=['GET'])
 def ie_list_all():
-    # Admin-only: returns ALL records regardless of assignment
-    err = _require_admin()
+    # Admin/manager: returns ALL records regardless of assignment
+    err = _require_manager()
     if err: return err
     return jsonify(db.list_ie_records())
 
 @app.route('/api/ie/assignments_by_user', methods=['GET'])
 def ie_assignments_by_user():
-    err = _require_admin()
+    err = _require_manager()
     if err: return err
     user_id = request.args.get('user_id')
     if not user_id:
