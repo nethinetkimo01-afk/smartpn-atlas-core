@@ -150,12 +150,14 @@ def _require_manager():
 
 def _can_edit_ie(header_id):
     """Returns (can_edit: bool, err_tuple_or_None).
-    admin/manager: always yes. data_entry: only assigned. others: no."""
+    admin: always yes. manager: read-only (唯讀). data_entry: only assigned. others: no."""
     u = _auth_user()
     if not u:
         return False, (jsonify({'ok': False, 'error': '請先登入'}), 401)
-    if u['role'] in ('admin', 'manager'):
+    if u['role'] == 'admin':
         return True, None
+    if u['role'] == 'manager':
+        return False, (jsonify({'ok': False, 'error': 'manager 無法編輯 IE 工序資料'}), 403)
     if u['role'] == 'data_entry':
         assigned = db.get_assigned_header_ids(u['id'])
         if header_id in (assigned or []):
@@ -1608,14 +1610,14 @@ def ie_review_list():
 
 @app.route('/api/ie/review/<int:review_id>/approve', methods=['POST'])
 def ie_review_approve(review_id):
-    err = _require_admin()
+    err = _require_manager()
     if err: return err
     u = _auth_user()
     return jsonify(db.approve_review(review_id, u['username']))
 
 @app.route('/api/ie/review/<int:review_id>/reject', methods=['POST'])
 def ie_review_reject(review_id):
-    err = _require_admin()
+    err = _require_manager()
     if err: return err
     u = _auth_user()
     d = request.get_json(force=True) or {}
@@ -1625,7 +1627,7 @@ def ie_review_reject(review_id):
 
 @app.route('/api/ie/stages/<int:header_id>/<int:stage_id>/approve', methods=['POST'])
 def ie_stage_approve(header_id, stage_id):
-    err = _require_admin()
+    err = _require_manager()
     if err: return err
     return jsonify(db.set_stage_approved(stage_id, header_id))
 

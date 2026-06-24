@@ -333,7 +333,7 @@ async function initCellAuth() {
     if (CELL_USER.role === 'data_entry') {
       document.getElementById('btn-submit-review').style.display = 'inline-block';
     }
-    if (CELL_USER.role === 'admin') {
+    if (['admin', 'manager'].includes(CELL_USER.role)) {
       document.getElementById('btn-approve-stage').style.display = 'inline-block';
     }
     if (['admin','manager'].includes(CELL_USER.role)) {
