@@ -1331,9 +1331,12 @@ def save_ie_edit(process_id, stage_id, field, value, user):
             f'SELECT {field} FROM ie_process WHERE id=?', (process_id,)
         ).fetchone()
         old_value = str(old_row[0]) if old_row and old_row[0] is not None else None
+        # Apply immediately to ie_process so values survive reload/merge
+        conn.execute(f'UPDATE ie_process SET {field}=? WHERE id=?', (value, process_id))
+        # Record with status='applied' for audit trail
         conn.execute('''
             INSERT INTO ie_edit_log (process_id, stage_id, field, old_value, new_value, user, status)
-            VALUES (?,?,?,?,?,?, 'pending')
+            VALUES (?,?,?,?,?,?, 'applied')
         ''', (process_id, stage_id, field, old_value, str(value), user))
         conn.commit()
         log_id = conn.execute('SELECT last_insert_rowid()').fetchone()[0]

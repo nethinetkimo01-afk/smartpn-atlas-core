@@ -1024,7 +1024,13 @@ function renderCell(row, col, zone, seg, eolr) {
     }
     const zoneJ = esc(JSON.stringify(zone));
     const segJ  = esc(JSON.stringify(seg));
-    return `<td class="actual-cell clickable" style="padding:0" onclick="openMergeModal(${zoneJ},${pid},${segJ})" data-tip="點擊設定/合併"><input class="cell-inp" style="font-weight:600;pointer-events:none;cursor:text" value="${fmtNum(val)}" readonly tabindex="-1"></td>`;
+    return `<td class="actual-cell" style="padding:2px 4px">
+      <div style="display:flex;align-items:center;gap:2px;justify-content:flex-end">
+        <input type="text" class="cut-act-inp" value="${fmtNum(val)}" placeholder=""
+          onblur="saveSingleActual(this,${pid})"
+          onkeydown="if(event.key==='Enter')this.blur()">
+        <button class="cut-merge-btn" onclick="openMergeModal(${zoneJ},${pid},${segJ})" title="合併多工序">合</button>
+      </div></td>`;
   }
 
   if (col === 'allowance_pct') {
