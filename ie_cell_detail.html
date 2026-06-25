@@ -357,22 +357,22 @@ const CUTTING_NO_POST = new Set(['ATOM','Laser','YINGHUI']);
 
 function getZoneCols(seg, zone) {
   if (zone === '_summary') return null;
-  if (zone === WS) return ['seq','process_name','actual_operators'];
+  if (zone === WS) return ['process_name','actual_operators'];
   if (seg === 'cutting') {
     if (zone === '裁斷機') {
-      return ['seq','process_name','part_name','layers_per_cut','qty_per_pair','cut_per_hour','standard_time','theory_operators','actual_operators'];
+      return ['process_name','part_name','layers_per_cut','qty_per_pair','cut_per_hour','standard_time','theory_operators','actual_operators'];
     }
-    return ['seq','process_name','standard_time','actual_operators'];
+    return ['process_name','standard_time','actual_operators'];
   }
   if (seg === 'stitching' || seg === 'assembly') {
-    return ['seq','process_name','normal_time','allowance_pct','standard_time','production_target','theory_operators','actual_operators'];
+    return ['process_name','normal_time','allowance_pct','standard_time','production_target','theory_operators','actual_operators'];
   }
   if (seg === 'stf') {
-    if (zone === '水洗') return ['seq','process_name','actual_operators'];
-    if (zone === '貼底') return ['seq','process_name','normal_time','standard_time','theory_operators','actual_operators'];
-    return ['seq','process_name','standard_time','actual_operators']; // 打粗/照射: TCT manual
+    if (zone === '水洗') return ['process_name','actual_operators'];
+    if (zone === '貼底') return ['process_name','normal_time','standard_time','theory_operators','actual_operators'];
+    return ['process_name','standard_time','actual_operators']; // 打粗/照射: TCT manual
   }
-  return ['seq','process_name','standard_time','theory_operators','actual_operators'];
+  return ['process_name','standard_time','theory_operators','actual_operators'];
 }
 
 // ── Auth & Review ─────────────────────────────────────────────────────────────
@@ -632,10 +632,10 @@ function _cutHead(type) {
   const en = (t)    => `<th class="th-en">${t}</th>`;
   const zh = (t, c) => `<th class="th-zh${c ? ' '+c : ''}">${t}</th>`;
   const DEL = '<th rowspan="4" style="width:22px;padding:2px"></th>';
-  const B3  = GB()+GB()+'<th class="th-cut-group left" style="background:#1C1C1E;color:#3A3A3C;min-width:110px"></th>';
-  const V3  = vi('Phân loại<br>NL')+vi('STT')+`<th class="th-vi left">Tên phối kiện</th>`;
-  const E3  = en('Classification<br>Material')+en('Seq.<br>No')+`<th class="th-en left">Name of Parts</th>`;
-  const Z3  = zh('材料類別','')+zh('序號','')+zh('部件名稱','left');
+  const B3  = GB()+'<th class="th-cut-group left" style="background:#1C1C1E;color:#3A3A3C;min-width:110px"></th>';
+  const V3  = vi('Phân loại<br>NL')+`<th class="th-vi left">Tên phối kiện</th>`;
+  const E3  = en('Classification<br>Material')+`<th class="th-en left">Name of Parts</th>`;
+  const Z3  = zh('材料類別','')+zh('部件名稱','left');
   const P5G = GP(2,'印线/画线')+GP(2,'削皮')+GP(2,'贴补强')+GP(2,'涂边/烘毛边')+GP(2,'热压');
   const P5V = (vi('TC<br>thời gian')+vi('Số người<br>lý luận')).repeat(5);
   const P5E = (en('Std time<br>(Secs)')+en('Operators<br>theory')).repeat(5);
@@ -727,7 +727,6 @@ function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
   let h = '<tr>';
   h += `<td class="del-cell"><button class="btn-del" onclick="deleteRow(${pid})">×</button></td>`;
   h += `<td class="num" style="cursor:text;font-size:9px;min-width:50px" onclick="startTextEdit(this,${pid},'mat_cat')" data-tip="點擊編輯">${esc(row.mat_cat||'')}</td>`;
-  h += `<td class="seq">${row.seq??''}</td>`;
   h += nmC;
   const act = actC();
   if (type === 'A') {
@@ -892,8 +891,6 @@ function renderCell(row, col, zone, seg, eolr) {
   const val = row[col];
   const pid = row.id;
   const locked = row.is_locked;
-
-  if (col === 'seq') return `<td class="seq">${val ?? ''}</td>`;
 
   if (col === 'process_name') {
     const isVi = LANG === 'vi' && row.process_name_vi;
@@ -1452,9 +1449,7 @@ function addRowInline(zone, seg) {
   const segJ = esc(JSON.stringify(seg));
   let cells = `<td class="del-cell"><button class="btn-del" onclick="cancelAddRowInline(${zJ})" title="取消">✕</button></td>`;
   for (const col of cols) {
-    if (col === 'seq') {
-      cells += `<td></td>`;
-    } else if (col === 'process_name') {
+    if (col === 'process_name') {
       cells += `<td><input class="add-inp" id="add-gen-pname-${esc(zone)}" placeholder="工序名稱" style="min-width:110px"></td>`;
     } else if (col === 'normal_time') {
       cells += `<td><input class="add-inp add-num" id="add-gen-nt-${esc(zone)}" type="text" placeholder="正常時間" style="min-width:55px"></td>`;
