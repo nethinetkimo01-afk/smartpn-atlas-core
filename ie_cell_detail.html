@@ -758,24 +758,6 @@ function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
     return `<td class="formula-cell theory-cell cutting-th-a" data-pid="${pid}" data-stdtime="${stdRaw}" data-zone="${esc(zone)}">${thVal}</td>`;
   };
   const zoneJ = esc(JSON.stringify(zone));
-  const actC = () => {
-    if (row.group_info) {
-      const gi = row.group_info;
-      const gid = gi.group_id;
-      const isFirst = groupFirstId?.get(gid) === row.id;
-      if (!isFirst) return renderGroupPlaceholder();
-      const n = groupSize?.get(gid) || 1;
-      return renderGroupActualCell(gi, n, zone, 'cutting');
-    }
-    return `<td class="actual-cell" style="padding:2px 4px">
-      <div style="display:flex;align-items:center;gap:2px;justify-content:flex-end">
-        <input type="text" class="cut-act-inp" data-pid="${pid}"
-          value="${row.actual_operators ?? ''}" placeholder=""
-          onblur="saveSingleActual(this,${pid})"
-          onkeydown="if(event.key==='Enter')this.blur()">
-        <button class="cut-merge-btn" onclick="openMergeModal(${zoneJ},${pid},'cutting')" title="合併多工序">合</button>
-      </div></td>`;
-  };
   const post5 = () => ['post_marking_std','post_skiving_std','post_attach_std','post_edge_std','post_heat_std'].map(sc => {
     const ps = row[sc];
     return edM(sc,ps)+`<td class="formula-cell th-post-ops-cell" data-poststd="${ps??''}">${ops(ps)}</td>`;
@@ -788,20 +770,38 @@ function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
   const nmC  = zh2
     ? `<td class="name left" style="white-space:normal" data-pid="${pid}" data-zh="${zhN}" data-vi="${vi2}">${viet}<div class="name-zh">${zh2}</div></td>`
     : `<td class="name left" style="white-space:normal" data-pid="${pid}" data-zh="${zhN}" data-vi="${vi2}">${viet}</td>`;
+  // Only the actual_operators column uses rowspan group logic; all other columns always render
+  let actTd;
+  if (row.group_info) {
+    const gi  = row.group_info;
+    const gid = gi.group_id;
+    const isFirst = groupFirstId?.get(gid) === row.id;
+    actTd = isFirst
+      ? renderGroupActualCell(gi, groupSize?.get(gid) || 1, zone, 'cutting')
+      : '';  // first row's rowspan covers this position
+  } else {
+    actTd = `<td class="actual-cell" style="padding:2px 4px">
+      <div style="display:flex;align-items:center;gap:2px;justify-content:flex-end">
+        <input type="text" class="cut-act-inp" data-pid="${pid}"
+          value="${row.actual_operators ?? ''}" placeholder=""
+          onblur="saveSingleActual(this,${pid})"
+          onkeydown="if(event.key==='Enter')this.blur()">
+        <button class="cut-merge-btn" onclick="openMergeModal(${zoneJ},${pid},'cutting')" title="合併多工序">合</button>
+      </div></td>`;
+  }
   let h = '<tr>';
   h += `<td class="del-cell"><button class="btn-del" onclick="deleteRow(${pid})">×</button></td>`;
   h += `<td class="num" style="cursor:text;font-size:9px;min-width:50px" onclick="startTextEdit(this,${pid},'mat_cat')" data-tip="點擊編輯">${esc(row.mat_cat||'')}</td>`;
   h += nmC;
-  const act = actC();
   if (type === 'A') {
-    h += edMA('layers_per_cut',row.layers_per_cut)+edMA('qty_per_pair',row.qty_per_pair)+edMA('cut_per_hour',row.cut_per_hour)+fmCutA()+thCA()+(act||'')+post5();
+    h += edMA('layers_per_cut',row.layers_per_cut)+edMA('qty_per_pair',row.qty_per_pair)+edMA('cut_per_hour',row.cut_per_hour)+fmCutA()+thCA()+actTd+post5();
   } else if (type === 'B') {
-    h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('standard_time',std)+thC(std)+(act||'')+post5();
+    h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('standard_time',std)+thC(std)+actTd+post5();
   } else if (type === 'C') {
-    h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('standard_time',std)+thC(std)+(act||'');
+    h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('standard_time',std)+thC(std)+actTd;
   } else if (type === 'D') {
     const pk = row.post_marking_std, ps2 = row.post_skiving_std;
-    h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('standard_time',std)+thC(std)+(act||'');
+    h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('standard_time',std)+thC(std)+actTd;
     h += edM('post_marking_std',pk)+`<td class="formula-cell th-post-ops-cell">${ops(pk)}</td>`;
     h += edM('post_skiving_std',ps2)+`<td class="formula-cell th-post-ops-cell">${ops(ps2)}</td>`;
   } else {
