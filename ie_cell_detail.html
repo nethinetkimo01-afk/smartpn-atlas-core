@@ -193,6 +193,26 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#FFFF
 .imp-empty{padding:16px;text-align:center;font-size:12px;color:#8E8E93}
 .imp-step-title{font-size:12px;font-weight:600;color:#8E8E93;margin-bottom:8px}
 
+/* ── SUM_C2B panel ─────────────────────────────────── */
+#sumC2bPanel{padding:16px 18px}
+.sumc2b-notice{background:#fff8e1;border:1px solid #ffc107;border-radius:5px;padding:7px 12px;margin-bottom:12px;font-size:11px;color:#7a5c00}
+.sumc2b-wrap{overflow-x:auto;border-radius:6px;box-shadow:0 1px 6px rgba(0,0,0,.09)}
+.sumc2b-tbl{width:100%;border-collapse:collapse;background:#fff;font-size:12px}
+.sumc2b-tbl thead th{background:#244166;color:#fff;padding:7px 10px;text-align:center;font-weight:600;white-space:nowrap;font-size:11px;border:1px solid #1a2744}
+.sumc2b-tbl thead th:first-child{text-align:left;padding-left:10px;width:160px}
+.sumc2b-tbl tbody td{padding:5px 8px;border-bottom:1px solid #edf0f7;text-align:center;vertical-align:middle}
+tr.sumc2b-grp td{background:#2a3a60!important;color:#8eb8e8;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:5px 10px;border-top:2px solid #1a2744}
+tr.sumc2b-sub td{background:#d8e5fb!important;font-weight:700;border-top:1px solid #afc6f2}
+tr.sumc2b-grand td{background:#b8cef5!important;font-weight:800;border-top:2px solid #2a4aaa;color:#0d1a44}
+td.sumc2b-dept{font-weight:600;color:#1a2744;text-align:left;padding-left:10px}
+td.sumc2b-sub-dept{color:#1a2744;font-weight:700;text-align:left;padding-left:18px;font-style:italic}
+td.sumc2b-grand-dept{color:#0d1a44;font-weight:800;text-align:left;padding-left:10px}
+.sumc2b-eff-good{color:#1a7a40;font-weight:700}
+.sumc2b-eff-warn{color:#d07000;font-weight:700}
+.sumc2b-eff-bad{color:#cc2222;font-weight:700}
+.sumc2b-diff-pos{color:#cc2222}
+.sumc2b-diff-neg{color:#1a7a40}
+
 /* ── Custom tooltip ───────────────────────────────── */
 #cellTip{position:fixed;background:#1C1C1E;color:#fff;font-size:10px;padding:2px 8px;border-radius:4px;pointer-events:none;z-index:500;display:none;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.2)}
 
@@ -242,10 +262,54 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#FFFF
   <button class="tab-btn" data-seg="stitching" onclick="switchSeg('stitching')">針車 Stitching</button>
   <button class="tab-btn" data-seg="assembly"  onclick="switchSeg('assembly')">成型 Assembly</button>
   <button class="tab-btn" data-seg="stf"       onclick="switchSeg('stf')">STF</button>
+  <div style="width:1px;background:#E5E5EA;margin:8px 4px;align-self:stretch"></div>
+  <button class="tab-btn" data-seg="sum_c2b"   onclick="switchSeg('sum_c2b')" style="color:#b36a00;font-weight:700">SUM_C2B</button>
 </div>
 
 <div class="content" id="mainContent">
   <div class="loading-msg">載入中…</div>
+</div>
+
+<!-- SUM_C2B 彙總頁 -->
+<div id="sumC2bPanel" style="display:none">
+  <div class="sumc2b-notice">⚠ Read-only. Edit values in C2B sub-sheets — this table updates automatically.</div>
+  <div class="sumc2b-wrap">
+    <table class="sumc2b-tbl">
+      <thead><tr>
+        <th>部門</th>
+        <th>MP (Ops)</th><th>PPH</th><th>E-PPH</th><th>Diff PPH</th><th>Eff %</th>
+      </tr></thead>
+      <tbody>
+        <!-- CUTTING -->
+        <tr class="sumc2b-grp"><td colspan="6">Cutting</td></tr>
+        <tr><td class="sumc2b-dept">Cutting</td>          <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td class="sumc2b-dept">ATOM / 自动化</td>   <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td class="sumc2b-dept">同材共裁</td>         <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td class="sumc2b-dept">电脑针车</td>         <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr class="sumc2b-sub"><td class="sumc2b-sub-dept">∑ Cutting</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <!-- STITCHING -->
+        <tr class="sumc2b-grp"><td colspan="6">Stitching</td></tr>
+        <tr><td class="sumc2b-dept">Stitching 支流</td>  <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td class="sumc2b-dept">Stitching 主流</td>  <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr class="sumc2b-sub"><td class="sumc2b-sub-dept">∑ Stitching</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <!-- ASSEMBLY -->
+        <tr class="sumc2b-grp"><td colspan="6">Assembly</td></tr>
+        <tr><td class="sumc2b-dept">Assembly 1</td>      <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td class="sumc2b-dept">Assembly 2</td>      <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr class="sumc2b-sub"><td class="sumc2b-sub-dept">∑ Assembly</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <!-- STF -->
+        <tr class="sumc2b-grp"><td colspan="6">STF</td></tr>
+        <tr><td class="sumc2b-dept">打粗</td>             <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td class="sumc2b-dept">水洗</td>             <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td class="sumc2b-dept">贴大底</td>           <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td class="sumc2b-dept">照射</td>             <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td class="sumc2b-dept">成型面照射</td>       <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr class="sumc2b-sub"><td class="sumc2b-sub-dept">∑ STF</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <!-- GRAND TOTAL -->
+        <tr class="sumc2b-grand"><td class="sumc2b-grand-dept">GRAND TOTAL</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <div class="save-bar" id="saveBar" style="display:none">
@@ -1096,7 +1160,17 @@ function applyReadOnlyDOM() {
 function switchSeg(seg) {
   SEG = seg;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.seg === seg));
-  loadSegment(seg);
+  const sumPanel    = document.getElementById('sumC2bPanel');
+  const mainContent = document.getElementById('mainContent');
+  if (seg === 'sum_c2b') {
+    mainContent.style.display = 'none';
+    sumPanel.style.display    = 'block';
+    document.getElementById('saveBar').style.display = 'none';
+  } else {
+    mainContent.style.display = '';
+    sumPanel.style.display    = 'none';
+    loadSegment(seg);
+  }
 }
 
 // ── Add row (non-cutting: opens modal) ────────────────────────────────────────
