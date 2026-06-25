@@ -1,4 +1,0 @@
-IE Import Failures — 2026-06-11 16:16:20
-Total: 1 failures
-
-60双 SS26 ADIPOWER 26 _牛面皮+人造皮.xlsx|no ART in filename

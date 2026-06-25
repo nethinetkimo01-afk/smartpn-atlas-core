@@ -16,11 +16,17 @@ _query_actual.py
 _query_actual2.py
 _update_ws.py
 _verify_sum.py
-flask_backend/atlas.db 
-flask_backend/data/atlas.db 
+flask_backend/atlas.db
+flask_backend/data/atlas.db
 flask_backend/*.db
 # Stress-test DB (generated, ~50MB — local only, never push)
 flask_backend/tests/*.db
 flask_backend/tests/*.db-wal
 flask_backend/tests/*.db-shm
 flask_backend/Run
+# ── 系統運行產物（不追蹤，避免造成「本地有改動」擋更新）──────────────────────────
+# 測試輸出、匯出 xlsx、log 等
+flask_backend/test_output/
+*.log
+# 臨時測試腳本
+flask_backend/check_ie.py
