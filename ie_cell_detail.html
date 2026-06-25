@@ -136,9 +136,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#FFFF
 
 /* ── cut-table (Cutting 段 4 列表頭) ──────────────── */
 .cut-table th{background:#1C1C1E;color:#fff;padding:3px 5px;text-align:center;font-size:9px;font-weight:600;white-space:nowrap;border:1px solid #3A3A3C}
-/* ── cut-table 資料列：只橫線到底，無欄直線 ─────────── */
-/* 表頭(th)不動；add-trigger-row/add-row-inline 不套用  */
-.cut-table tbody tr:not(.add-trigger-row):not(.add-row-inline) td{border-left:none!important;border-right:none!important;border-top:none!important;border-bottom:1px solid #E5E5EA!important}
+/* ── 資料列共用：只橫線到底，無欄直線（cutting + stitching/assembly/STF）── */
+/* 表頭(th)不動；add-trigger-row/add-row-inline 不套用                       */
+.cut-table tbody tr:not(.add-trigger-row):not(.add-row-inline) td,
+.proc-table tbody tr:not(.add-trigger-row):not(.add-row-inline) td{border-left:none!important;border-right:none!important;border-top:none!important;border-bottom:1px solid #E5E5EA!important}
 .cut-table th.left{text-align:left}
 .th-cut-group{background:#1C1C1E;color:#fff;text-align:center;font-size:10px;font-weight:700}
 .th-post-group{background:#1C1C1E;color:#fff;text-align:center;font-size:10px;font-weight:700}
