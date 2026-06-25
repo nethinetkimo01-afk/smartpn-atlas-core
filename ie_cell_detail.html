@@ -1213,7 +1213,6 @@ async function saveGroupHc(groupId) {
 
 async function unmergeGroup(groupId) {
   closeGroupAction();
-  if (!confirm('解除合併後，各工序回到獨立輸入格，人數清空。確認？')) return;
   const r = await fetch('/api/ie/cell/delete_group', {
     method: 'POST', headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({group_id: groupId})

@@ -1570,7 +1570,8 @@ def get_ie_import_zones(source_header_id, segment):
             WHERE header_id=? AND segment=? AND (flag IS NULL OR flag != 'deleted')
             ORDER BY zone
         ''', (source_header_id, segment)).fetchall()
-        return [r['zone'] for r in rows if r['zone']]
+        _exclude = {'_summary', '待分區'}
+        return [r['zone'] for r in rows if r['zone'] and r['zone'] not in _exclude]
     finally:
         conn.close()
 
