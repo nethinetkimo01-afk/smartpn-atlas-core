@@ -1147,17 +1147,17 @@ async function deleteRow(pid) {
 let MERGE_ZONE = null;
 let MERGE_SEG  = null;
 
-// Render a grouped actual_operators cell (first row of group — no rowspan)
+// Render a grouped actual_operators cell with rowspan spanning all merged rows
 function renderGroupActualCell(gi, rowspan, zone, seg) {
   const zoneJ = esc(JSON.stringify(zone));
   const segJ  = esc(JSON.stringify(seg));
-  return `<td class="actual-cell group-cell" style="cursor:pointer;vertical-align:middle;text-align:right;background:#fff;color:#1C1C1E;border:1px solid #C7C7CC"
+  return `<td class="actual-cell group-cell" rowspan="${rowspan}" style="cursor:pointer;vertical-align:middle;text-align:right;background:#fff;color:#1C1C1E;border:1px solid #C7C7CC"
     onclick="openGroupAction(event,${gi.group_id},${gi.headcount},${zoneJ},${segJ})"
     title="點擊修改人數或解除合併">${fmtNum(gi.headcount)}</td>`;
 }
-// Placeholder for rows covered by a group (previously covered by rowspan)
+// Non-first rows in a group emit no cell — covered by the rowspan above
 function renderGroupPlaceholder() {
-  return '<td style="background:#fff;border:1px solid #E5E5EA"></td>';
+  return '';
 }
 
 // Mini popup for editing / unmerging an existing group
@@ -1178,7 +1178,7 @@ function openGroupAction(event, groupId, headcount, zone, seg) {
       <input class="gap-inp" id="gapHc" type="text" value="${headcount}">
       <button class="gap-btn-save" onclick="saveGroupHc(${groupId})">更新</button>
     </div>
-    <button class="gap-btn-del" onclick="unmergeGroup(${groupId})">解除合併（清空人數）</button>`;
+    <button class="gap-btn-del" onclick="unmergeGroup(${groupId})">解除合併</button>`;
   document.body.appendChild(p);
   const inp = document.getElementById('gapHc');
   inp.focus(); inp.select();

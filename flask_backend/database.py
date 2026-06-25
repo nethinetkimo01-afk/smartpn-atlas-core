@@ -1442,7 +1442,7 @@ def delete_ie_process_row(process_id, stage_id, user='demo'):
 
 
 def save_ie_process_group(header_id, segment, zone, stage_id, process_ids, headcount, note=''):
-    """Save or update a process grouping."""
+    """Save or update a process grouping, then reorder seq so merged rows are adjacent."""
     import json as _json
     conn = get_conn()
     try:
@@ -1460,6 +1460,26 @@ def save_ie_process_group(header_id, segment, zone, stage_id, process_ids, headc
             INSERT INTO ie_process_group (header_id, segment, zone, stage_id, process_ids, headcount, note)
             VALUES (?,?,?,?,?,?,?)
         ''', (header_id, segment, zone, stage_id, _json.dumps([int(p) for p in process_ids]), headcount, note))
+
+        # Reorder seq so merged processes sit adjacent (at the position of the earliest merged process).
+        # actual_operators on each ie_process row is NOT touched — values survive merge/unmerge.
+        all_rows = conn.execute(
+            'SELECT id FROM ie_process '
+            'WHERE header_id=? AND segment=? AND zone=? AND (flag IS NULL OR flag != \'deleted\') '
+            'ORDER BY seq ASC, id ASC',
+            (header_id, segment, zone)
+        ).fetchall()
+        all_ids = [r['id'] for r in all_rows]
+        if all_ids:
+            merged_in_order = [rid for rid in all_ids if rid in pid_set]
+            non_merged      = [rid for rid in all_ids if rid not in pid_set]
+            # anchor = how many non-merged rows come before the first merged row
+            first_merged_pos = all_ids.index(merged_in_order[0])
+            anchor = sum(1 for rid in all_ids[:first_merged_pos] if rid not in pid_set)
+            new_order = non_merged[:anchor] + merged_in_order + non_merged[anchor:]
+            for new_seq, rid in enumerate(new_order, start=1):
+                conn.execute('UPDATE ie_process SET seq=? WHERE id=?', (new_seq, rid))
+
         conn.commit()
         return {'ok': True}
     except Exception as e:
@@ -1482,14 +1502,9 @@ def update_ie_process_group(group_id, headcount):
 
 
 def delete_ie_process_group(group_id):
-    """Delete a group and clear actual_operators for all its processes."""
-    import json as _json
+    """Delete a group. Each process retains its own actual_operators (not cleared)."""
     conn = get_conn()
     try:
-        row = conn.execute('SELECT process_ids FROM ie_process_group WHERE id=?', (group_id,)).fetchone()
-        if row:
-            for pid in _json.loads(row['process_ids']):
-                conn.execute('UPDATE ie_process SET actual_operators=NULL WHERE id=?', (pid,))
         conn.execute('DELETE FROM ie_process_group WHERE id=?', (group_id,))
         conn.commit()
         return {'ok': True}
