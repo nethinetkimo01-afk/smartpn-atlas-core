@@ -67,15 +67,15 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#FFFF
 .proc-table td.seq{text-align:center;color:#8E8E93;font-weight:600;min-width:30px}
 .proc-table td.name{text-align:left;min-width:120px;max-width:220px;white-space:normal;line-height:1.4;color:#1C1C1E}
 
-/* 手工格：黑字 + 中灰邊框，點擊後藍框 */
-.proc-table td.num{text-align:right;min-width:60px;color:#1C1C1E;font-family:Consolas,monospace;background:#fff;border:1px solid #C7C7CC;cursor:text;padding:1px 2px!important}
+/* 手工格：框由內層 input.cell-inp 提供；td 本身不依賴 border */
+.proc-table td.num{text-align:right;min-width:60px;color:#1C1C1E;font-family:Consolas,monospace;background:#fff;border:1px solid #C7C7CC;cursor:text;padding:1px 2px}
 .proc-table td.num:focus-within{border-color:#007AFF}
 
 /* 公式格：無框、無底色，純文字顯示（黑字與手工格同） */
 .formula-cell{color:#000000;text-align:right;min-width:60px;font-family:Consolas,monospace;cursor:default;background:transparent!important;border:none!important}
 
 /* 實際人數格（手工） */
-.actual-cell{color:#1C1C1E;text-align:right;min-width:60px;font-family:Consolas,monospace;font-weight:600;background:#fff;border:1px solid #C7C7CC;padding:1px 2px!important}
+.actual-cell{color:#1C1C1E;text-align:right;min-width:60px;font-family:Consolas,monospace;font-weight:600;background:#fff;border:1px solid #C7C7CC;padding:1px 2px}
 .actual-cell.clickable{cursor:text}
 .actual-cell input{width:100%;box-sizing:border-box;border:1px solid #C7C7CC;border-radius:2px;padding:1px 4px;font-size:11px;font-family:Consolas,monospace;text-align:right;outline:none;background:#fff;-moz-appearance:textfield}
 .actual-cell input:focus{border-color:#007AFF}
@@ -86,7 +86,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#FFFF
 .cut-merge-btn{background:transparent;border:1px solid #C7C7CC;border-radius:2px;color:#000000;font-size:9px;cursor:pointer;padding:1px 3px;flex-shrink:0;line-height:1.4}
 .cut-merge-btn:hover{border-color:#007AFF;color:#007AFF}
 /* 常駐顯示手工輸入格 */
-.cell-inp{width:100%;box-sizing:border-box;border:1px solid #C7C7CC;padding:2px 4px;font-size:11px;font-family:Consolas,monospace;text-align:right;outline:none;background:#fff;color:#000000;-moz-appearance:textfield}
+.cell-inp{width:100%;box-sizing:border-box;border:1px solid #C7C7CC;border-radius:2px;padding:2px 4px;font-size:11px;font-family:Consolas,monospace;text-align:right;outline:none;background:#fff;color:#000000;-moz-appearance:textfield}
 .cell-inp:focus{border-color:#007AFF}
 .cell-inp::-webkit-outer-spin-button,.cell-inp::-webkit-inner-spin-button{-webkit-appearance:none}
 
@@ -963,7 +963,7 @@ function renderCell(row, col, zone, seg, eolr) {
     }
     const zoneJ = esc(JSON.stringify(zone));
     const segJ  = esc(JSON.stringify(seg));
-    return `<td class="actual-cell clickable" onclick="openMergeModal(${zoneJ},${pid},${segJ})" data-tip="點擊設定/合併">${fmtNum(val)}</td>`;
+    return `<td class="actual-cell clickable" style="padding:0" onclick="openMergeModal(${zoneJ},${pid},${segJ})" data-tip="點擊設定/合併"><input class="cell-inp" style="font-weight:600;pointer-events:none;cursor:text" value="${fmtNum(val)}" readonly tabindex="-1"></td>`;
   }
 
   if (col === 'allowance_pct') {
