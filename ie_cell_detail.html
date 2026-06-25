@@ -172,6 +172,23 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#FFFF
 .gap-btn-del{background:transparent;color:#FF3B30;border:1px solid #FFCCCC;border-radius:4px;padding:5px;font-size:10px;cursor:pointer;width:100%;margin-top:4px}
 .gap-btn-del:hover{background:#FFF2F1}
 
+/* ── Import button ────────────────────────────────── */
+.btn-import{background:transparent;color:#1C1C1E;border:1px solid #C7C7CC;border-radius:4px;padding:3px 9px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap}
+.btn-import:hover{border-color:#007AFF;color:#007AFF;background:#F0F7FF}
+.imp-step{display:none}
+.imp-step.active{display:block}
+.imp-search-inp{width:100%;border:1px solid #C7C7CC;border-radius:6px;padding:7px 10px;font-size:12px;outline:none;margin-bottom:8px}
+.imp-search-inp:focus{border-color:#007AFF}
+.imp-list{border:1px solid #E5E5EA;border-radius:6px;max-height:200px;overflow-y:auto;margin-bottom:10px}
+.imp-item{padding:8px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid #F2F2F7;display:flex;align-items:center;gap:8px}
+.imp-item:last-child{border-bottom:none}
+.imp-item:hover{background:#F5F5F7}
+.imp-item.selected{background:#E8F0FE;color:#007AFF}
+.imp-item-model{font-weight:600;color:#1C1C1E}
+.imp-item-art{font-size:10px;color:#8E8E93}
+.imp-empty{padding:16px;text-align:center;font-size:12px;color:#8E8E93}
+.imp-step-title{font-size:12px;font-weight:600;color:#8E8E93;margin-bottom:8px}
+
 /* ── Custom tooltip ───────────────────────────────── */
 #cellTip{position:fixed;background:#1C1C1E;color:#fff;font-size:10px;padding:2px 8px;border-radius:4px;pointer-events:none;z-index:500;display:none;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.2)}
 
@@ -262,6 +279,40 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#FFFF
     <div class="modal-footer">
       <button class="btn-mcancel" onclick="closeAddModal()">取消</button>
       <button class="btn-mok" onclick="submitAddRow()">新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- 匯入製程區塊 Modal -->
+<div class="modal-overlay" id="importModal" onclick="if(event.target===this)closeImportModal()">
+  <div class="modal-box" style="min-width:420px">
+    <div class="modal-title" id="importModalTitle">⬇ 匯入工序區塊</div>
+
+    <!-- Step 1: search -->
+    <div class="imp-step active" id="impStep1">
+      <div class="imp-step-title">步驟 1／3　搜尋來源鞋型</div>
+      <input class="imp-search-inp" id="impSearchInp" placeholder="輸入鞋型名稱或 ART…"
+        oninput="impSearchDebounce()" autocomplete="off">
+      <div class="imp-list" id="impSearchList"><div class="imp-empty">請輸入關鍵字搜尋</div></div>
+    </div>
+
+    <!-- Step 2: choose zone -->
+    <div class="imp-step" id="impStep2">
+      <div class="imp-step-title">步驟 2／3　選擇來源區塊</div>
+      <div style="font-size:11px;color:#8E8E93;margin-bottom:8px" id="impSourceLabel"></div>
+      <div class="imp-list" id="impZoneList"><div class="imp-empty">載入中…</div></div>
+    </div>
+
+    <!-- Step 3: confirm -->
+    <div class="imp-step" id="impStep3">
+      <div class="imp-step-title">步驟 3／3　確認匯入</div>
+      <div style="font-size:12px;color:#1C1C1E;margin-bottom:12px" id="impConfirmText"></div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-mcancel" id="impBtnBack" onclick="impGoBack()" style="display:none">← 返回</button>
+      <button class="btn-mcancel" onclick="closeImportModal()">取消</button>
+      <button class="btn-mok" id="impBtnApply" onclick="doImport(false)" style="display:none">匯入</button>
     </div>
   </div>
 </div>
@@ -548,7 +599,7 @@ function renderCuttingZoneCard(z, eolr) {
       <span class="zone-name">${num ? num + ' ' : ''}${esc(zone)}</span>
       <span class="zone-count">${rows.length} 道</span>
     </div>
-    <div class="zone-actions"></div>
+    <div class="zone-actions">${CAN_EDIT ? `<button class="btn-import" onclick="openImportModal(${zoneJ},'cutting')">⬇ 匯入</button>` : ''}</div>
   </div>
   <div class="zone-body"><table class="proc-table cut-table">
   <thead>${_cutHead(type)}</thead>
@@ -775,7 +826,7 @@ function renderZoneCard(z, seg, eolr) {
       ${isOffline  ? '<span class="badge badge-off">離線統計</span>' : ''}
       ${hasPending ? '<span class="badge badge-pend">待手工</span>' : ''}
     </div>
-    <div class="zone-actions">`;
+    <div class="zone-actions">${(CAN_EDIT && !isSummary && !isWS) ? `<button class="btn-import" onclick="openImportModal(${zoneJ},${esc(JSON.stringify(seg))})">⬇ 匯入</button>` : ''}</div>`;
 
   h += `</div></div>`;
 
@@ -1509,6 +1560,142 @@ function _closeSaveDDOutside(e) {
 document.getElementById('mergeModal').addEventListener('click', function(e) {
   if (e.target === this) closeMergeModal();
 });
+
+// ── IE Zone Import ─────────────────────────────────────────────────────────────
+let _impZone = null, _impSeg = null, _impStep = 1;
+let _impSourceHid = null, _impSourceName = null, _impSourceZone = null;
+let _impSearchTimer = null;
+
+function openImportModal(zone, seg) {
+  _impZone = zone; _impSeg = seg; _impStep = 1;
+  _impSourceHid = null; _impSourceName = null; _impSourceZone = null;
+  document.getElementById('importModalTitle').textContent = `⬇ 匯入工序區塊 — ${zone}`;
+  document.getElementById('impSearchInp').value = '';
+  document.getElementById('impSearchList').innerHTML = '<div class="imp-empty">請輸入關鍵字搜尋</div>';
+  document.getElementById('impSourceLabel').textContent = '';
+  document.getElementById('impZoneList').innerHTML = '<div class="imp-empty">載入中…</div>';
+  document.getElementById('impConfirmText').textContent = '';
+  _impShowStep(1);
+  document.getElementById('importModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('impSearchInp').focus(), 50);
+}
+
+function closeImportModal() {
+  document.getElementById('importModal').style.display = 'none';
+}
+
+function _impShowStep(n) {
+  _impStep = n;
+  [1,2,3].forEach(i => {
+    document.getElementById('impStep' + i).classList.toggle('active', i === n);
+  });
+  document.getElementById('impBtnBack').style.display = n > 1 ? '' : 'none';
+  document.getElementById('impBtnApply').style.display = n === 3 ? '' : 'none';
+}
+
+function impGoBack() {
+  if (_impStep > 1) _impShowStep(_impStep - 1);
+}
+
+function impSearchDebounce() {
+  clearTimeout(_impSearchTimer);
+  _impSearchTimer = setTimeout(impDoSearch, 280);
+}
+
+async function impDoSearch() {
+  const q = document.getElementById('impSearchInp').value.trim();
+  const list = document.getElementById('impSearchList');
+  if (!q) { list.innerHTML = '<div class="imp-empty">請輸入關鍵字搜尋</div>'; return; }
+  list.innerHTML = '<div class="imp-empty">搜尋中…</div>';
+  try {
+    const r = await fetch('/api/ie/import/search?q=' + encodeURIComponent(q) + '&exclude=' + HID);
+    const d = await r.json();
+    if (!d.ok || !d.results.length) {
+      list.innerHTML = '<div class="imp-empty">找不到鞋型</div>'; return;
+    }
+    list.innerHTML = d.results.map(item =>
+      `<div class="imp-item" onclick="impSelectSource(${item.header_id},${esc(JSON.stringify(item.model_name + (item.art ? ' / ' + item.art : '')))})">
+        <div>
+          <div class="imp-item-model">${esc(item.model_name)}</div>
+          ${item.art ? `<div class="imp-item-art">ART: ${esc(item.art)}</div>` : ''}
+        </div>
+      </div>`
+    ).join('');
+  } catch { list.innerHTML = '<div class="imp-empty">搜尋失敗，請重試</div>'; }
+}
+
+async function impSelectSource(hid, label) {
+  _impSourceHid = hid; _impSourceName = label;
+  document.getElementById('impSourceLabel').textContent = '來源：' + label;
+  _impShowStep(2);
+  const list = document.getElementById('impZoneList');
+  list.innerHTML = '<div class="imp-empty">載入中…</div>';
+  try {
+    const r = await fetch('/api/ie/import/zones?source_header_id=' + hid + '&segment=' + encodeURIComponent(_impSeg));
+    const d = await r.json();
+    if (!d.ok || !d.zones.length) {
+      list.innerHTML = '<div class="imp-empty">來源鞋型此製程無資料</div>'; return;
+    }
+    list.innerHTML = d.zones.map(z =>
+      `<div class="imp-item" onclick="impSelectZone(${esc(JSON.stringify(z))})">${esc(z)}</div>`
+    ).join('');
+  } catch { list.innerHTML = '<div class="imp-empty">載入失敗，請重試</div>'; }
+}
+
+function impSelectZone(zone) {
+  _impSourceZone = zone;
+  document.getElementById('impConfirmText').textContent =
+    `將「${_impSourceName}」的【${zone}】區塊匯入到目前鞋型的【${_impZone}】區塊。確定繼續？`;
+  _impShowStep(3);
+}
+
+async function doImport(overwrite) {
+  const btn = document.getElementById('impBtnApply');
+  btn.disabled = true;
+  btn.textContent = '匯入中…';
+  try {
+    const r = await fetch('/api/ie/import/apply', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        target_header_id: HID,
+        source_header_id: _impSourceHid,
+        segment: _impSeg,
+        zone: _impSourceZone,
+        overwrite: overwrite,
+      })
+    });
+    const d = await r.json();
+    if (!d.ok && d.need_confirm) {
+      if (confirm(`目前【${_impZone}】已有資料，匯入將覆蓋現有工序，確定？`)) {
+        btn.disabled = false; btn.textContent = '匯入';
+        doImport(true);
+      } else {
+        btn.disabled = false; btn.textContent = '匯入';
+      }
+      return;
+    }
+    if (!d.ok) { alert('匯入失敗：' + (d.error || '未知錯誤')); btn.disabled = false; btn.textContent = '匯入'; return; }
+    closeImportModal();
+    showToast(`已匯入 ${d.imported_count} 道工序 ✓`);
+    loadSegment(_impSeg);
+  } catch(e) {
+    alert('匯入失敗：' + e); btn.disabled = false; btn.textContent = '匯入';
+  }
+}
+
+function showToast(msg) {
+  let t = document.getElementById('_impToast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = '_impToast';
+    t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1C1C1E;color:#fff;padding:8px 20px;border-radius:20px;font-size:12px;font-weight:600;z-index:600;pointer-events:none;opacity:0;transition:opacity .2s';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity = '0'; }, 2500);
+}
 
 init();
 </script>

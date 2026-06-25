@@ -517,6 +517,47 @@ def ie_sum_page(header_id):
 def ie_matrix_api():
     return jsonify(db.get_ie_matrix())
 
+# ── IE Zone Import ────────────────────────────────────────────────────────────
+
+@app.route('/api/ie/import/search', methods=['GET'])
+def ie_import_search():
+    q = (request.args.get('q') or '').strip()
+    if not q:
+        return jsonify({'ok': True, 'results': []})
+    exclude = request.args.get('exclude')
+    exclude_id = int(exclude) if exclude and exclude.isdigit() else None
+    results = db.search_ie_headers(q, exclude_id)
+    return jsonify({'ok': True, 'results': results})
+
+@app.route('/api/ie/import/zones', methods=['GET'])
+def ie_import_zones():
+    src = request.args.get('source_header_id')
+    seg = request.args.get('segment', 'cutting')
+    if not src or not src.isdigit():
+        return jsonify({'ok': False, 'error': 'source_header_id required'}), 400
+    zones = db.get_ie_import_zones(int(src), seg)
+    return jsonify({'ok': True, 'zones': zones})
+
+@app.route('/api/ie/import/apply', methods=['POST'])
+def ie_import_apply():
+    d = request.get_json(force=True)
+    target_hid  = d.get('target_header_id')
+    source_hid  = d.get('source_header_id')
+    segment     = d.get('segment')
+    zone        = d.get('zone')
+    overwrite   = bool(d.get('overwrite', False))
+    if not all([target_hid, source_hid, segment, zone]):
+        return jsonify({'ok': False, 'error': '缺少必要參數'}), 400
+    target_hid = int(target_hid)
+    source_hid = int(source_hid)
+    ok, err = _can_edit_ie(target_hid)
+    if not ok:
+        return err
+    if source_hid == target_hid:
+        return jsonify({'ok': False, 'error': '來源與目標為同一鞋型'}), 400
+    result = db.import_ie_zone(target_hid, source_hid, segment, zone, overwrite)
+    return jsonify(result)
+
 @app.route('/api/ie/update_mp', methods=['POST'])
 def ie_update_mp():
     data = request.get_json(force=True)

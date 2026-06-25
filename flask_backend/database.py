@@ -1540,6 +1540,136 @@ def get_ie_header_meta(header_id):
         conn.close()
 
 
+def search_ie_headers(q, exclude_header_id=None):
+    """Search ob_header by model_name or ob_articles by art (LIKE %q%).
+    Returns [{header_id, model_name, art}] deduplicated by header_id."""
+    conn = get_conn()
+    try:
+        like = f'%{q}%'
+        rows = conn.execute('''
+            SELECT DISTINCT h.id AS header_id, h.model_name,
+                   (SELECT art FROM ob_articles WHERE header_id=h.id ORDER BY id LIMIT 1) AS art
+            FROM ob_header h
+            LEFT JOIN ob_articles a ON a.header_id = h.id
+            WHERE (h.model_name LIKE ? OR a.art LIKE ?)
+              AND (? IS NULL OR h.id != ?)
+            ORDER BY h.model_name
+            LIMIT 50
+        ''', (like, like, exclude_header_id, exclude_header_id)).fetchall()
+        return [{'header_id': r['header_id'], 'model_name': r['model_name'] or '', 'art': r['art'] or ''} for r in rows]
+    finally:
+        conn.close()
+
+
+def get_ie_import_zones(source_header_id, segment):
+    """Return distinct non-deleted zones for a source header+segment."""
+    conn = get_conn()
+    try:
+        rows = conn.execute('''
+            SELECT DISTINCT zone FROM ie_process
+            WHERE header_id=? AND segment=? AND (flag IS NULL OR flag != 'deleted')
+            ORDER BY zone
+        ''', (source_header_id, segment)).fetchall()
+        return [r['zone'] for r in rows if r['zone']]
+    finally:
+        conn.close()
+
+
+def import_ie_zone(target_header_id, source_header_id, segment, zone, overwrite=False):
+    """Copy all non-deleted ie_process rows from source zone to target zone.
+    If overwrite=False and target zone has existing rows, return need_confirm.
+    If overwrite=True (or target is empty), soft-delete target zone rows then insert copies."""
+    conn = get_conn()
+    try:
+        # Check target has existing non-deleted rows
+        existing = conn.execute('''
+            SELECT COUNT(*) FROM ie_process
+            WHERE header_id=? AND segment=? AND zone=? AND (flag IS NULL OR flag != 'deleted')
+        ''', (target_header_id, segment, zone)).fetchone()[0]
+
+        if existing > 0 and not overwrite:
+            return {'ok': False, 'need_confirm': True}
+
+        # Fetch source rows ordered by seq
+        src_rows = conn.execute('''
+            SELECT seq, process_name, part_name, tct,
+                   normal_time, allowance_pct, standard_time,
+                   actual_operators, machine,
+                   cut_per_hour, qty_per_pair, layers_per_cut,
+                   process_name_vi, process_name_zh, mat_cat,
+                   post_marking_std, post_marking_ops,
+                   post_skiving_std, post_skiving_ops,
+                   post_attach_std, post_attach_ops,
+                   post_edge_std, post_edge_ops,
+                   post_heat_std, post_heat_ops,
+                   value_type, is_locked, source_sheet, formula, stage
+            FROM ie_process
+            WHERE header_id=? AND segment=? AND zone=? AND (flag IS NULL OR flag != 'deleted')
+            ORDER BY seq ASC, id ASC
+        ''', (source_header_id, segment, zone)).fetchall()
+
+        if not src_rows:
+            return {'ok': False, 'error': '來源區塊無工序資料'}
+
+        # Get target art
+        art_row = conn.execute(
+            'SELECT art FROM ie_process WHERE header_id=? LIMIT 1', (target_header_id,)
+        ).fetchone()
+        if not art_row:
+            art_row = conn.execute(
+                'SELECT art FROM ob_articles WHERE header_id=? ORDER BY id LIMIT 1', (target_header_id,)
+            ).fetchone()
+        target_art = art_row['art'] if art_row else str(target_header_id)
+
+        # Soft-delete existing target zone rows
+        conn.execute('''
+            UPDATE ie_process SET flag='deleted'
+            WHERE header_id=? AND segment=? AND zone=? AND (flag IS NULL OR flag != 'deleted')
+        ''', (target_header_id, segment, zone))
+
+        # 裁斷機 zone in cutting segment: standard_time stored NULL (frontend computes live)
+        is_cutting_machine = (segment == 'cutting' and zone == '裁斷機')
+
+        count = 0
+        for i, r in enumerate(src_rows):
+            std = None if is_cutting_machine else r['standard_time']
+            conn.execute('''
+                INSERT INTO ie_process
+                  (header_id, art, segment, zone, seq,
+                   process_name, part_name, tct, standard_time, flag,
+                   mat_cat, process_name_zh, process_name_vi,
+                   cut_per_hour, qty_per_pair, layers_per_cut,
+                   actual_operators, normal_time, allowance_pct, machine,
+                   post_marking_std, post_marking_ops,
+                   post_skiving_std, post_skiving_ops,
+                   post_attach_std, post_attach_ops,
+                   post_edge_std, post_edge_ops,
+                   post_heat_std, post_heat_ops,
+                   value_type, is_locked, source_sheet, formula, stage)
+                VALUES (?,?,?,?,?,?,?,?,?,NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            ''', (
+                target_header_id, target_art, segment, zone, i + 1,
+                r['process_name'], r['part_name'], r['tct'], std,
+                r['mat_cat'], r['process_name_zh'], r['process_name_vi'],
+                r['cut_per_hour'], r['qty_per_pair'], r['layers_per_cut'],
+                r['actual_operators'], r['normal_time'], r['allowance_pct'], r['machine'],
+                r['post_marking_std'], r['post_marking_ops'],
+                r['post_skiving_std'], r['post_skiving_ops'],
+                r['post_attach_std'], r['post_attach_ops'],
+                r['post_edge_std'], r['post_edge_ops'],
+                r['post_heat_std'], r['post_heat_ops'],
+                r['value_type'], r['is_locked'], r['source_sheet'], r['formula'], r['stage'],
+            ))
+            count += 1
+
+        conn.commit()
+        return {'ok': True, 'imported_count': count}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
 def get_ie_sum(header_id, eolr=120):
     """SUM C2B: aggregate actual_operators (fallback to theory) per segment.
     Offline zones: 電腦針車 (stitching), 水蜘蛛 + 成型UV (assembly).
