@@ -5,6 +5,8 @@ data/source_files/IE_xlsx/
 data/source_files/IE_xlsx_Jun/
 # Backup DB files (local only)
 flask_backend/backup/*.db
+# Watchdog single-instance lock (runtime, local only)
+flask_backend/watchdog.lock
 # 暫存腳本
 _fix_ws2.py
 _inspect_ds04.py
