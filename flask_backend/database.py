@@ -46,6 +46,9 @@ def init_db():
             conn.execute("ALTER TABLE ie_process ADD COLUMN post_polish_std REAL")
         if 'post_polish_ops' not in iep_cols:
             conn.execute("ALTER TABLE ie_process ADD COLUMN post_polish_ops REAL")
+        # Migration: add equipment_type to ie_process (stitching/assembly/STF 設備種類下拉)
+        if 'equipment_type' not in iep_cols:
+            conn.execute("ALTER TABLE ie_process ADD COLUMN equipment_type TEXT")
         conn.commit()
     # Seed default lookup if empty
     count = conn.execute('SELECT COUNT(*) FROM lookup_viet_zh').fetchone()[0]
@@ -1240,6 +1243,7 @@ def get_ie_cell_data(header_id, segment='cutting', eolr=120):
                    normal_time, allowance_pct, standard_time, tct,
                    actual_operators, machine, cut_per_hour, qty_per_pair,
                    layers_per_cut, process_name_vi, process_name_zh, mat_cat,
+                   equipment_type,
                    post_marking_std, post_marking_ops,
                    post_skiving_std, post_skiving_ops,
                    post_attach_std, post_attach_ops,
@@ -1625,6 +1629,7 @@ def import_ie_zone(target_header_id, source_header_id, segment, zone, overwrite=
                    actual_operators, machine,
                    cut_per_hour, qty_per_pair, layers_per_cut,
                    process_name_vi, process_name_zh, mat_cat,
+                   equipment_type,
                    post_marking_std, post_marking_ops,
                    post_skiving_std, post_skiving_ops,
                    post_attach_std, post_attach_ops,
@@ -1666,7 +1671,7 @@ def import_ie_zone(target_header_id, source_header_id, segment, zone, overwrite=
                 INSERT INTO ie_process
                   (header_id, art, segment, zone, seq,
                    process_name, part_name, tct, standard_time, flag,
-                   mat_cat, process_name_zh, process_name_vi,
+                   mat_cat, process_name_zh, process_name_vi, equipment_type,
                    cut_per_hour, qty_per_pair, layers_per_cut,
                    actual_operators, normal_time, allowance_pct, machine,
                    post_marking_std, post_marking_ops,
@@ -1676,11 +1681,11 @@ def import_ie_zone(target_header_id, source_header_id, segment, zone, overwrite=
                    post_heat_std, post_heat_ops,
                    post_polish_std, post_polish_ops,
                    value_type, is_locked, source_sheet, formula, stage)
-                VALUES (?,?,?,?,?,?,?,?,?,NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                VALUES (?,?,?,?,?,?,?,?,?,NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             ''', (
                 target_header_id, target_art, segment, zone, i + 1,
                 r['process_name'], r['part_name'], r['tct'], std,
-                r['mat_cat'], r['process_name_zh'], r['process_name_vi'],
+                r['mat_cat'], r['process_name_zh'], r['process_name_vi'], r['equipment_type'],
                 r['cut_per_hour'], r['qty_per_pair'], r['layers_per_cut'],
                 r['actual_operators'], r['normal_time'], r['allowance_pct'], r['machine'],
                 r['post_marking_std'], r['post_marking_ops'],
@@ -3117,7 +3122,7 @@ def get_bianzhi_detail(month):
             if z in AUTO_ZONES or z in {'同材共裁', '折邊', '自動化'}:
                 moved_p[a] = moved_p.get(a, 0) + mp
             # Q: computer stitching
-            elif z in {'電腦針車', 'CNC', '电脑针车'}:
+            elif z in {'電腦針車', 'CNC', '电脑针车', '折边'}:
                 moved_q[a] = moved_q.get(a, 0) + mp
             # R: sole / 大底
             elif z in {'成型', '貼底', '大底課'}:

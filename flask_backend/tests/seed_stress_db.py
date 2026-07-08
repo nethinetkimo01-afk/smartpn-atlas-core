@@ -61,6 +61,7 @@ CREATE TABLE IF NOT EXISTS ie_process (
     post_edge_std    REAL, post_edge_ops    REAL,
     post_heat_std    REAL, post_heat_ops    REAL,
     post_polish_std  REAL, post_polish_ops  REAL,
+    equipment_type TEXT,
     value_type    TEXT,
     is_locked     INTEGER DEFAULT 0,
     formula       TEXT,

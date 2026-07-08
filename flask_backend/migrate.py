@@ -101,6 +101,13 @@ MIGRATIONS = [
             "ALTER TABLE ie_process ADD COLUMN post_polish_ops REAL",
         ]
     },
+    {
+        'id': 'M006',
+        'desc': 'Add equipment_type to ie_process (stitching/assembly/STF 設備種類下拉)',
+        'sql': [
+            "ALTER TABLE ie_process ADD COLUMN equipment_type TEXT",
+        ]
+    },
 ]
 
 def _ensure_migration_table(conn):
