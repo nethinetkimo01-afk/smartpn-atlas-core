@@ -39,6 +39,14 @@ def init_db():
     if 'source' not in cols:
         conn.execute("ALTER TABLE ob_epph ADD COLUMN source TEXT DEFAULT 'ie_file'")
         conn.commit()
+    # Migration: add post_polish_std/ops to ie_process (裁斷機 6th post-process 磨皮)
+    iep_cols = [r[1] for r in conn.execute("PRAGMA table_info(ie_process)").fetchall()]
+    if iep_cols:  # table exists (created by cutting import); guard fresh DB
+        if 'post_polish_std' not in iep_cols:
+            conn.execute("ALTER TABLE ie_process ADD COLUMN post_polish_std REAL")
+        if 'post_polish_ops' not in iep_cols:
+            conn.execute("ALTER TABLE ie_process ADD COLUMN post_polish_ops REAL")
+        conn.commit()
     # Seed default lookup if empty
     count = conn.execute('SELECT COUNT(*) FROM lookup_viet_zh').fetchone()[0]
     if count == 0:
@@ -1237,6 +1245,7 @@ def get_ie_cell_data(header_id, segment='cutting', eolr=120):
                    post_attach_std, post_attach_ops,
                    post_edge_std, post_edge_ops,
                    post_heat_std, post_heat_ops,
+                   post_polish_std, post_polish_ops,
                    value_type, is_locked, source_sheet, formula, stage
             FROM ie_process
             WHERE header_id=? AND segment=? AND (flag IS NULL OR flag != 'deleted')
@@ -1621,6 +1630,7 @@ def import_ie_zone(target_header_id, source_header_id, segment, zone, overwrite=
                    post_attach_std, post_attach_ops,
                    post_edge_std, post_edge_ops,
                    post_heat_std, post_heat_ops,
+                   post_polish_std, post_polish_ops,
                    value_type, is_locked, source_sheet, formula, stage
             FROM ie_process
             WHERE header_id=? AND segment=? AND zone=? AND (flag IS NULL OR flag != 'deleted')
@@ -1664,8 +1674,9 @@ def import_ie_zone(target_header_id, source_header_id, segment, zone, overwrite=
                    post_attach_std, post_attach_ops,
                    post_edge_std, post_edge_ops,
                    post_heat_std, post_heat_ops,
+                   post_polish_std, post_polish_ops,
                    value_type, is_locked, source_sheet, formula, stage)
-                VALUES (?,?,?,?,?,?,?,?,?,NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                VALUES (?,?,?,?,?,?,?,?,?,NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             ''', (
                 target_header_id, target_art, segment, zone, i + 1,
                 r['process_name'], r['part_name'], r['tct'], std,
@@ -1677,6 +1688,7 @@ def import_ie_zone(target_header_id, source_header_id, segment, zone, overwrite=
                 r['post_attach_std'], r['post_attach_ops'],
                 r['post_edge_std'], r['post_edge_ops'],
                 r['post_heat_std'], r['post_heat_ops'],
+                r['post_polish_std'], r['post_polish_ops'],
                 r['value_type'], r['is_locked'], r['source_sheet'], r['formula'], r['stage'],
             ))
             count += 1

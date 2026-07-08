@@ -93,6 +93,14 @@ MIGRATIONS = [
             "ALTER TABLE ie_stage ADD COLUMN is_approved INTEGER DEFAULT 0",
         ]
     },
+    {
+        'id': 'M005',
+        'desc': 'Add post_polish_std/ops to ie_process (裁斷機 6th post-process 磨皮)',
+        'sql': [
+            "ALTER TABLE ie_process ADD COLUMN post_polish_std REAL",
+            "ALTER TABLE ie_process ADD COLUMN post_polish_ops REAL",
+        ]
+    },
 ]
 
 def _ensure_migration_table(conn):

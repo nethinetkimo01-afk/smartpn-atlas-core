@@ -704,15 +704,20 @@ function _cutHead(type) {
   const P5V = (vi('TC<br>thời gian')+vi('Số người<br>lý luận')).repeat(5);
   const P5E = (en('Std time<br>(Secs)')+en('Operators<br>theory')).repeat(5);
   const P5Z = (zh('標准時間','th-formula-col')+zh('理論人數','th-theory-col')).repeat(5);
+  // Type-A (裁斷機) only: 6th post-process 磨皮 appended after 热压
+  const P6G = P5G+GP(2,'磨皮');
+  const P6V = (vi('TC<br>thời gian')+vi('Số người<br>lý luận')).repeat(6);
+  const P6E = (en('Std time<br>(Secs)')+en('Operators<br>theory')).repeat(6);
+  const P6Z = (zh('標准時間','th-formula-col')+zh('理論人數','th-theory-col')).repeat(6);
   const CV  = vi('Số<br>lớp')+vi('Số pk<br>/đôi')+vi('TC<br>thời gian')+vi('Số người<br>lý luận')+vi('Yêu cầu<br>máy cắt');
   const CE  = en('No.of<br>Layer')+en('Qty<br>(1Prs)')+en('Std time<br>(Secs)')+en('Operators<br>theory')+en('No.of<br>Oper.');
   const CZ  = zh('層數','')+zh('件數','')+zh('標准時間','')+zh('理論人數','th-theory-col')+zh('裁機<br>要求人數','th-actual-col');
   let r3,r4,r5,r6;
   if (type === 'A') {
-    r3 = DEL+B3+G(6,'裁断')+P5G;
-    r4 = V3+vi('Số<br>lớp')+vi('Số pk<br>/đôi')+vi('Số<br>dao/H')+vi('TC<br>thời gian')+vi('Số người<br>lý luận')+vi('Yêu cầu<br>máy cắt')+P5V;
-    r5 = E3+en('No.of<br>Layer')+en('Qty<br>(1Prs)')+en('Cut<br>(Pr/H)')+en('Std time<br>(Secs)')+en('Operators<br>theory')+en('No.of<br>Oper.')+P5E;
-    r6 = Z3+zh('層數','')+zh('件數','')+zh('刀數/H','')+zh('標准時間<br><span style="font-size:8px;font-weight:400">(秒/雙)</span>','th-formula-col')+zh('理論人數','th-theory-col')+zh('裁機<br>要求人數','th-actual-col')+P5Z;
+    r3 = DEL+B3+G(6,'裁断')+P6G;
+    r4 = V3+vi('Số<br>lớp')+vi('Số pk<br>/đôi')+vi('Số<br>dao/H')+vi('TC<br>thời gian')+vi('Số người<br>lý luận')+vi('Yêu cầu<br>máy cắt')+P6V;
+    r5 = E3+en('No.of<br>Layer')+en('Qty<br>(1Prs)')+en('Cut<br>(Pr/H)')+en('Std time<br>(Secs)')+en('Operators<br>theory')+en('No.of<br>Oper.')+P6E;
+    r6 = Z3+zh('層數','')+zh('件數','')+zh('刀數/H','')+zh('標准時間<br><span style="font-size:8px;font-weight:400">(秒/雙)</span>','th-formula-col')+zh('理論人數','th-theory-col')+zh('裁機<br>要求人數','th-actual-col')+P6Z;
   } else if (type === 'B') {
     r3 = DEL+B3+G(5,'裁断')+P5G;
     r4 = V3+CV+P5V; r5 = E3+CE+P5E; r6 = Z3+CZ+P5Z;
@@ -762,6 +767,9 @@ function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
     const ps = row[sc];
     return edM(sc,ps)+`<td class="formula-cell th-post-ops-cell" data-poststd="${ps??''}">${ops(ps)}</td>`;
   }).join('');
+  // Type-A only: 磨皮 = 6th post-process (手工標時 + 理論人數公式), appended after 热压
+  const post6 = () => post5() + edM('post_polish_std',row.post_polish_std)
+    + `<td class="formula-cell th-post-ops-cell" data-poststd="${row.post_polish_std??''}">${ops(row.post_polish_std)}</td>`;
   const std = row.standard_time;
   const zhN  = esc(row.process_name||row.process_name_zh||'');
   const vi2  = esc(row.process_name_vi||'');
@@ -794,7 +802,7 @@ function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
   h += `<td class="num" style="cursor:text;font-size:9px;min-width:50px" onclick="startTextEdit(this,${pid},'mat_cat')" data-tip="點擊編輯">${esc(row.mat_cat||'')}</td>`;
   h += nmC;
   if (type === 'A') {
-    h += edMA('layers_per_cut',row.layers_per_cut)+edMA('qty_per_pair',row.qty_per_pair)+edMA('cut_per_hour',row.cut_per_hour)+fmCutA()+thCA()+actTd+post5();
+    h += edMA('layers_per_cut',row.layers_per_cut)+edMA('qty_per_pair',row.qty_per_pair)+edMA('cut_per_hour',row.cut_per_hour)+fmCutA()+thCA()+actTd+post6();
   } else if (type === 'B') {
     h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('standard_time',std)+thC(std)+actTd+post5();
   } else if (type === 'C') {
