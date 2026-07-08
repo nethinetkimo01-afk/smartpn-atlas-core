@@ -1194,7 +1194,7 @@ def get_ie_process_by_header(header_id, segment='cutting'):
 ZONE_ORDER = {
     'cutting':  ['裁斷機', 'ATOM', 'Laser', 'EMMA', 'YINGHUI', '移印', '轉印', '水蜘蛛', '_summary', '待分區'],
     'stitching':['主流', '支流', '電腦針車', '折边', '水蜘蛛', '待分區'],
-    'assembly': ['成型', '成型UV', '水蜘蛛', '待分區'],
+    'assembly': ['成型主區', '成型UV', '水蜘蛛', '待分區'],
     'stf':      ['打粗', '照射', '水洗', '貼底', '水蜘蛛', '待分區'],
 }
 # Offline zones excluded from SUM C2B per-segment totals
@@ -1310,14 +1310,17 @@ def get_ie_cell_data(header_id, segment='cutting', eolr=120):
 
         zones = []
         for z in order:
-            if z == '_summary':
-                # Only include _summary if data rows exist for it
+            if z in ('_summary', '待分區'):
+                # _summary / 待分區：只有真的有資料(孤兒工序)才顯示
                 if z in zone_map:
                     zones.append({'zone': z, 'rows': zone_map[z], 'always_show': False})
-            elif z in ('水蜘蛛', '折边'):
-                # Always show 水蜘蛛 / 折邊組 sections (even empty — + button available)
+            elif z in seen:
+                # ZONE_ORDER 內的標準區(主流/支流/電腦針車/折边/水蜘蛛/成型主區/成型UV/
+                # 打粗/照射/水洗/貼底/裁斷機…)：空的也固定顯示框架(表頭 + ＋號)，
+                # 讓所有鞋型結構一致，差異只在有無資料
                 zones.append({'zone': z, 'rows': zone_map.get(z, []), 'always_show': True})
             elif z in zone_map:
+                # ZONE_ORDER 之外、僅存在於資料的額外 zone：有資料才顯示
                 zones.append({'zone': z, 'rows': zone_map[z], 'always_show': False})
 
         # Update _summary row theory_operators with computed hand_total
@@ -2533,7 +2536,7 @@ def set_eolr_setting(lean, month, eolr, updated_by=''):
 CUTTING_ZONES   = {'裁斷機', 'ATOM', 'Laser', 'EMMA', 'YINGHUI'}
 AUTO_ZONES      = {'ATOM', 'Laser', 'EMMA', 'YINGHUI'}   # can be checked out
 STITCH_ZONES    = {'電腦針車', '折边'}
-ASSEMBLY_ZONES  = {'成型', '成型UV', '水蜘蛛'}
+ASSEMBLY_ZONES  = {'成型主區', '成型UV', '水蜘蛛'}
 STF_ZONES       = {'打粗', '照射'}
 
 def get_bianche_data(month='2026-06'):
