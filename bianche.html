@@ -169,7 +169,7 @@ async function loadAll() {
   const [sumR, detR, ceR] = await Promise.all([
     fetch(`/api/bianzhi/summary?month=${month()}`).then(r=>r.json()).catch(()=>({ok:false})),
     fetch(`/api/bianzhi/detail?month=${month()}`).then(r=>r.json()).catch(()=>({ok:false})),
-    fetch('/api/ie/1/can_edit').then(r=>r.json()).catch(()=>({can_edit:false})), // proxy for manager check
+    fetch('/api/bianzhi/can_edit').then(r=>r.json()).catch(()=>({can_edit:false})),
   ]);
   // Actually use require_manager for bianzhi: check /api/bianzhi/can_edit or just test
   _CAN_EDIT = (ceR && ceR.can_edit === true);

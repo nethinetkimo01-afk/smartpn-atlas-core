@@ -417,6 +417,12 @@ def ie_can_edit(header_id):
     ok, _ = _can_edit_ie(header_id)
     return jsonify({'can_edit': ok})
 
+@app.route('/api/bianzhi/can_edit', methods=['GET'])
+def bianzhi_can_edit():
+    u = _auth_user()
+    can = bool(u and u['role'] in ('admin', 'manager'))
+    return jsonify({'can_edit': can})
+
 @app.route('/api/ie/stages/<int:header_id>', methods=['GET', 'POST'])
 def ie_stages(header_id):
     if request.method == 'POST':

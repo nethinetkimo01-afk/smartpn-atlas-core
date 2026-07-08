@@ -747,14 +747,14 @@ function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
   // Type-A live std/theory cells — ignore DB standard_time, compute from three fields
   const fmCutA = () => {
     const lay = parseFloat(row.layers_per_cut), qty = parseFloat(row.qty_per_pair), cph = parseFloat(row.cut_per_hour);
-    const v = (lay > 0 && qty > 0 && cph > 0) ? fmtNum(3600 / cph / qty * lay) : '';
+    const v = (lay > 0 && qty > 0 && cph > 0) ? fmtNum(3600 / cph / lay * qty * 1.1) : '';
     return `<td class="formula-cell cutting-std-a" data-pid="${pid}">${v}</td>`;
   };
   const thCA = () => {
     const lay = parseFloat(row.layers_per_cut), qty = parseFloat(row.qty_per_pair), cph = parseFloat(row.cut_per_hour);
     const divisor = 3600 / eolr;
     let stdRaw = '', thVal = '';
-    if (lay > 0 && qty > 0 && cph > 0) { stdRaw = 3600 / cph / qty * lay; thVal = fmtNum(stdRaw / divisor); }
+    if (lay > 0 && qty > 0 && cph > 0) { stdRaw = 3600 / cph / lay * qty * 1.1; thVal = fmtNum(stdRaw / divisor); }
     return `<td class="formula-cell theory-cell cutting-th-a" data-pid="${pid}" data-stdtime="${stdRaw}" data-zone="${esc(zone)}">${thVal}</td>`;
   };
   const zoneJ = esc(JSON.stringify(zone));
@@ -1020,7 +1020,7 @@ function renderCell(row, col, zone, seg, eolr) {
     if (locked) return `<td class="actual-cell locked-cell">${fmtNum(val)}</td>`;
     if (row.flag === '待手工') return `<td class="actual-cell" style="background:#fff3e0;color:#e65100;text-align:center">⚠ 待手工</td>`;
     if (zone === WS) {
-      return `<td class="actual-cell" style="padding:0"><input class="cell-inp" style="font-weight:600" value="${fmtNum(val)}" onblur="commitEditStatic(this,${pid},'actual_operators')" onkeydown="if(event.key==='Enter')this.blur()"></td>`;
+      return `<td class="actual-cell" style="padding:0"><input class="cell-inp" style="font-weight:600" value="${fmtNum(val)}" onblur="saveSingleActual(this,${pid})" onkeydown="if(event.key==='Enter')this.blur()"></td>`;
     }
     const zoneJ = esc(JSON.stringify(zone));
     const segJ  = esc(JSON.stringify(seg));
@@ -1081,7 +1081,7 @@ function recalcCuttingStdByPid(pid) {
   });
   const divisor = 3600 / EOLR;
   if (lay > 0 && qty > 0 && cph > 0) {
-    const std = 3600 / cph / qty * lay;
+    const std = 3600 / cph / lay * qty * 1.1;
     stdCell.textContent = fmtNum(std);
     if (thCell) { thCell.dataset.stdtime = std; thCell.textContent = fmtNum(std / divisor); }
   } else {
