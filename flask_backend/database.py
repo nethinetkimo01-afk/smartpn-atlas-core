@@ -1182,14 +1182,14 @@ def get_ie_process_by_header(header_id, segment='cutting'):
 
 ZONE_ORDER = {
     'cutting':  ['裁斷機', 'ATOM', 'Laser', 'EMMA', 'YINGHUI', '移印', '轉印', '水蜘蛛', '_summary', '待分區'],
-    'stitching':['主流', '支流', '電腦針車', '水蜘蛛', '待分區'],
+    'stitching':['主流', '支流', '電腦針車', '折边', '水蜘蛛', '待分區'],
     'assembly': ['成型', '成型UV', '水蜘蛛', '待分區'],
     'stf':      ['打粗', '照射', '水洗', '貼底', '水蜘蛛', '待分區'],
 }
 # Offline zones excluded from SUM C2B per-segment totals
 OFFLINE_ZONES = {
     'cutting':   ['水蜘蛛'],
-    'stitching': ['電腦針車', '水蜘蛛'],
+    'stitching': ['電腦針車', '折边', '水蜘蛛'],
     'assembly':  ['水蜘蛛', '成型UV'],
     'stf':       ['水蜘蛛'],
 }
@@ -1301,8 +1301,8 @@ def get_ie_cell_data(header_id, segment='cutting', eolr=120):
                 # Only include _summary if data rows exist for it
                 if z in zone_map:
                     zones.append({'zone': z, 'rows': zone_map[z], 'always_show': False})
-            elif z == '水蜘蛛':
-                # Always show 水蜘蛛 section (even empty — + button available)
+            elif z in ('水蜘蛛', '折边'):
+                # Always show 水蜘蛛 / 折邊組 sections (even empty — + button available)
                 zones.append({'zone': z, 'rows': zone_map.get(z, []), 'always_show': True})
             elif z in zone_map:
                 zones.append({'zone': z, 'rows': zone_map[z], 'always_show': False})
@@ -1703,7 +1703,7 @@ def get_ie_sum(header_id, eolr=120):
 
     SEGMENTS = ['cutting', 'stitching', 'assembly', 'stf']
     OFFLINE_ZONES = {
-        'stitching': ['電腦針車'],
+        'stitching': ['電腦針車', '折边'],
         'assembly':  ['水蜘蛛', '成型UV'],  # WS = overhead; 成型UV = UV machine op
     }
     # Segments with comprehensive actual_operators data: use strict actual (NULL=0)

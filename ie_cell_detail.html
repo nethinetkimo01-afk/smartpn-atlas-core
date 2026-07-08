@@ -403,7 +403,7 @@ const MACHINE_ZONES = new Set(['裁斷機','ATOM','Laser','EMMA','YINGHUI','移�
 const WS = '水蜘蛛';
 const OFFLINE_MAP = {
   cutting:   ['水蜘蛛'],
-  stitching: ['電腦針車','水蜘蛛'],
+  stitching: ['電腦針車','折边','水蜘蛛'],
   assembly:  ['水蜘蛛','成型UV'],
   stf:       ['水蜘蛛'],
 };
@@ -1049,7 +1049,7 @@ function renderCell(row, col, zone, seg, eolr) {
 }
 
 function zoneLabel(z) {
-  const m = {'_summary':'∑ 手工小計','待分區':'[待分區]','水蜘蛛':'水蜘蛛 (WS)'};
+  const m = {'_summary':'∑ 手工小計','待分區':'[待分區]','水蜘蛛':'水蜘蛛 (WS)','折边':'折邊組'};
   return m[z] || z;
 }
 
