@@ -478,6 +478,28 @@ def ie_cell_delete_row():
         d.get('process_id'), d.get('stage_id'), d.get('user', 'demo')
     ))
 
+@app.route('/api/ie/cell/insert_row', methods=['POST'])
+def ie_cell_insert_row():
+    d = request.get_json(force=True)
+    hid = db.get_header_id_by_process(d.get('after_process_id'))
+    ok, err = _can_edit_ie(hid)
+    if not ok: return err
+    return jsonify(db.insert_ie_process_row_after(
+        d.get('after_process_id'),
+        d.get('process_name', '新工序'),
+        d.get('stage_id'), d.get('user', 'demo'),
+        part_name=d.get('part_name'), tct=d.get('tct'),
+        mat_cat=d.get('mat_cat'),
+        process_name_zh=d.get('process_name_zh'),
+        cut_per_hour=d.get('cut_per_hour'),
+        qty_per_pair=d.get('qty_per_pair'),
+        layers_per_cut=d.get('layers_per_cut'),
+        actual_operators=d.get('actual_operators'),
+        normal_time=d.get('normal_time'),
+        allowance_pct=d.get('allowance_pct'),
+        standard_time=d.get('standard_time'),
+    ))
+
 @app.route('/api/ie/cell/save_group', methods=['POST'])
 def ie_cell_save_group():
     d = request.get_json(force=True)

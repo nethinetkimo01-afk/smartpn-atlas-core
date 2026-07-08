@@ -94,9 +94,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#FFFF
 .locked-cell{background:#fff;color:#8E8E93;cursor:default;border:1px solid #E5E5EA!important}
 
 /* 刪除格 */
-.del-cell{width:22px;text-align:center;padding:2px 4px;border:1px solid #E5E5EA}
+.del-cell{width:40px;text-align:center;padding:2px 3px;border:1px solid #E5E5EA;white-space:nowrap}
 .btn-del{background:transparent;border:none;color:#000000;font-size:14px;cursor:pointer;padding:0 2px;border-radius:3px;line-height:1}
 .btn-del:hover{color:#FF3B30;background:#FFF2F1}
+.btn-ins{background:transparent;border:none;color:#000000;font-size:12px;cursor:pointer;padding:0 2px;border-radius:3px;line-height:1}
+.btn-ins:hover{color:#007AFF;background:#F0F7FF}
 
 /* 合併格 */
 .group-cell{background:#fff;color:#1C1C1E;font-weight:700;text-align:right;font-family:Consolas,monospace;border:1px solid #C7C7CC}
@@ -398,6 +400,7 @@ let LANG   = (_storedLang === 'en') ? 'zh' : _storedLang; // ie_cell only suppor
 let ZONE_ROWS = {};
 let CAN_EDIT  = false;
 let ADD_ZONE   = null;
+let INSERT_AFTER_PID = null;   // 非 null 時，新增 modal 進入「插入到此列下方」模式
 
 const MACHINE_ZONES = new Set(['裁斷機','ATOM','Laser','EMMA','YINGHUI','移印','轉印']);
 const WS = '水蜘蛛';
@@ -799,7 +802,7 @@ function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
       </div></td>`;
   }
   let h = '<tr>';
-  h += `<td class="del-cell"><button class="btn-del" onclick="deleteRow(${pid})">×</button></td>`;
+  h += `<td class="del-cell"><button class="btn-ins" onclick="insertRowAfter(${pid})" title="在此列下方插入工序">插</button><button class="btn-del" onclick="deleteRow(${pid})" title="刪除">×</button></td>`;
   h += `<td class="num" style="cursor:text;font-size:9px;min-width:50px" onclick="startTextEdit(this,${pid},'mat_cat')" data-tip="點擊編輯">${esc(row.mat_cat||'')}</td>`;
   h += nmC;
   if (type === 'A') {
@@ -938,7 +941,7 @@ function renderZoneCard(z, seg, eolr) {
       h += '<tr>';
       h += row.is_locked
         ? '<td class="del-cell"></td>'
-        : `<td class="del-cell"><button class="btn-del" onclick="deleteRow(${row.id})" title="刪除">×</button></td>`;
+        : `<td class="del-cell"><button class="btn-ins" onclick="insertRowAfter(${row.id})" title="在此列下方插入工序">插</button><button class="btn-del" onclick="deleteRow(${row.id})" title="刪除">×</button></td>`;
       for (const col of cols) {
         if (col === 'actual_operators' && row.group_info) {
           const gid = row.group_info.group_id;
@@ -1178,7 +1181,7 @@ function applyReadOnlyDOM() {
   const mc = document.getElementById('mainContent');
   if (!mc) return;
   mc.querySelectorAll('input,textarea,select').forEach(el => { el.disabled = true; el.style.pointerEvents = 'none'; });
-  mc.querySelectorAll('button.btn-del,button.cut-merge-btn,button.btn-inline-ok').forEach(el => { el.disabled = true; el.style.opacity = '0.3'; });
+  mc.querySelectorAll('button.btn-del,button.btn-ins,button.cut-merge-btn,button.btn-inline-ok').forEach(el => { el.disabled = true; el.style.opacity = '0.3'; });
   mc.querySelectorAll('td.num[onclick],td.formula-cell[onclick]').forEach(el => { el.removeAttribute('onclick'); el.style.cursor = 'default'; });
   document.getElementById('saveDropdown')?.style && (document.getElementById('saveDropdown').style.display = 'none');
 }
@@ -1203,6 +1206,7 @@ function switchSeg(seg) {
 // ── Add row (non-cutting: opens modal) ────────────────────────────────────────
 function addRow(zone) {
   ADD_ZONE = zone;
+  INSERT_AFTER_PID = null;   // 一般新增模式（非插入）
   document.getElementById('addRowTitle').textContent = '新增工序 — ' + zoneLabel(zone, DATA?.segment);
   document.getElementById('addProcessName').value = '';
   document.getElementById('addPartName').value = '';
@@ -1213,6 +1217,18 @@ function addRow(zone) {
 function closeAddModal() {
   document.getElementById('addRowModal').style.display = 'none';
   ADD_ZONE = null;
+  INSERT_AFTER_PID = null;
+}
+// 在指定工序「下方」插入一列 —— 複用新增 modal，只是進入插入模式
+function insertRowAfter(pid) {
+  INSERT_AFTER_PID = pid;
+  ADD_ZONE = null;
+  document.getElementById('addRowTitle').textContent = '在此列下方插入工序';
+  document.getElementById('addProcessName').value = '';
+  document.getElementById('addPartName').value = '';
+  document.getElementById('addTCT').value = '';
+  document.getElementById('addRowModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('addProcessName').focus(), 50);
 }
 async function submitAddRow() {
   const name = document.getElementById('addProcessName').value.trim();
@@ -1220,17 +1236,20 @@ async function submitAddRow() {
   const partName = document.getElementById('addPartName').value.trim() || null;
   const tctVal = document.getElementById('addTCT').value;
   const tct = tctVal ? parseFloat(tctVal) : null;
-  const r = await fetch('/api/ie/cell/add_row', {
+  // 插入模式：走 insert_row（zone/segment 由後端依 after 列推得），否則走一般新增(加在最後)
+  const url = INSERT_AFTER_PID != null ? '/api/ie/cell/insert_row' : '/api/ie/cell/add_row';
+  const body = INSERT_AFTER_PID != null
+    ? { after_process_id: INSERT_AFTER_PID, stage_id: STAGE?.id, user: 'demo',
+        process_name: name, part_name: partName, tct }
+    : { header_id: HID, segment: SEG, zone: ADD_ZONE, stage_id: STAGE?.id, user: 'demo',
+        process_name: name, part_name: partName, tct };
+  const r = await fetch(url, {
     method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({
-      header_id: HID, segment: SEG, zone: ADD_ZONE,
-      stage_id: STAGE?.id, user: 'demo',
-      process_name: name, part_name: partName, tct,
-    }),
+    body: JSON.stringify(body),
   });
   const j = await r.json();
   if (j.ok) { closeAddModal(); loadSegment(SEG); }
-  else alert('新增失敗: ' + (j.error || ''));
+  else alert((INSERT_AFTER_PID != null ? '插入失敗: ' : '新增失敗: ') + (j.error || ''));
 }
 
 // ── Delete row ────────────────────────────────────────────────────────────────

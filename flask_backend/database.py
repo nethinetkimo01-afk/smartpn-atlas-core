@@ -1435,6 +1435,57 @@ def add_ie_process_row(header_id, segment, zone, process_name, standard_time, st
         conn.close()
 
 
+def insert_ie_process_row_after(after_process_id, process_name, stage_id, user='demo', part_name=None, tct=None,
+                                mat_cat=None, process_name_zh=None, cut_per_hour=None, qty_per_pair=None,
+                                layers_per_cut=None, actual_operators=None, normal_time=None, allowance_pct=None,
+                                standard_time=None):
+    """Insert a new process row directly BELOW an existing row (same segment/zone),
+    pushing all later rows in that zone down by one seq. Mirrors add_ie_process_row."""
+    if standard_time is None and normal_time is not None:
+        try:
+            ap = float(allowance_pct) if allowance_pct is not None else 10.0
+            standard_time = round(float(normal_time) * (1 + ap / 100), 4)
+        except (TypeError, ValueError):
+            pass
+    conn = get_conn()
+    try:
+        anchor = conn.execute(
+            'SELECT header_id, art, segment, zone, seq FROM ie_process WHERE id=?', (after_process_id,)
+        ).fetchone()
+        if not anchor:
+            return {'ok': False, 'error': 'anchor row not found'}
+        header_id = anchor['header_id']
+        art       = anchor['art']
+        segment   = anchor['segment']
+        zone      = anchor['zone']
+        after_seq = anchor['seq'] if anchor['seq'] is not None else 0
+        # Push later rows in the same zone down by one, so the new row slots in right after anchor
+        conn.execute(
+            'UPDATE ie_process SET seq = seq + 1 WHERE header_id=? AND segment=? AND zone=? AND seq > ?',
+            (header_id, segment, zone, after_seq)
+        )
+        conn.execute('''
+            INSERT INTO ie_process (header_id, art, segment, zone, seq, process_name, part_name, tct, standard_time, flag,
+                                    mat_cat, process_name_zh, cut_per_hour, qty_per_pair, layers_per_cut, actual_operators,
+                                    normal_time, allowance_pct)
+            VALUES (?,?,?,?,?,?,?,?,?, 'new',?,?,?,?,?,?,?,?)
+        ''', (header_id, art, segment, zone, after_seq + 1, process_name, part_name, tct, standard_time,
+              mat_cat, process_name_zh, cut_per_hour, qty_per_pair, layers_per_cut, actual_operators,
+              normal_time, allowance_pct))
+        conn.commit()
+        new_id = conn.execute('SELECT last_insert_rowid()').fetchone()[0]
+        conn.execute('''
+            INSERT INTO ie_edit_log (process_id, stage_id, field, old_value, new_value, user, status)
+            VALUES (?,?,'_add',NULL,?,?,'pending')
+        ''', (new_id, stage_id, process_name, user))
+        conn.commit()
+        return {'ok': True, 'process_id': new_id, 'segment': segment, 'zone': zone}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
 def delete_ie_process_row(process_id, stage_id, user='demo'):
     """Soft-delete: mark flag='deleted' and log."""
     ALLOWED = {'actual_operators', 'standard_time', 'normal_time', 'cut_per_hour',
