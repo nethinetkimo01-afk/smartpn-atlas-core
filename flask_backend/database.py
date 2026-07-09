@@ -1358,6 +1358,21 @@ def _eff_stage_clause(a='ie_process'):
             f"ORDER BY COALESCE(s.is_approved,0) DESC, s.id DESC LIMIT 1)")
 
 
+# 版本控制 Step 4a: 只取「鎖定版(is_approved=1)」的相關子查詢。
+# 沒鎖定版 → 子查詢回 NULL → stage_id=NULL 無列匹配 → 該 header 沒 IE 數據(不 fallback 最新版)。
+# 只用在編制表/allocation 讀 IE，不可取代 _eff_stage_clause(那個給 IE 編輯輔助視圖用)。
+def _locked_stage_clause(a='ie_process'):
+    return (f"{a}.stage_id = (SELECT s.id FROM ie_stage s "
+            f"WHERE s.header_id = {a}.header_id AND COALESCE(s.is_approved,0)=1 LIMIT 1)")
+
+# 有鎖定版的 ART 集合（該 art 所屬 header 有 is_approved=1 的 stage）。
+def _locked_arts(conn):
+    return {r[0] for r in conn.execute(
+        'SELECT DISTINCT oa.art FROM ob_articles oa '
+        'JOIN ie_stage s ON s.header_id=oa.header_id AND COALESCE(s.is_approved,0)=1'
+    ).fetchall()}
+
+
 # 版本控制 Step 2: 某 stage 是否為鎖定版(對外基準，不可覆蓋)。
 def _stage_locked(conn, stage_id):
     if not stage_id:
@@ -2845,14 +2860,16 @@ def get_bianche_data(month='2026-06'):
         ).fetchall()
 
         # 3. IE process data: art → zone → [std_time]
+        # 版本控制 Step 4a: 只讀鎖定版 IE（沒鎖定版→該 art 無數據）
         ie_rows = conn.execute(
             '''SELECT oa.art, ip.zone, ip.standard_time
                FROM ie_process ip
                JOIN ob_articles oa ON oa.header_id = ip.header_id
                WHERE (ip.flag IS NULL OR ip.flag != 'deleted') AND ip.standard_time > 0
-                 AND ''' + _eff_stage_clause('ip') + '''
+                 AND ''' + _locked_stage_clause('ip') + '''
                ORDER BY oa.art, ip.zone''',
         ).fetchall()
+        locked_arts = _locked_arts(conn)
         ie_data = {}   # art → zone → [std_time]
         for r in ie_rows:
             a = r['art']
@@ -2928,6 +2945,13 @@ def get_bianche_data(month='2026-06'):
                 cut_mv = stch_mv = asm_mv = 0.0
                 cut_act = stch_act = asm_act = stf_mp = None
 
+            # 版本控制 Step 4a: 沒鎖定版 → MP 全空
+            has_locked = art in locked_arts
+            if not has_locked:
+                cut_ie = stch_ie = asm_ie = None
+                cut_mv = stch_mv = asm_mv = None
+                cut_act = stch_act = asm_act = stf_mp = None
+
             results.append({
                 'lean': lean,
                 'model_name': ord_row['model_name'],
@@ -2935,6 +2959,7 @@ def get_bianche_data(month='2026-06'):
                 'qty': qty,
                 'is_outsource': is_out,
                 'has_ie': has_ie,
+                'has_locked': has_locked,
                 'eolr': eolr,
                 # IE (before allocation)
                 'cutting_ie_mp':   cut_ie,
@@ -3393,14 +3418,15 @@ def get_bianzhi_detail(month):
                GROUP BY lean, model_name ORDER BY lean, model_name'''
         ).fetchall()
 
-        # IE standard times per art+zone
+        # 版本控制 Step 4a: 編制表只讀「鎖定版」的 IE（沒鎖定版→該 art 無數據）
         ie_data = {}
         for r in conn.execute(
             '''SELECT oa.art, ip.zone, ip.standard_time FROM ie_process ip
                JOIN ob_articles oa ON oa.header_id=ip.header_id
                WHERE (ip.flag IS NULL OR ip.flag!='deleted') AND ip.standard_time>0
-                 AND ''' + _eff_stage_clause('ip') + '''  '''):
+                 AND ''' + _locked_stage_clause('ip') + '''  '''):
             ie_data.setdefault(r['art'], {}).setdefault(r['zone'], []).append(r['standard_time'] or 0)
+        locked_arts = _locked_arts(conn)   # 有鎖定版的 art（供 has_locked 判斷）
 
         # Allocation moved per art+zone type
         moved_p = {}  # P: same-cut / auto / fold — stays in CSA as ext
@@ -3459,6 +3485,12 @@ def get_bianzhi_detail(month):
             r_ext = round(sum(moved_r.get(a, 0) for a in arts), 1)
             c2b   = round((k or 0) + p_ext + q_ext + r_ext, 1) if k is not None else None
 
+            # 版本控制 Step 4a: 該 model 的 art 是否有鎖定版 IE
+            has_locked = any(a in locked_arts for a in arts)
+            if not has_locked:
+                # 沒鎖定版 → MP 全空（前端顯示紅底+tooltip），保留 manual 編制不動
+                cut = stch = asm = k = p_ext = q_ext = r_ext = c2b = None
+
             if lean not in lean_map:
                 lean_map[lean] = {
                     'lean': lean, 'lean_major': _lean_major(lean),
@@ -3467,6 +3499,7 @@ def get_bianzhi_detail(month):
             lean_map[lean]['models'].append({
                 'model_name': model, 'arts': row['arts'] or '',
                 'qty': qty, 'is_outsource': bool(is_out), 'has_ie': has_ie,
+                'has_locked': has_locked,
                 'cutting': cut, 'stitching': stch, 'assembly': asm,
                 'total_k': k, 'bianzhi': bz,
                 'p_ext': p_ext, 'q_ext': q_ext, 'r_ext': r_ext, 'c2b': c2b,

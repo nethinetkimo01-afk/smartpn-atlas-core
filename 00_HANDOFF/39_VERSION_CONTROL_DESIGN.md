@@ -135,8 +135,53 @@ IE（標準工時）
 | 「✓ 設為合格版」 | `approveCurrentStage()` | `POST /api/ie/stages/<hid>/<sid>/approve` | 設 is_approved（同鞋型互斥），但目前無任何下游消費此旗標 |
 
 ### G7. 由現況到目標的關鍵缺口（給下一步）
-1. **資料分版**：`ie_process` 需真正綁 stage（加 `stage_id` 或複製列），`newStage`/另存要**複製當前版工序**；讀取要依版過濾
-2. **鎖定版語意**：把 `is_approved` 升級為「鎖定版」——鎖定版「儲存」失效、只能「另存」；加解鎖；加變更歷史表
-3. **刪除版本**：新增刪除（經理/admin、鎖定版擋刪、至少留一個、確認框）
-4. **唯讀只看鎖定版**、**編制表改抓鎖定版**（取代即時 `ie_process`）
-5. 沒鎖定 IE → 編制表對應格 空+紅底+tooltip
+1. **資料分版**：`ie_process` 需真正綁 stage（加 `stage_id` 或複製列），`newStage`/另存要**複製當前版工序**；讀取要依版過濾 → ✅ Step 1 完成
+2. **鎖定版語意**：把 `is_approved` 升級為「鎖定版」——鎖定版「儲存」失效、只能「另存」；加解鎖；加變更歷史表 → ✅ Step 2 完成
+3. **刪除版本**：新增刪除（經理/admin、鎖定版擋刪、至少留一個、確認框）→ ✅ Step 3 完成
+4. **唯讀只看鎖定版**、**編制表改抓鎖定版**（取代即時 `ie_process`）→ Step 4
+5. 沒鎖定 IE → 編制表對應格 空+紅底+tooltip → Step 4a
+
+---
+
+## G8. Step 4「編制表抓鎖定版」前置調查（2026-07-09，只查不改）
+
+> 結論：allocation/編制表**已用 `_eff_stage_clause` 讀單一版本**，但它靜默取「鎖定版或最新版」，
+> **不檢查有沒有鎖定版** → 沒鎖定時 fallback 最新版。Step 4a 要改成「必須有鎖定版才給數字，
+> 沒鎖定→空+紅底」。另外 MP 現抓 theory（standard_time）不是 actual，是 4b 的事。
+
+### G8-1. allocation 怎麼抓 ie_process
+- `prefill_allocation`(db.py:2176)：`ie_process WHERE header_id AND flag!=deleted AND {eff_stage} AND zone IN(TARGET_ZONES)`，
+  已有 eff 過濾；算 `theory_mp = standard_time/(3600/eolr)` 寫進 **`allocation_item`（快照，INSERT OR IGNORE，不覆蓋既有列＝勾選被保留）**。
+- `_seg_ie_mp`(2326)/`get_csa_mp`(2338)：`SUM(standard_time)` 帶 eff 過濾。
+
+### G8-2. 編制表 MP 抓哪個欄位 → **theory（待改 actual）**
+- `get_bianche_data`(2830) / `get_bianzhi_detail`(3376)：`zone_mp = sum(standard_time)×eolr/3600` = **理論人力**，來源 `standard_time`，**不是 actual_operators**。
+- 唯一用 `actual_operators` 的是 SUM C2B / `ie_sum.html`（db.py:1997），非編制表。
+- ⚠️ 與 handoff C「編制表抓實際人數」不符 → **Step 4b** 再處理，4a 先不動。
+
+### G8-3. 按 ART 還是 header
+- IE 存 **header** 級；編制表**按 ART 索引**，經 `ob_articles(header_id, art)` 對應。同 header 多 ART 共用同一份 IE。
+- 訂單 `ds04_orders`(GROUP BY lean/model/art) 用 art 對回 `ie_data[art]`；bianzhi 用 `first_art`。
+- 鎖定版是 header 級（Step 2）→ 一 header 鎖定即其所有 ART 一起鎖定，與 by-ART 相容。
+
+### G8-4. 有沒有「鎖定版」概念 → **沒有**
+- eff 子查詢只是靜默取「鎖定版或最新版」，從不判斷「到底有沒有鎖定版」，無 `has_locked` 旗標。
+
+### G8-5. `_eff_stage_clause` 用在哪 9 處
+`prefill_allocation`、`_seg_ie_mp`、`get_bianche_data`、`get_bianche_csa_data`、`get_bianzhi_detail`、
+`get_allocation_parts`、`get_allocation_export_rows`、`get_ie_cutting_process`、`get_ie_process_by_header`。
+- allocation + 兩個編制表都已用（讀單一版本、不重複計）；缺的是「必須是鎖定版否則空」。
+- ⚠️ 後兩者（cutting import stats / process-by-header）是 IE 編輯輔助視圖，**不是編制表**
+  → Step 4a **不可**把 `_eff_stage_clause` 全域改鎖定版（會讓那兩個在沒鎖定時全空）；
+  應**新增 `_locked_stage_clause` 只用在編制表/allocation**。
+
+### G8-6. 前端編制表結果表
+- 檔案 **`bianche.html`**（路由 `/bianche`），資料來自 `GET /api/bianzhi/detail`（→ `get_bianzhi_detail`）。
+- 渲染在 **bianche.html ~300–337 行** `for (const r of rows)`：欄位 裁斷/針車/成型/合計K/編制/外移PQR/C2B。
+- 現成模式：第 319 行 `noIe = !r.has_ie` → `<span class="badge-noie">無IE</span>`。「沒鎖定空紅底」照此加 `has_locked`。
+- （`get_bianche_data` 走 `/api/bianche`，現無前端消費，屬 legacy/export。）
+
+### G8-7. Step 4 工作切分
+- **4a（本次）**：加 `has_locked`；編制表 IE 改「只讀鎖定版」（無鎖定→空、不 fallback）；bianche.html 沒鎖定→空+紅底+tooltip。保留 offline 勾選（`allocation_item.is_checked` 不洗）。MP 仍 theory。
+- **4b（下次）**：MP 由 theory 改 actual_operators（對齊 handoff C）。
+- **其他**：唯讀只看鎖定版；allocation 快照 vs 即時的決策。

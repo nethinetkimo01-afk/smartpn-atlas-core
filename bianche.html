@@ -317,21 +317,27 @@ function renderLeanTable(lg) {
 
   for (const r of rows) {
     const noIe = !r.has_ie;
+    // 版本控制 Step 4a: 沒鎖定版 → MP 格空+紅底+tooltip
+    const noLock = (r.has_locked === false);
+    const LOCK_TIP = '此鞋型 IE 尚未設定鎖定版，請先鎖定';
+    const mp = (v, dflt='') => noLock
+      ? `<td class="formula-cell" style="background:#FDECEA" title="${LOCK_TIP}"></td>`
+      : `<td class="formula-cell">${fmtN(v) || dflt}</td>`;
     h += `<tr>
-      <td class="left">${esc(r.model_name)}${r.is_outsource?'<span class="badge-outsource">外包</span>':''}${noIe?'<span class="badge-noie">無IE</span>':''}<div style="font-size:9px;color:#8E8E93;margin-top:1px">${esc(r.arts)}</div></td>
+      <td class="left">${esc(r.model_name)}${r.is_outsource?'<span class="badge-outsource">外包</span>':''}${noLock?'<span class="badge-noie" style="background:#FDECEA;color:#B71C1C" title="'+LOCK_TIP+'">未鎖定</span>':(noIe?'<span class="badge-noie">無IE</span>':'')}<div style="font-size:9px;color:#8E8E93;margin-top:1px">${esc(r.arts)}</div></td>
       <td class="formula-cell">${r.qty?r.qty.toLocaleString():''}</td>
-      <td class="formula-cell">${fmtN(r.cutting)}</td>
-      <td class="formula-cell">${fmtN(r.stitching)}</td>
-      <td class="formula-cell">${fmtN(r.assembly)}</td>
-      <td class="formula-cell">${fmtN(r.total_k)}</td>
+      ${mp(r.cutting)}
+      ${mp(r.stitching)}
+      ${mp(r.assembly)}
+      ${mp(r.total_k)}
       <td class="actual-cell"><input class="bz-inp" type="number" step="0.5"
         value="${r.bianzhi??''}" placeholder=""
         onblur="saveBianzhi('${esc(lg.lean)}','${esc(r.model_name)}',this)"
         ${_CAN_EDIT?'':'disabled'}></td>
-      <td class="formula-cell">${fmtN(r.p_ext)||'0'}</td>
-      <td class="formula-cell">${fmtN(r.q_ext)||'0'}</td>
-      <td class="formula-cell">${fmtN(r.r_ext)||'0'}</td>
-      <td class="formula-cell">${fmtN(r.c2b)}</td>
+      ${mp(r.p_ext, '0')}
+      ${mp(r.q_ext, '0')}
+      ${mp(r.r_ext, '0')}
+      ${mp(r.c2b)}
     </tr>`;
     for (const f of sumFields) sums[f] += Number(r[f]) || 0;
   }
