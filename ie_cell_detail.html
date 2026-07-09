@@ -257,6 +257,7 @@ td.sumc2b-grand-dept{color:#0d1a44;font-weight:800;text-align:left;padding-left:
   <button class="btn-outline" id="btn-submit-review" onclick="submitForReview()" style="display:none;border-color:#1d9e6b;color:#1d9e6b">送審</button>
   <button class="btn-sm" id="btn-approve-stage" onclick="approveCurrentStage()" style="display:none;background:#1d9e6b">🔒 設為鎖定版</button>
   <button class="btn-sm" id="btn-unlock-stage" onclick="unlockStage()" style="display:none;background:#e67e22">🔓 解鎖</button>
+  <button class="btn-sm" id="btn-delete-stage" onclick="deleteStage()" style="display:none;background:#d0342c">🗑 刪除此版本</button>
   <button class="btn-outline" id="btn-lock-hist" onclick="showLockHistory()" style="display:none">鎖定版歷史</button>
   <span id="review-status-badge" style="font-size:11px;padding:3px 8px;border-radius:10px;display:none"></span>
   <button id="btn-update" onclick="doUpdate()" style="display:none;border:none;border-radius:5px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;background:#aaa;color:#fff" title="程式版本狀態">已是最新</button>
@@ -650,6 +651,32 @@ function refreshLockUI() {
   const unlBtn = document.getElementById('btn-unlock-stage');
   if (appBtn) appBtn.style.display = (isManager() && !locked) ? 'inline-block' : 'none';
   if (unlBtn) unlBtn.style.display = (isManager() &&  locked) ? 'inline-block' : 'none';
+  // 刪除此版本：admin/manager 才顯示；鎖定版時 disable（要先解鎖）
+  const delBtn = document.getElementById('btn-delete-stage');
+  if (delBtn) {
+    delBtn.style.display = isManager() ? 'inline-block' : 'none';
+    delBtn.disabled = locked;
+    delBtn.title = locked ? '鎖定版不能刪除，請先解鎖' : '';
+    delBtn.style.opacity = locked ? '0.5' : '1';
+  }
+}
+
+async function deleteStage() {
+  if (!STAGE) return;
+  if (STAGE.is_approved) { alert('這是鎖定版，請先解鎖再刪除'); return; }
+  if (!confirm(`確定刪除版本「${STAGE.stage_name}」？\n此動作不可復原（該版所有工序將一併刪除）。`)) return;
+  const r = await fetch(`/api/ie/stages/${HID}/${STAGE.id}/delete`, {method: 'POST'});
+  const j = await r.json();
+  if (!j.ok) { alert('刪除失敗：' + (j.error || '')); return; }
+  alert('已刪除版本 ✓');
+  // 刪除後切到剩餘的某個版本（最新），重載
+  const sr = await fetch('/api/ie/stages/' + HID).then(r => r.json()).catch(() => ({}));
+  if (sr.ok && sr.stages && sr.stages.length) {
+    const last = sr.stages[sr.stages.length - 1];
+    STAGE = last;
+    await reloadStages(last.id);
+    loadSegment(SEG);
+  }
 }
 
 async function reloadStages(keepId) {

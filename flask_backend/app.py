@@ -1718,6 +1718,13 @@ def ie_stage_lock_history(header_id):
     if err: return err
     return jsonify(db.get_lock_history(header_id))
 
+@app.route('/api/ie/stages/<int:header_id>/<int:stage_id>/delete', methods=['POST'])
+def ie_stage_delete(header_id, stage_id):
+    err = _require_manager()
+    if err: return err
+    u = _auth_user()
+    return jsonify(db.delete_ie_stage(stage_id, header_id, u.get('username') if u else ''))
+
 # ── Health check ─────────────────────────────────────────────────────────────
 
 @app.route('/api/health', methods=['GET'])

@@ -422,6 +422,40 @@ def get_lock_history(header_id):
     finally:
         conn.close()
 
+
+def delete_ie_stage(stage_id, header_id, user=None):
+    """版本控制 Step 3: 刪除版本（含保護）。
+    保護：鎖定版不能刪(先解鎖)、至少留一個版本。
+    乾淨刪：只刪被指定那一版的 工序 + 合併群組 + stage 本體，不動別版。
+    權限(admin/manager)由路由 _require_manager 把關。"""
+    conn = get_conn()
+    try:
+        srow = conn.execute(
+            'SELECT stage_name, COALESCE(is_approved,0) AS is_approved '
+            'FROM ie_stage WHERE id=? AND header_id=?',
+            (stage_id, header_id)).fetchone()
+        if not srow:
+            return {'ok': False, 'error': '版本不存在'}
+        if srow['is_approved']:
+            return {'ok': False, 'error': '這是鎖定版，請先解鎖再刪除', 'locked': True}
+        total = conn.execute(
+            'SELECT COUNT(*) FROM ie_stage WHERE header_id=?', (header_id,)).fetchone()[0]
+        if total <= 1:
+            return {'ok': False, 'error': '至少需保留一個版本，不能刪除', 'last_one': True}
+        # 乾淨刪：只刪這一版的資料
+        n_proc  = conn.execute('DELETE FROM ie_process WHERE stage_id=? AND header_id=?',
+                               (stage_id, header_id)).rowcount
+        n_group = conn.execute('DELETE FROM ie_process_group WHERE stage_id=? AND header_id=?',
+                               (stage_id, header_id)).rowcount
+        conn.execute('DELETE FROM ie_stage WHERE id=? AND header_id=?', (stage_id, header_id))
+        conn.commit()
+        return {'ok': True, 'deleted_stage': stage_id, 'stage_name': srow['stage_name'],
+                'deleted_processes': n_proc, 'deleted_groups': n_group}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
 # ── IE ART management ────────────────────────────────────────────────────────
 
 def add_art_to_header(art, header_id):
