@@ -1321,14 +1321,16 @@ OFFLINE_ZONES = {
 }
 
 
-def get_ie_stages(header_id):
+def get_ie_stages(header_id, locked_only=False):
+    """locked_only=True（唯讀帳號）：只回鎖定版(is_approved=1)。"""
     conn = get_conn()
     try:
-        rows = conn.execute(
-            'SELECT id, stage_name, created_at, COALESCE(is_approved,0) AS is_approved '
-            'FROM ie_stage WHERE header_id=? ORDER BY id',
-            (header_id,)
-        ).fetchall()
+        q = ('SELECT id, stage_name, created_at, COALESCE(is_approved,0) AS is_approved '
+             'FROM ie_stage WHERE header_id=?')
+        if locked_only:
+            q += ' AND COALESCE(is_approved,0)=1'
+        q += ' ORDER BY id'
+        rows = conn.execute(q, (header_id,)).fetchall()
         return {'ok': True, 'stages': [dict(r) for r in rows]}
     except Exception as e:
         return {'ok': False, 'error': str(e)}
@@ -1417,12 +1419,24 @@ def _calc_theory(standard_time, eolr):
     return round(standard_time / divisor, 4) if divisor else None
 
 
-def get_ie_cell_data(header_id, segment='cutting', eolr=120, stage_id=None):
+def get_ie_cell_data(header_id, segment='cutting', eolr=120, stage_id=None, locked_only=False):
     conn = get_conn()
     try:
         eolr = int(eolr)
-        # 版本控制 Step 1: 解析當前有效版本，只讀該版工序
-        eff_stage = _effective_stage_id(conn, header_id, stage_id)
+        # 唯讀帳號(locked_only)：只讀鎖定版；沒鎖定版→回 no_locked 提示、不給看一般版
+        if locked_only:
+            lrow = conn.execute(
+                'SELECT id FROM ie_stage WHERE header_id=? AND COALESCE(is_approved,0)=1 LIMIT 1',
+                (header_id,)).fetchone()
+            if not lrow:
+                return {'ok': True, 'no_locked': True, 'header_id': header_id,
+                        'segment': segment, 'eolr': eolr,
+                        'stage': {'id': None, 'stage_name': '無鎖定版', 'is_approved': 0},
+                        'zones': [], 'hand_total': 0}
+            eff_stage = lrow[0]
+        else:
+            # 版本控制 Step 1: 解析當前有效版本，只讀該版工序
+            eff_stage = _effective_stage_id(conn, header_id, stage_id)
         stage_row = conn.execute(
             'SELECT id, stage_name, COALESCE(is_approved,0) AS is_approved '
             'FROM ie_stage WHERE id=?', (eff_stage,)

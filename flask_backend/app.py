@@ -148,6 +148,11 @@ def _require_manager():
         return jsonify({'ok': False, 'error': '需要管理員或主管權限'}), 403
     return None
 
+def _ie_locked_only():
+    """唯讀帳號(role=read_only)進 IE：只能看鎖定版。admin/manager/data_entry 看所有版本。"""
+    u = _auth_user()
+    return bool(u and u.get('role') == 'read_only')
+
 def _can_edit_ie(header_id):
     """Returns (can_edit: bool, err_tuple_or_None).
     admin: always yes. manager: read-only (唯讀). data_entry: only assigned. others: no."""
@@ -411,7 +416,8 @@ def ie_cell_data(header_id):
     segment = request.args.get('segment', 'cutting')
     eolr    = request.args.get('eolr', 120)
     stage_id = request.args.get('stage_id', type=int)  # 版本控制: 指定版本，省略=有效版本
-    return jsonify(db.get_ie_cell_data(header_id, segment, eolr, stage_id))
+    return jsonify(db.get_ie_cell_data(header_id, segment, eolr, stage_id,
+                                       locked_only=_ie_locked_only()))
 
 @app.route('/api/ie/<int:header_id>/can_edit', methods=['GET'])
 def ie_can_edit(header_id):
@@ -432,7 +438,7 @@ def ie_stages(header_id):
         d = request.get_json(force=True)
         return jsonify(db.create_ie_stage(
             header_id, d.get('stage_name', '新版本'), d.get('source_stage_id')))
-    return jsonify(db.get_ie_stages(header_id))
+    return jsonify(db.get_ie_stages(header_id, locked_only=_ie_locked_only()))
 
 @app.route('/api/ie/cell/save', methods=['POST'])
 def ie_cell_save():

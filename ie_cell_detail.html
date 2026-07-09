@@ -585,6 +585,8 @@ async function init() {
     fetch('/api/ie/' + HID + '/can_edit').then(r => r.json()).catch(() => ({can_edit: false})),
   ]);
   CAN_EDIT = !!(cr && cr.can_edit);
+  // 唯讀帳號：直接隱藏「儲存▼」入口（不靠 renderZones；沒鎖定版時也不會殘留）
+  if (!CAN_EDIT) { const sd = document.getElementById('saveDropdown'); if (sd) sd.style.display = 'none'; }
 
   if (sr.ok && sr.stages && sr.stages.length) {
     const sel = document.getElementById('stageSelect');
@@ -749,6 +751,13 @@ async function loadSegment(seg) {
   if (!DATA.ok) {
     document.getElementById('mainContent').innerHTML =
       '<div class="error-msg">載入失敗: ' + esc(DATA.error || '') + '</div>';
+    return;
+  }
+  // 唯讀帳號：此鞋型尚無鎖定版 → 不給看一般版，顯示提示
+  if (DATA.no_locked) {
+    document.getElementById('mainContent').innerHTML =
+      '<div class="loading-msg" style="padding:40px;text-align:center;color:#8E8E93">' +
+      '🔒 此鞋型尚無鎖定版<br><span style="font-size:12px">目前沒有可檢視的對外基準版本，請待管理者設定鎖定版。</span></div>';
     return;
   }
   renderZones(DATA);
