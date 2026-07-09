@@ -1699,8 +1699,8 @@ function newStage() {
     body: JSON.stringify({stage_name:name, source_stage_id: STAGE ? STAGE.id : null}),
   }).then(r=>r.json()).then(async j => {
     if (j.ok) {
-      // 新版本是「一般版」(未鎖定)；重建版本清單並選取它，刷新鎖定 UI
-      STAGE = {id:j.stage_id, stage_name:name, is_approved:0};
+      // 新版本是「一般版」(未鎖定)；用後端回傳的實際名稱(防呆後可能加序號)
+      STAGE = {id:j.stage_id, stage_name:(j.stage_name || name), is_approved:0};
       await reloadStages(j.stage_id);
       // 切到新版本並載入其（複製來的）工序
       loadSegment(SEG);

@@ -1836,6 +1836,22 @@ def create_ie_stage(header_id, stage_name, source_stage_id=None):
     try:
         src_stage = _effective_stage_id(conn, header_id, source_stage_id)
 
+        # ── 命名防呆（後端強制，API 直接呼叫也防；前端擋是輔助）──────────────
+        name = (stage_name or '').strip()
+        # 1) 空白/純空格 → 有意義的預設名
+        if not name:
+            from datetime import datetime
+            name = '新版本 ' + datetime.now().strftime('%m/%d')
+        # 2) 同 header 重名 → 自動加序號區分（DUP → DUP (2) → DUP (3)）
+        existing = {r[0] for r in conn.execute(
+            'SELECT stage_name FROM ie_stage WHERE header_id=?', (header_id,)).fetchall()}
+        if name in existing:
+            n = 2
+            while f'{name} ({n})' in existing:
+                n += 1
+            name = f'{name} ({n})'
+        stage_name = name
+
         conn.execute('INSERT INTO ie_stage (header_id, stage_name, is_approved) VALUES (?,?,0)',
                      (header_id, stage_name))
         new_stage = conn.execute('SELECT last_insert_rowid()').fetchone()[0]
@@ -1888,8 +1904,8 @@ def create_ie_stage(header_id, stage_name, source_stage_id=None):
                     [gvals[c] for c in gcopy])
 
         conn.commit()
-        return {'ok': True, 'stage_id': new_stage, 'copied_rows': copied_rows,
-                'source_stage_id': src_stage}
+        return {'ok': True, 'stage_id': new_stage, 'stage_name': stage_name,
+                'copied_rows': copied_rows, 'source_stage_id': src_stage}
     except Exception as e:
         return {'ok': False, 'error': str(e)}
     finally:
