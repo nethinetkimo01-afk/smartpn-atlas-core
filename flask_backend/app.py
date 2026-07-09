@@ -1700,7 +1700,23 @@ def ie_review_reject(review_id):
 def ie_stage_approve(header_id, stage_id):
     err = _require_manager()
     if err: return err
-    return jsonify(db.set_stage_approved(stage_id, header_id))
+    d = request.get_json(silent=True) or {}
+    u = _auth_user()
+    set_by = (u.get('username') if u else '') or ''
+    return jsonify(db.set_stage_approved(stage_id, header_id, set_by, d.get('note', '')))
+
+@app.route('/api/ie/stages/<int:header_id>/unlock', methods=['POST'])
+def ie_stage_unlock(header_id):
+    err = _require_manager()
+    if err: return err
+    u = _auth_user()
+    return jsonify(db.unlock_stage(header_id, u.get('username') if u else ''))
+
+@app.route('/api/ie/stages/<int:header_id>/lock_history', methods=['GET'])
+def ie_stage_lock_history(header_id):
+    err = _require_manager()
+    if err: return err
+    return jsonify(db.get_lock_history(header_id))
 
 # ── Health check ─────────────────────────────────────────────────────────────
 

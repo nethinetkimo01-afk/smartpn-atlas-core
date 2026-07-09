@@ -75,6 +75,17 @@ def init_db():
             conn.execute('UPDATE ie_process_group SET stage_id=? WHERE header_id=? AND (stage_id IS NULL OR stage_id=0)', (sid, hid))
         if null_hdrs:
             conn.commit()
+    # 版本控制 Step 2: 鎖定版變更歷史表
+    conn.execute('''CREATE TABLE IF NOT EXISTS lock_history (
+        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+        header_id    INTEGER NOT NULL,
+        stage_id     INTEGER NOT NULL,
+        stage_name   TEXT,
+        effective_at TEXT NOT NULL,
+        set_by       TEXT,
+        note         TEXT
+    )''')
+    conn.commit()
     # Seed default lookup if empty
     count = conn.execute('SELECT COUNT(*) FROM lookup_viet_zh').fetchone()[0]
     if count == 0:
@@ -357,15 +368,59 @@ def reject_review(review_id, reviewer, reason):
     conn.close()
     return {'ok': True}
 
-# ── IE Stage Approval ────────────────────────────────────────────────────────
+# ── IE Stage Approval / 鎖定版 (Step 2) ───────────────────────────────────────
 
-def set_stage_approved(stage_id, header_id):
+def set_stage_approved(stage_id, header_id, set_by=None, note=''):
+    """設鎖定版(對外基準)：同 header 只一個 is_approved=1，設新的自動解舊的，
+    並記一筆 lock_history 供追溯。"""
     conn = get_conn()
-    conn.execute('UPDATE ie_stage SET is_approved=0 WHERE header_id=?', (header_id,))
-    conn.execute('UPDATE ie_stage SET is_approved=1 WHERE id=? AND header_id=?', (stage_id, header_id))
-    conn.commit()
-    conn.close()
-    return {'ok': True}
+    try:
+        # 確認該 stage 屬於此 header
+        srow = conn.execute(
+            'SELECT stage_name FROM ie_stage WHERE id=? AND header_id=?',
+            (stage_id, header_id)).fetchone()
+        if not srow:
+            return {'ok': False, 'error': '版本不存在'}
+        conn.execute('UPDATE ie_stage SET is_approved=0 WHERE header_id=?', (header_id,))
+        conn.execute('UPDATE ie_stage SET is_approved=1 WHERE id=? AND header_id=?', (stage_id, header_id))
+        conn.execute(
+            'INSERT INTO lock_history (header_id, stage_id, stage_name, effective_at, set_by, note) '
+            "VALUES (?,?,?,datetime('now','localtime'),?,?)",
+            (header_id, stage_id, srow['stage_name'], set_by or '', note or ''))
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def unlock_stage(header_id, user=None):
+    """解鎖：把該 header 的鎖定版解除(is_approved 全設 0)。限 admin/manager 呼叫。"""
+    conn = get_conn()
+    try:
+        conn.execute('UPDATE ie_stage SET is_approved=0 WHERE header_id=?', (header_id,))
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
+def get_lock_history(header_id):
+    """鎖定版變更歷史(最新在前)。"""
+    conn = get_conn()
+    try:
+        rows = conn.execute(
+            'SELECT id, stage_id, stage_name, effective_at, set_by, note '
+            'FROM lock_history WHERE header_id=? ORDER BY id DESC',
+            (header_id,)).fetchall()
+        return {'ok': True, 'history': [dict(r) for r in rows]}
+    except Exception as e:
+        return {'ok': False, 'error': str(e), 'history': []}
+    finally:
+        conn.close()
 
 # ── IE ART management ────────────────────────────────────────────────────────
 
@@ -1269,6 +1324,22 @@ def _eff_stage_clause(a='ie_process'):
             f"ORDER BY COALESCE(s.is_approved,0) DESC, s.id DESC LIMIT 1)")
 
 
+# 版本控制 Step 2: 某 stage 是否為鎖定版(對外基準，不可覆蓋)。
+def _stage_locked(conn, stage_id):
+    if not stage_id:
+        return False
+    r = conn.execute('SELECT COALESCE(is_approved,0) FROM ie_stage WHERE id=?',
+                     (stage_id,)).fetchone()
+    return bool(r and r[0])
+
+# 由 process_id 反查其所屬 stage 是否鎖定（存工序時用 process 自己的 stage，client 不可偽造）。
+def _process_stage_locked(conn, process_id):
+    r = conn.execute('SELECT stage_id FROM ie_process WHERE id=?', (process_id,)).fetchone()
+    return _stage_locked(conn, r[0]) if r else False
+
+LOCKED_MSG = '鎖定版不能覆蓋，請另存新版本'
+
+
 def _calc_theory(standard_time, eolr):
     if standard_time is None:
         return None
@@ -1396,6 +1467,9 @@ def get_ie_cell_data(header_id, segment='cutting', eolr=120, stage_id=None):
 def save_ie_edit(process_id, stage_id, field, value, user):
     conn = get_conn()
     try:
+        # 版本控制 Step 2: 鎖定版不可覆蓋，必須另存新版本
+        if _process_stage_locked(conn, process_id):
+            return {'ok': False, 'error': LOCKED_MSG, 'locked': True}
         old_row = conn.execute(
             f'SELECT {field} FROM ie_process WHERE id=?', (process_id,)
         ).fetchone()
@@ -1457,6 +1531,8 @@ def add_ie_process_row(header_id, segment, zone, process_name, standard_time, st
     try:
         # 版本控制: 新工序綁到當前有效版本（stage_id 省略時自動解析）
         eff_stage = _effective_stage_id(conn, header_id, stage_id)
+        if _stage_locked(conn, eff_stage):  # Step 2: 鎖定版不可改
+            return {'ok': False, 'error': LOCKED_MSG, 'locked': True}
         # Look up art from existing rows for this header
         art_row = conn.execute(
             'SELECT art FROM ie_process WHERE header_id=? LIMIT 1', (header_id,)
@@ -1517,6 +1593,8 @@ def insert_ie_process_row_after(after_process_id, process_name, stage_id, user='
         after_seq = anchor['seq'] if anchor['seq'] is not None else 0
         # 版本控制: 新列繼承 anchor 的版本（同版插入）
         eff_stage = anchor['stage_id'] if anchor['stage_id'] is not None else _effective_stage_id(conn, header_id, stage_id)
+        if _stage_locked(conn, eff_stage):  # Step 2: 鎖定版不可改
+            return {'ok': False, 'error': LOCKED_MSG, 'locked': True}
         # Push later rows in the same zone down by one, so the new row slots in right after anchor (同版)
         conn.execute(
             'UPDATE ie_process SET seq = seq + 1 WHERE header_id=? AND segment=? AND zone=? AND seq > ? '
@@ -1552,6 +1630,8 @@ def delete_ie_process_row(process_id, stage_id, user='demo'):
                'allowance_pct', 'flag', '_add', '_delete'}
     conn = get_conn()
     try:
+        if _process_stage_locked(conn, process_id):  # Step 2: 鎖定版不可刪
+            return {'ok': False, 'error': LOCKED_MSG, 'locked': True}
         old_row = conn.execute(
             'SELECT process_name, flag FROM ie_process WHERE id=?', (process_id,)
         ).fetchone()
@@ -1577,6 +1657,8 @@ def save_ie_process_group(header_id, segment, zone, stage_id, process_ids, headc
     try:
         # 版本控制: 合併綁到當前有效版本
         eff_stage = _effective_stage_id(conn, header_id, stage_id)
+        if _stage_locked(conn, eff_stage):  # Step 2: 鎖定版不可改
+            return {'ok': False, 'error': LOCKED_MSG, 'locked': True}
         # Remove existing groups that overlap these process_ids (同版)
         existing = conn.execute(
             'SELECT id, process_ids FROM ie_process_group '

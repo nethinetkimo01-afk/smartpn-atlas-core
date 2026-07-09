@@ -117,6 +117,21 @@ MIGRATIONS = [
             "ALTER TABLE ie_stage ADD COLUMN is_approved INTEGER DEFAULT 0",
         ]
     },
+    {
+        'id': 'M008',
+        'desc': '版本控制 Step 2: lock_history 鎖定版變更歷史表',
+        'sql': [
+            '''CREATE TABLE IF NOT EXISTS lock_history (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                header_id    INTEGER NOT NULL,
+                stage_id     INTEGER NOT NULL,
+                stage_name   TEXT,
+                effective_at TEXT NOT NULL,
+                set_by       TEXT,
+                note         TEXT
+            )''',
+        ]
+    },
 ]
 
 def _ensure_migration_table(conn):

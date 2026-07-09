@@ -246,15 +246,18 @@ td.sumc2b-grand-dept{color:#0d1a44;font-weight:800;text-align:left;padding-left:
     <button class="tg-btn active" id="eolr120" onclick="setEolr(120)">EOLR 120</button>
   </div>
   <a href="/admin/users" class="btn-outline" id="btn-admin-users" style="display:none">帳號管理</a>
+  <span id="lock-badge" style="display:none;font-size:11px;padding:3px 8px;border-radius:10px;background:#fdecea;color:#b71c1c;font-weight:600">🔒 鎖定版</span>
   <div class="save-dropdown" id="saveDropdown">
     <button class="btn-sm" onclick="toggleSaveDropdown()">儲存 ▼</button>
     <div class="save-dropdown-menu" id="saveDropdownMenu" style="display:none">
-      <button onclick="saveSilent();closeSaveDropdown()">儲存</button>
+      <button id="btn-save-current" onclick="saveSilent();closeSaveDropdown()">儲存</button>
       <button onclick="newStage();closeSaveDropdown()">另存新階段</button>
     </div>
   </div>
   <button class="btn-outline" id="btn-submit-review" onclick="submitForReview()" style="display:none;border-color:#1d9e6b;color:#1d9e6b">送審</button>
-  <button class="btn-sm" id="btn-approve-stage" onclick="approveCurrentStage()" style="display:none;background:#1d9e6b">✓ 設為合格版</button>
+  <button class="btn-sm" id="btn-approve-stage" onclick="approveCurrentStage()" style="display:none;background:#1d9e6b">🔒 設為鎖定版</button>
+  <button class="btn-sm" id="btn-unlock-stage" onclick="unlockStage()" style="display:none;background:#e67e22">🔓 解鎖</button>
+  <button class="btn-outline" id="btn-lock-hist" onclick="showLockHistory()" style="display:none">鎖定版歷史</button>
   <span id="review-status-badge" style="font-size:11px;padding:3px 8px;border-radius:10px;display:none"></span>
   <button id="btn-update" onclick="doUpdate()" style="display:none;border:none;border-radius:5px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;background:#aaa;color:#fff" title="程式版本狀態">已是最新</button>
 </div>
@@ -387,12 +390,24 @@ td.sumc2b-grand-dept{color:#0d1a44;font-weight:800;text-align:left;padding-left:
   </div>
 </div>
 
+<!-- 版本控制 Step 2: 鎖定版歷史彈窗 -->
+<div id="lockHistModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:10px;max-width:640px;width:90%;max-height:70vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,.3)">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #eee">
+      <b>🔒 鎖定版變更歷史</b>
+      <button onclick="closeLockHistory()" style="border:none;background:none;font-size:18px;cursor:pointer">✕</button>
+    </div>
+    <div id="lockHistBody" style="padding:8px 12px">載入中…</div>
+  </div>
+</div>
+
 <script>
 const PATH = window.location.pathname;
 const HID  = parseInt(PATH.split('/')[2]) || 0;
 let EOLR   = 120;
 let SEG    = 'cutting';
 let STAGE  = null;
+let STAGES_BY_ID = {};   // 版本控制 Step 2: id -> {id, stage_name, is_approved}
 let DATA   = null;
 let EDITS  = {};
 let _storedLang = localStorage.getItem('ie_lang') || 'zh';
@@ -456,16 +471,17 @@ async function initCellAuth() {
     if (CELL_USER.role === 'data_entry') {
       document.getElementById('btn-submit-review').style.display = 'inline-block';
     }
-    if (['admin', 'manager'].includes(CELL_USER.role)) {
-      document.getElementById('btn-approve-stage').style.display = 'inline-block';
-    }
     if (['admin','manager'].includes(CELL_USER.role)) {
+      // 鎖定版歷史：經理可看；設鎖定版/解鎖鈕由 refreshLockUI 依鎖定狀態控制
+      const lh = document.getElementById('btn-lock-hist');
+      if (lh) lh.style.display = 'inline-block';
       checkVersionStatus();
       setInterval(checkVersionStatus, 5*60*1000);
       const adminBtn = document.getElementById('btn-admin-users');
       if (adminBtn) adminBtn.style.display = 'inline-block';
     }
   }
+  refreshLockUI();   // CELL_USER 就緒後刷新鎖定版按鈕（設鎖定版/解鎖）
   loadReviewStatus();
 }
 
@@ -546,10 +562,14 @@ async function submitForReview() {
 
 async function approveCurrentStage() {
   if (!STAGE) { alert('請先選擇版本'); return; }
-  if (!confirm(`確認將版本「${STAGE.stage_name}」設為合格版？`)) return;
-  const r = await fetch(`/api/ie/stages/${HID}/${STAGE.id}/approve`, {method: 'POST'});
+  if (!confirm(`確認將版本「${STAGE.stage_name}」設為鎖定版（對外基準）？\n同鞋型只能有一個鎖定版，會自動解除舊的。`)) return;
+  const note = prompt('備註（選填，例如：套用於 7 月編制）：', '') || '';
+  const r = await fetch(`/api/ie/stages/${HID}/${STAGE.id}/approve`, {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({note})
+  });
   const j = await r.json();
-  if (j.ok) { alert('已設為合格版 ✓'); }
+  if (j.ok) { alert('已設為鎖定版 🔒'); await reloadStages(STAGE.id); }
   else alert('操作失敗：' + (j.error || ''));
 }
 
@@ -568,14 +588,18 @@ async function init() {
   if (sr.ok && sr.stages && sr.stages.length) {
     const sel = document.getElementById('stageSelect');
     sel.innerHTML = '';
+    STAGES_BY_ID = {};
     for (const st of sr.stages) {
+      STAGES_BY_ID[st.id] = st;
       const opt = document.createElement('option');
       opt.value = st.id;
-      opt.textContent = st.stage_name;
+      opt.textContent = (st.is_approved ? '🔒 ' : '') + st.stage_name;
       sel.appendChild(opt);
-      if (!STAGE) STAGE = st;
+      // 版本控制: 預設選鎖定版；沒鎖定版才選第一個
+      if (!STAGE || st.is_approved) STAGE = st;
     }
     if (STAGE) sel.value = STAGE.id;
+    refreshLockUI();
   }
 
   if (lr.ok && lr.header) {
@@ -599,11 +623,88 @@ function switchStage(stageId) {
     if (STAGE) sel.value = STAGE.id;
     return;
   }
-  const sel = document.getElementById('stageSelect');
-  STAGE = {id: parseInt(stageId), stage_name: sel.options[sel.selectedIndex].textContent};
-  // 版本控制: 切版本要真的重載該版工序（各版資料獨立）
+  const sid = parseInt(stageId);
+  // 版本控制: 從 STAGES_BY_ID 取得含 is_approved 的完整版本物件
+  STAGE = STAGES_BY_ID[sid] || {id: sid,
+    stage_name: document.getElementById('stageSelect').selectedOptions[0].textContent.replace('🔒 ','')};
+  refreshLockUI();
+  // 切版本要真的重載該版工序（各版資料獨立）
   loadSegment(SEG);
 }
+
+// ── 版本控制 Step 2: 鎖定版 UI ────────────────────────────────────────────────
+function isManager() {
+  return CELL_USER && ['admin', 'manager'].includes(CELL_USER.role);
+}
+function refreshLockUI() {
+  const locked = !!(STAGE && STAGE.is_approved);
+  // 儲存鈕：鎖定版失效（灰掉）；一般版可用
+  const savBtn = document.getElementById('btn-save-current');
+  const savAll = document.getElementById('btnSaveAll');
+  [savBtn, savAll].forEach(b => { if (b) { b.disabled = locked; b.title = locked ? '鎖定版不能覆蓋，請另存新版本' : ''; } });
+  // 鎖定狀態標示
+  const badge = document.getElementById('lock-badge');
+  if (badge) badge.style.display = locked ? 'inline-block' : 'none';
+  // 設為合格版 / 解鎖：只有 admin/manager 看得到；依鎖定狀態切換
+  const appBtn = document.getElementById('btn-approve-stage');
+  const unlBtn = document.getElementById('btn-unlock-stage');
+  if (appBtn) appBtn.style.display = (isManager() && !locked) ? 'inline-block' : 'none';
+  if (unlBtn) unlBtn.style.display = (isManager() &&  locked) ? 'inline-block' : 'none';
+}
+
+async function reloadStages(keepId) {
+  const sr = await fetch('/api/ie/stages/' + HID).then(r => r.json()).catch(() => ({}));
+  if (!sr.ok || !sr.stages) return;
+  const sel = document.getElementById('stageSelect');
+  sel.innerHTML = '';
+  STAGES_BY_ID = {};
+  for (const st of sr.stages) {
+    STAGES_BY_ID[st.id] = st;
+    const opt = document.createElement('option');
+    opt.value = st.id;
+    opt.textContent = (st.is_approved ? '🔒 ' : '') + st.stage_name;
+    sel.appendChild(opt);
+  }
+  const wantId = keepId || (STAGE && STAGE.id);
+  if (wantId && STAGES_BY_ID[wantId]) {
+    STAGE = STAGES_BY_ID[wantId];
+    sel.value = wantId;
+  }
+  refreshLockUI();
+}
+
+async function unlockStage() {
+  if (!STAGE) return;
+  if (!confirm(`確認解鎖版本「${STAGE.stage_name}」？解鎖後此版本即可再次「儲存」覆蓋。`)) return;
+  const r = await fetch(`/api/ie/stages/${HID}/unlock`, {method: 'POST'});
+  const j = await r.json();
+  if (j.ok) { alert('已解鎖 ✓'); await reloadStages(STAGE.id); }
+  else alert('解鎖失敗：' + (j.error || ''));
+}
+
+async function showLockHistory() {
+  const r = await fetch(`/api/ie/stages/${HID}/lock_history`).then(r => r.json()).catch(() => ({}));
+  const box = document.getElementById('lockHistBody');
+  if (!r.ok) { box.innerHTML = '<div style="padding:12px;color:#c00">載入失敗</div>'; }
+  else if (!r.history.length) { box.innerHTML = '<div style="padding:12px;color:#888">尚無鎖定版歷史</div>'; }
+  else {
+    let h = '<table style="width:100%;border-collapse:collapse;font-size:13px">'
+          + '<tr style="background:#F5F5F7"><th style="text-align:left;padding:6px">生效時間</th>'
+          + '<th style="text-align:left;padding:6px">版本</th>'
+          + '<th style="text-align:left;padding:6px">設定者</th>'
+          + '<th style="text-align:left;padding:6px">備註</th></tr>';
+    for (const it of r.history) {
+      h += `<tr style="border-top:1px solid #eee"><td style="padding:6px">${esc(it.effective_at||'')}</td>`
+         + `<td style="padding:6px">${esc(it.stage_name||'')}</td>`
+         + `<td style="padding:6px">${esc(it.set_by||'')}</td>`
+         + `<td style="padding:6px">${esc(it.note||'')}</td></tr>`;
+    }
+    h += '</table>';
+    box.innerHTML = h;
+  }
+  document.getElementById('lockHistModal').style.display = 'flex';
+}
+function closeLockHistory() { document.getElementById('lockHistModal').style.display = 'none'; }
 
 async function loadSegment(seg) {
   EDITS = {};
@@ -1412,6 +1513,8 @@ async function submitMerge() {
 
 // Cutting WS / direct inline save (blur)
 async function saveSingleActual(inp, pid) {
+  // 版本控制 Step 2: 鎖定版不即時存
+  if (STAGE && STAGE.is_approved) { alert('鎖定版不能覆蓋，請用「另存新階段」建立新版本'); return; }
   const val = inp.value.trim();
   if (val === '') return;
   const r = await fetch('/api/ie/cell/save', {
@@ -1426,6 +1529,8 @@ async function saveSingleActual(inp, pid) {
 // Generic instant-save for a single field (e.g. equipment_type select onchange).
 // Unlike saveSingleActual, empty value IS saved (allows clearing back to '-').
 async function saveSingleField(el, pid, field) {
+  // 版本控制 Step 2: 鎖定版不即時存
+  if (STAGE && STAGE.is_approved) { alert('鎖定版不能覆蓋，請用「另存新階段」建立新版本'); return; }
   const val = el.value;
   const r = await fetch('/api/ie/cell/save', {
     method: 'POST', headers: {'Content-Type': 'application/json'},
@@ -1505,6 +1610,8 @@ function showSaveModal() {
   if (confirm(`確認提交 ${count} 項修改至版本「${STAGE?.stage_name || '—'}」？`)) submitAllEdits();
 }
 async function saveSilent() {
+  // 版本控制 Step 2: 鎖定版不可覆蓋，只能另存新版本
+  if (STAGE && STAGE.is_approved) { alert('鎖定版不能覆蓋，請用「另存新階段」建立新版本'); return; }
   const count = Object.values(EDITS).reduce((n, f) => n + Object.keys(f).length, 0);
   if (count === 0) return;
   const btn = document.getElementById('btnSaveAll');
@@ -1554,15 +1661,11 @@ function newStage() {
   fetch('/api/ie/stages/' + HID, {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({stage_name:name, source_stage_id: STAGE ? STAGE.id : null}),
-  }).then(r=>r.json()).then(j => {
+  }).then(r=>r.json()).then(async j => {
     if (j.ok) {
-      STAGE = {id:j.stage_id, stage_name:name};
-      const sel = document.getElementById('stageSelect');
-      const opt = document.createElement('option');
-      opt.value = j.stage_id;
-      opt.textContent = name;
-      sel.appendChild(opt);
-      sel.value = j.stage_id;
+      // 新版本是「一般版」(未鎖定)；重建版本清單並選取它，刷新鎖定 UI
+      STAGE = {id:j.stage_id, stage_name:name, is_approved:0};
+      await reloadStages(j.stage_id);
       // 切到新版本並載入其（複製來的）工序
       loadSegment(SEG);
     } else alert('建立失敗: ' + (j.error || ''));
