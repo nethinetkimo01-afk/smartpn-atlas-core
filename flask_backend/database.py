@@ -2859,26 +2859,24 @@ def get_bianche_data(month='2026-06'):
                ORDER BY lean, model_name, art'''
         ).fetchall()
 
-        # 3. IE process data: art → zone → [std_time]
-        # 版本控制 Step 4a: 只讀鎖定版 IE（沒鎖定版→該 art 無數據）
+        # 3. IE process data: art → zone → [(std_time, actual_operators)]
+        # 版本控制 Step 4a: 只讀鎖定版 IE；Step 4b: 一併抓 actual_operators
         ie_rows = conn.execute(
-            '''SELECT oa.art, ip.zone, ip.standard_time
+            '''SELECT oa.art, ip.zone, ip.standard_time, ip.actual_operators
                FROM ie_process ip
                JOIN ob_articles oa ON oa.header_id = ip.header_id
-               WHERE (ip.flag IS NULL OR ip.flag != 'deleted') AND ip.standard_time > 0
+               WHERE (ip.flag IS NULL OR ip.flag != 'deleted')
+                 AND (ip.standard_time > 0 OR ip.actual_operators > 0)
                  AND ''' + _locked_stage_clause('ip') + '''
                ORDER BY oa.art, ip.zone''',
         ).fetchall()
         locked_arts = _locked_arts(conn)
-        ie_data = {}   # art → zone → [std_time]
+        ie_data = {}   # art → zone → [(std, act)]
         for r in ie_rows:
             a = r['art']
             z = r['zone']
-            if a not in ie_data:
-                ie_data[a] = {}
-            if z not in ie_data[a]:
-                ie_data[a][z] = []
-            ie_data[a][z].append(r['standard_time'] or 0)
+            ie_data.setdefault(a, {}).setdefault(z, []).append(
+                (r['standard_time'] or 0, r['actual_operators']))
 
         # 4. Checked (moved-out) allocation_item: art → zone → moved_mp
         chk_rows = conn.execute(
@@ -2902,17 +2900,18 @@ def get_bianche_data(month='2026-06'):
         manual_map = {r['lean']: {'manager_mp': r['manager_mp'], 'headcount': r['headcount']} for r in manual_rows}
 
         # 6. Compute per order
-        def zone_mp(art, zones, eolr):
+        # 裁斷(cutting)：理論(standard_time×eolr/3600) — 裁斷機公式列多半沒填實際人數
+        def zone_theory(art, zones, eolr):
             d = ie_data.get(art, {})
-            return round(sum(sum(d.get(z, [])) for z in zones) * eolr / 3600.0, 4)
+            return round(sum(s for z in zones for (s, a) in d.get(z, [])) * eolr / 3600.0, 4)
+        # 針車/成型/STF：實際人數(actual_operators)加總，NULL 當 0
+        def zone_actual(art, zones):
+            d = ie_data.get(art, {})
+            return round(sum((a or 0) for z in zones for (s, a) in d.get(z, [])), 4)
 
         def zone_moved(art, zones):
             d = moved_data.get(art, {})
             return round(sum(d.get(z, 0) for z in zones), 4)
-
-        def zone_tct(art, zones):
-            d = ie_data.get(art, {})
-            return sum(sum(d.get(z, [])) for z in zones)
 
         results = []
         for ord_row in order_rows:
@@ -2924,14 +2923,13 @@ def get_bianche_data(month='2026-06'):
             has_ie = art in ie_data
 
             if has_ie:
-                cut_ie   = zone_mp(art, CUTTING_ZONES, eolr)
+                cut_ie   = zone_theory(art, CUTTING_ZONES, eolr)   # 裁斷維持理論
                 cut_mv   = zone_moved(art, AUTO_ZONES)
-                stch_ie  = zone_mp(art, STITCH_ZONES, eolr)
+                stch_ie  = zone_actual(art, STITCH_ZONES)          # Step 4b: 針車實際人數
                 stch_mv  = zone_moved(art, STITCH_ZONES)
-                asm_ie   = zone_mp(art, ASSEMBLY_ZONES, eolr)
+                asm_ie   = zone_actual(art, ASSEMBLY_ZONES)        # Step 4b: 成型實際人數
                 asm_mv   = zone_moved(art, ASSEMBLY_ZONES)
-                tct      = zone_tct(art, STF_ZONES)
-                stf_mp   = round(qty * tct / 3600.0 / 222.0, 4) if tct else 0
+                stf_mp   = zone_actual(art, STF_ZONES)             # Step 4b: STF 實際人數
 
                 if is_out:
                     cut_act  = 0.0
@@ -3419,13 +3417,19 @@ def get_bianzhi_detail(month):
         ).fetchall()
 
         # 版本控制 Step 4a: 編制表只讀「鎖定版」的 IE（沒鎖定版→該 art 無數據）
-        ie_data = {}
+        # Step 4b: 一併抓 actual_operators（針車/成型改用實際人數）
+        ie_data = {}          # art → zone → [(std, act)]
+        art_has_actual = {}   # art → 主線(針車+成型) 有沒有填實際人數
         for r in conn.execute(
-            '''SELECT oa.art, ip.zone, ip.standard_time FROM ie_process ip
+            '''SELECT oa.art, ip.zone, ip.standard_time, ip.actual_operators FROM ie_process ip
                JOIN ob_articles oa ON oa.header_id=ip.header_id
-               WHERE (ip.flag IS NULL OR ip.flag!='deleted') AND ip.standard_time>0
+               WHERE (ip.flag IS NULL OR ip.flag!='deleted')
+                 AND (ip.standard_time>0 OR ip.actual_operators>0)
                  AND ''' + _locked_stage_clause('ip') + '''  '''):
-            ie_data.setdefault(r['art'], {}).setdefault(r['zone'], []).append(r['standard_time'] or 0)
+            ie_data.setdefault(r['art'], {}).setdefault(r['zone'], []).append(
+                (r['standard_time'] or 0, r['actual_operators']))
+            if r['actual_operators'] is not None and (r['zone'] in STITCH_ZONES or r['zone'] in ASSEMBLY_ZONES):
+                art_has_actual[r['art']] = True
         locked_arts = _locked_arts(conn)   # 有鎖定版的 art（供 has_locked 判斷）
 
         # Allocation moved per art+zone type
@@ -3468,10 +3472,12 @@ def get_bianzhi_detail(month):
 
             if has_ie:
                 d = ie_data[first_art]
-                def _ie(zones): return round(sum(sum(d.get(z, [])) for z in zones) * eolr / 3600.0, 1)
-                cut = 0.0 if is_out else _ie(CUTTING_ZONES)
-                stch = 0.0 if is_out else _ie(STITCH_ZONES)
-                asm  = _ie(ASSEMBLY_ZONES)
+                # 裁斷：理論(公式基準)；針車/成型：實際人數(actual_operators)加總，NULL 當 0
+                def _theory(zones): return round(sum(s for z in zones for (s, a) in d.get(z, [])) * eolr / 3600.0, 1)
+                def _actual(zones): return round(sum((a or 0) for z in zones for (s, a) in d.get(z, [])), 1)
+                cut = 0.0 if is_out else _theory(CUTTING_ZONES)
+                stch = 0.0 if is_out else _actual(STITCH_ZONES)   # Step 4b: 針車實際人數
+                asm  = _actual(ASSEMBLY_ZONES)                    # Step 4b: 成型實際人數
             else:
                 cut = stch = asm = None
 
@@ -3496,10 +3502,12 @@ def get_bianzhi_detail(month):
                     'lean': lean, 'lean_major': _lean_major(lean),
                     'eolr': eolr, 'models': []
                 }
+            # Step 4b: 該 model 主線(針車/成型)有沒有填實際人數（沒填→前端可淡色提示）
+            has_actual = has_locked and any(art_has_actual.get(a) for a in arts)
             lean_map[lean]['models'].append({
                 'model_name': model, 'arts': row['arts'] or '',
                 'qty': qty, 'is_outsource': bool(is_out), 'has_ie': has_ie,
-                'has_locked': has_locked,
+                'has_locked': has_locked, 'has_actual': has_actual,
                 'cutting': cut, 'stitching': stch, 'assembly': asm,
                 'total_k': k, 'bianzhi': bz,
                 'p_ext': p_ext, 'q_ext': q_ext, 'r_ext': r_ext, 'c2b': c2b,
