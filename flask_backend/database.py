@@ -1373,6 +1373,27 @@ def _locked_arts(conn):
     ).fetchall()}
 
 
+# 版本控制 Step 4c: 外移(撥人)人力改用「實際人數」基礎。
+# 對已勾選承接(is_checked=1)的 allocation_item，即時 join 對應鎖定版 ie_process，
+# 取 actual_operators 加總（NULL 當 0），取代 allocation_item.theory_mp 舊快照。
+# 勾選邏輯(is_checked)不變——只有承接的才算；只換「人力數字」的來源。
+def _moved_actual_by_art_zone(conn, month):
+    rows = conn.execute(
+        'SELECT ai.art AS art, ai.zone AS zone, '
+        '       SUM(COALESCE(ip.actual_operators,0)) AS moved '
+        'FROM allocation_item ai '
+        'LEFT JOIN ie_process ip '
+        '  ON ip.header_id=ai.header_id AND ip.zone=ai.zone AND ip.seq=ai.seq '
+        '  AND ip.process_name=ai.process_name '
+        "  AND (ip.flag IS NULL OR ip.flag != 'deleted') AND " + _locked_stage_clause('ip') + ' '
+        'WHERE ai.is_checked=1 AND ai.month=? '
+        'GROUP BY ai.art, ai.zone', (month,)).fetchall()
+    out = {}
+    for r in rows:
+        out.setdefault(r['art'], {})[r['zone']] = r['moved'] or 0
+    return out
+
+
 # 版本控制 Step 2: 某 stage 是否為鎖定版(對外基準，不可覆蓋)。
 def _stage_locked(conn, stage_id):
     if not stage_id:
@@ -2879,19 +2900,8 @@ def get_bianche_data(month='2026-06'):
                 (r['standard_time'] or 0, r['actual_operators']))
 
         # 4. Checked (moved-out) allocation_item: art → zone → moved_mp
-        chk_rows = conn.execute(
-            '''SELECT art, zone, SUM(theory_mp) AS moved
-               FROM allocation_item
-               WHERE is_checked=1 AND month=?
-               GROUP BY art, zone''',
-            (month,)
-        ).fetchall()
-        moved_data = {}   # art → zone → moved_mp
-        for r in chk_rows:
-            a = r['art']
-            if a not in moved_data:
-                moved_data[a] = {}
-            moved_data[a][r['zone']] = r['moved'] or 0
+        # 版本控制 Step 4c: 外移人力改用實際人數(即時抓鎖定版)，勾選邏輯不變
+        moved_data = _moved_actual_by_art_zone(conn, month)
 
         # 5. Manual bianche fields (manager_mp, headcount)
         manual_rows = conn.execute(
@@ -3433,15 +3443,14 @@ def get_bianzhi_detail(month):
         locked_arts = _locked_arts(conn)   # 有鎖定版的 art（供 has_locked 判斷）
 
         # Allocation moved per art+zone type
+        # 版本控制 Step 4c: 外移人力改用實際人數(即時抓鎖定版)，勾選(is_checked)邏輯不變
         moved_p = {}  # P: same-cut / auto / fold — stays in CSA as ext
         moved_q = {}  # Q: computer stitching
         moved_r = {}  # R: sole attachment / 大底課
-        for r in conn.execute(
-            'SELECT art, zone, SUM(theory_mp) AS mp FROM allocation_item '
-            'WHERE is_checked=1 AND month=? GROUP BY art, zone', (month,)):
-            z = r['zone'] or ''
-            a = r['art']
-            mp = r['mp'] or 0
+        moved_av = _moved_actual_by_art_zone(conn, month)
+        for a, zmap in moved_av.items():
+          for z, mp in zmap.items():
+            z = z or ''
             # P: cutting moved (auto zones in allocation)
             if z in AUTO_ZONES or z in {'同材共裁', '折邊', '自動化'}:
                 moved_p[a] = moved_p.get(a, 0) + mp
