@@ -49,7 +49,32 @@ def init_db():
         # Migration: add equipment_type to ie_process (stitching/assembly/STF 設備種類下拉)
         if 'equipment_type' not in iep_cols:
             conn.execute("ALTER TABLE ie_process ADD COLUMN equipment_type TEXT")
+        # 版本控制 Step 1: add stage_id (真正綁版本；舊的 stage 欄位是假的固定=1)
+        if 'stage_id' not in iep_cols:
+            conn.execute("ALTER TABLE ie_process ADD COLUMN stage_id INTEGER")
         conn.commit()
+    # 版本控制 Step 1: ie_stage.is_approved（鎖定版旗標，供 effective-stage 排序）
+    ist_cols = [r[1] for r in conn.execute("PRAGMA table_info(ie_stage)").fetchall()]
+    if ist_cols and 'is_approved' not in ist_cols:
+        conn.execute("ALTER TABLE ie_stage ADD COLUMN is_approved INTEGER DEFAULT 0")
+        conn.commit()
+    # 版本控制 Step 1: self-heal 回填 — 任何有工序但 stage_id=NULL 的 header 綁到初版
+    # （讓 ME129 等未跑 versioning_step1.py 的機器在重啟後自動分版；idempotent）
+    if iep_cols and 'stage_id' in [r[1] for r in conn.execute("PRAGMA table_info(ie_process)").fetchall()]:
+        null_hdrs = [r[0] for r in conn.execute(
+            'SELECT DISTINCT header_id FROM ie_process WHERE stage_id IS NULL').fetchall()]
+        for hid in null_hdrs:
+            srow = conn.execute(
+                'SELECT id FROM ie_stage WHERE header_id=? ORDER BY id ASC LIMIT 1', (hid,)).fetchone()
+            if srow:
+                sid = srow[0]
+            else:
+                conn.execute("INSERT INTO ie_stage (header_id, stage_name, is_approved) VALUES (?,'初版',0)", (hid,))
+                sid = conn.execute('SELECT last_insert_rowid()').fetchone()[0]
+            conn.execute('UPDATE ie_process SET stage_id=? WHERE header_id=? AND stage_id IS NULL', (sid, hid))
+            conn.execute('UPDATE ie_process_group SET stage_id=? WHERE header_id=? AND (stage_id IS NULL OR stage_id=0)', (sid, hid))
+        if null_hdrs:
+            conn.commit()
     # Seed default lookup if empty
     count = conn.execute('SELECT COUNT(*) FROM lookup_viet_zh').fetchone()[0]
     if count == 0:
@@ -1116,6 +1141,7 @@ def get_ie_cutting_process(art=None, flag=None, limit=2000):
         if flag:
             where_parts.append("flag=?")
             params.append(flag)
+        where_parts.append(_eff_stage_clause('ie_process'))  # 版本控制: 只計有效版本
         where = ' AND '.join(where_parts)
         rows = conn.execute(
             f'''SELECT id, header_id, art, zone, seq, process_name, part_name,
@@ -1131,7 +1157,7 @@ def get_ie_cutting_process(art=None, flag=None, limit=2000):
                       SUM(CASE WHEN value_type='manual' THEN 1 ELSE 0 END) as manual_cnt,
                       SUM(CASE WHEN flag='待分區' THEN 1 ELSE 0 END) as pending_cnt,
                       SUM(CASE WHEN tct IS NOT NULL AND tct > 0 THEN 1 ELSE 0 END) as tct_cnt
-               FROM ie_process WHERE segment='cutting' ''').fetchone()
+               FROM ie_process WHERE segment='cutting' AND ''' + _eff_stage_clause('ie_process')).fetchone()
         stats = dict(stats_row) if stats_row else {}
         return {
             'ok': True,
@@ -1152,7 +1178,7 @@ def get_ie_cutting_arts():
                       SUM(CASE WHEN value_type='formula' THEN 1 ELSE 0 END) as formula_cnt,
                       SUM(CASE WHEN flag='待分區' THEN 1 ELSE 0 END) as pending_cnt,
                       SUM(CASE WHEN tct IS NOT NULL AND tct > 0 THEN 1 ELSE 0 END) as tct_cnt
-               FROM ie_process WHERE segment='cutting'
+               FROM ie_process WHERE segment='cutting' AND ''' + _eff_stage_clause('ie_process') + '''
                GROUP BY art ORDER BY art''').fetchall()
         return {'ok': True, 'arts': [dict(r) for r in rows]}
     except Exception as e:
@@ -1167,7 +1193,7 @@ def get_ie_process_by_header(header_id, segment='cutting'):
         rows = conn.execute(
             '''SELECT zone, seq, process_name, part_name, tct, value_type, formula, flag, source_sheet
                FROM ie_process
-               WHERE header_id=? AND segment=?
+               WHERE header_id=? AND segment=? AND ''' + _eff_stage_clause('ie_process') + '''
                ORDER BY zone, seq, source_sheet, id''',
             (header_id, segment)).fetchall()
         zones = {}
@@ -1181,7 +1207,7 @@ def get_ie_process_by_header(header_id, segment='cutting'):
                       SUM(CASE WHEN value_type='formula' THEN 1 ELSE 0 END) as formula_cnt,
                       SUM(CASE WHEN value_type='manual'  THEN 1 ELSE 0 END) as manual_cnt,
                       SUM(CASE WHEN flag='待分區'        THEN 1 ELSE 0 END) as pending_cnt
-               FROM ie_process WHERE header_id=? AND segment=?''',
+               FROM ie_process WHERE header_id=? AND segment=? AND ''' + _eff_stage_clause('ie_process'),
             (header_id, segment)).fetchone()
         stats = dict(stats_row) if stats_row else {}
         return {'ok': True, 'segment': segment, 'zones': zones, 'stats': stats}
@@ -1210,7 +1236,8 @@ def get_ie_stages(header_id):
     conn = get_conn()
     try:
         rows = conn.execute(
-            'SELECT id, stage_name, created_at FROM ie_stage WHERE header_id=? ORDER BY id',
+            'SELECT id, stage_name, created_at, COALESCE(is_approved,0) AS is_approved '
+            'FROM ie_stage WHERE header_id=? ORDER BY id',
             (header_id,)
         ).fetchall()
         return {'ok': True, 'stages': [dict(r) for r in rows]}
@@ -1220,6 +1247,28 @@ def get_ie_stages(header_id):
         conn.close()
 
 
+# ── 版本控制 Step 1: effective-stage 解析 ─────────────────────────────────────
+# 「當前有效版本」規則：指定 stage_id → 用它；否則該 header 的鎖定版(is_approved=1)；
+# 沒鎖定版 → 最新版(id 最大)。單一版本資料下等同回傳唯一的 v1（本步驟為 no-op）。
+def _effective_stage_id(conn, header_id, stage_id=None):
+    if stage_id:
+        return int(stage_id)
+    r = conn.execute(
+        'SELECT id FROM ie_stage WHERE header_id=? '
+        'ORDER BY COALESCE(is_approved,0) DESC, id DESC LIMIT 1',
+        (header_id,)
+    ).fetchone()
+    return r[0] if r else None
+
+# 相關子查詢：把某 header 的 ie_process 限制在其 effective stage。
+# 對「每 header 恰一版本」的現況是 no-op；一旦出現多版本可防止聚合重複計算。
+# {a} = ie_process 的別名（例如 'ip' / 'ip2' / 'ie_process'）。
+def _eff_stage_clause(a='ie_process'):
+    return (f"{a}.stage_id = (SELECT s.id FROM ie_stage s "
+            f"WHERE s.header_id = {a}.header_id "
+            f"ORDER BY COALESCE(s.is_approved,0) DESC, s.id DESC LIMIT 1)")
+
+
 def _calc_theory(standard_time, eolr):
     if standard_time is None:
         return None
@@ -1227,16 +1276,20 @@ def _calc_theory(standard_time, eolr):
     return round(standard_time / divisor, 4) if divisor else None
 
 
-def get_ie_cell_data(header_id, segment='cutting', eolr=120):
+def get_ie_cell_data(header_id, segment='cutting', eolr=120, stage_id=None):
     conn = get_conn()
     try:
         eolr = int(eolr)
-        # Get latest stage
+        # 版本控制 Step 1: 解析當前有效版本，只讀該版工序
+        eff_stage = _effective_stage_id(conn, header_id, stage_id)
         stage_row = conn.execute(
-            'SELECT id, stage_name FROM ie_stage WHERE header_id=? ORDER BY id DESC LIMIT 1',
-            (header_id,)
-        ).fetchone()
-        stage = dict(stage_row) if stage_row else {'id': None, 'stage_name': '無'}
+            'SELECT id, stage_name, COALESCE(is_approved,0) AS is_approved '
+            'FROM ie_stage WHERE id=?', (eff_stage,)
+        ).fetchone() if eff_stage else None
+        stage = dict(stage_row) if stage_row else {'id': None, 'stage_name': '無', 'is_approved': 0}
+
+        stage_filter = ' AND stage_id=?' if eff_stage else ''
+        stage_param  = [eff_stage] if eff_stage else []
 
         rows = conn.execute('''
             SELECT id, zone, seq, process_name, part_name, flag,
@@ -1252,17 +1305,17 @@ def get_ie_cell_data(header_id, segment='cutting', eolr=120):
                    post_polish_std, post_polish_ops,
                    value_type, is_locked, source_sheet, formula, stage
             FROM ie_process
-            WHERE header_id=? AND segment=? AND (flag IS NULL OR flag != 'deleted')
+            WHERE header_id=? AND segment=? AND (flag IS NULL OR flag != 'deleted')''' + stage_filter + '''
             ORDER BY zone, seq ASC, id
-        ''', (header_id, segment)).fetchall()
+        ''', [header_id, segment] + stage_param).fetchall()
 
-        # Also load process groups for this segment
+        # Also load process groups for this segment (同版過濾)
         group_rows = conn.execute('''
             SELECT id, zone, process_ids, headcount, note
             FROM ie_process_group
-            WHERE header_id=? AND segment=?
+            WHERE header_id=? AND segment=?''' + stage_filter + '''
             ORDER BY id
-        ''', (header_id, segment)).fetchall()
+        ''', [header_id, segment] + stage_param).fetchall()
         # Build map: process_id -> (group_id, headcount)
         group_map = {}
         for gr in group_rows:
@@ -1402,24 +1455,27 @@ def add_ie_process_row(header_id, segment, zone, process_name, standard_time, st
             pass
     conn = get_conn()
     try:
+        # 版本控制: 新工序綁到當前有效版本（stage_id 省略時自動解析）
+        eff_stage = _effective_stage_id(conn, header_id, stage_id)
         # Look up art from existing rows for this header
         art_row = conn.execute(
             'SELECT art FROM ie_process WHERE header_id=? LIMIT 1', (header_id,)
         ).fetchone()
         art = art_row['art'] if art_row else str(header_id)
-        # Find max seq in this zone
+        # Find max seq in this zone (同版)
         max_seq = conn.execute(
-            'SELECT MAX(seq) FROM ie_process WHERE header_id=? AND segment=? AND zone=?',
-            (header_id, segment, zone)
+            'SELECT MAX(seq) FROM ie_process WHERE header_id=? AND segment=? AND zone=? '
+            'AND (stage_id=? OR ? IS NULL)',
+            (header_id, segment, zone, eff_stage, eff_stage)
         ).fetchone()[0] or 0
         conn.execute('''
             INSERT INTO ie_process (header_id, art, segment, zone, seq, process_name, part_name, tct, standard_time, flag,
                                     mat_cat, process_name_zh, cut_per_hour, qty_per_pair, layers_per_cut, actual_operators,
-                                    normal_time, allowance_pct)
-            VALUES (?,?,?,?,?,?,?,?,?, 'new',?,?,?,?,?,?,?,?)
+                                    normal_time, allowance_pct, stage_id)
+            VALUES (?,?,?,?,?,?,?,?,?, 'new',?,?,?,?,?,?,?,?,?)
         ''', (header_id, art, segment, zone, max_seq + 1, process_name, part_name, tct, standard_time,
               mat_cat, process_name_zh, cut_per_hour, qty_per_pair, layers_per_cut, actual_operators,
-              normal_time, allowance_pct))
+              normal_time, allowance_pct, eff_stage))
         conn.commit()
         new_id = conn.execute('SELECT last_insert_rowid()').fetchone()[0]
         # Log as edit
@@ -1450,7 +1506,7 @@ def insert_ie_process_row_after(after_process_id, process_name, stage_id, user='
     conn = get_conn()
     try:
         anchor = conn.execute(
-            'SELECT header_id, art, segment, zone, seq FROM ie_process WHERE id=?', (after_process_id,)
+            'SELECT header_id, art, segment, zone, seq, stage_id FROM ie_process WHERE id=?', (after_process_id,)
         ).fetchone()
         if not anchor:
             return {'ok': False, 'error': 'anchor row not found'}
@@ -1459,19 +1515,22 @@ def insert_ie_process_row_after(after_process_id, process_name, stage_id, user='
         segment   = anchor['segment']
         zone      = anchor['zone']
         after_seq = anchor['seq'] if anchor['seq'] is not None else 0
-        # Push later rows in the same zone down by one, so the new row slots in right after anchor
+        # 版本控制: 新列繼承 anchor 的版本（同版插入）
+        eff_stage = anchor['stage_id'] if anchor['stage_id'] is not None else _effective_stage_id(conn, header_id, stage_id)
+        # Push later rows in the same zone down by one, so the new row slots in right after anchor (同版)
         conn.execute(
-            'UPDATE ie_process SET seq = seq + 1 WHERE header_id=? AND segment=? AND zone=? AND seq > ?',
-            (header_id, segment, zone, after_seq)
+            'UPDATE ie_process SET seq = seq + 1 WHERE header_id=? AND segment=? AND zone=? AND seq > ? '
+            'AND (stage_id=? OR ? IS NULL)',
+            (header_id, segment, zone, after_seq, eff_stage, eff_stage)
         )
         conn.execute('''
             INSERT INTO ie_process (header_id, art, segment, zone, seq, process_name, part_name, tct, standard_time, flag,
                                     mat_cat, process_name_zh, cut_per_hour, qty_per_pair, layers_per_cut, actual_operators,
-                                    normal_time, allowance_pct)
-            VALUES (?,?,?,?,?,?,?,?,?, 'new',?,?,?,?,?,?,?,?)
+                                    normal_time, allowance_pct, stage_id)
+            VALUES (?,?,?,?,?,?,?,?,?, 'new',?,?,?,?,?,?,?,?,?)
         ''', (header_id, art, segment, zone, after_seq + 1, process_name, part_name, tct, standard_time,
               mat_cat, process_name_zh, cut_per_hour, qty_per_pair, layers_per_cut, actual_operators,
-              normal_time, allowance_pct))
+              normal_time, allowance_pct, eff_stage))
         conn.commit()
         new_id = conn.execute('SELECT last_insert_rowid()').fetchone()[0]
         conn.execute('''
@@ -1516,10 +1575,13 @@ def save_ie_process_group(header_id, segment, zone, stage_id, process_ids, headc
     import json as _json
     conn = get_conn()
     try:
-        # Remove existing groups that overlap these process_ids
+        # 版本控制: 合併綁到當前有效版本
+        eff_stage = _effective_stage_id(conn, header_id, stage_id)
+        # Remove existing groups that overlap these process_ids (同版)
         existing = conn.execute(
-            'SELECT id, process_ids FROM ie_process_group WHERE header_id=? AND segment=? AND zone=?',
-            (header_id, segment, zone)
+            'SELECT id, process_ids FROM ie_process_group '
+            'WHERE header_id=? AND segment=? AND zone=? AND (stage_id=? OR ? IS NULL)',
+            (header_id, segment, zone, eff_stage, eff_stage)
         ).fetchall()
         pid_set = set(int(p) for p in process_ids)
         for eg in existing:
@@ -1529,15 +1591,16 @@ def save_ie_process_group(header_id, segment, zone, stage_id, process_ids, headc
         conn.execute('''
             INSERT INTO ie_process_group (header_id, segment, zone, stage_id, process_ids, headcount, note)
             VALUES (?,?,?,?,?,?,?)
-        ''', (header_id, segment, zone, stage_id, _json.dumps([int(p) for p in process_ids]), headcount, note))
+        ''', (header_id, segment, zone, eff_stage, _json.dumps([int(p) for p in process_ids]), headcount, note))
 
         # Reorder seq so merged processes sit adjacent (at the position of the earliest merged process).
-        # actual_operators on each ie_process row is NOT touched — values survive merge/unmerge.
+        # actual_operators on each ie_process row is NOT touched — values survive merge/unmerge. (同版)
         all_rows = conn.execute(
             'SELECT id FROM ie_process '
             'WHERE header_id=? AND segment=? AND zone=? AND (flag IS NULL OR flag != \'deleted\') '
+            'AND (stage_id=? OR ? IS NULL) '
             'ORDER BY seq ASC, id ASC',
-            (header_id, segment, zone)
+            (header_id, segment, zone, eff_stage, eff_stage)
         ).fetchall()
         all_ids = [r['id'] for r in all_rows]
         if all_ids:
@@ -1599,14 +1662,68 @@ def get_ie_process_groups(header_id, segment):
         conn.close()
 
 
-def create_ie_stage(header_id, stage_name):
+def create_ie_stage(header_id, stage_name, source_stage_id=None):
+    """另存新版本 = 建新 stage + 複製「來源版本」的所有工序與合併到新 stage。
+    source_stage_id 省略 → 複製當前有效版本。新版本是來源版的完整獨立副本，
+    之後改新版不影響來源版。"""
     conn = get_conn()
     try:
-        conn.execute('INSERT INTO ie_stage (header_id, stage_name) VALUES (?,?)',
+        src_stage = _effective_stage_id(conn, header_id, source_stage_id)
+
+        conn.execute('INSERT INTO ie_stage (header_id, stage_name, is_approved) VALUES (?,?,0)',
                      (header_id, stage_name))
+        new_stage = conn.execute('SELECT last_insert_rowid()').fetchone()[0]
+
+        copied_rows = 0
+        id_map = {}  # old process id -> new process id（供 group 重新對應）
+        if src_stage:
+            # 動態欄位清單：複製除 id 外全部欄位，stage_id 換成新版
+            cols = [r[1] for r in conn.execute('PRAGMA table_info(ie_process)')]
+            copy_cols = [c for c in cols if c != 'id']
+            select_list = ', '.join(copy_cols)
+            insert_list = ', '.join(copy_cols)
+            placeholders = ', '.join('?' * len(copy_cols))
+            stage_idx = copy_cols.index('stage_id')
+
+            src_rows = conn.execute(
+                f'SELECT id, {select_list} FROM ie_process WHERE header_id=? AND stage_id=?',
+                (header_id, src_stage)
+            ).fetchall()
+            for r in src_rows:
+                old_id = r['id']
+                vals = [r[c] for c in copy_cols]
+                vals[stage_idx] = new_stage  # 綁新版
+                conn.execute(
+                    f'INSERT INTO ie_process ({insert_list}) VALUES ({placeholders})', vals)
+                id_map[old_id] = conn.execute('SELECT last_insert_rowid()').fetchone()[0]
+                copied_rows += 1
+
+            # 複製合併群組，process_ids 重新對應到新 rows
+            import json as _json
+            gcols = [r[1] for r in conn.execute('PRAGMA table_info(ie_process_group)')]
+            gcopy = [c for c in gcols if c != 'id']
+            g_sel = ', '.join(gcopy)
+            g_ph  = ', '.join('?' * len(gcopy))
+            src_groups = conn.execute(
+                f'SELECT {g_sel} FROM ie_process_group WHERE header_id=? AND stage_id=?',
+                (header_id, src_stage)
+            ).fetchall()
+            for g in src_groups:
+                gvals = {c: g[c] for c in gcopy}
+                gvals['stage_id'] = new_stage
+                try:
+                    old_pids = _json.loads(g['process_ids'])
+                    gvals['process_ids'] = _json.dumps(
+                        [id_map[p] for p in old_pids if p in id_map])
+                except Exception:
+                    pass
+                conn.execute(
+                    f'INSERT INTO ie_process_group ({g_sel}) VALUES ({g_ph})',
+                    [gvals[c] for c in gcopy])
+
         conn.commit()
-        stage_id = conn.execute('SELECT last_insert_rowid()').fetchone()[0]
-        return {'ok': True, 'stage_id': stage_id}
+        return {'ok': True, 'stage_id': new_stage, 'copied_rows': copied_rows,
+                'source_stage_id': src_stage}
     except Exception as e:
         return {'ok': False, 'error': str(e)}
     finally:
@@ -1969,9 +2086,10 @@ def prefill_allocation(header_id=None, month=None):
                     SELECT zone, seq, process_name, part_name, standard_time
                     FROM ie_process
                     WHERE header_id=? AND (flag IS NULL OR flag != 'deleted')
-                      AND zone IN ({})
+                      AND {eff}
+                      AND zone IN ({ph})
                     ORDER BY zone, seq, id
-                '''.format(','.join('?' * len(TARGET_ZONES))),
+                '''.format(eff=_eff_stage_clause('ie_process'), ph=','.join('?' * len(TARGET_ZONES))),
                     [hid] + TARGET_ZONES).fetchall()
             except Exception:
                 rows = []
@@ -2093,7 +2211,8 @@ def _seg_ie_mp(conn, header_id, segment, divisor):
     try:
         r = conn.execute(
             "SELECT SUM(standard_time) FROM ie_process WHERE header_id=? AND segment=? "
-            "AND (flag IS NULL OR flag != 'deleted')", (header_id, segment)).fetchone()
+            "AND (flag IS NULL OR flag != 'deleted') AND " + _eff_stage_clause('ie_process'),
+            (header_id, segment)).fetchone()
         s = r[0] if r else None
         return round((s or 0.0) / divisor, 4) if s else 0.0
     except Exception:
@@ -2159,6 +2278,8 @@ def get_allocation_parts(month=None, unit=None, lean=None):
         if lean:
             cte_where += ' AND ai.lean=?'
 
+        eff_ip2 = _eff_stage_clause('ip2')  # 版本控制: 有效版本過濾
+
         rows = conn.execute(f'''
             WITH ai_dedup AS (
                 SELECT MIN(ai.id) AS id
@@ -2183,7 +2304,7 @@ def get_allocation_parts(month=None, unit=None, lean=None):
                        MAX(ip2.standard_time)  AS standard_time
                 FROM ie_process ip2
                 JOIN ob_articles oa ON oa.header_id = ip2.header_id
-                WHERE ip2.flag IS NULL OR ip2.flag != 'deleted'
+                WHERE (ip2.flag IS NULL OR ip2.flag != 'deleted') AND {eff_ip2}
                 GROUP BY oa.art, ip2.zone, ip2.seq
             ) ip ON ip.art=ai.art AND ip.zone=ai.zone AND ip.seq=ai.seq
             LEFT JOIN ob_header h ON h.id=ai.header_id
@@ -2300,7 +2421,7 @@ def get_allocation_export_rows(unit, month=None):
             FROM allocation_item ai
             LEFT JOIN ie_process ip
               ON ip.header_id=ai.header_id AND ip.zone=ai.zone AND ip.seq=ai.seq
-             AND ip.process_name=ai.process_name
+             AND ip.process_name=ai.process_name AND ''' + _eff_stage_clause('ip') + '''
             WHERE ai.target_unit=? AND ai.month=? AND ai.is_checked=1
             ORDER BY ai.lean, ai.art, ai.zone, ai.seq
         ''', (unit, month)).fetchall()
@@ -2613,6 +2734,7 @@ def get_bianche_data(month='2026-06'):
                FROM ie_process ip
                JOIN ob_articles oa ON oa.header_id = ip.header_id
                WHERE (ip.flag IS NULL OR ip.flag != 'deleted') AND ip.standard_time > 0
+                 AND ''' + _eff_stage_clause('ip') + '''
                ORDER BY oa.art, ip.zone''',
         ).fetchall()
         ie_data = {}   # art → zone → [std_time]
@@ -2880,7 +3002,8 @@ def get_bianche_csa_data(month='2026-06'):
         for r in conn.execute(
             '''SELECT oa.art, ip.zone, ip.standard_time FROM ie_process ip
                JOIN ob_articles oa ON oa.header_id=ip.header_id
-               WHERE (ip.flag IS NULL OR ip.flag!='deleted') AND ip.standard_time>0'''):
+               WHERE (ip.flag IS NULL OR ip.flag!='deleted') AND ip.standard_time>0
+                 AND ''' + _eff_stage_clause('ip') + '''  '''):
             a, z = r['art'], r['zone']
             ie_data.setdefault(a, {}).setdefault(z, []).append(r['standard_time'] or 0)
 
@@ -3159,7 +3282,8 @@ def get_bianzhi_detail(month):
         for r in conn.execute(
             '''SELECT oa.art, ip.zone, ip.standard_time FROM ie_process ip
                JOIN ob_articles oa ON oa.header_id=ip.header_id
-               WHERE (ip.flag IS NULL OR ip.flag!='deleted') AND ip.standard_time>0'''):
+               WHERE (ip.flag IS NULL OR ip.flag!='deleted') AND ip.standard_time>0
+                 AND ''' + _eff_stage_clause('ip') + '''  '''):
             ie_data.setdefault(r['art'], {}).setdefault(r['zone'], []).append(r['standard_time'] or 0)
 
         # Allocation moved per art+zone type

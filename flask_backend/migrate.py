@@ -108,6 +108,15 @@ MIGRATIONS = [
             "ALTER TABLE ie_process ADD COLUMN equipment_type TEXT",
         ]
     },
+    {
+        'id': 'M007',
+        'desc': '版本控制 Step 1: ie_process.stage_id + ie_stage.is_approved (真正資料分版；'
+                '資料回填 v1 由 versioning_step1.py 或 init_db self-heal 執行)',
+        'sql': [
+            "ALTER TABLE ie_process ADD COLUMN stage_id INTEGER",
+            "ALTER TABLE ie_stage ADD COLUMN is_approved INTEGER DEFAULT 0",
+        ]
+    },
 ]
 
 def _ensure_migration_table(conn):

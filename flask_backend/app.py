@@ -410,7 +410,8 @@ def ie_process_by_header(header_id):
 def ie_cell_data(header_id):
     segment = request.args.get('segment', 'cutting')
     eolr    = request.args.get('eolr', 120)
-    return jsonify(db.get_ie_cell_data(header_id, segment, eolr))
+    stage_id = request.args.get('stage_id', type=int)  # 版本控制: 指定版本，省略=有效版本
+    return jsonify(db.get_ie_cell_data(header_id, segment, eolr, stage_id))
 
 @app.route('/api/ie/<int:header_id>/can_edit', methods=['GET'])
 def ie_can_edit(header_id):
@@ -429,7 +430,8 @@ def ie_stages(header_id):
         ok, err = _can_edit_ie(header_id)
         if not ok: return err
         d = request.get_json(force=True)
-        return jsonify(db.create_ie_stage(header_id, d.get('stage_name', '新版本')))
+        return jsonify(db.create_ie_stage(
+            header_id, d.get('stage_name', '新版本'), d.get('source_stage_id')))
     return jsonify(db.get_ie_stages(header_id))
 
 @app.route('/api/ie/cell/save', methods=['POST'])

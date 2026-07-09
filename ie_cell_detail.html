@@ -601,6 +601,8 @@ function switchStage(stageId) {
   }
   const sel = document.getElementById('stageSelect');
   STAGE = {id: parseInt(stageId), stage_name: sel.options[sel.selectedIndex].textContent};
+  // 版本控制: 切版本要真的重載該版工序（各版資料獨立）
+  loadSegment(SEG);
 }
 
 async function loadSegment(seg) {
@@ -608,7 +610,9 @@ async function loadSegment(seg) {
   updateSaveBar();
   document.getElementById('mainContent').innerHTML = '<div class="loading-msg">載入中…</div>';
   try {
-    const resp = await fetch('/api/ie/cell/' + HID + '?segment=' + seg + '&eolr=' + EOLR);
+    // 版本控制: 帶上當前版本，只讀該版工序
+    const stageQ = (STAGE && STAGE.id) ? ('&stage_id=' + STAGE.id) : '';
+    const resp = await fetch('/api/ie/cell/' + HID + '?segment=' + seg + '&eolr=' + EOLR + stageQ);
     DATA = await resp.json();
   } catch(e) {
     document.getElementById('mainContent').innerHTML = '<div class="error-msg">網路錯誤</div>';
@@ -1546,9 +1550,10 @@ window.addEventListener('beforeunload', e => {
 function newStage() {
   const name = prompt('請輸入新版本名稱:');
   if (!name) return;
+  // 版本控制: 另存新版本 = 複製「當前正在看的版本」的所有工序成獨立副本
   fetch('/api/ie/stages/' + HID, {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({stage_name:name}),
+    body: JSON.stringify({stage_name:name, source_stage_id: STAGE ? STAGE.id : null}),
   }).then(r=>r.json()).then(j => {
     if (j.ok) {
       STAGE = {id:j.stage_id, stage_name:name};
@@ -1558,7 +1563,9 @@ function newStage() {
       opt.textContent = name;
       sel.appendChild(opt);
       sel.value = j.stage_id;
-    } else alert('建立失敗');
+      // 切到新版本並載入其（複製來的）工序
+      loadSegment(SEG);
+    } else alert('建立失敗: ' + (j.error || ''));
   });
 }
 
