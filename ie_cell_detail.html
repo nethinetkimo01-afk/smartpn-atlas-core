@@ -85,6 +85,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#FFFF
 .cut-act-inp::-webkit-outer-spin-button,.cut-act-inp::-webkit-inner-spin-button{-webkit-appearance:none}
 .cut-merge-btn{background:transparent;border:1px solid #C7C7CC;border-radius:2px;color:#000000;font-size:9px;cursor:pointer;padding:1px 3px;flex-shrink:0;line-height:1.4}
 .cut-merge-btn:hover{border-color:#007AFF;color:#007AFF}
+/* 區塊總計列（唯讀公式格，各欄加總） */
+.proc-table tr.zone-total-row td{background:#F2F2F7!important;border-top:2px solid #8E8E93!important;border-bottom:1px solid #C7C7CC!important;font-weight:700;padding:5px 8px;cursor:default}
+.proc-table tr.zone-total-row .zt-title{text-align:right;color:#1C1C1E;font-weight:700}
+.proc-table tr.zone-total-row .formula-cell{color:#000;font-weight:700;background:#F2F2F7!important;border:none!important}
 /* 常駐顯示手工輸入格 */
 .cell-inp{width:100%;box-sizing:border-box;border:1px solid #C7C7CC;border-radius:2px;padding:2px 4px;font-size:11px;font-family:Consolas,monospace;text-align:right;outline:none;background:#fff;color:#000000;-moz-appearance:textfield}
 .cell-inp:focus{border-color:#007AFF}
@@ -828,6 +832,7 @@ function renderCuttingZoneCard(z, eolr) {
   }
   for (const row of rows) h += renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize);
   h += renderAddTriggerRow(zone, 'cutting');
+  h += renderCuttingTotalRow(z, zone, type, eolr);
   h += '</tbody></table></div></div>';
   return h;
 }
@@ -1098,6 +1103,7 @@ function renderZoneCard(z, seg, eolr) {
       h += '</tr>';
     }
     h += renderAddTriggerRow(zone, seg);
+    h += renderZoneTotalRow(z, seg, zone, eolr, cols);
     h += '</tbody></table></div>';
   }
   h += '</div>';
@@ -1232,6 +1238,102 @@ function calcHandTotal(summaryZone) {
   return total;
 }
 
+// ── 區塊總計 ── 加總該區塊 標準時間 / 理論人數 / 實際人數（唯讀公式，空值當0）──────
+// 每列 standard_time 依各製程/區塊的顯示公式推算（與 renderCell / renderCuttingRow 一致）。
+function _rowStd(row, seg, zone) {
+  if (seg === 'cutting') {
+    if (zone === '裁斷機') {
+      const lay = parseFloat(row.layers_per_cut), qty = parseFloat(row.qty_per_pair), cph = parseFloat(row.cut_per_hour);
+      return (lay > 0 && qty > 0 && cph > 0) ? (3600 / cph / lay * qty * 1.1) : NaN;
+    }
+    return parseFloat(row.standard_time);
+  }
+  if (seg === 'stitching' || seg === 'assembly') {
+    return (row.normal_time != null)
+      ? row.normal_time * (1 + (row.allowance_pct != null ? row.allowance_pct : 10) / 100)
+      : parseFloat(row.standard_time);
+  }
+  if (seg === 'stf' && zone === '貼底') {
+    return (row.normal_time != null) ? row.normal_time * 1.1 : parseFloat(row.standard_time);
+  }
+  return parseFloat(row.standard_time);
+}
+// 加總一個區塊；合併群組的人數只計一次（與畫面 rowspan 顯示一致）。空/NULL 當 0，不 NaN。
+function calcZoneTotals(z, seg, zone, eolr) {
+  const divisor = 3600 / eolr;
+  let std = 0, theory = 0, actual = 0;
+  const seen = new Set();
+  const rows = (z && z.rows) || [];
+  for (const row of rows) {
+    if (row.flag === 'deleted') continue;
+    const st = _rowStd(row, seg, zone);
+    if (!isNaN(st) && st > 0) { std += st; theory += st / divisor; }
+    if (row.group_info) {
+      const gid = row.group_info.group_id;
+      if (!seen.has(gid)) { seen.add(gid); const hc = parseFloat(row.group_info.headcount); if (!isNaN(hc)) actual += hc; }
+    } else {
+      const a = parseFloat(row.actual_operators);
+      if (!isNaN(a)) actual += a;
+    }
+  }
+  return { std, theory, actual };
+}
+// 一般製程（stitching/assembly/stf/WS）總計列：對齊 cols，只在存在的欄放加總。
+function renderZoneTotalRow(z, seg, zone, eolr, cols) {
+  const t = calcZoneTotals(z, seg, zone, eolr);
+  let h = `<tr class="zone-total-row" data-total-seg="${esc(seg)}" data-total-zone="${esc(zone)}"><td class="zt-cell"></td>`;
+  for (const col of cols) {
+    if (col === 'standard_time')          h += `<td class="formula-cell zt-cell zt-std">${fmtNum(t.std)}</td>`;
+    else if (col === 'theory_operators')  h += `<td class="formula-cell zt-cell zt-theory">${fmtNum(t.theory)}</td>`;
+    else if (col === 'actual_operators')  h += `<td class="formula-cell zt-cell zt-actual">${fmtNum(t.actual)}</td>`;
+    else if (col === 'process_name')      h += `<td class="zt-cell zt-title">總計</td>`;
+    else                                  h += `<td class="zt-cell"></td>`;
+  }
+  return h + '</tr>';
+}
+// 裁斷製程總計列：依 zone type 的欄位排列放加總（其餘欄空）。
+function renderCuttingTotalRow(z, zone, type, eolr) {
+  const t   = calcZoneTotals(z, 'cutting', zone, eolr);
+  const std = `<td class="formula-cell zt-cell zt-std">${fmtNum(t.std)}</td>`;
+  const th  = `<td class="formula-cell zt-cell zt-theory">${fmtNum(t.theory)}</td>`;
+  const ac  = `<td class="formula-cell zt-cell zt-actual">${fmtNum(t.actual)}</td>`;
+  const E   = `<td class="zt-cell"></td>`;
+  const lead = E + E + `<td class="zt-cell zt-title">總計</td>`;   // del, mat_cat, name
+  let mid, tail = '';
+  if (type === 'A')      { mid = E + E + E + std + th + ac; tail = `<td class="zt-cell" colspan="12"></td>`; }
+  else if (type === 'B') { mid = E + E + std + th + ac;     tail = `<td class="zt-cell" colspan="10"></td>`; }
+  else if (type === 'C') { mid = E + E + std + th + ac; }
+  else if (type === 'D') { mid = E + E + std + th + ac;     tail = `<td class="zt-cell" colspan="4"></td>`; }
+  else                   { mid = std + th; }                       // type E: 只有 std/theory
+  return `<tr class="zone-total-row" data-total-seg="cutting" data-total-zone="${esc(zone)}">${lead}${mid}${tail}</tr>`;
+}
+// 即時更新某區塊總計（填值/合併未 reload 時用）
+function refreshZoneTotals(seg, zone) {
+  if (!DATA || !DATA.zones) return;
+  const z = DATA.zones.find(x => x.zone === zone);
+  if (!z) return;
+  const t = calcZoneTotals(z, seg, zone, EOLR);
+  const tr = [...document.querySelectorAll('.zone-total-row')]
+    .find(r => r.dataset.totalSeg === seg && r.dataset.totalZone === zone);
+  if (!tr) return;
+  const s = tr.querySelector('.zt-std');    if (s) s.textContent = fmtNum(t.std);
+  const h = tr.querySelector('.zt-theory'); if (h) h.textContent = fmtNum(t.theory);
+  const a = tr.querySelector('.zt-actual'); if (a) a.textContent = fmtNum(t.actual);
+}
+function refreshAllZoneTotals() {
+  if (!DATA || !DATA.zones) return;
+  const seg = DATA.segment || SEG;
+  for (const z of DATA.zones) refreshZoneTotals(seg, z.zone);
+}
+// 由 process id 反查 DATA 中的列（供即時更新總計時同步資料模型）
+function findDataRow(pid) {
+  if (!DATA || !DATA.zones) return null;
+  for (const z of DATA.zones) {
+    for (const row of (z.rows || [])) if (row.id === pid) return { z, row };
+  }
+  return null;
+}
+
 function recalcCuttingStdByPid(pid) {
   const stdCell = document.querySelector(`.cutting-std-a[data-pid="${pid}"]`);
   const thCell  = document.querySelector(`.cutting-th-a[data-pid="${pid}"]`);
@@ -1252,6 +1354,14 @@ function recalcCuttingStdByPid(pid) {
   } else {
     stdCell.textContent = '';
     if (thCell) { thCell.dataset.stdtime = ''; thCell.textContent = ''; }
+  }
+  // 同步 DATA 並即時更新該區塊總計（裁斷機 typeA 現場改層/件/刀數）
+  const dr = findDataRow(pid);
+  if (dr) {
+    dr.row.layers_per_cut = isNaN(lay) ? null : lay;
+    dr.row.qty_per_pair   = isNaN(qty) ? null : qty;
+    dr.row.cut_per_hour   = isNaN(cph) ? null : cph;
+    refreshZoneTotals(DATA.segment || SEG, dr.z.zone);
   }
 }
 
@@ -1278,6 +1388,8 @@ function updateTheoryAndTotal() {
   });
   const ht = document.getElementById('handTotalVal');
   if (ht) ht.textContent = fmtNum(total);
+  // EOLR 切換 → 理論人數變 → 區塊總計跟著重算
+  refreshAllZoneTotals();
 }
 
 // ── EOLR toggle ───────────────────────────────────────────────────────────────
@@ -1559,7 +1671,12 @@ async function saveSingleActual(inp, pid) {
   });
   const j = await r.json();
   if (!j.ok) alert('儲存失敗: ' + (j.error || ''));
-  else { inp.style.borderColor = '#007AFF'; setTimeout(() => { inp.style.borderColor = '#C7C7CC'; }, 1500); }
+  else {
+    inp.style.borderColor = '#007AFF'; setTimeout(() => { inp.style.borderColor = '#C7C7CC'; }, 1500);
+    // 即時更新該區塊總計（實際人數改變）
+    const dr = findDataRow(pid);
+    if (dr) { dr.row.actual_operators = val; refreshZoneTotals(DATA.segment || SEG, dr.z.zone); }
+  }
 }
 
 // Generic instant-save for a single field (e.g. equipment_type select onchange).
