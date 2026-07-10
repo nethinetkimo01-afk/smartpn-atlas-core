@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>送審審核 — 待審佇列 / 審核歷史</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Microsoft JhengHei',Arial,sans-serif;background:#f2f4f8;color:#1a2744}
+.topbar{background:#1a2744;color:#fff;padding:12px 20px;display:flex;align-items:center;gap:16px}
+.topbar h1{font-size:17px;font-weight:700}
+.topbar a{color:#9fc0ff;text-decoration:none;font-size:13px}
+.wrap{max-width:1200px;margin:20px auto;padding:0 16px}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tab{padding:8px 18px;border:none;border-radius:6px 6px 0 0;background:#dfe5f0;color:#1a2744;font-weight:600;cursor:pointer;font-size:14px}
+.tab.active{background:#fff;box-shadow:0 -2px 6px rgba(0,0,0,.06)}
+.panel{background:#fff;border-radius:0 8px 8px 8px;box-shadow:0 1px 8px rgba(0,0,0,.08);padding:16px;min-height:200px}
+.count-badge{display:inline-block;background:#e67e22;color:#fff;border-radius:10px;padding:1px 8px;font-size:12px;margin-left:6px}
+.qcard{border:1px solid #e2e8f4;border-left:4px solid #e67e22;border-radius:6px;padding:12px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.qcard .meta{font-size:13px;line-height:1.7}
+.qcard .model{font-weight:700;font-size:15px}
+.qcard .sub{color:#667;font-size:12px}
+.qbtns{display:flex;gap:8px;flex-shrink:0}
+.qbtns button{border:none;border-radius:5px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;color:#fff}
+.b-view{background:#2a4a8a}.b-ok{background:#1d9e6b}.b-no{background:#cc3b30}
+.empty{color:#8894aa;text-align:center;padding:40px;font-size:14px}
+table.hist{width:100%;border-collapse:collapse;font-size:12.5px}
+table.hist th{background:#243a63;color:#fff;padding:7px 9px;text-align:left;font-weight:600;white-space:nowrap}
+table.hist td{padding:6px 9px;border-bottom:1px solid #eef1f7;vertical-align:top}
+.st{display:inline-block;padding:1px 9px;border-radius:10px;font-size:11px;font-weight:700}
+.st-pending{background:#fff3e0;color:#e65100}.st-approved{background:#e8f5e9;color:#1b5e20}
+.st-rejected{background:#fdecea;color:#c0392b}.st-withdrawn{background:#eceff1;color:#546e7a}
+.denied{padding:60px;text-align:center;color:#c0392b;font-size:16px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>🗂 送審審核</h1>
+  <a href="/ie">← 返回 IE 清單</a>
+  <span id="whoami" style="margin-left:auto;font-size:12px;color:#9fc0ff"></span>
+</div>
+<div class="wrap" id="main" style="display:none">
+  <div class="tabs">
+    <button class="tab active" id="tab-queue" onclick="showTab('queue')">待審佇列<span class="count-badge" id="q-count">0</span></button>
+    <button class="tab" id="tab-hist" onclick="showTab('hist')">審核歷史</button>
+  </div>
+  <div class="panel" id="panel-queue"></div>
+  <div class="panel" id="panel-hist" style="display:none"></div>
+</div>
+<div class="wrap" id="denied" style="display:none"><div class="denied">🔒 需要 經理 / 管理員 權限才能檢視審核佇列。</div></div>
+
+<script>
+let ME = null;
+const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const stName = {pending:'待審', approved:'已通過', rejected:'已駁回', withdrawn:'已撤回'};
+
+async function init(){
+  try{ const r = await fetch('/api/me'); const d = await r.json(); ME = d.ok ? d.user : null; }catch{}
+  if(!ME || !['admin','manager'].includes(ME.role)){
+    document.getElementById('denied').style.display='block'; return;
+  }
+  document.getElementById('whoami').textContent = `${ME.display_name||ME.username}（${ME.role}）`;
+  document.getElementById('main').style.display='block';
+  await Promise.all([loadQueue(), loadHistory()]);
+}
+
+function showTab(t){
+  document.getElementById('tab-queue').classList.toggle('active', t==='queue');
+  document.getElementById('tab-hist').classList.toggle('active', t==='hist');
+  document.getElementById('panel-queue').style.display = t==='queue'?'block':'none';
+  document.getElementById('panel-hist').style.display  = t==='hist'?'block':'none';
+}
+
+async function loadQueue(){
+  const p = document.getElementById('panel-queue');
+  let d; try{ d = await (await fetch('/api/ie/review/queue')).json(); }catch{ p.innerHTML='<div class="empty">載入失敗</div>'; return; }
+  const rows = (d.reviews||[]);
+  document.getElementById('q-count').textContent = rows.length;
+  if(!rows.length){ p.innerHTML='<div class="empty">目前沒有待審核的送審 🎉</div>'; return; }
+  p.innerHTML = rows.map(r=>`
+    <div class="qcard" data-id="${r.id}">
+      <div class="meta">
+        <div class="model">${esc(r.model_name||'(已刪鞋型)')} <span class="sub">ART ${esc(r.art||'—')}</span></div>
+        <div class="sub">送審版本：<b>${esc(r.stage_name||('#'+(r.stage_id??'')))}</b>　送審人：${esc(r.submitted_by||'—')}　送審時間：${esc(r.submitted_at||'—')}</div>
+      </div>
+      <div class="qbtns">
+        <button class="b-view" onclick="viewIE(${r.header_id})">查看</button>
+        <button class="b-ok" onclick="approve(${r.id})">確認通過</button>
+        <button class="b-no" onclick="reject(${r.id})">駁回</button>
+      </div>
+    </div>`).join('');
+}
+
+async function loadHistory(){
+  const p = document.getElementById('panel-hist');
+  let d; try{ d = await (await fetch('/api/ie/review/history')).json(); }catch{ p.innerHTML='<div class="empty">載入失敗</div>'; return; }
+  const rows = (d.reviews||[]);
+  if(!rows.length){ p.innerHTML='<div class="empty">尚無任何送審記錄</div>'; return; }
+  p.innerHTML = `<table class="hist"><thead><tr>
+      <th>鞋型 / ART</th><th>版本</th><th>送審人</th><th>送審時間</th>
+      <th>結果</th><th>審核人</th><th>審核時間</th><th>駁回原因</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr>
+      <td>${esc(r.model_name||'(已刪)')}<div class="sub" style="font-size:11px;color:#889">${esc(r.art||'')}</div></td>
+      <td>${esc(r.stage_name||('#'+(r.stage_id??'')))}</td>
+      <td>${esc(r.submitted_by||'—')}</td>
+      <td>${esc(r.submitted_at||'—')}</td>
+      <td><span class="st st-${r.status}">${stName[r.status]||esc(r.status)}</span></td>
+      <td>${esc(r.reviewed_by||'—')}</td>
+      <td>${esc(r.reviewed_at||'—')}</td>
+      <td>${esc(r.reject_reason||'')}</td>
+    </tr>`).join('') + '</tbody></table>';
+}
+
+function viewIE(hid){ window.open('/ie/'+hid+'/detail', '_blank'); }
+
+async function approve(id){
+  if(!confirm('確認通過此送審？（不會改動鎖定版設定）')) return;
+  const j = await (await fetch(`/api/ie/review/${id}/approve`, {method:'POST'})).json();
+  if(!j.ok){ alert('失敗：'+(j.error||'')); return; }
+  await Promise.all([loadQueue(), loadHistory()]);
+}
+async function reject(id){
+  const reason = prompt('請填寫駁回原因：', '');
+  if(reason===null) return;
+  const j = await (await fetch(`/api/ie/review/${id}/reject`, {
+    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({reason})})).json();
+  if(!j.ok){ alert('失敗：'+(j.error||'')); return; }
+  await Promise.all([loadQueue(), loadHistory()]);
+}
+init();
+</script>
+</body>
+</html>

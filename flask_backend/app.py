@@ -148,6 +148,13 @@ def _require_manager():
         return jsonify({'ok': False, 'error': '需要管理員或主管權限'}), 403
     return None
 
+def _require_editor():
+    """送審/取消審核：編輯員(data_entry)或管理員(admin)。manager 不送審(只審核)。"""
+    u = _auth_user()
+    if not u or u['role'] not in ('admin', 'data_entry'):
+        return jsonify({'ok': False, 'error': '需要編輯員或管理員權限（送審）'}), 403
+    return None
+
 def _ie_locked_only():
     """唯讀帳號(role=read_only)進 IE：只能看鎖定版。admin/manager/data_entry 看所有版本。"""
     u = _auth_user()
@@ -205,6 +212,11 @@ def ie_detail(header_id):
 @app.route('/ie/<int:header_id>/detail')
 def ie_cell_detail(header_id):
     return send_from_directory('..', 'ie_cell_detail.html')
+
+@app.route('/ie/reviews')
+def ie_reviews_page():
+    # 送審審核 workflow：經理待審佇列 + 審核歷史
+    return send_from_directory('..', 'review_queue.html')
 
 @app.route('/ie/matrix')
 def ie_matrix_page():
@@ -1669,26 +1681,55 @@ def ie_unassign(header_id):
 
 @app.route('/api/ie/review/submit', methods=['POST'])
 def ie_review_submit():
+    # 送審：編輯員(data_entry)或 admin；manager 不送審
+    err = _require_editor()
+    if err: return err
     u = _auth_user()
-    if not u:
-        return jsonify({'ok': False, 'error': '請先登入'}), 401
     d = request.get_json(force=True) or {}
     return jsonify(db.submit_ie_review(
         d.get('header_id'), d.get('stage_id'), u['username']
     ))
 
+@app.route('/api/ie/review/withdraw', methods=['POST'])
+def ie_review_withdraw():
+    # 取消審核(撤回)：編輯員或 admin
+    err = _require_editor()
+    if err: return err
+    u = _auth_user()
+    d = request.get_json(force=True) or {}
+    return jsonify(db.withdraw_ie_review(d.get('header_id'), u['username']))
+
 @app.route('/api/ie/review/list', methods=['GET'])
 def ie_review_list():
+    # 編輯員讀「自己這張鞋型」的送審狀態（需帶 header_id）；
+    # 不帶 header_id 的全域查詢屬待審佇列/歷史，需 manager（改用 /queue、/history）
     u = _auth_user()
     if not u:
         return jsonify({'ok': False, 'error': '請先登入'}), 401
     status = request.args.get('status')
     header_id = request.args.get('header_id')
+    if not header_id:
+        err = _require_manager()
+        if err: return err
     reviews = db.get_reviews(
         header_id=int(header_id) if header_id else None,
         status=status or None
     )
     return jsonify({'ok': True, 'reviews': reviews})
+
+@app.route('/api/ie/review/queue', methods=['GET'])
+def ie_review_queue():
+    # 待審佇列：只列 pending，manager/admin
+    err = _require_manager()
+    if err: return err
+    return jsonify({'ok': True, 'reviews': db.get_reviews(status='pending')})
+
+@app.route('/api/ie/review/history', methods=['GET'])
+def ie_review_history():
+    # 審核歷史：全部記錄（不只 pending），manager/admin
+    err = _require_manager()
+    if err: return err
+    return jsonify({'ok': True, 'reviews': db.get_reviews(status=None)})
 
 @app.route('/api/ie/review/<int:review_id>/approve', methods=['POST'])
 def ie_review_approve(review_id):

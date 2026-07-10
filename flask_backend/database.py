@@ -100,6 +100,27 @@ def init_db():
             'INSERT OR IGNORE INTO equipment_types (name, sort_order, active) VALUES (?,?,1)',
             [('單針針車機', 10), ('雙針針車機', 20)])
     conn.commit()
+    # 送審審核 workflow：ie_review 表（狀態機 pending/approved/rejected/withdrawn）。
+    # 送審審核 ≠ 鎖定版(ie_stage.is_approved)——兩件獨立的事。此表解決先前 review/list 500。
+    conn.execute('''CREATE TABLE IF NOT EXISTS ie_review (
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        header_id     INTEGER NOT NULL,
+        stage_id      INTEGER,
+        stage_name    TEXT,
+        status        TEXT NOT NULL DEFAULT 'pending',
+        submitted_by  TEXT,
+        submitted_at  TEXT,
+        reviewed_by   TEXT,
+        reviewed_at   TEXT,
+        reject_reason TEXT
+    )''')
+    # self-heal：舊版 ie_review（無 stage_name/reviewed_by）補欄位，讓新舊 DB 收斂到設計 schema
+    irv_cols = [r[1] for r in conn.execute("PRAGMA table_info(ie_review)").fetchall()]
+    if 'stage_name'  not in irv_cols: conn.execute("ALTER TABLE ie_review ADD COLUMN stage_name TEXT")
+    if 'reviewed_by' not in irv_cols: conn.execute("ALTER TABLE ie_review ADD COLUMN reviewed_by TEXT")
+    conn.execute('CREATE INDEX IF NOT EXISTS idx_ie_review_status ON ie_review(status)')
+    conn.execute('CREATE INDEX IF NOT EXISTS idx_ie_review_header ON ie_review(header_id)')
+    conn.commit()
     # Seed default lookup if empty
     count = conn.execute('SELECT COUNT(*) FROM lookup_viet_zh').fetchone()[0]
     if count == 0:
@@ -328,17 +349,23 @@ def get_header_id_by_group(group_id):
 # ── IE Review Workflow ───────────────────────────────────────────────────────
 
 def submit_ie_review(header_id, stage_id, submitted_by):
+    """編輯員送審：把該鞋型的指定版本送審 → 建 ie_review status=pending。
+    同鞋型已有 pending → 擋（一次一筆）。送審審核與鎖定版(is_approved)無關、不動它。"""
     conn = get_conn()
     try:
         existing = conn.execute(
             "SELECT id FROM ie_review WHERE header_id=? AND status='pending'", (header_id,)
         ).fetchone()
         if existing:
-            conn.close()
-            return {'ok': False, 'error': '已有待審核的送審記錄'}
+            return {'ok': False, 'error': '已有待審核的送審記錄，請先撤回或等待審核結果'}
+        sname = None
+        if stage_id:
+            srow = conn.execute('SELECT stage_name FROM ie_stage WHERE id=?', (stage_id,)).fetchone()
+            sname = srow['stage_name'] if srow else None
         rid = conn.execute(
-            "INSERT INTO ie_review (header_id, stage_id, submitted_by, submitted_at, status) VALUES (?,?,?,datetime('now'),'pending')",
-            (header_id, stage_id, submitted_by)
+            "INSERT INTO ie_review (header_id, stage_id, stage_name, status, submitted_by, submitted_at) "
+            "VALUES (?,?,?,'pending',?,datetime('now'))",
+            (header_id, stage_id, sname, submitted_by)
         ).lastrowid
         conn.commit()
         return {'ok': True, 'review_id': rid}
@@ -347,40 +374,80 @@ def submit_ie_review(header_id, stage_id, submitted_by):
     finally:
         conn.close()
 
-def get_reviews(header_id=None, status=None):
+def withdraw_ie_review(header_id, user):
+    """編輯員取消審核：把該鞋型的 pending 送審設為 withdrawn（離開待審清單）。"""
     conn = get_conn()
-    q = '''SELECT r.id, r.header_id, r.stage_id, r.submitted_by, r.submitted_at,
-                  r.status, r.reviewer, r.reviewed_at, r.reject_reason,
-                  h.model_name
-           FROM ie_review r JOIN ob_header h ON r.header_id=h.id
-           WHERE 1=1'''
-    params = []
-    if header_id: q += ' AND r.header_id=?'; params.append(header_id)
-    if status:    q += ' AND r.status=?';    params.append(status)
-    q += ' ORDER BY r.submitted_at DESC'
-    rows = conn.execute(q, params).fetchall()
-    conn.close()
-    return [dict(r) for r in rows]
+    try:
+        row = conn.execute(
+            "SELECT id FROM ie_review WHERE header_id=? AND status='pending' ORDER BY id DESC LIMIT 1",
+            (header_id,)).fetchone()
+        if not row:
+            return {'ok': False, 'error': '沒有待審核的送審可取消'}
+        conn.execute(
+            "UPDATE ie_review SET status='withdrawn', reviewed_by=?, reviewed_at=datetime('now') WHERE id=?",
+            (user, row['id']))
+        conn.commit()
+        return {'ok': True, 'review_id': row['id']}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+def get_reviews(header_id=None, status=None):
+    """送審記錄查詢。status 省略 → 全部（審核歷史）；status='pending' → 待審佇列。
+    附 model_name + first art 供顯示。LEFT JOIN 讓孤兒記錄仍查得到。"""
+    conn = get_conn()
+    try:
+        q = '''SELECT r.id, r.header_id, r.stage_id, r.stage_name, r.status,
+                      r.submitted_by, r.submitted_at, r.reviewed_by, r.reviewed_at, r.reject_reason,
+                      h.model_name,
+                      (SELECT art FROM ob_articles WHERE header_id=r.header_id ORDER BY id LIMIT 1) AS art
+               FROM ie_review r LEFT JOIN ob_header h ON r.header_id=h.id
+               WHERE 1=1'''
+        params = []
+        if header_id: q += ' AND r.header_id=?'; params.append(header_id)
+        if status:    q += ' AND r.status=?';    params.append(status)
+        q += ' ORDER BY r.submitted_at DESC, r.id DESC'
+        rows = conn.execute(q, params).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
 
 def approve_review(review_id, reviewer):
+    """經理確認通過：status→approved。只有 pending 可審（防重複審核）。不動 is_approved(鎖定版)。"""
     conn = get_conn()
-    conn.execute(
-        "UPDATE ie_review SET status='approved', reviewer=?, reviewed_at=datetime('now') WHERE id=?",
-        (reviewer, review_id)
-    )
-    conn.commit()
-    conn.close()
-    return {'ok': True}
+    try:
+        r = conn.execute("SELECT status FROM ie_review WHERE id=?", (review_id,)).fetchone()
+        if not r: return {'ok': False, 'error': '送審記錄不存在'}
+        if r['status'] != 'pending':
+            return {'ok': False, 'error': f'此送審已是「{r["status"]}」，不能重複審核'}
+        conn.execute(
+            "UPDATE ie_review SET status='approved', reviewed_by=?, reviewed_at=datetime('now') WHERE id=?",
+            (reviewer, review_id))
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
 
 def reject_review(review_id, reviewer, reason):
+    """經理駁回：status→rejected + 原因。只有 pending 可審。不動 is_approved(鎖定版)。"""
     conn = get_conn()
-    conn.execute(
-        "UPDATE ie_review SET status='rejected', reviewer=?, reviewed_at=datetime('now'), reject_reason=? WHERE id=?",
-        (reviewer, reason, review_id)
-    )
-    conn.commit()
-    conn.close()
-    return {'ok': True}
+    try:
+        r = conn.execute("SELECT status FROM ie_review WHERE id=?", (review_id,)).fetchone()
+        if not r: return {'ok': False, 'error': '送審記錄不存在'}
+        if r['status'] != 'pending':
+            return {'ok': False, 'error': f'此送審已是「{r["status"]}」，不能重複審核'}
+        conn.execute(
+            "UPDATE ie_review SET status='rejected', reviewed_by=?, reviewed_at=datetime('now'), reject_reason=? WHERE id=?",
+            (reviewer, reason, review_id))
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
 
 # ── IE Stage Approval / 鎖定版 (Step 2) ───────────────────────────────────────
 

@@ -126,6 +126,7 @@ thead th:last-child{border-right:none}
   <input id="search" class="search-inp" type="text" placeholder="搜尋鞋型 / ART..." oninput="filterTable()">
   <button id="btn-reload" class="btn btn-refresh" onclick="loadData()">重新載入</button>
   <button id="btn-new-model" class="btn btn-refresh" onclick="openNewModelModal()" style="display:none;background:#1a2744;color:#fff">＋ 新增鞋型</button>
+  <button id="btn-review-queue" class="btn btn-refresh" onclick="location.href='/ie/reviews'" style="display:none;background:#2a4a8a;color:#fff">🗂 審核佇列</button>
   <button id="btn-my-assign" class="btn btn-my-assign" onclick="toggleMyAssign()" style="display:none">✓ 我的指派</button>
   <span id="user-badge" style="font-size:12px;color:#555;padding:0 6px"></span>
   <a id="btn-logout" href="#" onclick="doLogout()" style="display:none;font-size:12px;color:#888;text-decoration:none">登出</a>
@@ -490,6 +491,8 @@ async function initAuth(){
     logoutBtn.style.display = 'inline';
     if(['admin','manager'].includes(CURRENT_USER.role)){
       newBtn.style.display = 'inline-block';
+      const rq = document.getElementById('btn-review-queue');   // 送審審核：待審佇列/歷史
+      if (rq) rq.style.display = 'inline-block';
       checkVersionStatus();
       setInterval(checkVersionStatus, 5*60*1000);
       const adminBtn = document.getElementById('btn-admin-users');

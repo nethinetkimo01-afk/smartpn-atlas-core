@@ -259,6 +259,8 @@ td.sumc2b-grand-dept{color:#0d1a44;font-weight:800;text-align:left;padding-left:
     </div>
   </div>
   <button class="btn-outline" id="btn-submit-review" onclick="submitForReview()" style="display:none;border-color:#1d9e6b;color:#1d9e6b">送審</button>
+  <button class="btn-outline" id="btn-withdraw-review" onclick="withdrawReview()" style="display:none;border-color:#e67e22;color:#e67e22">取消審核</button>
+  <button class="btn-outline" id="btn-review-queue" onclick="window.open('/ie/reviews','_blank')" style="display:none;border-color:#2a4a8a;color:#2a4a8a">審核佇列</button>
   <button class="btn-sm" id="btn-approve-stage" onclick="approveCurrentStage()" style="display:none;background:#1d9e6b">🔒 設為鎖定版</button>
   <button class="btn-sm" id="btn-unlock-stage" onclick="unlockStage()" style="display:none;background:#e67e22">🔓 解鎖</button>
   <button class="btn-sm" id="btn-delete-stage" onclick="deleteStage()" style="display:none;background:#d0342c">🗑 刪除此版本</button>
@@ -448,10 +450,14 @@ async function initCellAuth() {
     CELL_USER = d.ok ? d.user : null;
   } catch { CELL_USER = null; }
   if (CELL_USER) {
-    if (CELL_USER.role === 'data_entry') {
-      document.getElementById('btn-submit-review').style.display = 'inline-block';
+    // 送審：編輯員(data_entry)或 admin（送審/取消審核由 loadReviewStatus 依 pending 切換顯示）
+    if (['data_entry','admin'].includes(CELL_USER.role)) {
+      // 先不強制顯示；loadReviewStatus 依有無 pending 決定顯示「送審」或「取消審核」
     }
     if (['admin','manager'].includes(CELL_USER.role)) {
+      // 經理/管理員：可進審核佇列
+      const rq = document.getElementById('btn-review-queue');
+      if (rq) rq.style.display = 'inline-block';
       // 鎖定版歷史：經理可看；設鎖定版/解鎖鈕由 refreshLockUI 依鎖定狀態控制
       const lh = document.getElementById('btn-lock-hist');
       if (lh) lh.style.display = 'inline-block';
@@ -507,22 +513,37 @@ async function doUpdate(){
 }
 
 async function loadReviewStatus() {
+  const isEditor = CELL_USER && ['data_entry','admin'].includes(CELL_USER.role);
+  const subBtn = document.getElementById('btn-submit-review');
+  const wdBtn  = document.getElementById('btn-withdraw-review');
+  const badge  = document.getElementById('review-status-badge');
   try {
     const r = await fetch('/api/ie/review/list?header_id=' + HID);
     const d = await r.json();
     const reviews = (d.reviews || []);
     const pending = reviews.find(rv => rv.status === 'pending');
     const last    = reviews[0];
-    const badge   = document.getElementById('review-status-badge');
+    // 送審/取消審核 按鈕（編輯員/admin）：pending → 顯示「取消審核」；否則顯示「送審」
+    if (isEditor) {
+      if (subBtn) subBtn.style.display = pending ? 'none' : 'inline-block';
+      if (wdBtn)  wdBtn.style.display  = pending ? 'inline-block' : 'none';
+    } else {
+      if (subBtn) subBtn.style.display = 'none';
+      if (wdBtn)  wdBtn.style.display  = 'none';
+    }
+    // 狀態徽章（含被駁回原因，供編輯員看到後修改重送）
     if (pending) {
-      badge.textContent = '審核中';
+      badge.textContent = '審核中（送審版本：' + (pending.stage_name || '') + '）';
       badge.style.cssText = 'display:inline-block;background:#fff3e0;color:#e65100;font-size:11px;padding:3px 8px;border-radius:10px';
     } else if (last && last.status === 'rejected') {
-      badge.textContent = '已退回：' + (last.reject_reason || '');
+      badge.textContent = '已駁回：' + (last.reject_reason || '(未填原因)');
       badge.style.cssText = 'display:inline-block;background:#fce4ec;color:#c62828;font-size:11px;padding:3px 8px;border-radius:10px';
     } else if (last && last.status === 'approved') {
-      badge.textContent = '已核准';
+      badge.textContent = '審核已通過';
       badge.style.cssText = 'display:inline-block;background:#e8f5e9;color:#1b5e20;font-size:11px;padding:3px 8px;border-radius:10px';
+    } else if (last && last.status === 'withdrawn') {
+      badge.textContent = '已撤回送審';
+      badge.style.cssText = 'display:inline-block;background:#eceff1;color:#546e7a;font-size:11px;padding:3px 8px;border-radius:10px';
     } else {
       badge.style.display = 'none';
     }
@@ -530,14 +551,25 @@ async function loadReviewStatus() {
 }
 
 async function submitForReview() {
-  if (!confirm('確認送審？')) return;
+  if (!confirm(`確認將版本「${STAGE?.stage_name || '—'}」送審？（送審審核與鎖定版是兩件獨立的事）`)) return;
   const r = await fetch('/api/ie/review/submit', {
     method: 'POST', headers: {'Content-Type':'application/json'},
     body: JSON.stringify({header_id: HID, stage_id: STAGE?.id})
   });
   const j = await r.json();
-  if (j.ok) { alert('已送審，等待核准'); loadReviewStatus(); }
+  if (j.ok) { alert('已送審，等待經理審核'); loadReviewStatus(); }
   else alert('送審失敗：' + (j.error || ''));
+}
+
+async function withdrawReview() {
+  if (!confirm('確認取消（撤回）這筆送審？撤回後會從經理待審清單移除。')) return;
+  const r = await fetch('/api/ie/review/withdraw', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({header_id: HID})
+  });
+  const j = await r.json();
+  if (j.ok) { alert('已取消審核'); loadReviewStatus(); }
+  else alert('取消失敗：' + (j.error || ''));
 }
 
 async function approveCurrentStage() {

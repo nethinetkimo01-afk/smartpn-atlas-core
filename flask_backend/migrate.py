@@ -147,6 +147,28 @@ MIGRATIONS = [
             "INSERT OR IGNORE INTO equipment_types (name, sort_order, active) VALUES ('雙針針車機', 20, 1)",
         ]
     },
+    {
+        'id': 'M010',
+        'desc': '送審審核 workflow：ie_review 補 stage_name/reviewed_by 欄 + 狀態索引（M004 已建基本表）',
+        'sql': [
+            '''CREATE TABLE IF NOT EXISTS ie_review (
+                id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                header_id     INTEGER NOT NULL,
+                stage_id      INTEGER,
+                stage_name    TEXT,
+                status        TEXT NOT NULL DEFAULT 'pending',
+                submitted_by  TEXT,
+                submitted_at  TEXT,
+                reviewed_by   TEXT,
+                reviewed_at   TEXT,
+                reject_reason TEXT
+            )''',
+            "ALTER TABLE ie_review ADD COLUMN stage_name TEXT",
+            "ALTER TABLE ie_review ADD COLUMN reviewed_by TEXT",
+            "CREATE INDEX IF NOT EXISTS idx_ie_review_status ON ie_review(status)",
+            "CREATE INDEX IF NOT EXISTS idx_ie_review_header ON ie_review(header_id)",
+        ]
+    },
 ]
 
 def _ensure_migration_table(conn):
