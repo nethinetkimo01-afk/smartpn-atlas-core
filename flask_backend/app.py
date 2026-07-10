@@ -1811,10 +1811,13 @@ def system_update():
     if err: return err
     root = _repo_root()
     try:
-        dirty = subprocess.run(['git', 'status', '--porcelain'], cwd=root,
-                               capture_output=True, text=True).stdout.strip()
+        # 只擋「已追蹤檔案的本地修改」(git pull 可能衝突)；未追蹤檔(log/匯出/測試腳本等)
+        # 不該擋更新——否則任何殘留檔都會讓更新鍵永遠回「本地有改動」。--untracked-files=no
+        dirty = subprocess.run(['git', 'status', '--porcelain', '--untracked-files=no'],
+                               cwd=root, capture_output=True, text=True).stdout.strip()
         if dirty:
-            return jsonify({'ok': False, 'error': '本地有改動，請聯絡管理員'}), 409
+            return jsonify({'ok': False, 'error': '本地有已追蹤檔案的改動，請聯絡管理員',
+                            'dirty': dirty}), 409
         pull = subprocess.run(['git', 'pull', 'origin', 'main'], cwd=root,
                               capture_output=True, text=True, timeout=60)
         if pull.returncode != 0:
