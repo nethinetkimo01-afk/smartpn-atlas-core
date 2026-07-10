@@ -282,41 +282,15 @@ td.sumc2b-grand-dept{color:#0d1a44;font-weight:800;text-align:left;padding-left:
 
 <!-- SUM_C2B 彙總頁 -->
 <div id="sumC2bPanel" style="display:none">
-  <div class="sumc2b-notice">⚠ Read-only. Edit values in C2B sub-sheets — this table updates automatically.</div>
+  <div class="sumc2b-notice">⚠ 唯讀彙總（Read-only）。數值自 IE 各製程即時彙總（get_ie_sum）。外移(離線)工序另列、不計入 ∑/GRAND 主線。E-PPH 為 DS-02 外部值，目前未帶入以「—」顯示。</div>
   <div class="sumc2b-wrap">
     <table class="sumc2b-tbl">
       <thead><tr>
         <th>部門</th>
         <th>MP (Ops)</th><th>PPH</th><th>E-PPH</th><th>Diff PPH</th><th>Eff %</th>
       </tr></thead>
-      <tbody>
-        <!-- CUTTING -->
-        <tr class="sumc2b-grp"><td colspan="6">Cutting</td></tr>
-        <tr><td class="sumc2b-dept">Cutting</td>          <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td class="sumc2b-dept">ATOM / 自动化</td>   <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td class="sumc2b-dept">同材共裁</td>         <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td class="sumc2b-dept">电脑针车</td>         <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr class="sumc2b-sub"><td class="sumc2b-sub-dept">∑ Cutting</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-        <!-- STITCHING -->
-        <tr class="sumc2b-grp"><td colspan="6">Stitching</td></tr>
-        <tr><td class="sumc2b-dept">Stitching 支流</td>  <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td class="sumc2b-dept">Stitching 主流</td>  <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr class="sumc2b-sub"><td class="sumc2b-sub-dept">∑ Stitching</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-        <!-- ASSEMBLY -->
-        <tr class="sumc2b-grp"><td colspan="6">Assembly</td></tr>
-        <tr><td class="sumc2b-dept">Assembly 1</td>      <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td class="sumc2b-dept">Assembly 2</td>      <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr class="sumc2b-sub"><td class="sumc2b-sub-dept">∑ Assembly</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-        <!-- STF -->
-        <tr class="sumc2b-grp"><td colspan="6">STF</td></tr>
-        <tr><td class="sumc2b-dept">打粗</td>             <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td class="sumc2b-dept">水洗</td>             <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td class="sumc2b-dept">贴大底</td>           <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td class="sumc2b-dept">照射</td>             <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td class="sumc2b-dept">成型面照射</td>       <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr class="sumc2b-sub"><td class="sumc2b-sub-dept">∑ STF</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-        <!-- GRAND TOTAL -->
-        <tr class="sumc2b-grand"><td class="sumc2b-grand-dept">GRAND TOTAL</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+      <tbody id="sumC2bBody">
+        <tr><td colspan="6" style="padding:18px;color:#8E8E93;text-align:center">切到本頁時載入…</td></tr>
       </tbody>
     </table>
   </div>
@@ -1400,6 +1374,7 @@ function setEolr(v) {
   document.getElementById('eolr120').classList.toggle('active', v === 120);
   document.getElementById('eolrBadge').textContent = 'EOLR ' + v;
   updateTheoryAndTotal();
+  if (SEG === 'sum_c2b') loadSumC2b();   // SUM_C2B 頁：EOLR 變 → target_output 變 → 重抓
 }
 
 // ── Language toggle ───────────────────────────────────────────────────────────
@@ -1439,6 +1414,70 @@ function applyReadOnlyDOM() {
   document.getElementById('saveDropdown')?.style && (document.getElementById('saveDropdown').style.display = 'none');
 }
 
+// ── SUM_C2B 彙總 ── 唯讀，數值來自後端 get_ie_sum（/api/ie/<hid>/sum）────────────
+const SUM_DASH = '—';
+function _sumMP(v) {   // MP(Ops)：實數(含0)顯示數字；null/NaN→—
+  if (v == null || isNaN(v)) return SUM_DASH;
+  const n = Number(v);
+  return Number.isInteger(n) ? String(n) : parseFloat(n.toFixed(1)).toString();
+}
+function _sumPPH(v) {  // PPH：null(MP=0)→— 不 NaN
+  if (v == null || isNaN(v)) return SUM_DASH;
+  return parseFloat(Number(v).toFixed(2)).toString();
+}
+// 一列：部門 | MP | PPH | E-PPH | Diff PPH | Eff%  （E-PPH 目前無值→Diff/Eff 皆 —）
+function _sumRow(rowCls, label, deptCls, mp, pph, epph) {
+  const P = _sumPPH(pph);
+  const E = (epph == null || isNaN(epph)) ? SUM_DASH : _sumPPH(epph);
+  let diff = SUM_DASH, effHtml = SUM_DASH;
+  if (epph != null && !isNaN(epph) && pph != null && !isNaN(pph) && epph !== 0) {
+    diff = parseFloat((pph - epph).toFixed(2)).toString();
+    const e = pph / epph * 100;
+    const cls = e >= 100 ? 'sumc2b-eff-good' : e >= 90 ? 'sumc2b-eff-warn' : 'sumc2b-eff-bad';
+    effHtml = `<span class="${cls}">${parseFloat(e.toFixed(1))}%</span>`;
+  }
+  return `<tr${rowCls ? ` class="${rowCls}"` : ''}>`
+    + `<td class="${deptCls}">${esc(label)}</td>`
+    + `<td>${_sumMP(mp)}</td><td>${P}</td><td>${E}</td><td>${diff}</td><td>${effHtml}</td></tr>`;
+}
+const SUMC2B_SEG_LABEL = { cutting: 'Cutting', stitching: 'Stitching', assembly: 'Assembly', stf: 'STF' };
+function renderSumC2b(d) {
+  let h = '';
+  for (const seg of ['cutting', 'stitching', 'assembly', 'stf']) {
+    const s = d[seg] || {};
+    h += `<tr class="sumc2b-grp"><td colspan="6">${SUMC2B_SEG_LABEL[seg]}</td></tr>`;
+    // 外移(離線)工序：另列，不併入主線 ∑
+    const offs = (d.offline || []).filter(o => (o.name || '').split('/')[0] === seg);
+    for (const o of offs) {
+      const zn = (o.name || '').split('/').slice(1).join('/') || o.name;
+      h += _sumRow('', '↳ ' + zn + ' (外移)', 'sumc2b-sub-dept', o.operators, o.pph, null);
+    }
+    // 主線 ∑（get_ie_sum 的 seg operators/pph，已排除外移）
+    h += _sumRow('sumc2b-sub', '∑ ' + SUMC2B_SEG_LABEL[seg], 'sumc2b-sub-dept', s.operators, s.pph, null);
+  }
+  const t = d.total || {};
+  h += _sumRow('sumc2b-grand', 'GRAND TOTAL（主線）', 'sumc2b-grand-dept', t.operators, t.pph, null);
+  return h;
+}
+async function loadSumC2b() {
+  const tbody = document.getElementById('sumC2bBody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="6" style="padding:18px;color:#8E8E93;text-align:center">載入中…</td></tr>';
+  let d;
+  try {
+    const r = await fetch(`/api/ie/${HID}/sum?eolr=${EOLR}`);
+    d = await r.json();
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="6" style="padding:18px;color:#c00;text-align:center">載入失敗（網路）</td></tr>';
+    return;
+  }
+  if (!d || !d.ok) {
+    tbody.innerHTML = `<tr><td colspan="6" style="padding:18px;color:#c00;text-align:center">無資料：${esc((d && d.error) || '')}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = renderSumC2b(d);
+}
+
 // ── Segment switch ────────────────────────────────────────────────────────────
 function switchSeg(seg) {
   SEG = seg;
@@ -1449,6 +1488,7 @@ function switchSeg(seg) {
     mainContent.style.display = 'none';
     sumPanel.style.display    = 'block';
     document.getElementById('saveBar').style.display = 'none';
+    loadSumC2b();   // 切到此頁即時重抓 get_ie_sum
   } else {
     mainContent.style.display = '';
     sumPanel.style.display    = 'none';
