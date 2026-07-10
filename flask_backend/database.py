@@ -86,6 +86,20 @@ def init_db():
         note         TEXT
     )''')
     conn.commit()
+    # 設備種類「可管理選項清單」表（不寫死；未來直接 INSERT 一筆或做管理介面即可增減）
+    conn.execute('''CREATE TABLE IF NOT EXISTS equipment_types (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        name       TEXT    NOT NULL UNIQUE,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        active     INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+    )''')
+    if conn.execute('SELECT COUNT(*) FROM equipment_types').fetchone()[0] == 0:
+        # 先塞兩筆供 Jim 驗收；之後增減不必改碼（INSERT 表或未來管理介面）
+        conn.executemany(
+            'INSERT OR IGNORE INTO equipment_types (name, sort_order, active) VALUES (?,?,1)',
+            [('單針針車機', 10), ('雙針針車機', 20)])
+    conn.commit()
     # Seed default lookup if empty
     count = conn.execute('SELECT COUNT(*) FROM lookup_viet_zh').fetchone()[0]
     if count == 0:
@@ -2142,6 +2156,21 @@ def get_ie_sum(header_id, eolr=120):
     }
     result['offline'] = offline_list
     return result
+
+
+def list_equipment_types(include_inactive=False):
+    """設備種類選項清單（依 sort_order）。預設只回 active=1。"""
+    conn = get_conn()
+    try:
+        q = 'SELECT id, name, sort_order, active FROM equipment_types'
+        if not include_inactive:
+            q += ' WHERE active=1'
+        q += ' ORDER BY sort_order ASC, id ASC'
+        return {'ok': True, 'options': [dict(r) for r in conn.execute(q).fetchall()]}
+    except Exception as e:
+        return {'ok': False, 'error': str(e), 'options': []}
+    finally:
+        conn.close()
 
 
 def get_db_stats():

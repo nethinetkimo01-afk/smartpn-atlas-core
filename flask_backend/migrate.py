@@ -132,6 +132,21 @@ MIGRATIONS = [
             )''',
         ]
     },
+    {
+        'id': 'M009',
+        'desc': '設備種類可管理選項清單 equipment_types + 先塞兩筆(單針/雙針針車機)',
+        'sql': [
+            '''CREATE TABLE IF NOT EXISTS equipment_types (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                name       TEXT    NOT NULL UNIQUE,
+                sort_order INTEGER NOT NULL DEFAULT 0,
+                active     INTEGER NOT NULL DEFAULT 1,
+                created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+            )''',
+            "INSERT OR IGNORE INTO equipment_types (name, sort_order, active) VALUES ('單針針車機', 10, 1)",
+            "INSERT OR IGNORE INTO equipment_types (name, sort_order, active) VALUES ('雙針針車機', 20, 1)",
+        ]
+    },
 ]
 
 def _ensure_migration_table(conn):

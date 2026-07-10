@@ -540,6 +540,11 @@ def ie_get_groups(header_id):
     segment = request.args.get('segment', 'cutting')
     return jsonify(db.get_ie_process_groups(header_id, segment))
 
+@app.route('/api/equipment_types', methods=['GET'])
+def equipment_types_api():
+    # 設備種類「可管理選項清單」：回 active 選項（依 sort_order）
+    return jsonify(db.list_equipment_types())
+
 @app.route('/api/ie/<int:header_id>/sum', methods=['GET'])
 def ie_sum_api(header_id):
     eolr = request.args.get('eolr', 120)
