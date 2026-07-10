@@ -120,6 +120,14 @@ def init_db():
     if 'reviewed_by' not in irv_cols: conn.execute("ALTER TABLE ie_review ADD COLUMN reviewed_by TEXT")
     conn.execute('CREATE INDEX IF NOT EXISTS idx_ie_review_status ON ie_review(status)')
     conn.execute('CREATE INDEX IF NOT EXISTS idx_ie_review_header ON ie_review(header_id)')
+    # ie_assignments（指派表，M004）：確保存在，供 delete_ie_header 連帶清除不報錯
+    conn.execute('''CREATE TABLE IF NOT EXISTS ie_assignments (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        header_id   INTEGER NOT NULL,
+        user_id     INTEGER NOT NULL,
+        assigned_at TEXT NOT NULL DEFAULT (datetime('now')),
+        UNIQUE(header_id, user_id)
+    )''')
     conn.commit()
     # Seed default lookup if empty
     count = conn.execute('SELECT COUNT(*) FROM lookup_viet_zh').fetchone()[0]
@@ -1027,14 +1035,27 @@ def remove_art_from_header(art, header_id):
 
 
 def delete_ie_header(header_id):
-    """Delete a single ob_header record and all its related data."""
+    """Delete a single ob_header record and ALL its related data (含版本/送審/合併/稽核，
+    避免刪鞋型留孤兒 ie_stage/ie_review/ie_process_group/ie_edit_log/lock_history)。"""
     conn = get_conn()
     try:
-        conn.execute('DELETE FROM ob_articles WHERE header_id=?', (header_id,))
-        conn.execute('DELETE FROM ob_epph     WHERE header_id=?', (header_id,))
-        conn.execute('DELETE FROM ob_rows     WHERE header_id=?', (header_id,))
-        conn.execute('DELETE FROM ie_process  WHERE header_id=?', (header_id,))
-        conn.execute('DELETE FROM ob_header   WHERE id=?',        (header_id,))
+        # ie_edit_log 綁 process_id / stage_id：先由本 header 的 process/stage 反查清除
+        pids = [r[0] for r in conn.execute('SELECT id FROM ie_process WHERE header_id=?', (header_id,)).fetchall()]
+        sids = [r[0] for r in conn.execute('SELECT id FROM ie_stage   WHERE header_id=?', (header_id,)).fetchall()]
+        if pids:
+            conn.execute(f"DELETE FROM ie_edit_log WHERE process_id IN ({','.join('?'*len(pids))})", pids)
+        if sids:
+            conn.execute(f"DELETE FROM ie_edit_log WHERE stage_id IN ({','.join('?'*len(sids))})", sids)
+        conn.execute('DELETE FROM ie_process_group WHERE header_id=?', (header_id,))
+        conn.execute('DELETE FROM ie_process       WHERE header_id=?', (header_id,))
+        conn.execute('DELETE FROM ie_stage         WHERE header_id=?', (header_id,))
+        conn.execute('DELETE FROM ie_review        WHERE header_id=?', (header_id,))
+        conn.execute('DELETE FROM lock_history     WHERE header_id=?', (header_id,))
+        conn.execute('DELETE FROM ie_assignments   WHERE header_id=?', (header_id,))
+        conn.execute('DELETE FROM ob_articles      WHERE header_id=?', (header_id,))
+        conn.execute('DELETE FROM ob_epph          WHERE header_id=?', (header_id,))
+        conn.execute('DELETE FROM ob_rows          WHERE header_id=?', (header_id,))
+        conn.execute('DELETE FROM ob_header        WHERE id=?',        (header_id,))
         conn.commit()
         return {'ok': True}
     except Exception as e:
