@@ -128,6 +128,12 @@ ME129 啟動鏈：`smartpn.bat`(`py`) → `watchdog.py`(`sys.executable`) → `s
 - × 最左欄，+ 每區最後一行最左
 - 七個區固定顯示，沒資料顯示空白表頭+號行
 
+### ① 裁斷機標準時間公式 — 補註（2026-07-10 確認回正）
+裁斷機標準時間 = **3600 ÷ 刀數 ÷ 層數 × 件數 × 1.1** 是「**正確的**」。
+（一度被誤判為錯，實際對，不要改。上面 ①「3600/G/E*F」為主流程欄，×1.1 為含放寬後的標時。）
+- 理論人數 = 標時 ÷ (3600 ÷ eolr)（等同 標時 ÷ eolrDiv：eolr120→30、eolr60→60）
+- 例：層1 件11 刀1 → 標時 = 3600÷1÷1×11×1.1 = **43560**；eolr120 理論人數 = 43560÷30 = **1452**（正確業務值）
+
 ### Stitching 段
 
 ① 主流區
@@ -340,6 +346,18 @@ ME129 開機 → 自動把 atlas.db 推送到不關機電腦
 - ME129 → 不關機電腦 DB 同步排程
 - 不關機電腦設定共享資料夾
 
+### ME129 多開根治（2026-07-10）
+**多開根因**：ME129 的 `py` / 開機 bat 抓到 WindowsApps 的 `python3.exe`（Microsoft Store 殼），其 `sys.executable` 異常。watchdog.py 用 `PYTHON=sys.executable` 啟 serve 時多繞一層，造成「兩個 watchdog 疊跑」（父進程鏈 python3→python314→serve）；防多開的 tasklist 判斷認不出跨 python 版本，擋不住。**更新鍵斷線根因 = 多開打架，根治後更新鍵才穩。**
+
+**治標（已做）**：
+- 啟動 watchdog 一律用明確路徑 `C:\Users\ie5\AppData\Local\Programs\Python\Python314\python.exe`，不用 `py`
+- smartpn.bat 改成明確路徑
+- autopull.bat / update.bat 停用（改 `.disabled`），只留 smartpn.bat 單一開機啟動點
+
+**治本（待做）**：watchdog.py 的 `PYTHON=sys.executable` 改成明確 python 路徑，或加跨版本防多開判斷。回中樞改+測再 pull。
+
+**ME129 現況**：碼 d13f74b 最新、系統 200 活著、乾淨一 watchdog 一 serve（都 Python314）、IE 功能已上線。
+
 ## 九、IE細表界面設計定案（2026-06-18）
 
 ### 格線規則
@@ -422,3 +440,19 @@ name cell 必須帶 `data-pid`、`data-zh`、`data-vi` 三個屬性。
 ### 實測標準
 每次 IE 相關修改，必須產出 `flask_backend/test_output/ie_operation_test_log.md`，
 包含語言切換、CAN_EDIT、後端 403 全部逐項確認。
+
+## 十一、Jim 方法論（中樞須內化）（2026-07-10）
+
+### 結果導向（Jim 先給結果，Claude 回推地基）
+- Jim 先給結果 / 答案，Claude 回推地基（做出支撐那個結果的底層）。
+- IE 表是地基之一；**自動化編制表是最終結果**。
+- 不要只做 Jim「當下說的那一格」，要回推它服務的最終結果，補齊中間地基。
+
+### 嵌入 vs 獨立（依用戶方便性決定）
+- 一個應用要放在既有系統內（分頁）還是做成獨立頁，**依「看的人方便性」決定**，不是依技術方便性。
+- 判準：同一批人會不會在同一情境下同時用到？會 → 放一起。
+- 例：看編制的人也要查 IE 流程 → **編制表跟 IE 用最外層兩個主頁簽切換（IE表 / 編制表）**，不是各自獨立網址。
+
+### 本階段目標：自動化編制表
+排程 → 拆 ART → 抓鎖定 IE 實際人數 → offline 撥人 → C2B → 導出 Excel。
+（地基＝IE 表已上線；最終結果＝這條自動化鏈路。）

@@ -149,6 +149,16 @@ Version: v1.0 | 建立: 2026-06-13
 | 093 | IE壓測重做（真實52萬筆+20並發，獨立測試庫） | Infra | ✅完成 | 2026-06-19 | 2026-06-19 | 舊測試ie_sheet_data=0筆等於空表。tests/seed_stress_db.py建atlas_stress.db(571,200 ie_sheet_data/160 hdr/11,200 ie_process,不碰data/atlas.db); tests/run_stress_real.py真HTTP打app.run()+20獨立連線; 結果:無DB locked/無寫入遺失,但重型細表20並發p95~10.7s(app.run序列化); test_output/ie_stress_test_real.md; commit 3739624 |
 
 | 094 | IE改waitress(threads=8)+並發壓測對照 | Infra | ✅完成 | 2026-06-19 | 2026-06-19 | serve.py(waitress.serve,import app不改邏輯)+watchdog/start.bat改跑serve.py+get_conn加busy_timeout=15000+requirements加waitress; app.run()保留當後備。對照(test_output/ie_stress_waitress.md):真實尺寸600格細表20並發p95 799→438ms✅<1s; worst-case 12000格p95 11628→5517ms(2.1×但未進1s,根因GIL+大payload); DB locked維持0/無遺失。建議下一步=細表分頁減payload(伺服器已最佳化) |
+| 095 | ME129 多開根治（治標）+ 單一開機啟動點 | Infra | ✅完成 | 2026-07-10 | 2026-07-10 | 根因=`py`/開機bat抓到WindowsApps的python3.exe(MS Store殼)→sys.executable異常→watchdog.py `PYTHON=sys.executable`啟serve多繞一層→兩watchdog疊跑(python3→python314→serve),防多開tasklist認不出跨版本擋不住。解法:啟watchdog一律用明確路徑 C:\Users\ie5\AppData\Local\Programs\Python\Python314\python.exe(不用py);smartpn.bat改明確路徑;autopull.bat/update.bat停用(.disabled),只留smartpn.bat單一開機點。更新鍵斷線根因=多開打架,根治後才穩。ME129現況:碼d13f74b最新/200活著/乾淨一watchdog一serve(都Py314)/IE已上線 |
+| 096 | cutting 裁斷機標準時間公式確認（回正) | DATA SYSTEM | ✅完成 | 2026-07-10 | 2026-07-10 | 裁斷機標時=3600÷刀數÷層數×件數×1.1 **正確**(一度被誤判為錯,實際對);理論人數=標時÷(3600÷eolr);例:層1件11刀1→標時43560/eolr120理論1452=正確業務值,不要改。詳見27_WORKING_RULES §二① 補註 |
+| 097 | 今日重要記錄補進 handoff | 交接文件 | ✅完成 | 2026-07-10 | 2026-07-11 | 更新 35_TASK_BOARD(095-097)+21_CURRENT_STATUS(2026-07-10段)+27_WORKING_RULES(§二①公式補註/§八多開根治治標+治本待做/§十一 Jim方法論中樞須內化) |
+
+## 待做（治本，回中樞再處理）
+
+| 項目 | 說明 |
+|------|------|
+| watchdog.py 治本防多開 | `PYTHON=sys.executable` 應改成明確 python 路徑，或加跨版本防多開判斷。回中樞改+測+pull（Task095 只做治標） |
+| 自動化編制表（本階段目標） | 排程→拆ART→抓鎖定IE實際人數→offline撥人→C2B→導出Excel。IE表是地基，自動化編制表是最終結果 |
 
 ## 待 Jim 決定（不擋工）
 

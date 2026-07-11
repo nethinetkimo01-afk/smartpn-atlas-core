@@ -1,6 +1,30 @@
 # Current Status
 
-Last updated: 2026-07-09
+Last updated: 2026-07-10
+
+---
+
+## 當前狀態（2026-07-10）— ME129 部署穩定 + 本階段目標
+
+### ME129 部署與多開根治（2026-07-10）
+- **多開根因**：ME129 的 `py` / 開機 bat 會抓到 WindowsApps 的 `python3.exe`（Microsoft Store 殼），它的 `sys.executable` 異常。watchdog.py 用 `PYTHON=sys.executable` 啟 serve 時多繞一層，造成「兩個 watchdog 疊跑」（父進程鏈 python3→python314→serve）。防多開的 tasklist 判斷認不出跨 python 版本，擋不住。
+- **解法（治標，已做）**：啟動 watchdog 一律用明確路徑 `C:\Users\ie5\AppData\Local\Programs\Python\Python314\python.exe`，不用 `py`。smartpn.bat 已改成明確路徑。autopull.bat / update.bat 已停用（改 `.disabled`），只留 smartpn.bat 單一開機啟動點。
+- **治本（待做）**：watchdog.py 的 `PYTHON=sys.executable` 應改成明確 python 路徑或加跨版本防多開，回中樞改+測再 pull。（見 27_WORKING_RULES §八 / 任務板待做）
+- **更新鍵斷線根因** = 多開打架；多開根治後更新鍵才穩。
+- **ME129 現況**：碼 d13f74b 最新、系統 200 活著、乾淨一 watchdog 一 serve（都 Python314）、IE 功能已上線。（取代 2026-06-20「ME129 跑舊版 v1.4」與休眠斷線待辦）
+
+### cutting 公式確認（2026-07-10）
+- 裁斷機標準時間 = **3600÷刀數÷層數×件數×1.1** 是「**正確的**」（一度被誤判為錯，實際對，不要改）。
+- 理論人數 = 標時 ÷ (3600÷eolr)。
+- 例：層1件11刀1 → 標時 43560、eolr120 理論 1452，是正確業務值。
+- 詳見 27_WORKING_RULES §二① 補註。
+
+### 本階段目標：自動化編制表
+- 流程：排程 → 拆 ART → 抓鎖定 IE 實際人數 → offline 撥人 → C2B → 導出 Excel。
+- IE 表是地基，自動化編制表是**最終結果**。
+- 嵌入 vs 獨立：看編制的人也要查 IE 流程，所以**編制表跟 IE 用最外層兩個主頁簽切換（IE表 / 編制表）**。
+- Jim 方法論已寫入 27_WORKING_RULES §十一（中樞須內化）。
+- 承接上一階段主線（版本控制，見下）：自動化編制表要「抓鎖定 IE 實際人數」，依賴版本控制的鎖定版語意。
 
 ---
 
