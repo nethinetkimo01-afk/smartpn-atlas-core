@@ -110,5 +110,30 @@ LEAN 分組：LEAN1(1A/1B/1C)、LEAN2(2A/2B/2C)、LEAN3、LEAN5–12，各組底
 
 ---
 
+## ★ 本輪新決策（Jim 定案 2026-07-11，編制表 E2E 驗收）
+
+**決策① DS-04 重複上傳 = 覆蓋 + 變更記錄（不做完整版本化）**
+- 重新上傳整份 DS-04 → 全表覆蓋（`ds04_import` DELETE+INSERT，無重複行）。
+- 覆蓋前後以 (dept,lean,art,order_no) 為鍵比對數量，數量變動寫入 `ds04_edit_log`
+  （action=`reimport` 改量 / `reimport_add` 新增 / `reimport_remove` 消失）。
+- 首次匯入（空基準）只建基準、不記 add，避免噪音。
+- 已於 `database.py ds04_import()` 實作（本輪唯一授權的程式修改），E2E 驗證：
+  KI5735-10 數量 923→1700，`ds04_edit_log` 精確記一筆 old=923/new=1700。
+
+**決策② MP 粒度照 DS-04 說明表既有邏輯**
+- 以「訂單」為單位、完成日期公式落位、月度檔；不改既有 MP 計算邏輯。
+- 對應 28 節「待 Jim 拍板」關鍵決策一（MP 自動算 vs 手工填）→ 本輪定調＝沿用既有
+  （系統從 IE 鎖定版標時算：裁斷=理論人數 ΣST×eolr/3600；針車/成型/STF=實際人數−勾走）。
+
+**決策③ 未對應 IE 鎖定版：不擋單、同界面紅底標示、不加待補 tab；導出只出最終結果**
+- 缺 IE 鎖定版的型體：`has_locked=false`、MP 欄位 null（前端渲染紅底），但訂單照列（不擋單）。
+- 導出（`/api/bianche/export`）只有最終結果分頁（CSA/OCS/RB/QC），無核對/對照 tab。
+- E2E 驗證：本機無 IE 鎖定資料 → 全部型體 has_locked=false、MP null、訂單仍完整列出；
+  導出 workbook 僅 CSA/OCS/RB/QC 四分頁。
+
+> 詳細 E2E 驗收結果見 `00_HANDOFF/驗收報告_20260711.md`。
+
+---
+
 ## 五、現況落差
 目前系統 /bianche 只有簡化版（CSA/OCS分頁、裁斷/針車/成型MP、协理给、編制），且全顯示「無IE/—」=資料沒接上。與範本完整版（區塊A彙總+區塊B完整LEAN明細+月度數字+各種公式）差距大。需照本規格重建。

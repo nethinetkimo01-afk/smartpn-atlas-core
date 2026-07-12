@@ -1,0 +1,626 @@
+{
+  "_login": {
+    "status": 200,
+    "body": {
+      "ok": true,
+      "user": {
+        "display_name": "Jim (E2E)",
+        "id": 4,
+        "role": "admin",
+        "username": "jim"
+      }
+    },
+    "allocStatus": 200,
+    "allocBody": {
+      "name": "Jim (Admin)",
+      "ok": true,
+      "role": "admin",
+      "unit": null,
+      "username": "jim"
+    }
+  },
+  "step1_ds04": {
+    "ok": true,
+    "ordersStatus": 200,
+    "orderCount": 1454,
+    "filters": {
+      "depts": [
+        "1部",
+        "2部",
+        "3部",
+        "5部",
+        "6部",
+        "7部",
+        "8部",
+        "9部",
+        "10部",
+        "11部",
+        "11部 (2)",
+        "12部"
+      ],
+      "leans": [
+        "1A",
+        "1B",
+        "1C",
+        "2A",
+        "2B",
+        "2C",
+        "3A",
+        "3B",
+        "5A",
+        "5B",
+        "5C",
+        "6A",
+        "6B",
+        "6C",
+        "7A",
+        "7B",
+        "8A",
+        "8B",
+        "8C",
+        "9A",
+        "9B",
+        "9C",
+        "10A",
+        "10B",
+        "10C",
+        "11A1",
+        "11A2",
+        "11B1",
+        "11B2",
+        "11C",
+        "12A",
+        "12C",
+        "12D"
+      ],
+      "ok": true
+    },
+    "shot": "C:\\smartpn-atlas-core\\test_screenshots\\bianche_e2e\\step1_ds04.png",
+    "ts": "2026-07-12T13:09:32.861Z"
+  },
+  "step4_eolr": {
+    "ok": true,
+    "before": {
+      "month": "2026-06",
+      "ok": true,
+      "settings": [
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "10A",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "10B",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "10C",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "11A1",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "11A2",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "11B1",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "11B2",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "11C",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "12A",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "12C",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "12D",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 60,
+          "is_default": false,
+          "lean": "1A",
+          "updated_at": "2026-07-12T13:04:12.648278+00:00",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "1B",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "1C",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "2A",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "2B",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "2C",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "3A",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "3B",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "5A",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "5B",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "5C",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "6A",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "6B",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "6C",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "7A",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "7B",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "8A",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "8B",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "8C",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "9A",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "9B",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "9C",
+          "updated_at": "",
+          "updated_by": ""
+        }
+      ]
+    },
+    "setStatus": 200,
+    "after": {
+      "month": "2026-06",
+      "ok": true,
+      "settings": [
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "10A",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "10B",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "10C",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "11A1",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "11A2",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "11B1",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "11B2",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "11C",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "12A",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "12C",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "12D",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 60,
+          "is_default": false,
+          "lean": "1A",
+          "updated_at": "2026-07-12T13:09:35.140440+00:00",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "1B",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "1C",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "2A",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "2B",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "2C",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "3A",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "3B",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "5A",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "5B",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "5C",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "6A",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "6B",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "6C",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "7A",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "7B",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "8A",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "8B",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "8C",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "9A",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "9B",
+          "updated_at": "",
+          "updated_by": ""
+        },
+        {
+          "eolr": 120,
+          "is_default": true,
+          "lean": "9C",
+          "updated_at": "",
+          "updated_by": ""
+        }
+      ]
+    },
+    "shot": "C:\\smartpn-atlas-core\\test_screenshots\\bianche_e2e\\step4_eolr.png",
+    "ts": "2026-07-12T13:09:35.169Z"
+  },
+  "step5_alloc": {
+    "ok": true,
+    "prefillStatus": 200,
+    "prefill": {
+      "headers": 0,
+      "inserted": 0,
+      "month": "2026-06",
+      "ok": true
+    },
+    "itemsStatus": 200,
+    "itemCount": null,
+    "shot": "C:\\smartpn-atlas-core\\test_screenshots\\bianche_e2e\\step5_allocation.png",
+    "ts": "2026-07-12T13:09:37.486Z"
+  },
+  "step6_bianche": {
+    "ok": true,
+    "biancheStatus": 200,
+    "biancheSample": "null",
+    "bianzhiStatus": 200,
+    "bianzhiSample": "{\"leans\":[{\"eolr\":60,\"lean\":\"1A\",\"lean_major\":\"1\",\"models\":[{\"arts\":\"IH1969,HQ7583,KH7849,KH7850\",\"assembly\":null,\"bianzhi\":null,\"c2b\":null,\"cutting\":null,\"has_actual\":false,\"has_ie\":false,\"has_locked\":false,\"is_outsource\":false,\"model_name\":\"ADIDAS TAEKWONDO LACE W\",\"p_ext\":null,\"q_ext\":null,\"qty\":679,\"r_ext\":null,\"stitching\":null,\"total_k\":null},{\"arts\":\"KI5735,KK0658,KI1388,KI5736\",\"assembly\":null,\"bianzhi\":null,\"c2b\":null,\"cutting\":null,\"has_actual\":false,\"has_ie\":false,\"has_locked\":false,\"is_outsource\":false,\"model_name\":\"CODECHAOS 27\",\"p_ext\":null,\"q_ext\":null,\"qty\":5889,\"r_ext\":null,\"stitching\":null,\"total_k\":null},{\"arts\":\"KJ8220,KJ5427,KJ5428,KJ5429\",\"assembly\":null,\"bianzhi\":null,\"c2b\":null,\"cutting\":null,\"has_actual\":false,\"has_ie\":false,\"has_locked\":false,\"is_outsource\":false,\"model_name\":\"GAZELLE GOLF\",\"p_ext\":null,\"q_ext\":null,\"qty\":878,\"r_ext\":null,\"stitching\":null,\"total_k\":null},{\"arts\":\"KI5746,KI5747\",\"assembly\":null,\"bianzhi\":null,\"c2b\":null,\"cutting\":null,\"has_actual\":false,\"has_ie\":false,\"has_locked\":false,\"is_outsource\":false,\"model_name\":\"JR CODECHAOS BOA 27\",\"p_ext\":null,\"q_ext\":null,\"qty\":600,\"r_ext\":null,\"stitching\":null,\"total_k\":null},{\"arts\":\"GV6889\",\"assembly\":null,\"bianzhi\":null,\"c2b\":null,\"cutting\":null,\"has_actual\":false,\"has_ie\":false,\"has_locked\":false,\"is_outsource\":false,\"model_name\":\"TECH RESPONSE 3.0\",\"p_ext\":null,\"q_ext\":null,\"qty\":858,\"r_ext\":null,\"stitching\":null,\"total_k\":null},{\"arts\":\"KJ8229,KH8402,KK2852,JQ7755\",\"assembly\":null,\"b",
+    "shot": "C:\\smartpn-atlas-core\\test_screenshots\\bianche_e2e\\step6_bianche.png",
+    "ts": "2026-07-12T13:09:40.548Z",
+    "detailRowCount": 0,
+    "noLockedCount": 0,
+    "withLockedCount": 0,
+    "note": "no IE locked data locally -> expect all has_locked=false (紅底不擋單=決策③); MP hand-check BLOCKED"
+  },
+  "step7_export": {
+    "ok": true,
+    "status": 200,
+    "bytes": 17885,
+    "file": "C:\\smartpn-atlas-core\\test_screenshots\\bianche_e2e\\step7_bianche_export.xlsx",
+    "contentType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "ts": "2026-07-12T13:09:40.836Z"
+  },
+  "step2_reimport": {
+    "ok": true,
+    "orderCountAfter": 1454,
+    "shot": "C:\\smartpn-atlas-core\\test_screenshots\\bianche_e2e\\step2_ds04_after.png",
+    "ts": "2026-07-12T13:10:32.321Z"
+  },
+  "step3_lock": {
+    "ok": true,
+    "lockResp": {
+      "locked_at": "2026-07-12T13:10:32.330775+00:00",
+      "month": "2026-06",
+      "ok": true
+    },
+    "editBlockedResp": {
+      "status": 200,
+      "body": {
+        "error": "本月 2026-06 已確認鎖定，無法修改。如需解鎖請聯繫管理員。",
+        "ok": false
+      }
+    },
+    "lockStatus": {
+      "locked": true,
+      "locked_at": "2026-07-12T13:10:32.330775+00:00",
+      "locked_by": "",
+      "month": "2026-06",
+      "ok": true
+    },
+    "shot": "C:\\smartpn-atlas-core\\test_screenshots\\bianche_e2e\\step3_lock.png",
+    "ts": "2026-07-12T13:10:34.605Z"
+  }
+}

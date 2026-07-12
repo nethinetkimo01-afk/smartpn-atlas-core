@@ -2756,12 +2756,31 @@ def _ensure_ds04_ext(conn):
         conn.execute("ALTER TABLE ds04_orders ADD COLUMN estimated_completion TEXT DEFAULT ''")
         conn.commit()
 
-def ds04_import(records):
-    """Bulk-replace all ds04_orders rows."""
+def ds04_import(records, user=''):
+    """Bulk-replace all ds04_orders rows.
+
+    決策①(2026-07-11 Jim 定案): DS-04 重複上傳 = 覆蓋 + 變更記錄，不做完整版本化。
+    覆蓋前後以 (dept,lean,art,order_no) 為鍵比對數量，數量變動寫入 ds04_edit_log
+    (action='reimport' 改量 / 'reimport_add' 新增 / 'reimport_remove' 消失)。
+    首次匯入(空基準)只建立基準、不記 add，避免噪音；之後每次上傳才產生差異記錄。
+    覆蓋本身(DELETE+INSERT)邏輯不變。"""
     conn = get_conn()
     try:
-        conn.execute('DELETE FROM ds04_orders')
         ts = now_iso()
+        # ── 決策①: 覆蓋前快照 (key -> qty 加總) ──
+        old_map = {}
+        for r in conn.execute(
+            'SELECT dept,lean,art,order_no,qty FROM ds04_orders WHERE COALESCE(is_deleted,0)=0'
+        ).fetchall():
+            k = (r['dept'] or '', r['lean'] or '', r['art'] or '', r['order_no'] or '')
+            old_map[k] = old_map.get(k, 0) + int(r['qty'] or 0)
+        new_map = {}
+        for r in records:
+            k = (r['部門'] or '', r['LEAN'] or '', r['ART'] or '', r['訂單號'] or '')
+            new_map[k] = new_map.get(k, 0) + int(r['數量'] or 0)
+
+        # ── 覆蓋 (原邏輯不動) ──
+        conn.execute('DELETE FROM ds04_orders')
         conn.executemany(
             '''INSERT INTO ds04_orders
                (dept, lean, model_name, art, order_no, qty, delivery_date, is_outsource_upper, created_at)
@@ -2770,8 +2789,29 @@ def ds04_import(records):
               int(r['數量'] or 0), r['交期'], 1 if r['外包鞋面'] == 'Y' else 0, ts)
              for r in records]
         )
+
+        # ── 決策①: 比對差異寫變更記錄 (僅在有前一版基準時) ──
+        changes = 0
+        if old_map:
+            def _log(action, key, old_v, new_v):
+                conn.execute(
+                    '''INSERT INTO ds04_edit_log
+                       (order_id,action,field_name,old_value,new_value,user_name,created_at)
+                       VALUES (?,?,?,?,?,?,?)''',
+                    (0, action, '/'.join(key) + ' qty', old_v, new_v, user, ts)
+                )
+            for k, nq in new_map.items():
+                oq = old_map.get(k)
+                if oq is None:
+                    _log('reimport_add', k, '', str(nq)); changes += 1
+                elif oq != nq:
+                    _log('reimport', k, str(oq), str(nq)); changes += 1
+            for k, oq in old_map.items():
+                if k not in new_map:
+                    _log('reimport_remove', k, str(oq), ''); changes += 1
+
         conn.commit()
-        return {'ok': True, 'count': len(records)}
+        return {'ok': True, 'count': len(records), 'changes': changes}
     except Exception as e:
         conn.rollback()
         return {'ok': False, 'error': str(e)}
