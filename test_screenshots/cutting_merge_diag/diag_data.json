@@ -1,0 +1,2484 @@
+{
+  "steps": [
+    {
+      "label": "01_before_merge",
+      "probe": {
+        "rowCount": 6,
+        "rows": [
+          {
+            "kind": "data",
+            "tdCount": 21,
+            "cfields": {
+              "layers_per_cut": "2",
+              "qty_per_pair": "4",
+              "cut_per_hour": "11"
+            },
+            "cells": [
+              {
+                "cls": "del-cell",
+                "rowspan": "",
+                "val": "插×"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "DA"
+              },
+              {
+                "cls": "name left",
+                "rowspan": "",
+                "val": "鞋面 A鞋面 A"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "2"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "4"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "11"
+              },
+              {
+                "cls": "formula-cell cutting-std-a",
+                "rowspan": "",
+                "val": "720"
+              },
+              {
+                "cls": "formula-cell theory-cell cutting-th-a",
+                "rowspan": "",
+                "val": "24"
+              },
+              {
+                "cls": "actual-cell",
+                "rowspan": "",
+                "val": "3"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              }
+            ]
+          },
+          {
+            "kind": "data",
+            "tdCount": 21,
+            "cfields": {
+              "layers_per_cut": "3",
+              "qty_per_pair": "6",
+              "cut_per_hour": "22"
+            },
+            "cells": [
+              {
+                "cls": "del-cell",
+                "rowspan": "",
+                "val": "插×"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "DA"
+              },
+              {
+                "cls": "name left",
+                "rowspan": "",
+                "val": "鞋面 B鞋面 B"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "3"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "6"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "22"
+              },
+              {
+                "cls": "formula-cell cutting-std-a",
+                "rowspan": "",
+                "val": "360"
+              },
+              {
+                "cls": "formula-cell theory-cell cutting-th-a",
+                "rowspan": "",
+                "val": "12"
+              },
+              {
+                "cls": "actual-cell",
+                "rowspan": "",
+                "val": "2"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              }
+            ]
+          },
+          {
+            "kind": "data",
+            "tdCount": 21,
+            "cfields": {
+              "layers_per_cut": "1",
+              "qty_per_pair": "2",
+              "cut_per_hour": "33"
+            },
+            "cells": [
+              {
+                "cls": "del-cell",
+                "rowspan": "",
+                "val": "插×"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "DA"
+              },
+              {
+                "cls": "name left",
+                "rowspan": "",
+                "val": "鞋舌 C鞋舌 C"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "1"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "2"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "33"
+              },
+              {
+                "cls": "formula-cell cutting-std-a",
+                "rowspan": "",
+                "val": "240"
+              },
+              {
+                "cls": "formula-cell theory-cell cutting-th-a",
+                "rowspan": "",
+                "val": "8"
+              },
+              {
+                "cls": "actual-cell",
+                "rowspan": "",
+                "val": "1"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              }
+            ]
+          },
+          {
+            "kind": "data",
+            "tdCount": 21,
+            "cfields": {
+              "layers_per_cut": "4",
+              "qty_per_pair": "8",
+              "cut_per_hour": "44"
+            },
+            "cells": [
+              {
+                "cls": "del-cell",
+                "rowspan": "",
+                "val": "插×"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "DA"
+              },
+              {
+                "cls": "name left",
+                "rowspan": "",
+                "val": "後跟 D後跟 D"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "4"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "8"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "44"
+              },
+              {
+                "cls": "formula-cell cutting-std-a",
+                "rowspan": "",
+                "val": "180"
+              },
+              {
+                "cls": "formula-cell theory-cell cutting-th-a",
+                "rowspan": "",
+                "val": "6"
+              },
+              {
+                "cls": "actual-cell",
+                "rowspan": "",
+                "val": "5"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              }
+            ]
+          },
+          {
+            "kind": "data",
+            "tdCount": 21,
+            "cfields": {
+              "layers_per_cut": "2",
+              "qty_per_pair": "3",
+              "cut_per_hour": "55"
+            },
+            "cells": [
+              {
+                "cls": "del-cell",
+                "rowspan": "",
+                "val": "插×"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "DA"
+              },
+              {
+                "cls": "name left",
+                "rowspan": "",
+                "val": "補強 E補強 E"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "2"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "3"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "55"
+              },
+              {
+                "cls": "formula-cell cutting-std-a",
+                "rowspan": "",
+                "val": "108"
+              },
+              {
+                "cls": "formula-cell theory-cell cutting-th-a",
+                "rowspan": "",
+                "val": "3.6"
+              },
+              {
+                "cls": "actual-cell",
+                "rowspan": "",
+                "val": "1"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              }
+            ]
+          },
+          {
+            "kind": "other",
+            "text": "總計160853.612",
+            "tdCount": 10
+          }
+        ]
+      }
+    },
+    {
+      "label": "02_after_contiguous_merge",
+      "probe": {
+        "rowCount": 6,
+        "rows": [
+          {
+            "kind": "data",
+            "tdCount": 21,
+            "cfields": {
+              "layers_per_cut": "2",
+              "qty_per_pair": "4",
+              "cut_per_hour": "11"
+            },
+            "cells": [
+              {
+                "cls": "del-cell",
+                "rowspan": "",
+                "val": "插×"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "DA"
+              },
+              {
+                "cls": "name left",
+                "rowspan": "",
+                "val": "鞋面 A鞋面 A"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "2"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "4"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "11"
+              },
+              {
+                "cls": "formula-cell cutting-std-a",
+                "rowspan": "",
+                "val": "720"
+              },
+              {
+                "cls": "formula-cell theory-cell cutting-th-a",
+                "rowspan": "",
+                "val": "24"
+              },
+              {
+                "cls": "actual-cell group-cell",
+                "rowspan": "3",
+                "val": "9"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              }
+            ]
+          },
+          {
+            "kind": "data",
+            "tdCount": 20,
+            "cfields": {
+              "layers_per_cut": "3",
+              "qty_per_pair": "6",
+              "cut_per_hour": "22"
+            },
+            "cells": [
+              {
+                "cls": "del-cell",
+                "rowspan": "",
+                "val": "插×"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "DA"
+              },
+              {
+                "cls": "name left",
+                "rowspan": "",
+                "val": "鞋面 B鞋面 B"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "3"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "6"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "22"
+              },
+              {
+                "cls": "formula-cell cutting-std-a",
+                "rowspan": "",
+                "val": "360"
+              },
+              {
+                "cls": "formula-cell theory-cell cutting-th-a",
+                "rowspan": "",
+                "val": "12"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              }
+            ]
+          },
+          {
+            "kind": "data",
+            "tdCount": 20,
+            "cfields": {
+              "layers_per_cut": "1",
+              "qty_per_pair": "2",
+              "cut_per_hour": "33"
+            },
+            "cells": [
+              {
+                "cls": "del-cell",
+                "rowspan": "",
+                "val": "插×"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "DA"
+              },
+              {
+                "cls": "name left",
+                "rowspan": "",
+                "val": "鞋舌 C鞋舌 C"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "1"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "2"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "33"
+              },
+              {
+                "cls": "formula-cell cutting-std-a",
+                "rowspan": "",
+                "val": "240"
+              },
+              {
+                "cls": "formula-cell theory-cell cutting-th-a",
+                "rowspan": "",
+                "val": "8"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              }
+            ]
+          },
+          {
+            "kind": "data",
+            "tdCount": 21,
+            "cfields": {
+              "layers_per_cut": "4",
+              "qty_per_pair": "8",
+              "cut_per_hour": "44"
+            },
+            "cells": [
+              {
+                "cls": "del-cell",
+                "rowspan": "",
+                "val": "插×"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "DA"
+              },
+              {
+                "cls": "name left",
+                "rowspan": "",
+                "val": "後跟 D後跟 D"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "4"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "8"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "44"
+              },
+              {
+                "cls": "formula-cell cutting-std-a",
+                "rowspan": "",
+                "val": "180"
+              },
+              {
+                "cls": "formula-cell theory-cell cutting-th-a",
+                "rowspan": "",
+                "val": "6"
+              },
+              {
+                "cls": "actual-cell",
+                "rowspan": "",
+                "val": "5"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              }
+            ]
+          },
+          {
+            "kind": "data",
+            "tdCount": 21,
+            "cfields": {
+              "layers_per_cut": "2",
+              "qty_per_pair": "3",
+              "cut_per_hour": "55"
+            },
+            "cells": [
+              {
+                "cls": "del-cell",
+                "rowspan": "",
+                "val": "插×"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "DA"
+              },
+              {
+                "cls": "name left",
+                "rowspan": "",
+                "val": "補強 E補強 E"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "2"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "3"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "55"
+              },
+              {
+                "cls": "formula-cell cutting-std-a",
+                "rowspan": "",
+                "val": "108"
+              },
+              {
+                "cls": "formula-cell theory-cell cutting-th-a",
+                "rowspan": "",
+                "val": "3.6"
+              },
+              {
+                "cls": "actual-cell",
+                "rowspan": "",
+                "val": "1"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              }
+            ]
+          },
+          {
+            "kind": "other",
+            "text": "總計160853.615",
+            "tdCount": 10
+          }
+        ]
+      }
+    },
+    {
+      "label": "03_after_unmerge_reset",
+      "probe": {
+        "rowCount": 6,
+        "rows": [
+          {
+            "kind": "data",
+            "tdCount": 21,
+            "cfields": {
+              "layers_per_cut": "2",
+              "qty_per_pair": "4",
+              "cut_per_hour": "11"
+            },
+            "cells": [
+              {
+                "cls": "del-cell",
+                "rowspan": "",
+                "val": "插×"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "DA"
+              },
+              {
+                "cls": "name left",
+                "rowspan": "",
+                "val": "鞋面 A鞋面 A"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "2"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "4"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "11"
+              },
+              {
+                "cls": "formula-cell cutting-std-a",
+                "rowspan": "",
+                "val": "720"
+              },
+              {
+                "cls": "formula-cell theory-cell cutting-th-a",
+                "rowspan": "",
+                "val": "24"
+              },
+              {
+                "cls": "actual-cell",
+                "rowspan": "",
+                "val": "3"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              }
+            ]
+          },
+          {
+            "kind": "data",
+            "tdCount": 21,
+            "cfields": {
+              "layers_per_cut": "3",
+              "qty_per_pair": "6",
+              "cut_per_hour": "22"
+            },
+            "cells": [
+              {
+                "cls": "del-cell",
+                "rowspan": "",
+                "val": "插×"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "DA"
+              },
+              {
+                "cls": "name left",
+                "rowspan": "",
+                "val": "鞋面 B鞋面 B"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "3"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "6"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "22"
+              },
+              {
+                "cls": "formula-cell cutting-std-a",
+                "rowspan": "",
+                "val": "360"
+              },
+              {
+                "cls": "formula-cell theory-cell cutting-th-a",
+                "rowspan": "",
+                "val": "12"
+              },
+              {
+                "cls": "actual-cell",
+                "rowspan": "",
+                "val": "2"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              }
+            ]
+          },
+          {
+            "kind": "data",
+            "tdCount": 21,
+            "cfields": {
+              "layers_per_cut": "1",
+              "qty_per_pair": "2",
+              "cut_per_hour": "33"
+            },
+            "cells": [
+              {
+                "cls": "del-cell",
+                "rowspan": "",
+                "val": "插×"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "DA"
+              },
+              {
+                "cls": "name left",
+                "rowspan": "",
+                "val": "鞋舌 C鞋舌 C"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "1"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "2"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "33"
+              },
+              {
+                "cls": "formula-cell cutting-std-a",
+                "rowspan": "",
+                "val": "240"
+              },
+              {
+                "cls": "formula-cell theory-cell cutting-th-a",
+                "rowspan": "",
+                "val": "8"
+              },
+              {
+                "cls": "actual-cell",
+                "rowspan": "",
+                "val": "1"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              }
+            ]
+          },
+          {
+            "kind": "data",
+            "tdCount": 21,
+            "cfields": {
+              "layers_per_cut": "4",
+              "qty_per_pair": "8",
+              "cut_per_hour": "44"
+            },
+            "cells": [
+              {
+                "cls": "del-cell",
+                "rowspan": "",
+                "val": "插×"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "DA"
+              },
+              {
+                "cls": "name left",
+                "rowspan": "",
+                "val": "後跟 D後跟 D"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "4"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "8"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "44"
+              },
+              {
+                "cls": "formula-cell cutting-std-a",
+                "rowspan": "",
+                "val": "180"
+              },
+              {
+                "cls": "formula-cell theory-cell cutting-th-a",
+                "rowspan": "",
+                "val": "6"
+              },
+              {
+                "cls": "actual-cell",
+                "rowspan": "",
+                "val": "5"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              }
+            ]
+          },
+          {
+            "kind": "data",
+            "tdCount": 21,
+            "cfields": {
+              "layers_per_cut": "2",
+              "qty_per_pair": "3",
+              "cut_per_hour": "55"
+            },
+            "cells": [
+              {
+                "cls": "del-cell",
+                "rowspan": "",
+                "val": "插×"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "DA"
+              },
+              {
+                "cls": "name left",
+                "rowspan": "",
+                "val": "補強 E補強 E"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "2"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "3"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "55"
+              },
+              {
+                "cls": "formula-cell cutting-std-a",
+                "rowspan": "",
+                "val": "108"
+              },
+              {
+                "cls": "formula-cell theory-cell cutting-th-a",
+                "rowspan": "",
+                "val": "3.6"
+              },
+              {
+                "cls": "actual-cell",
+                "rowspan": "",
+                "val": "1"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              }
+            ]
+          },
+          {
+            "kind": "other",
+            "text": "總計160853.612",
+            "tdCount": 10
+          }
+        ]
+      }
+    },
+    {
+      "label": "04_after_noncontiguous_merge",
+      "probe": {
+        "rowCount": 6,
+        "rows": [
+          {
+            "kind": "data",
+            "tdCount": 21,
+            "cfields": {
+              "layers_per_cut": "2",
+              "qty_per_pair": "4",
+              "cut_per_hour": "11"
+            },
+            "cells": [
+              {
+                "cls": "del-cell",
+                "rowspan": "",
+                "val": "插×"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "DA"
+              },
+              {
+                "cls": "name left",
+                "rowspan": "",
+                "val": "鞋面 A鞋面 A"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "2"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "4"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "11"
+              },
+              {
+                "cls": "formula-cell cutting-std-a",
+                "rowspan": "",
+                "val": "720"
+              },
+              {
+                "cls": "formula-cell theory-cell cutting-th-a",
+                "rowspan": "",
+                "val": "24"
+              },
+              {
+                "cls": "actual-cell group-cell",
+                "rowspan": "2",
+                "val": "7"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              }
+            ]
+          },
+          {
+            "kind": "data",
+            "tdCount": 20,
+            "cfields": {
+              "layers_per_cut": "1",
+              "qty_per_pair": "2",
+              "cut_per_hour": "33"
+            },
+            "cells": [
+              {
+                "cls": "del-cell",
+                "rowspan": "",
+                "val": "插×"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "DA"
+              },
+              {
+                "cls": "name left",
+                "rowspan": "",
+                "val": "鞋舌 C鞋舌 C"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "1"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "2"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "33"
+              },
+              {
+                "cls": "formula-cell cutting-std-a",
+                "rowspan": "",
+                "val": "240"
+              },
+              {
+                "cls": "formula-cell theory-cell cutting-th-a",
+                "rowspan": "",
+                "val": "8"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              }
+            ]
+          },
+          {
+            "kind": "data",
+            "tdCount": 21,
+            "cfields": {
+              "layers_per_cut": "3",
+              "qty_per_pair": "6",
+              "cut_per_hour": "22"
+            },
+            "cells": [
+              {
+                "cls": "del-cell",
+                "rowspan": "",
+                "val": "插×"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "DA"
+              },
+              {
+                "cls": "name left",
+                "rowspan": "",
+                "val": "鞋面 B鞋面 B"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "3"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "6"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "22"
+              },
+              {
+                "cls": "formula-cell cutting-std-a",
+                "rowspan": "",
+                "val": "360"
+              },
+              {
+                "cls": "formula-cell theory-cell cutting-th-a",
+                "rowspan": "",
+                "val": "12"
+              },
+              {
+                "cls": "actual-cell",
+                "rowspan": "",
+                "val": "2"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              }
+            ]
+          },
+          {
+            "kind": "data",
+            "tdCount": 21,
+            "cfields": {
+              "layers_per_cut": "4",
+              "qty_per_pair": "8",
+              "cut_per_hour": "44"
+            },
+            "cells": [
+              {
+                "cls": "del-cell",
+                "rowspan": "",
+                "val": "插×"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "DA"
+              },
+              {
+                "cls": "name left",
+                "rowspan": "",
+                "val": "後跟 D後跟 D"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "4"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "8"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "44"
+              },
+              {
+                "cls": "formula-cell cutting-std-a",
+                "rowspan": "",
+                "val": "180"
+              },
+              {
+                "cls": "formula-cell theory-cell cutting-th-a",
+                "rowspan": "",
+                "val": "6"
+              },
+              {
+                "cls": "actual-cell",
+                "rowspan": "",
+                "val": "5"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              }
+            ]
+          },
+          {
+            "kind": "data",
+            "tdCount": 21,
+            "cfields": {
+              "layers_per_cut": "2",
+              "qty_per_pair": "3",
+              "cut_per_hour": "55"
+            },
+            "cells": [
+              {
+                "cls": "del-cell",
+                "rowspan": "",
+                "val": "插×"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "DA"
+              },
+              {
+                "cls": "name left",
+                "rowspan": "",
+                "val": "補強 E補強 E"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "2"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "3"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": "55"
+              },
+              {
+                "cls": "formula-cell cutting-std-a",
+                "rowspan": "",
+                "val": "108"
+              },
+              {
+                "cls": "formula-cell theory-cell cutting-th-a",
+                "rowspan": "",
+                "val": "3.6"
+              },
+              {
+                "cls": "actual-cell",
+                "rowspan": "",
+                "val": "1"
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "num",
+                "rowspan": "",
+                "val": ""
+              },
+              {
+                "cls": "formula-cell th-post-ops-cell",
+                "rowspan": "",
+                "val": ""
+              }
+            ]
+          },
+          {
+            "kind": "other",
+            "text": "總計160853.615",
+            "tdCount": 10
+          }
+        ]
+      }
+    }
+  ],
+  "pids": [
+    {
+      "id": 1,
+      "seq": 1,
+      "name": "鞋面 A"
+    },
+    {
+      "id": 2,
+      "seq": 2,
+      "name": "鞋面 B"
+    },
+    {
+      "id": 3,
+      "seq": 3,
+      "name": "鞋舌 C"
+    },
+    {
+      "id": 4,
+      "seq": 4,
+      "name": "後跟 D"
+    },
+    {
+      "id": 5,
+      "seq": 5,
+      "name": "補強 E"
+    }
+  ],
+  "stage": 1,
+  "contiguousMerge": {
+    "status": 200,
+    "body": {
+      "ok": true
+    }
+  },
+  "nonContiguousMerge": {
+    "status": 200,
+    "body": {
+      "ok": true
+    }
+  },
+  "logs": [],
+  "net": [
+    {
+      "t": "req",
+      "method": "GET",
+      "url": "http://localhost:5057/api/ie/stages/1"
+    },
+    {
+      "t": "req",
+      "method": "GET",
+      "url": "http://localhost:5057/api/ie/detail/1"
+    },
+    {
+      "t": "req",
+      "method": "GET",
+      "url": "http://localhost:5057/api/ie/1/can_edit"
+    },
+    {
+      "t": "res",
+      "status": 200,
+      "url": "http://localhost:5057/api/ie/stages/1"
+    },
+    {
+      "t": "res",
+      "status": 200,
+      "url": "http://localhost:5057/api/ie/detail/1"
+    },
+    {
+      "t": "res",
+      "status": 200,
+      "url": "http://localhost:5057/api/ie/1/can_edit"
+    },
+    {
+      "t": "req",
+      "method": "GET",
+      "url": "http://localhost:5057/api/ie/review/list?header_id=1"
+    },
+    {
+      "t": "req",
+      "method": "GET",
+      "url": "http://localhost:5057/api/ie/cell/1?segment=cutting&eolr=120&stage_id=1"
+    },
+    {
+      "t": "res",
+      "status": 200,
+      "url": "http://localhost:5057/api/ie/review/list?header_id=1"
+    },
+    {
+      "t": "res",
+      "status": 200,
+      "url": "http://localhost:5057/api/ie/cell/1?segment=cutting&eolr=120&stage_id=1"
+    },
+    {
+      "t": "req",
+      "method": "GET",
+      "url": "http://localhost:5057/api/ie/cell/1?segment=cutting&eolr=120&stage_id=1"
+    },
+    {
+      "t": "res",
+      "status": 200,
+      "url": "http://localhost:5057/api/ie/cell/1?segment=cutting&eolr=120&stage_id=1"
+    },
+    {
+      "t": "req",
+      "method": "GET",
+      "url": "http://localhost:5057/api/ie/cell/1?segment=cutting&eolr=120&stage_id=1"
+    },
+    {
+      "t": "res",
+      "status": 200,
+      "url": "http://localhost:5057/api/ie/cell/1?segment=cutting&eolr=120&stage_id=1"
+    },
+    {
+      "t": "req",
+      "method": "GET",
+      "url": "http://localhost:5057/api/ie/cell/1?segment=cutting&eolr=120&stage_id=1"
+    },
+    {
+      "t": "res",
+      "status": 200,
+      "url": "http://localhost:5057/api/ie/cell/1?segment=cutting&eolr=120&stage_id=1"
+    }
+  ]
+}
