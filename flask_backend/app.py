@@ -408,6 +408,25 @@ def ie_export(header_id):
                      mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 
+@app.route('/api/ie/export/capacity', methods=['GET'])
+def ie_export_capacity():
+    """Task E: IE 產能彙總表導出（36 欄，欄名回源自 數據源-IE标准；待 Jim 驗收）。"""
+    if not HAS_XLSX:
+        return jsonify({'ok': False, 'error': 'openpyxl not installed'}), 500
+    import io, openpyxl
+    from openpyxl.styles import Font, PatternFill
+    from flask import send_file
+    data = db.export_ie_capacity()
+    wb = openpyxl.Workbook(); ws = wb.active; ws.title = 'IE產能彙總'
+    ws.append(data['columns'])
+    for c in ws[1]:
+        c.font = Font(bold=True, color='FFFFFF'); c.fill = PatternFill('solid', fgColor='1E3A5F')
+    for r in data['rows']:
+        ws.append([r.get(col, '') for col in data['columns']])
+    bio = io.BytesIO(); wb.save(bio); bio.seek(0)
+    return send_file(bio, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                     as_attachment=True, download_name='IE_capacity_summary.xlsx')
+
 @app.route('/api/ie/cutting', methods=['GET'])
 def ie_cutting_api():
     art  = request.args.get('art', '').strip() or None

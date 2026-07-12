@@ -1650,6 +1650,48 @@ def get_ie_cell_data(header_id, segment='cutting', eolr=120, stage_id=None, lock
         conn.close()
 
 
+# ── Task E (2026-07-12): IE 產能彙總表導出（規格回源，欄名讀自真實來源，非臆造）──────
+# 來源 = data/source_files/IE編製/廠務編製自動計算.xlsx 之「數據源-IE标准」sheet 表頭（36 欄）。
+# 註：原規格檔 IE产能导入格式规格_20260625.md 不存在；回源後實際欄數為 36（非 29）→ 待 Jim 定案
+#     要 36 全欄或指定 29 欄子集。這裡照「真實 36 欄」輸出，不臆造欄位。
+IE_CAPACITY_COLS = [
+    '輔助值', '季度', 'Layout时产能', 'Layout类型', 'Article', '鞋型名称', '标准PPH',
+    '贴底CT', '电脑针车CT', '折边自动裁断CT', '同材共裁CT', '移印YingHuiCT', '贴补强转印CT',
+    '打粗水洗UV照射CT', 'StockfittingEOLR', 'Stockfitting贴底人数',
+    'Stockfitting打粗水洗UV照射人数', 'StockfittingSTF标准人数',
+    '裁断标准产能', '裁断标准人数', '针车标准产能', '针车标准人数',
+    '成型标准产能', '成型标准人数', '贴底标准产能', '贴底标准人数',
+    '同材共裁标准产能', '同材共裁标准人数', '自动化标准产能', '自动化标准人数',
+    '电脑针车标准产能', '电脑针车标准人数', 'STF标准产能', 'STF标准人数',
+    'CSA标准人数', 'C2B标准人数',
+]
+
+def export_ie_capacity():
+    """回傳 {columns, rows}。columns = 真實來源 36 欄名。rows = 每個型體一列。
+    目前只落地「可從本系統確定推得」的欄位（季度/Article/鞋型名称/StockfittingEOLR）；
+    其餘產能/人數欄依賴 IE 鎖定版 SUM.C2B 與 offline 撥人資料，本機無真實 IE 資料 → 留空、
+    不臆造數值（待 Jim 確認欄位定案 + 有 IE 鎖定資料的機器上填值驗收）。"""
+    conn = get_conn()
+    try:
+        hdrs = conn.execute(
+            'SELECT id, model_name, season, eolr FROM ob_header ORDER BY id').fetchall()
+        rows = []
+        for h in hdrs:
+            arts = [r[0] for r in conn.execute(
+                'SELECT art FROM ob_articles WHERE header_id=? ORDER BY art', (h['id'],)).fetchall()]
+            row = {c: '' for c in IE_CAPACITY_COLS}
+            row['季度'] = h['season'] or ''
+            row['Article'] = ', '.join(arts)
+            row['鞋型名称'] = (h['model_name'] or '').replace(' Target Output', '').strip()
+            row['StockfittingEOLR'] = h['eolr']
+            rows.append(row)
+        return {'ok': True, 'columns': IE_CAPACITY_COLS, 'rows': rows}
+    except Exception as e:
+        return {'ok': False, 'error': str(e), 'columns': IE_CAPACITY_COLS, 'rows': []}
+    finally:
+        conn.close()
+
+
 def save_ie_edit(process_id, stage_id, field, value, user):
     conn = get_conn()
     try:
