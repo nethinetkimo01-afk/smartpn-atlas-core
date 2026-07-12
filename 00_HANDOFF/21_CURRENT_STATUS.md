@@ -1,6 +1,20 @@
 # Current Status
 
-Last updated: 2026-07-10
+Last updated: 2026-07-12
+
+---
+
+## 三線整合（2026-07-12）
+三條線：IE表（已上線ME129）/ 編制表（本階段主線：自動化編制表）/ SmartPN Atlas Demo（獨立產品）。
+三線共用同一套工作法：Playwright 真跑瀏覽器自測 + 隔離副本不污染正式DB + 對抗性測試（把用戶當會亂點的新人）+ 測過才push + 交出去必須能用。
+Claude 是中樞不是打字機：自行思考、主動 web_search 查市面成熟做法、主動提建議、預想 Jim 的下一步。
+→ 完整交接：41_THREE_TRACK_HANDOFF.md / Code 批次現況：42_CODE_BATCH_STATUS.md（兩檔待補）
+
+## 2026-07-12 定案
+- cutting 公式 ×1.1 → ×1.0（見 27_WORKING_RULES §二①）
+- 裁斷合併 bug 修法＝A 強化版 flushPendingEdits（本批 Task D 執行）
+- 29欄導出＝規格回源，讀實際來源 xlsx header（本批 Task E 執行）
+- 編制表併列不比對 FOB（見 28_BIANCHE_SPEC 決策④）
 
 ---
 

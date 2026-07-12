@@ -131,6 +131,12 @@ LEAN 分組：LEAN1(1A/1B/1C)、LEAN2(2A/2B/2C)、LEAN3、LEAN5–12，各組底
 - E2E 驗證：本機無 IE 鎖定資料 → 全部型體 has_locked=false、MP null、訂單仍完整列出；
   導出 workbook 僅 CSA/OCS/RB/QC 四分頁。
 
+**決策④（2026-07-12 Jim 定案）合併/併列規則＝同組(lean)+同 Model Name，不比對 FOB**
+- 併列條件：同一 LEAN 內、Model Name 相同 → 併列（arts 合併、訂單加總）。**不比對 FOB
+  Cutting/Stitching/Assembly**。
+- 現行程式（`get_bianche_data` GROUP BY lean,model_name,art；`get_bianzhi_detail` GROUP BY
+  lean,model_name）**即為正確**，Task A 報告中「未比對 FOB」不再視為缺陷。
+
 > 詳細 E2E 驗收結果見 `00_HANDOFF/驗收報告_20260711.md`。
 
 ---
