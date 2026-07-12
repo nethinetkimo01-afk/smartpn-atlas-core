@@ -1,0 +1,11 @@
+{
+  "input": "層1 件11 刀1",
+  "eolr": 120,
+  "std_displayed": "39600",
+  "theory_displayed": "1320",
+  "expect_std": 39600,
+  "expect_theory": 1320,
+  "std_PASS": true,
+  "theory_PASS": true,
+  "note": "x1.1 would give std=43560/theory=1452; 39600/1320 confirms x1.0"
+}

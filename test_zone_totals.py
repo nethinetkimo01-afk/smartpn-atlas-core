@@ -42,7 +42,7 @@ def row_std(row, seg, zone):
         if zone == '裁斷機':
             lay, qty, cph = _f(row.get('layers_per_cut')), _f(row.get('qty_per_pair')), _f(row.get('cut_per_hour'))
             if lay and qty and cph and lay > 0 and qty > 0 and cph > 0:
-                return 3600 / cph / lay * qty * 1.1
+                return 3600 / cph / lay * qty * 1.0  # 2026-07-12 Jim 定案: ×1.1→×1.0
             return None
         return _f(row.get('standard_time'))
     if seg in ('stitching', 'assembly'):

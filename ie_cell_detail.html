@@ -911,14 +911,14 @@ function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
   // Type-A live std/theory cells — ignore DB standard_time, compute from three fields
   const fmCutA = () => {
     const lay = parseFloat(row.layers_per_cut), qty = parseFloat(row.qty_per_pair), cph = parseFloat(row.cut_per_hour);
-    const v = (lay > 0 && qty > 0 && cph > 0) ? fmtNum(3600 / cph / lay * qty * 1.1) : '';
+    const v = (lay > 0 && qty > 0 && cph > 0) ? fmtNum(3600 / cph / lay * qty * 1.0) : '';
     return `<td class="formula-cell cutting-std-a" data-pid="${pid}">${v}</td>`;
   };
   const thCA = () => {
     const lay = parseFloat(row.layers_per_cut), qty = parseFloat(row.qty_per_pair), cph = parseFloat(row.cut_per_hour);
     const divisor = 3600 / eolr;
     let stdRaw = '', thVal = '';
-    if (lay > 0 && qty > 0 && cph > 0) { stdRaw = 3600 / cph / lay * qty * 1.1; thVal = fmtNum(stdRaw / divisor); }
+    if (lay > 0 && qty > 0 && cph > 0) { stdRaw = 3600 / cph / lay * qty * 1.0; thVal = fmtNum(stdRaw / divisor); }
     return `<td class="formula-cell theory-cell cutting-th-a" data-pid="${pid}" data-stdtime="${stdRaw}" data-zone="${esc(zone)}">${thVal}</td>`;
   };
   const zoneJ = esc(JSON.stringify(zone));
@@ -1254,7 +1254,7 @@ function _rowStd(row, seg, zone) {
   if (seg === 'cutting') {
     if (zone === '裁斷機') {
       const lay = parseFloat(row.layers_per_cut), qty = parseFloat(row.qty_per_pair), cph = parseFloat(row.cut_per_hour);
-      return (lay > 0 && qty > 0 && cph > 0) ? (3600 / cph / lay * qty * 1.1) : NaN;
+      return (lay > 0 && qty > 0 && cph > 0) ? (3600 / cph / lay * qty * 1.0) : NaN;
     }
     return parseFloat(row.standard_time);
   }
@@ -1358,7 +1358,7 @@ function recalcCuttingStdByPid(pid) {
   });
   const divisor = 3600 / EOLR;
   if (lay > 0 && qty > 0 && cph > 0) {
-    const std = 3600 / cph / lay * qty * 1.1;
+    const std = 3600 / cph / lay * qty * 1.0;
     stdCell.textContent = fmtNum(std);
     if (thCell) { thCell.dataset.stdtime = std; thCell.textContent = fmtNum(std / divisor); }
   } else {
