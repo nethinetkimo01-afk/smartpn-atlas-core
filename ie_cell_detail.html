@@ -631,13 +631,18 @@ async function init() {
   loadSegment('cutting');
 }
 
-function switchStage(stageId) {
+async function switchStage(stageId) {
   if (!stageId) return;
+  // Task D: 保留攔截確認，但改為「先存到目前版本」不丟資料；存失敗則不切
   const pendingCount = Object.values(EDITS).reduce((n, f) => n + Object.keys(f).length, 0);
-  if (pendingCount > 0 && !confirm(`有 ${pendingCount} 項尚未儲存，切換版本後將遺失。確定繼續？`)) {
-    const sel = document.getElementById('stageSelect');
-    if (STAGE) sel.value = STAGE.id;
-    return;
+  if (pendingCount > 0) {
+    if (!confirm(`有 ${pendingCount} 項尚未儲存，切換版本前將先儲存到目前版本。確定繼續？`)) {
+      const sel = document.getElementById('stageSelect');
+      if (STAGE) sel.value = STAGE.id;
+      return;
+    }
+    const fr = await flushPendingEdits();
+    if (!fr.ok) { const sel = document.getElementById('stageSelect'); if (STAGE) sel.value = STAGE.id; return; }
   }
   const sid = parseInt(stageId);
   // 版本控制: 從 STAGES_BY_ID 取得含 is_approved 的完整版本物件
@@ -1019,6 +1024,7 @@ async function confirmAddCuttingRow(zone) {
   const zE   = esc(zone);
   const name = document.getElementById('add-name-'+zE)?.value?.trim();
   if (!name) { alert('請輸入部件名稱'); return; }
+  if (!(await flushPendingEdits()).ok) return;   // Task D: 新增前先存未提交編輯
   const payload = {header_id:HID, segment:SEG, zone, stage_id:STAGE?.id, user:'demo', process_name:name};
   const mat = document.getElementById('add-mat-'+zE)?.value?.trim()||null;
   const g = (id) => parseFloat(document.getElementById(id)?.value)||null;
@@ -1515,7 +1521,8 @@ async function loadSumC2b() {
 }
 
 // ── Segment switch ────────────────────────────────────────────────────────────
-function switchSeg(seg) {
+async function switchSeg(seg) {
+  if (!(await flushPendingEdits()).ok) return;   // Task D: 切製程tab前先存未提交編輯
   SEG = seg;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.seg === seg));
   const sumPanel    = document.getElementById('sumC2bPanel');
@@ -1562,6 +1569,7 @@ function insertRowAfter(pid) {
 async function submitAddRow() {
   const name = document.getElementById('addProcessName').value.trim();
   if (!name) { alert('請輸入工序名稱'); return; }
+  if (!(await flushPendingEdits()).ok) return;   // Task D: 插入/新增前先存未提交編輯
   const partName = document.getElementById('addPartName').value.trim() || null;
   const tctVal = document.getElementById('addTCT').value;
   const tct = tctVal ? parseFloat(tctVal) : null;
@@ -1584,6 +1592,7 @@ async function submitAddRow() {
 // ── Delete row ────────────────────────────────────────────────────────────────
 async function deleteRow(pid) {
   if (!confirm('確定刪除此工序？此操作無法復原。')) return;
+  if (!(await flushPendingEdits()).ok) return;   // Task D: 刪除前先存未提交編輯
   const r = await fetch('/api/ie/cell/delete_row', {
     method: 'POST', headers: {'Content-Type':'application/json'},
     body: JSON.stringify({process_id:pid, stage_id:STAGE?.id, user:'demo'}),
@@ -1652,6 +1661,7 @@ async function saveGroupHc(groupId) {
   const hc = parseFloat(hcVal);
   if (isNaN(hc) || hc < 0) { alert('請填寫正確人數'); return; }
   closeGroupAction();
+  if (!(await flushPendingEdits()).ok) return;   // Task D: 更新合併人數前先存未提交編輯
   const r = await fetch('/api/ie/cell/update_group', {
     method: 'POST', headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({group_id: groupId, headcount: hc})
@@ -1663,6 +1673,7 @@ async function saveGroupHc(groupId) {
 
 async function unmergeGroup(groupId) {
   closeGroupAction();
+  if (!(await flushPendingEdits()).ok) return;   // Task D: 解除合併前先存未提交編輯
   const r = await fetch('/api/ie/cell/delete_group', {
     method: 'POST', headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({group_id: groupId})
@@ -1712,6 +1723,7 @@ async function submitMerge() {
   if (hcStr === '') { alert('請填寫人數'); return; }
   const headcount = parseFloat(hcStr);
   if (isNaN(headcount) || headcount < 0) { alert('請填寫正確人數'); return; }
+  if (!(await flushPendingEdits()).ok) return;   // Task D: 合併前先存未提交編輯(層/件/刀)
 
   if (checked.length === 1) {
     // Single process: save directly to actual_operators field
@@ -1838,6 +1850,48 @@ function showSaveModal() {
   if (count === 0) { alert('目前沒有修改項目'); return; }
   if (confirm(`確認提交 ${count} 項修改至版本「${STAGE?.stage_name || '—'}」？`)) submitAllEdits();
 }
+// ── Task D (2026-07-12 Jim 定案 修法A強化版) ──────────────────────────────────
+// 通用「先存後動」：任何會觸發 loadSegment() 重載的動作（合併/解除/插入/刪除/切tab/
+// 切版本）進來前先呼叫，把未 blur / 未存的層/件/刀等編輯先落地，避免重載清空 EDITS 丟資料。
+// 回傳 {ok, saved, fail}。任一存檔失敗 → ok:false 且「不清空 EDITS」(保留未存資料不丟)。
+async function flushPendingEdits() {
+  // 1) 逼正在編輯中的輸入框 blur → 觸發 onblur(commitEditStatic/commitEdit) 把值寫進 EDITS
+  const ae = document.activeElement;
+  if (ae && typeof ae.blur === 'function' && ae.classList && ae.classList.contains('cell-inp')) ae.blur();
+  const count = Object.values(EDITS).reduce((n, f) => n + Object.keys(f).length, 0);
+  if (count === 0) return { ok: true, saved: 0, fail: 0 };
+  // 2) 鎖定版不能覆蓋(後端會擋)：有未存編輯卻在鎖定版 → 明確擋下、保留、不靜默丟
+  if (STAGE && STAGE.is_approved) {
+    alert('鎖定版不能覆蓋未存的修改，請改用「另存新階段」。未存修改已保留。');
+    return { ok: false, saved: 0, fail: count, locked: true };
+  }
+  const stageId = STAGE ? STAGE.id : null;
+  let ok = 0, fail = 0;
+  const remain = {};
+  for (const [pid, fields] of Object.entries(EDITS)) {
+    for (const [field, value] of Object.entries(fields)) {
+      let good = false;
+      try {
+        const r = await fetch('/api/ie/cell/save', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cell_id: parseInt(pid), stage_id: stageId, field, value, user: 'demo_user' })
+        });
+        const j = await r.json();
+        good = !!j.ok;
+      } catch (e) { good = false; }
+      if (good) ok++;
+      else { fail++; if (!remain[pid]) remain[pid] = {}; remain[pid][field] = value; }  // 失敗的保留
+    }
+  }
+  EDITS = remain;
+  updateSaveBar();
+  if (fail > 0) {
+    alert(`有 ${fail} 項未存修改儲存失敗，已保留、未執行後續操作。請檢查後重試。`);
+    return { ok: false, saved: ok, fail };
+  }
+  return { ok: true, saved: ok, fail: 0 };
+}
+
 async function saveSilent() {
   // 版本控制 Step 2: 鎖定版不可覆蓋，只能另存新版本
   if (STAGE && STAGE.is_approved) { alert('鎖定版不能覆蓋，請用「另存新階段」建立新版本'); return; }
@@ -1883,9 +1937,10 @@ window.addEventListener('beforeunload', e => {
   const count = Object.values(EDITS).reduce((n, f) => n + Object.keys(f).length, 0);
   if (count > 0) { e.preventDefault(); e.returnValue = ''; }
 });
-function newStage() {
+async function newStage() {
   const name = prompt('請輸入新版本名稱:');
   if (!name) return;
+  if (!(await flushPendingEdits()).ok) return;   // Task D: 另存新版本前先把目前版本未存編輯存好
   // 版本控制: 另存新版本 = 複製「當前正在看的版本」的所有工序成獨立副本
   fetch('/api/ie/stages/' + HID, {
     method:'POST', headers:{'Content-Type':'application/json'},
@@ -1956,6 +2011,7 @@ function addRowInline(zone, seg) {
 async function confirmAddRowInline(zone, seg) {
   const name = document.getElementById('add-gen-pname-' + zone)?.value?.trim();
   if (!name) { alert('請輸入工序名稱'); return; }
+  if (!(await flushPendingEdits()).ok) return;   // Task D: 新增前先存未提交編輯
   const payload = {header_id:HID, segment:seg, zone, stage_id:STAGE?.id, user:'demo', process_name:name};
   const nt  = parseFloat(document.getElementById('add-gen-nt-'  + zone)?.value) || null;
   const ap  = parseFloat(document.getElementById('add-gen-ap-'  + zone)?.value) || null;

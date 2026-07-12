@@ -1,0 +1,89 @@
+{
+  "scenarios": {
+    "merge": {
+      "before": "2",
+      "typed": "8",
+      "after": "8",
+      "hasGroup": true,
+      "PASS": true
+    },
+    "tabSwitch": {
+      "typed": "6",
+      "after": "6",
+      "PASS": true
+    },
+    "delete": {
+      "typed": "5",
+      "after": "5",
+      "PASS": true
+    },
+    "insert": {
+      "typed": "4",
+      "after": "4",
+      "PASS": true
+    },
+    "fail500": {
+      "typed": "3",
+      "domValueAfter": "3",
+      "hasGroup": false,
+      "alerted": true,
+      "dialogs": [
+        "有 1 項未存修改儲存失敗，已保留、未執行後續操作。請檢查後重試。"
+      ],
+      "PASS": true
+    },
+    "regression": {
+      "rows": [
+        {
+          "tdCount": 21,
+          "cfields": {
+            "layers_per_cut": "2",
+            "qty_per_pair": "4",
+            "cut_per_hour": "11"
+          },
+          "group": "3"
+        },
+        {
+          "tdCount": 20,
+          "cfields": {
+            "layers_per_cut": "3",
+            "qty_per_pair": "6",
+            "cut_per_hour": "22"
+          },
+          "group": null
+        },
+        {
+          "tdCount": 20,
+          "cfields": {
+            "layers_per_cut": "1",
+            "qty_per_pair": "2",
+            "cut_per_hour": "33"
+          },
+          "group": null
+        },
+        {
+          "tdCount": 21,
+          "cfields": {
+            "layers_per_cut": "4",
+            "qty_per_pair": "8",
+            "cut_per_hour": "44"
+          },
+          "group": null
+        },
+        {
+          "tdCount": 21,
+          "cfields": {
+            "layers_per_cut": "2",
+            "qty_per_pair": "3",
+            "cut_per_hour": "55"
+          },
+          "group": null
+        }
+      ],
+      "groupRowspan": "3",
+      "allGroupedRowsKeepLayersQtyCut": true,
+      "PASS": true
+    }
+  },
+  "ALL_PASS": true
+}
