@@ -92,3 +92,20 @@ SmartPN Verified 字樣、Boss BI 毛利率卡、「誰看過我的材料」頁�
 - Playwright 驗收全 PASS：兩檔 0 JS 錯誤；MOCK_WORLD 兩視角一致（同 24 材料、抽 3 筆名稱相符、A/B=5/3）；
   私密材料(SPA-FV-1003)在 B 帳號 FSM/搜尋/下拉完全不出現；EN/ZH 全頁切換；三違規全文 0 命中。
   證據：`test_screenshots/taskP_demo_v2/`（P1–P8 逐項截圖 + task_P_result.json）。
+
+## Demo v3 已落地（2026-07-13, Task R 返工）
+**根因**：v2 為全新重寫，丟失 v1 大量函式/畫面 → 返工。**改版鐵則**寫入 27_WORKING_RULES：
+「改版一律在現有版本疊加，禁止全新重寫；驗收必含功能迴歸，舊版全部函式缺一即 FAIL。」
+- `SMARTPN_DEMO_V3.html` + `SMARTPN_DEMO_SUPPLIER_V3.html` = **v1 全功能 + 議會八項疊加 + Boss 視角 + 引導腳本**。
+  以 v1 兩檔為基底複製、在其上「加」council overlay（不動 v1 既有函式）。
+- **功能迴歸 PASS**：v1 函式全集逐一存在（`window.V1_PARITY`）——品牌 **54/54**、供應商 **19/19**，0 missing。
+  新建料號/二次加工編碼/母子公司樹/權限/FSM/評論/詢問…原樣保留。
+- 議會八項疊加：欄位級來源鏈、N results visible + 帳號 A/B(5/3)、供應商欄位權限三態、Mapping 分批驗收、
+  存證選配、版本歷史、席次加購、Export（統一料號不匯出）。
+- **Boss 視角**（INDEX 第三入口，只讀）：`SMARTPN_DEMO_SUPPLIER_V3.html#boss` → BI 8 KPI（毛利率卡除外）、只讀 dim 導覽。
+- **引導腳本**（右下「▶ 演示流程/Guided」，可跳過，EN/ZH）：供應商建料號→交給 SmartPN→Mapping 簽署→授權品牌A→
+  品牌搜到→報價→交換存證，五步逐句說明。
+- 三違規全域 0 命中；測試鉤子 `window.MOCK_WORLD/setAccount/getVisibleMaterials/setLang/V1_PARITY`。
+- INDEX：v3 標「議會定案完整版」為主入口 + Boss 第三入口；**v2 入口移除（檔案保留）**；v1 留對照。
+- Playwright 全 PASS（`test_screenshots/taskR_demo_v3/` R1–R6 + task_R_result.json）：兩檔 0 錯、V1_PARITY 0 missing、
+  MOCK_WORLD 兩視角一致、私密材料在 B 完全不出現、引導 5 步走通、Boss 無錯無毛利率。

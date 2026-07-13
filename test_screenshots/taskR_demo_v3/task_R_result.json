@@ -1,0 +1,50 @@
+{
+  "brand": {
+    "v1_total": 54,
+    "v1_missing": [],
+    "hooks": true,
+    "A": 5,
+    "B": 3,
+    "privateNotInB": true,
+    "guided": {
+      "step1": true,
+      "endedAfter5": true
+    },
+    "viol": {
+      "verified": false,
+      "margin": false,
+      "who": false
+    },
+    "grid": 10
+  },
+  "supplier": {
+    "v1_total": 19,
+    "v1_missing": [],
+    "mw_total": 24,
+    "sample3": [
+      "Recycled Poly Mesh 220g",
+      "Full Grain Cow Leather",
+      "Commodity Mesh 200g"
+    ],
+    "A": 5,
+    "B": 3,
+    "permTriState": true,
+    "viol": {
+      "verified": false,
+      "margin": false,
+      "who": false
+    }
+  },
+  "boss": {
+    "banner": true,
+    "biVisible": false,
+    "noMargin": true,
+    "kpis": true,
+    "readonly": true
+  },
+  "errors": [],
+  "consistency": {
+    "same_total": true
+  },
+  "ALL_PASS": true
+}

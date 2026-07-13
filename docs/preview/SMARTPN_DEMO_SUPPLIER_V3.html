@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartPN Atlas — Supplier Portal</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',Arial,sans-serif;background:#FFFFFF;color:#1D1D1F;-webkit-font-smoothing:antialiased;font-size:15px;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;gap:16px;padding:0 24px;height:52px;border-bottom:0.5px solid #D2D2D7;flex-shrink:0;background:#FFFFFF;position:sticky;top:0;z-index:100}
+.brand{font-size:17px;font-weight:600;letter-spacing:-0.3px;white-space:nowrap}
+.brand-role{font-size:13px;color:#86868B;margin-left:4px;font-weight:400}
+.topbar-spacer{flex:1}
+.sup-identity{display:flex;align-items:center;gap:10px}
+.sup-avatar{width:30px;height:30px;background:#1D1D1F;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-weight:700;font-size:11px;flex-shrink:0}
+.sup-name{font-size:14px;font-weight:500}
+.sup-role-tag{font-size:12px;color:#86868B}
+.layout{display:flex;flex:1;overflow:hidden}
+.sidebar{width:248px;border-right:0.5px solid #D2D2D7;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;background:#FAFAFA}
+.sidebar-section{padding:18px 16px 6px;font-size:11px;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:0.07em}
+.nav-group{margin:0 8px 4px;background:#FFFFFF;border-radius:12px;overflow:hidden;border:0.5px solid #E5E5EA}
+.nav-item{display:flex;align-items:center;gap:10px;padding:12px 16px;font-size:14px;color:#1D1D1F;cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:background 0.1s;font-family:inherit;border-bottom:0.5px solid #E5E5EA}
+.nav-item:last-child{border-bottom:none}
+.nav-item:hover{background:#F5F5F7}
+.nav-item.active{background:#F0F7FF;color:#0071E3}
+.nav-icon{width:28px;height:28px;border-radius:7px;background:#636366;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-item.active .nav-icon{background:#0071E3}
+.nav-label{flex:1}
+.nav-chev{font-size:16px;color:#C7C7CC;flex-shrink:0}
+.nav-sub{display:flex;align-items:center;gap:10px;padding:11px 16px 11px 50px;font-size:13px;color:#1D1D1F;cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:background 0.1s;font-family:inherit;border-bottom:0.5px solid #E5E5EA}
+.nav-sub:last-child{border-bottom:none}
+.nav-sub:hover{background:#F5F5F7}
+.nav-sub.active{background:#F0F7FF;color:#0071E3}
+.nav-sub-dot{width:6px;height:6px;border-radius:50%;background:#C7C7CC;flex-shrink:0}
+.nav-sub.active .nav-sub-dot{background:#0071E3}
+.nav-badge{font-size:10px;font-weight:700;background:#FF3B30;color:#fff;border-radius:8px;padding:1px 6px;margin-left:auto}
+.main{flex:1;overflow-y:auto;background:#FFFFFF}
+.view{display:none;padding:32px 40px;max-width:980px}
+.view.active{display:block}
+.page-header{padding-bottom:20px;border-bottom:0.5px solid #D2D2D7;margin-bottom:24px}
+.page-title{font-size:28px;font-weight:600;letter-spacing:-0.6px}
+.page-sub{font-size:14px;color:#86868B;margin-top:6px}
+.section-title{font-size:17px;font-weight:600;padding-bottom:12px;border-bottom:0.5px solid #D2D2D7;margin-bottom:16px;letter-spacing:-0.2px}
+
+.tab-bar{display:flex;border-bottom:0.5px solid #D2D2D7;margin-bottom:24px;overflow-x:auto}
+.tab-btn{font-size:14px;padding:10px 18px;border:none;background:none;color:#86868B;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-0.5px;white-space:nowrap}
+.tab-btn.active{color:#1D1D1F;border-bottom-color:#1D1D1F;font-weight:500}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+.form-card{background:#FAFAFA;border:0.5px solid #E5E5EA;border-radius:12px;padding:24px;margin-bottom:20px}
+.form-card-title{font-size:15px;font-weight:600;margin-bottom:16px;padding-bottom:12px;border-bottom:0.5px solid #E5E5EA;display:flex;align-items:center;gap:8px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.form-full{grid-column:1/-1}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:12px;font-weight:500;color:#86868B;text-transform:uppercase;letter-spacing:0.04em}
+.form-input{border:none;border-bottom:0.5px solid #D2D2D7;padding:10px 0;font-size:15px;color:#1D1D1F;background:transparent;outline:none;font-family:inherit;width:100%}
+.form-input:focus{border-bottom-color:#1D1D1F}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2386868B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0 center;padding-right:20px}
+.form-actions{display:flex;gap:12px;margin-top:24px;padding-top:18px;border-top:0.5px solid #D2D2D7}
+.btn-primary{background:#1D1D1F;color:#FFFFFF;border:none;border-radius:20px;padding:10px 26px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
+.btn-primary:hover{opacity:0.85}
+.btn-secondary{background:#FFFFFF;color:#1D1D1F;border:0.5px solid #D2D2D7;border-radius:20px;padding:10px 22px;font-size:14px;cursor:pointer;font-family:inherit}
+.btn-dashed{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border:0.5px dashed #0071E3;border-radius:10px;color:#0071E3;font-size:14px;cursor:pointer;background:none;font-family:inherit}
+.btn-dashed:hover{background:#F0F7FF}
+
+.priv-tag{font-size:11px;font-weight:600;color:#86868B;background:#F5F5F7;border:0.5px solid #E5E5EA;border-radius:6px;padding:2px 8px}
+.warn-box{background:#FFF8E7;border:0.5px solid #F5A623;border-radius:10px;padding:12px 16px;font-size:13px;line-height:1.6;margin-bottom:18px;display:flex;gap:10px}
+.info-box{background:#F0F7FF;border:0.5px solid #BDD7F7;border-radius:10px;padding:12px 16px;font-size:13px;line-height:1.7;margin-bottom:18px}
+code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
+
+/* company tree */
+.company-tree{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.company-node{display:flex;align-items:center;gap:12px;padding:14px 16px;border:0.5px solid #E5E5EA;border-radius:10px;background:#fff}
+.company-node.child{margin-left:32px;border-style:dashed}
+.company-node-ava{width:36px;height:36px;background:#1D1D1F;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;flex-shrink:0}
+.company-node.child .company-node-ava{background:#86868B}
+.company-node-name{font-size:15px;font-weight:500}
+.company-node-meta{font-size:12px;color:#86868B;margin-top:2px}
+.verified{font-size:11px;background:#F0FFF4;color:#1D7340;border-radius:6px;padding:3px 8px;font-weight:600}
+
+/* cert / grant tables */
+.gtable{width:100%;border-collapse:collapse;margin-bottom:12px}
+.gtable th{font-size:12px;font-weight:500;color:#86868B;text-align:left;padding:8px 12px;border-bottom:0.5px solid #D2D2D7}
+.gtable td{font-size:14px;padding:12px;border-bottom:0.5px solid #F5F5F7;vertical-align:middle}
+.gtable tr:last-child td{border-bottom:none}
+.status-ok{color:#1D7340;font-weight:500}
+.btn-link-red{font-size:12px;color:#FF3B30;border:none;background:none;cursor:pointer;font-family:inherit;padding:0}
+
+/* options */
+.option-card{display:flex;align-items:flex-start;gap:16px;border:0.5px solid #E5E5EA;border-radius:12px;padding:16px;margin-bottom:12px;background:#fff;position:relative}
+.option-swatch{width:64px;height:64px;border-radius:10px;object-fit:cover;flex-shrink:0;background:#F5F5F7;border:0.5px solid #E5E5EA}
+.option-fields{flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.option-del{position:absolute;top:10px;right:12px;width:24px;height:24px;border:none;background:#F5F5F7;color:#86868B;border-radius:50%;cursor:pointer;font-size:14px}
+.option-del:hover{background:#FFF0F0;color:#FF3B30}
+@media(max-width:780px){.option-fields{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}}
+
+/* permission folders */
+.folder{border:0.5px solid #E5E5EA;border-radius:12px;overflow:hidden;margin-bottom:10px}
+.folder-hd{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;background:#FAFAFA}
+.folder-hd:hover{background:#F5F5F7}
+.folder-ico{width:32px;height:32px;background:#F5F5F7;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.folder-name{font-size:15px;font-weight:500;flex:1}
+.folder-count{font-size:12px;color:#86868B;margin-right:8px}
+.folder-chev{font-size:16px;color:#C7C7CC;transition:transform 0.2s}
+.folder.open .folder-chev{transform:rotate(90deg)}
+.folder-body{display:none;padding:14px 16px;border-top:0.5px solid #E5E5EA}
+.folder.open .folder-body{display:block}
+.field-check{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:0.5px solid #F5F5F7;cursor:pointer}
+.field-check:last-child{border-bottom:none}
+.cbox{width:18px;height:18px;border:1px solid #D2D2D7;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:transparent}
+.cbox.on{background:#1D1D1F;border-color:#1D1D1F;color:#fff}
+.field-label{font-size:14px;flex:1}
+.field-type{font-size:11px;color:#86868B;background:#F5F5F7;border-radius:4px;padding:2px 7px}
+
+/* pricing / expiry */
+.level-wrap{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.level-btn{font-size:13px;padding:8px 18px;border-radius:20px;border:0.5px solid #D2D2D7;background:#fff;cursor:pointer;font-family:inherit}
+.level-btn.active{background:#1D1D1F;color:#fff;border-color:#1D1D1F}
+.expiry-card{display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:12px;margin-bottom:8px}
+.expiry-card.danger{background:#FFF0F0;border:0.5px solid #FFB8B8}
+.expiry-card.warn{background:#FFF8E7;border:0.5px solid #F5A623}
+.expiry-card.ok{background:#F0FFF4;border:0.5px solid #A0D9B5}
+.expiry-info{flex:1}
+.expiry-id{font-size:14px;font-weight:600}
+.expiry-detail{font-size:12px;color:#86868B;margin-top:2px}
+.expiry-days{font-size:13px;font-weight:600;white-space:nowrap}
+.expiry-days.danger{color:#FF3B30}.expiry-days.warn{color:#F5A623}.expiry-days.ok{color:#1D7340}
+
+/* material list */
+.mat-list{border:0.5px solid #E5E5EA;border-radius:12px;overflow:hidden}
+.mat-row{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:0.5px solid #F5F5F7}
+.mat-row:last-child{border-bottom:none}
+.mat-row-img{width:38px;height:38px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#F5F5F7}
+.mat-row-img img{width:100%;height:100%;object-fit:cover}
+.mat-row-name{font-size:14px;font-weight:500;flex:1}
+.mat-row-code{font-size:12px;color:#86868B;margin-top:2px}
+.perm-open{color:#1D7340;font-size:12px;font-weight:500}
+
+/* BI */
+.bi-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.bi-card{background:#fff;border:0.5px solid #E5E5EA;border-radius:16px;padding:22px}
+.bi-card.full{grid-column:1/-1}
+.bi-label{font-size:12px;font-weight:500;color:#86868B;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px}
+.bi-val{font-size:34px;font-weight:700;letter-spacing:-1.4px;line-height:1}
+.bi-sub{font-size:13px;color:#86868B;margin-top:8px;line-height:1.5}
+.bi-delta{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;padding:3px 8px;border-radius:8px;margin-top:8px}
+.bi-delta.up{color:#1D7340;background:#F0FFF4}
+.hbar{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.hbar-row{display:flex;align-items:center;gap:10px}
+.hbar-label{font-size:13px;width:140px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hbar-track{flex:1;height:8px;background:#F5F5F7;border-radius:4px;overflow:hidden}
+.hbar-fill{height:100%;border-radius:4px}
+.hbar-val{font-size:13px;color:#86868B;width:80px;text-align:right;flex-shrink:0}
+.win-ring{width:80px;height:80px;border-radius:50%;background:conic-gradient(#1D7340 0% 37.5%,#F5F5F7 37.5% 100%);display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0}
+.win-ring::after{content:'';position:absolute;width:56px;height:56px;background:#fff;border-radius:50%}
+.win-lbl{font-size:17px;font-weight:700;color:#1D7340;position:relative;z-index:1}
+.aging-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:6px}
+.aging{background:#FAFAFA;border:0.5px solid #E5E5EA;border-radius:10px;padding:14px;text-align:center}
+.aging-lbl{font-size:11px;font-weight:600;color:#86868B;text-transform:uppercase;margin-bottom:6px}
+.aging-val{font-size:22px;font-weight:700}
+.aging.ok .aging-val{color:#1D7340}.aging.warn .aging-val{color:#F5A623}.aging.danger .aging-val{color:#FF3B30}
+.cf-table{width:100%;border-collapse:collapse;margin-top:8px}
+.cf-table th{font-size:12px;color:#86868B;text-align:left;padding:8px 0;border-bottom:0.5px solid #D2D2D7;font-weight:500}
+.cf-table td{font-size:14px;padding:11px 0;border-bottom:0.5px solid #F5F5F7}
+.cf-in{color:#1D7340;font-weight:500}
+.chip{font-size:11px;background:#F0F7FF;color:#0071E3;border-radius:6px;padding:2px 8px;white-space:nowrap}
+
+/* who viewed */
+.privacy-toggle{display:inline-flex;background:#EFEFF0;border-radius:8px;padding:3px;margin-bottom:18px}
+.privacy-toggle button{font-size:12px;padding:5px 14px;border:none;background:none;color:#86868B;cursor:pointer;font-family:inherit;border-radius:6px}
+.privacy-toggle button.on{background:#fff;color:#1D1D1F;font-weight:500;box-shadow:0 0.5px 2px rgba(0,0,0,0.1)}
+.view-row{display:flex;align-items:center;padding:14px 16px;border-bottom:0.5px solid #F5F5F7;gap:12px}
+.view-row:last-child{border-bottom:none}
+.view-ava{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.view-name{font-size:14px;font-weight:500;flex:1}
+.view-cnt{font-size:17px;font-weight:600}
+.privacy-notice{background:#F0F7FF;border:0.5px solid #BDD7F7;border-radius:10px;padding:12px 16px;font-size:13px;line-height:1.6;margin-bottom:18px}
+
+/* requests */
+.req-layout{display:flex;border:0.5px solid #E5E5EA;border-radius:14px;overflow:hidden;height:540px}
+.req-list{width:290px;border-right:0.5px solid #E5E5EA;overflow-y:auto;flex-shrink:0;background:#FAFAFA}
+.req-item{display:flex;gap:12px;padding:14px 16px;border-bottom:0.5px solid #F0F0F2;cursor:pointer}
+.req-item:hover{background:#F0F4FF}.req-item.active{background:#F0F7FF}
+.req-ava{width:38px;height:38px;border-radius:10px;background:#1D1D1F;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.req-name{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+.req-snippet{font-size:12px;color:#86868B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.req-dot{width:8px;height:8px;border-radius:50%;background:#0071E3}
+.req-thread{flex:1;display:flex;flex-direction:column}
+.req-hd{padding:14px 18px;border-bottom:0.5px solid #E5E5EA;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.req-msgs{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:72%;padding:9px 13px;border-radius:14px;font-size:14px;line-height:1.5}
+.msg.them{align-self:flex-start;background:#F0F0F2;border-bottom-left-radius:4px}
+.msg.me{align-self:flex-end;background:#0071E3;color:#fff;border-bottom-right-radius:4px}
+.msg-time{font-size:10px;opacity:0.6;margin-top:3px;display:block}
+.msg-attach{display:inline-flex;align-items:center;gap:6px;font-size:12px;background:rgba(255,255,255,0.18);border-radius:7px;padding:5px 9px;margin-top:6px}
+.msg.them .msg-attach{background:#fff;border:0.5px solid #E5E5EA}
+.req-compose{display:flex;gap:8px;padding:12px;border-top:0.5px solid #E5E5EA;background:#FAFAFA}
+.req-compose input{flex:1;border:0.5px solid #D2D2D7;border-radius:18px;padding:9px 14px;font-size:14px;font-family:inherit;outline:none}
+.req-send{background:#0071E3;color:#fff;border:none;border-radius:18px;padding:0 18px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
+.fade-in{animation:fadeIn 0.15s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#D2D2D7;border-radius:3px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="brand">SmartPN Atlas <span class="brand-role">Supplier Portal</span></span>
+  <div class="topbar-spacer"></div>
+  <div class="sup-identity"><div class="sup-avatar">FMG</div>
+    <div><div class="sup-name">Formosa Materials Group</div><div class="sup-role-tag">Data Creator · Lisa Chen</div></div></div>
+  <button id="lang-toggle" onclick="toggleLang()" style="background:none;border:0.5px solid #D2D2D7;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.04em;margin-left:8px">中文</button>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-section" data-i18n="s_company">Company</div>
+    <div class="nav-group">
+      <button class="nav-item active" onclick="showView('company',this)">
+        <div class="nav-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="5" width="12" height="9" rx="1.5" stroke="white" stroke-width="1.3"/><path d="M5 5V4a3 3 0 016 0v1" stroke="white" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+        <span class="nav-label" data-i18n="m_company">公司建立</span><span class="nav-chev">›</span>
+      </button>
+    </div>
+    <div class="sidebar-section" data-i18n="s_smartpn">SmartPN</div>
+    <div class="nav-group">
+      <button class="nav-item" onclick="showView('raw',this)">
+        <div class="nav-icon" style="background:#007AFF"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="white" stroke-width="1.3"/><path d="M8 5v3l2 1.5" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+        <span class="nav-label" data-i18n="m_smartpn">SmartPN 建立</span><span class="nav-chev">›</span>
+      </button>
+      <button class="nav-sub" onclick="showView('raw',this)"><span class="nav-sub-dot"></span><span data-i18n="m_raw">原物料</span></button>
+      <button class="nav-sub" onclick="showView('secondary',this)"><span class="nav-sub-dot"></span><span data-i18n="m_secondary">二次加工</span></button>
+      <button class="nav-sub" onclick="showView('permission',this)"><span class="nav-sub-dot"></span><span data-i18n="m_permission">權限管理</span></button>
+      <button class="nav-sub" onclick="showView('pricing',this)"><span class="nav-sub-dot"></span><span data-i18n="m_pricing">單價管理</span></button>
+      <button class="nav-sub" onclick="showView('mapping',this)"><span class="nav-sub-dot"></span><span data-i18n="m_mapping">Mapping 驗收</span></button>
+    </div>
+    <div class="sidebar-section">Boss BI</div>
+    <div class="nav-group">
+      <button class="nav-item" onclick="showView('bi',this)">
+        <div class="nav-icon" style="background:#5856D6"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l3-4 3 2 3-5 3 3" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="nav-label" data-i18n="m_bi">經營儀表板</span><span class="nav-chev">›</span>
+      </button>
+    </div>
+    <div class="sidebar-section" data-i18n="s_inbox">Inbox</div>
+    <div class="nav-group">
+      <button class="nav-item" onclick="showView('requests',this)">
+        <div class="nav-icon" style="background:#34C759"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4.5A1.5 1.5 0 013.5 3h9A1.5 1.5 0 0114 4.5v6A1.5 1.5 0 0112.5 12H6l-3 2.5V12H3.5A1.5 1.5 0 012 10.5z" stroke="white" stroke-width="1.3" stroke-linejoin="round"/></svg></div>
+        <span class="nav-label" data-i18n="m_requests">Requests</span><span class="nav-badge">2</span>
+      </button>
+    </div>
+    <div style="flex:1;min-height:24px"></div>
+    <div style="padding:12px 16px;border-top:0.5px solid #E5E5EA;font-size:11px;color:#86868B;line-height:1.7">Formosa Materials Group<br>lisa.chen@formosa-mat.com</div>
+  </div>
+
+  <div class="main">
+
+    <!-- 公司建立 -->
+    <div class="view active fade-in" id="view-company">
+      <div class="page-header"><div class="page-title" data-i18n="m_company">公司建立</div><div class="page-sub">母公司 / 子公司 · 基本 · 認證 · 財務 · 關務</div></div>
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab(this,'c-basic')" data-i18n="t_basic">基本資料</button>
+        <button class="tab-btn" onclick="switchTab(this,'c-cert')" data-i18n="t_cert">認證</button>
+        <button class="tab-btn" onclick="switchTab(this,'c-fin')" data-i18n="t_fin">財務資料夾</button>
+        <button class="tab-btn" onclick="switchTab(this,'c-customs')" data-i18n="t_customs">關務資料夾</button>
+        <button class="tab-btn" onclick="switchTab(this,'c-sub')" data-i18n="t_sub">子公司</button>
+      </div>
+
+      <div class="tab-panel active" id="c-basic">
+        <div class="form-card"><div class="form-card-title">基本資料 Basic Information</div>
+          <div class="form-grid">
+            <div class="form-group"><label class="form-label">公司名稱 (中)</label><input class="form-input" value="台灣材料集團股份有限公司"></div>
+            <div class="form-group"><label class="form-label">Company Name (EN)</label><input class="form-input" value="Formosa Materials Group Co., Ltd."></div>
+            <div class="form-group"><label class="form-label">國家 Country</label><input class="form-input" value="Taiwan"></div>
+            <div class="form-group"><label class="form-label">DUNS</label><input class="form-input" value="540012345"></div>
+            <div class="form-group form-full"><label class="form-label">地址 Address</label><input class="form-input" value="台北市松山區民生東路二段166號"></div>
+            <div class="form-group form-full"><label class="form-label">簡介 Description</label><input class="form-input" value="Recycled mesh, PU synthetic leather, TPU film & secondary processing. ISO 9001 / GRS / DPP-ready."></div>
+          </div>
+          <div class="form-actions"><button class="btn-primary" data-i18n="save">儲存</button><button class="btn-secondary" data-i18n="cancel">取消</button></div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="c-cert">
+        <div class="form-card"><div class="form-card-title">認證 Certifications</div>
+          <table class="gtable"><thead><tr><th>認證名稱</th><th>發證單位</th><th>到期日</th><th>文件</th><th></th></tr></thead><tbody>
+            <tr><td>ISO 9001</td><td>TÜV Rheinland</td><td>2027-03-31</td><td><span class="chip">ISO9001.pdf</span></td><td><button class="btn-link-red">移除</button></td></tr>
+            <tr><td>GRS (Global Recycled Standard)</td><td>Control Union</td><td>2026-11-30</td><td><span class="chip">GRS-Scope.pdf</span></td><td><button class="btn-link-red">移除</button></td></tr>
+          </tbody></table>
+          <div style="font-size:12px;color:#86868B;margin-top:8px">認證由第三方發證機構背書並顯示效期；SmartPN 不簽發、不驗證內容真偽——平台不提供任何平台級認證背書。DPP 狀態＝欄位齊全度，另見材料頁。</div>
+          <button class="btn-dashed" onclick="alert('新增認證：名稱 / 發證單位 / 到期日 / 上傳文件')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>新增認證 + 上傳文件</button>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="c-fin">
+        <div class="form-card"><div class="form-card-title">財務資料夾 Financial <span class="priv-tag">🔒 PRIVATE 預設</span></div>
+          <div class="form-grid">
+            <div class="form-group"><label class="form-label">銀行名稱 Bank Name</label><input class="form-input" placeholder="例：CTBC Bank"></div>
+            <div class="form-group"><label class="form-label">銀行帳號 Account No.</label><input class="form-input" placeholder="例：0000-0000-00000"></div>
+            <div class="form-group"><label class="form-label">Swift Code / BIC</label><input class="form-input" placeholder="例：CTCBTWTP"></div>
+            <div class="form-group"><label class="form-label">收款幣別 Currency</label><select class="form-input form-select"><option>USD</option><option>TWD</option><option>EUR</option><option>VND</option><option>IDR</option></select></div>
+            <div class="form-group form-full"><label class="form-label">發票抬頭 Invoice Title</label><input class="form-input" value="台灣材料集團股份有限公司 / Formosa Materials Group Co., Ltd."></div>
+          </div>
+          <div class="warn-box"><span>🔒</span><span>財務資料夾預設全私密，需在「權限管理」以資料夾為單位授權給特定帳號才可見。</span></div>
+          <div class="form-actions"><button class="btn-primary" data-i18n="save">儲存</button></div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="c-customs">
+        <div class="form-card"><div class="form-card-title">關務資料夾 Customs <span class="priv-tag">🔒 PRIVATE 預設</span></div>
+          <div class="form-grid">
+            <div class="form-group"><label class="form-label">稅號 / VAT No.</label><input class="form-input" value="03017001"></div>
+            <div class="form-group"><label class="form-label">主要輸出 HS Code</label><input class="form-input" value="3901.10 / 3902.10 / 3907.91"></div>
+            <div class="form-group"><label class="form-label">原產地 Country of Origin</label><input class="form-input" value="Taiwan, R.O.C."></div>
+            <div class="form-group"><label class="form-label">EORI Number</label><input class="form-input" placeholder="例：TW0000123456789"></div>
+          </div>
+          <div class="warn-box"><span>🔒</span><span>關務資料夾預設全私密，需主動授權。</span></div>
+          <div class="form-actions"><button class="btn-primary" data-i18n="save">儲存</button></div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="c-sub">
+        <div class="company-tree">
+          <div class="company-node"><div class="company-node-ava">FMG</div><div style="flex:1"><div class="company-node-name">Formosa Materials Group</div><div class="company-node-meta">母公司 · Taipei, Taiwan</div></div><span class="verified" style="background:#F0F7FF;color:#0071E3">Group HQ</span></div>
+          <div class="company-node child"><div class="company-node-ava">FV</div><div style="flex:1"><div class="company-node-name">Formosa Vietnam Co.</div><div class="company-node-meta">子公司 · Ho Chi Minh City, Vietnam · 網布 / 合成皮</div></div><span class="nav-chev">›</span></div>
+          <div class="company-node child"><div class="company-node-ava">FI</div><div style="flex:1"><div class="company-node-name">Formosa Indonesia Co.</div><div class="company-node-meta">子公司 · Jakarta, Indonesia · 薄膜 / 二次加工</div></div><span class="nav-chev">›</span></div>
+        </div>
+        <button class="btn-dashed" style="margin-left:32px" onclick="alert('新增子公司')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>新增子公司</button>
+      </div>
+    </div>
+
+    <!-- 原物料建立 -->
+    <div class="view fade-in" id="view-raw">
+      <div class="page-header"><div class="page-title" data-i18n="m_raw">原物料建立</div><div class="page-sub">Product → Options</div></div>
+      <div class="form-card"><div class="form-card-title">料號 Part Numbers</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">GS1 Code（選填）</label><input class="form-input" placeholder="例：4711234500017"></div>
+          <div class="form-group"><label class="form-label">SmartPN Code（自動產生）</label>
+            <div style="display:flex;align-items:center;gap:10px;padding-top:8px">
+              <input class="form-input" id="spn-code" value="SPA-MAT-7K9X" readonly style="border:none;font-weight:600;width:auto">
+              <button class="btn-secondary" style="padding:5px 12px;font-size:12px" onclick="regenSpn()">重新產生</button>
+            </div>
+            <div style="font-size:11px;color:#86868B;margin-top:4px">純序號 / 亂碼，不帶意義；排除 0 / 1 / I / O / E（避免誤認）。</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-card"><div class="form-card-title">產品主體</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">產品名稱 Name</label><input class="form-input" value="Ripstop Nylon 70D"></div>
+          <div class="form-group"><label class="form-label">分類 Category</label><select class="form-input form-select" id="raw-cat" onchange="syncOptionPattern()"><option value="textile">紡織 · Textile</option><option value="synleather">人造皮 · Synthetic Leather</option><option value="leather">皮料 · Leather</option><option value="film">薄膜 · Film</option><option value="secondary">二次加工 · Secondary</option></select></div>
+          <div class="form-group form-full"><label class="form-label">成分 Composition</label><input class="form-input" value="100% Nylon 70D, ripstop weave"></div>
+          <div class="form-group"><label class="form-label">版本 Version</label><input class="form-input" value="v1.0"></div>
+        </div>
+        <div class="warn-box"><span>🔒</span><span><strong>Product 物性鎖定：</strong>名稱 / 分類 / 成分 等物性欄位，第一個 Option 送出後即<strong>鎖定不可修改</strong>。</span></div>
+      </div>
+      <div class="section-title">規格 Options（每個 = 顏色 + 幅寬 + 重量 + 單價 + LT + 材料圖）</div>
+      <div id="option-cards" data-pat="textile"></div>
+      <button class="btn-dashed" onclick="addOption()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>新增 Option</button>
+      <div class="warn-box" style="margin-top:18px;background:#FFF8E7"><span>🔒</span><span>新建材料預設 <strong>PRIVATE</strong>。送出後於「權限管理」以資料夾為單位授權。</span></div>
+      <div style="margin-top:24px"><div class="section-title">現有原物料</div><div class="mat-list" id="raw-list"></div></div>
+    </div>
+
+    <!-- 二次加工 -->
+    <div class="view fade-in" id="view-secondary">
+      <div class="page-header"><div class="page-title" data-i18n="m_secondary">二次加工建立</div><div class="page-sub">Input → Process → Output</div></div>
+      <div class="info-box"><strong>順序編碼：</strong>二次加工 SmartPN Code 格式 <code>SPA-COMP-XXXX</code>，無規則、純序號；分類靠屬性判斷。</div>
+      <div class="form-card"><div class="form-card-title">加工設定</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Input 材料（從現有 Product 選）</label><select class="form-input form-select"><option>Recycled Polyester Mesh 220g (SPA-MAT-7K9X)</option><option>Jacquard Knit Upper 380g (SPA-MAT-K7HR)</option><option>EVA Foam Sheet 4mm (SPA-MAT-3FN8)</option></select></div>
+          <div class="form-group"><label class="form-label">加工方式 Process</label><select class="form-input form-select"><option>Lamination 貼合</option><option>Bonding 黏合</option><option>Coating 塗佈</option><option>Heat press 熱壓</option></select></div>
+          <div class="form-group"><label class="form-label">比例 Ratio</label><input class="form-input" placeholder="例：1:1 (面積)"></div>
+          <div class="form-group"><label class="form-label">Output 材料名稱</label><input class="form-input" value="Laminated Black Mesh (2nd)"></div>
+          <div class="form-group"><label class="form-label">新 SmartPN Code（自動）</label><input class="form-input" value="SPA-COMP-V9K4" readonly style="font-weight:600"></div>
+          <div class="form-group"><label class="form-label">Lead Time (days)</label><input class="form-input" placeholder="例：38"></div>
+        </div>
+        <div class="warn-box"><span>🔒</span><span>新建加工記錄預設 <strong>PRIVATE</strong>。</span></div>
+        <div class="form-actions"><button class="btn-primary">儲存 — 設定權限</button><button class="btn-secondary">取消</button></div>
+      </div>
+    </div>
+
+    <!-- 權限管理 -->
+    <div class="view fade-in" id="view-permission">
+      <div class="page-header"><div class="page-title" data-i18n="m_permission">權限管理</div><div class="page-sub">資料夾 → 勾選欄位 → 授權給（公司 · 單位 · 帳號）</div></div>
+      <div class="warn-box"><span>🔒</span><span>所有新材料預設 <strong>PRIVATE</strong>。授權以「資料夾」為單位，授權對象 = 公司 + 單位 + 個人帳號。</span></div>
+      <div id="folders"></div>
+      <button class="btn-dashed" onclick="alert('新增欄位資料夾（命名）→ 勾選欄位 → 授權')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>新增欄位資料夾</button>
+      <!-- B5：交換存證選配開關 -->
+      <div class="form-card" style="margin-top:22px"><div class="form-card-title">交換存證（選配）</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0">
+          <div style="font-size:13px;color:#1D1D1F">啟用交換存證
+            <div style="font-size:12px;color:#86868B;margin-top:4px">僅記錄交易事件（誰、何時、哪批授權），<strong>不儲存交換內容</strong>，且<strong>永不進入可搜尋資料庫</strong>。</div>
+          </div>
+          <label style="position:relative;display:inline-block;width:44px;height:24px"><input type="checkbox" id="evi-toggle" style="opacity:0;width:0;height:0"><span onclick="var c=document.getElementById('evi-toggle');c.checked=!c.checked;this.style.background=c.checked?'#1D7340':'#C7C7CC';this.firstElementChild.style.left=c.checked?'22px':'2px'" style="position:absolute;cursor:pointer;inset:0;background:#C7C7CC;border-radius:24px;transition:.15s"><span style="position:absolute;height:20px;width:20px;left:2px;top:2px;background:#fff;border-radius:50%;transition:.15s"></span></span></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 單價管理 -->
+    <div class="view fade-in" id="view-pricing">
+      <div class="page-header"><div class="page-title" data-i18n="m_pricing">單價管理</div><div class="page-sub">報價單建立 · 授權帳號查看 · 有效期</div></div>
+      <div class="section-title">有效期提醒</div>
+      <div class="expiry-card danger"><span style="font-size:18px">🔴</span><div class="expiry-info"><div class="expiry-id">Q-2026-018 · Recycled Polyester Mesh 220g</div><div class="expiry-detail">Brand-A · 開發部</div></div><span class="expiry-days danger">7 天內到期 (6/20)</span></div>
+      <div class="expiry-card warn"><span style="font-size:18px">🟡</span><div class="expiry-info"><div class="expiry-id">Q-2026-021 · TPU Laminating Film 0.15mm</div><div class="expiry-detail">Factory Group B · 採購部</div></div><span class="expiry-days warn">30 天內到期 (7/05)</span></div>
+      <div class="expiry-card ok"><span style="font-size:18px">🟢</span><div class="expiry-info"><div class="expiry-id">Q-2026-023 · PU Synthetic Leather 1.2mm</div><div class="expiry-detail">Brand-C · 材料部</div></div><span class="expiry-days ok">8/12 到期</span></div>
+      <div class="level-wrap" style="margin-top:20px">
+        <button class="level-btn active" onclick="setLevel(this)">Product</button>
+        <button class="level-btn" onclick="setLevel(this)">Product + Option</button>
+        <button class="level-btn" onclick="setLevel(this)">Product + Option + 備註</button>
+      </div>
+      <div class="form-card"><div class="form-card-title">新增報價單</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">報價材料 (Product)</label><select class="form-input form-select"><option>Recycled Polyester Mesh 220g</option><option>TPU Laminating Film 0.15mm</option><option>PU Synthetic Leather 1.2mm</option></select></div>
+          <div class="form-group"><label class="form-label">Option</label><select class="form-input form-select"><option>Black · 58"</option><option>White · 58"</option><option>Black · 44"</option></select></div>
+          <div class="form-group"><label class="form-label">報價單價 (USD / m)</label><input class="form-input" placeholder="例：2.00"></div>
+          <div class="form-group"><label class="form-label">有效期限</label><input class="form-input" type="date" value="2026-09-30"></div>
+          <div class="form-group form-full"><label class="form-label">授權帳號（公司 · 單位 · 帳號）</label><input class="form-input" placeholder="例：NexBrand · 採購部 · Rachel L."></div>
+        </div>
+        <div style="font-size:12px;color:#86868B;margin-top:10px">本期範圍：報價記錄交換；最終成交單價暫不記錄。</div>
+        <div class="form-actions"><button class="btn-primary">建立報價單</button></div>
+      </div>
+    </div>
+
+    <!-- B4：Mapping 驗收 -->
+    <div class="view fade-in" id="view-mapping">
+      <div class="page-header"><div class="page-title" data-i18n="m_mapping">Mapping 驗收</div><div class="page-sub">分批 mapping → 擁有者端測試核對 → 簽署啟用。未簽署批次不參與任何交換。</div></div>
+      <div class="info-box">分批進行（財務 → 關務 → 物性…），一次全量 mapping 錯誤率高。驗收簽署為啟用前強制步驟；簽署後資料正確性責任歸提供方（食品成分表原則）。</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:8px">
+        <thead><tr style="color:#86868B;text-align:left;border-bottom:0.5px solid #D2D2D7"><th style="padding:8px">批次</th><th>欄位範圍</th><th>狀態</th><th>交換</th><th></th></tr></thead>
+        <tbody>
+          <tr style="border-bottom:0.5px solid #E5E5EA"><td style="padding:10px 8px"><b>Batch 1 · 財務</b></td><td>單價 / 付款條件 / 幣別</td><td><span style="background:#E8F6EC;color:#1D7340;border-radius:8px;padding:2px 9px;font-size:12px">✓ 已簽署啟用</span></td><td style="color:#1D7340">參與交換</td><td><button class="btn-link">查看簽署</button></td></tr>
+          <tr style="border-bottom:0.5px solid #E5E5EA"><td style="padding:10px 8px"><b>Batch 2 · 關務</b></td><td>HS Code / 原產地 / 稅則</td><td><span style="background:#FFF8E7;color:#B26A00;border-radius:8px;padding:2px 9px;font-size:12px">待驗收</span></td><td style="color:#B26A00">不參與任何交換</td><td><button class="btn-blue-ghost" style="padding:4px 12px" onclick="alert('擁有者端測試核對 → 簽署啟用（demo）')">送驗收</button></td></tr>
+          <tr><td style="padding:10px 8px"><b>Batch 3 · 物性</b></td><td>成分 / 規格 / 認證欄位</td><td><span style="background:#F0F0F0;color:#86868B;border-radius:8px;padding:2px 9px;font-size:12px">mapping 中</span></td><td style="color:#86868B">不參與任何交換</td><td><button class="btn-link">編輯 mapping</button></td></tr>
+        </tbody>
+      </table>
+      <div class="warn-box" style="margin-top:18px"><span>🔒</span><span>未簽署啟用的 mapping 批次<strong>不上線、不參與任何交換</strong>。簽署＝資料正確性責任移轉給提供方。</span></div>
+    </div>
+
+    <!-- Boss BI -->
+    <div class="view fade-in" id="view-bi" style="max-width:1040px">
+      <div class="page-header"><div class="page-title" data-i18n="m_bi">經營儀表板</div><div class="page-sub">Formosa Materials Group · FV + FI 合併 · 決策參考</div></div>
+      <div class="bi-grid">
+        <div class="bi-card"><div class="bi-label">① 總營業額</div><div class="bi-val">$4.08M</div><div style="display:flex;gap:8px"><span class="bi-delta up">↑ 12% 同比</span><span class="bi-delta up">↑ 3% 環比</span></div><div class="bi-sub">FV $2.45M (60%) · FI $1.63M (40%)</div></div>
+        <div class="bi-card"><div class="bi-label">⑧ 報價成交率</div><div style="display:flex;align-items:center;gap:18px;margin-top:8px"><div class="win-ring"><span class="win-lbl">37.5%</span></div><div class="bi-sub">本季 24 張 · 成交 9 張 · 流失 15 張<br><span style="color:#F5A623">⚠ 低於目標 50%</span></div></div></div>
+        <div class="bi-card"><div class="bi-label">② 產品銷售佔比</div><div class="hbar">
+          <div class="hbar-row"><span class="hbar-label">Recycled Mesh (0001)</span><div class="hbar-track"><div class="hbar-fill" style="width:100%;background:#1D1D1F"></div></div><span class="hbar-val">31%</span></div>
+          <div class="hbar-row"><span class="hbar-label">PU Leather (0003)</span><div class="hbar-track"><div class="hbar-fill" style="width:71%;background:#86868B"></div></div><span class="hbar-val">22%</span></div>
+          <div class="hbar-row"><span class="hbar-label">TPU Film (0002)</span><div class="hbar-track"><div class="hbar-fill" style="width:58%;background:#C7C7CC"></div></div><span class="hbar-val">18%</span></div>
+          <div class="hbar-row"><span class="hbar-label">Laminated Mesh (0101)</span><div class="hbar-track"><div class="hbar-fill" style="width:45%;background:#D2D2D7"></div></div><span class="hbar-val">14%</span></div>
+          <div class="hbar-row"><span class="hbar-label">其他</span><div class="hbar-track"><div class="hbar-fill" style="width:48%;background:#F5F5F7"></div></div><span class="hbar-val">15%</span></div></div></div>
+        <div class="bi-card"><div class="bi-label">③ 各公司營收佔比</div><div class="hbar">
+          <div class="hbar-row"><span class="hbar-label">Formosa Vietnam</span><div class="hbar-track"><div class="hbar-fill" style="width:100%;background:#1D1D1F"></div></div><span class="hbar-val">$2.45M·60%</span></div>
+          <div class="hbar-row"><span class="hbar-label">Formosa Indonesia</span><div class="hbar-track"><div class="hbar-fill" style="width:67%;background:#86868B"></div></div><span class="hbar-val">$1.63M·40%</span></div></div></div>
+        <div class="bi-card"><div class="bi-label">⑦ 客戶集中度（前三大）</div><div class="hbar">
+          <div class="hbar-row"><span class="hbar-label">Factory Group A</span><div class="hbar-track"><div class="hbar-fill" style="width:100%;background:#1D1D1F"></div></div><span class="hbar-val">35%</span></div>
+          <div class="hbar-row"><span class="hbar-label">Factory Group B</span><div class="hbar-track"><div class="hbar-fill" style="width:60%;background:#86868B"></div></div><span class="hbar-val">21%</span></div>
+          <div class="hbar-row"><span class="hbar-label">Factory Group C</span><div class="hbar-track"><div class="hbar-fill" style="width:34%;background:#C7C7CC"></div></div><span class="hbar-val">12%</span></div></div>
+          <div class="bi-sub" style="color:#F5A623">⚠ 前三大 68% — 集中度偏高</div></div>
+        <div class="bi-card full"><div class="bi-label">⑥ 應收帳款帳齡</div><div class="aging-grid">
+          <div class="aging ok"><div class="aging-lbl">0–30 天</div><div class="aging-val">$310K</div></div>
+          <div class="aging ok"><div class="aging-lbl">31–60 天</div><div class="aging-val">$260K</div></div>
+          <div class="aging warn"><div class="aging-lbl">61–90 天</div><div class="aging-val">$125K</div></div>
+          <div class="aging danger"><div class="aging-lbl">&gt;90 天</div><div class="aging-val">$42K</div></div></div></div>
+        <div class="bi-card full"><div class="bi-label">⑤ 現金流明細（含入帳預計日）</div>
+          <table class="cf-table"><thead><tr><th>客戶</th><th>金額</th><th>條件</th><th>預計入帳</th></tr></thead><tbody>
+            <tr><td>Factory Group A (VN)</td><td class="cf-in">+$380K</td><td><span class="chip">Net 60</span></td><td><span class="chip">2026-07-15</span></td></tr>
+            <tr><td>Factory Group B (ID)</td><td class="cf-in">+$215K</td><td><span class="chip">Net 45</span></td><td><span class="chip">2026-06-28</span></td></tr>
+            <tr><td>Factory Group C (VN)</td><td class="cf-in">+$142K</td><td><span class="chip">Net 90</span></td><td><span class="chip">2026-08-20</span></td></tr>
+            <tr><td style="font-weight:600">本季應收總計</td><td style="font-weight:700;color:#1D7340">+$737K</td><td></td><td></td></tr>
+          </tbody></table></div>
+      </div>
+    </div>
+
+    <!-- Requests (received) -->
+    <div class="view fade-in" id="view-requests">
+      <div class="page-header"><div class="page-title">Requests</div><div class="page-sub">Brand / Factory 發來的即時對話</div></div>
+      <div class="req-layout">
+        <div class="req-list" id="req-list"></div>
+        <div class="req-thread">
+          <div class="req-hd" id="req-hd"></div>
+          <div class="req-msgs" id="req-msgs"></div>
+          <div class="req-compose"><input id="req-input" placeholder="Reply…" onkeydown="if(event.key==='Enter')sendMsg()"><button class="req-send" onclick="sendMsg()">Send</button></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- C2：責任 footer -->
+<div style="text-align:center;font-size:11px;color:#86868B;padding:16px 40px 40px;border-top:0.5px solid #E5E5EA">
+  資料提供者對資料正確性負全責；SmartPN 負責交換。 · Data providers are solely responsible for accuracy; SmartPN facilitates exchange.
+</div>
+
+<script>
+/* ─── SVG textures ─── */
+const TEX_MAP={
+  textile:{bg:'#f0ede8',tile:8,cell:"<path d='M0 0H8M0 0V8' stroke='#a8a09a' stroke-width='0.6'/><circle cx='4' cy='4' r='0.7' fill='#a8a09a'/>"},
+  synleather:{bg:'#3d2e24',tile:16,cell:"<path d='M8 1L15 8L8 15L1 8Z' fill='none' stroke='#5a4035' stroke-width='1.2'/>"},
+  leather:{bg:'#8b6340',tile:20,cell:"<circle cx='5' cy='6' r='1.6' fill='#7a5534'/><circle cx='13' cy='4' r='1.1' fill='#9b7050'/><circle cx='9' cy='13' r='1.8' fill='#7a5534'/><circle cx='16' cy='15' r='1.2' fill='#9b7050'/><circle cx='3' cy='16' r='1' fill='#9b7050'/>"},
+  secondary:{bg:'#2c3e35',tile:12,cell:"<path d='M0 0L12 12M12 0L0 12' stroke='#3d5248' stroke-width='1.1'/>"},
+  jacquard:{bg:'#1a3a5c',tile:10,cell:"<path d='M-2 8L8 -2M3 13L13 3' stroke='#243f6b' stroke-width='2'/>"},
+  eva:{bg:'#f5f0e8',tile:20,cell:"<path d='M10 2 L17 6 L17 14 L10 18 L3 14 L3 6 Z' fill='none' stroke='#d4c9b8' stroke-width='1'/>"},
+  microfiber:{bg:'#6b4c3b',tile:6,cell:"<circle cx='3' cy='3' r='0.9' fill='#7d5a48'/><circle cx='0' cy='0' r='0.9' fill='#7d5a48'/><circle cx='6' cy='6' r='0.9' fill='#7d5a48'/>"},
+};
+function texSVG(key,size){
+  if(key==='film'){return `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 300 300'><defs><linearGradient id='fg' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#e8eef5'/><stop offset='0.5' stop-color='#f5f8fa'/><stop offset='1' stop-color='#d8e4ee'/></linearGradient><pattern id='fp' width='30' height='30' patternUnits='userSpaceOnUse'><path d='M0 0H30M0 0V30' stroke='#c8d8e8' stroke-width='0.7' fill='none'/></pattern></defs><rect width='300' height='300' fill='url(#fg)'/><rect width='300' height='300' fill='url(#fp)'/></svg>`;}
+  const t=TEX_MAP[key]||TEX_MAP.textile;
+  return `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 300 300'><defs><pattern id='p' width='${t.tile}' height='${t.tile}' patternUnits='userSpaceOnUse'><rect width='${t.tile}' height='${t.tile}' fill='${t.bg}'/>${t.cell}</pattern></defs><rect width='300' height='300' fill='${t.bg}'/><rect width='300' height='300' fill='url(#p)'/></svg>`;
+}
+function texURI(key,size){return 'data:image/svg+xml,'+encodeURIComponent(texSVG(key,size));}
+function fillTextures(){document.querySelectorAll('img[data-pat]').forEach(img=>{img.src=texURI(img.dataset.pat,parseInt(img.dataset.size)||120);});}
+
+/* ─── nav ─── */
+function showView(id,el){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item,.nav-sub').forEach(b=>b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='requests') renderRequests();
+}
+function switchTab(btn,panel){
+  btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#view-company .tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById(panel).classList.add('active');
+}
+function setLevel(el){el.parentElement.querySelectorAll('.level-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
+function setWho(mode,el){el.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));el.classList.add('on');document.getElementById('who-company').style.display=mode==='company'?'':'none';document.getElementById('who-fuzzy').style.display=mode==='fuzzy'?'':'none';}
+
+/* ─── SmartPN code generator (exclude 0/1/I/O/E) ─── */
+const SPN_CHARS='23456789ABCDFGHJKLMNPQRSTUVWXYZ'; // no 0,1,I,O,E
+let _spnSeed=7;
+function regenSpn(){ let s=''; for(let i=0;i<4;i++){ _spnSeed=(_spnSeed*33+7)%SPN_CHARS.length; s+=SPN_CHARS[_spnSeed]; } document.getElementById('spn-code').value='SPA-MAT-'+s; }
+
+/* ─── options ─── */
+function syncOptionPattern(){ const pat=document.getElementById('raw-cat').value; document.getElementById('option-cards').dataset.pat=pat; document.querySelectorAll('#option-cards img[data-pat]').forEach(i=>{i.dataset.pat=pat;}); fillTextures(); }
+function optionCard(pat,vals){
+  vals=vals||{c:'',w:'',g:'',p:'',l:''};
+  const d=document.createElement('div'); d.className='option-card';
+  d.innerHTML=`<img class="option-swatch" data-pat="${pat}" data-size="80" alt="">
+    <div class="option-fields">
+      <div class="form-group"><label class="form-label">顏色 Color</label><input class="form-input" value="${vals.c}" placeholder="Black"></div>
+      <div class="form-group"><label class="form-label">幅寬 Width</label><input class="form-input" value="${vals.w}" placeholder='58&quot;'></div>
+      <div class="form-group"><label class="form-label">重量 Weight</label><input class="form-input" value="${vals.g}" placeholder="220 g/m²"></div>
+      <div class="form-group"><label class="form-label">單價 Price</label><input class="form-input" value="${vals.p}" placeholder="2.00"></div>
+      <div class="form-group"><label class="form-label">LT (days)</label><input class="form-input" value="${vals.l}" placeholder="30"></div>
+    </div>
+    <button class="option-del" onclick="this.closest('.option-card').remove()">×</button>`;
+  return d;
+}
+function addOption(){ const wrap=document.getElementById('option-cards'); wrap.appendChild(optionCard(wrap.dataset.pat||'textile')); fillTextures(); }
+
+/* ─── raw material list ─── */
+const RAW=[
+  {n:'Recycled Polyester Mesh 220g',c:'SPA-MAT-7K9X · FV · 3 Options · DPP',pat:'textile',perm:'OPEN'},
+  {n:'TPU Laminating Film 0.15mm',c:'SPA-MAT-VRT4 · FI · 1 Option · DPP',pat:'film',perm:'OPEN'},
+  {n:'PU Synthetic Leather 1.2mm',c:'SPA-MAT-9HFK · FV · 2 Options',pat:'synleather',perm:'OPEN'},
+  {n:'Full Grain Cow Leather',c:'SPA-MAT-4XBV · AP · 2 Options · DPP',pat:'leather',perm:'OPEN'},
+  {n:'Jacquard Knit Upper 380g',c:'SPA-MAT-K7HR · AP · 2 Options · DPP',pat:'jacquard',perm:'OPEN'},
+  {n:'Ripstop Nylon 70D 🔒',c:'SPA-MAT-RN7D · FV · 新建中 · PRIVATE',pat:'textile',perm:''},
+];
+function renderRaw(){
+  document.getElementById('raw-list').innerHTML=RAW.map(r=>`<div class="mat-row"><div class="mat-row-img"><img data-pat="${r.pat}" data-size="80" alt=""></div><div style="flex:1"><div class="mat-row-name">${r.n}</div><div class="mat-row-code">${r.c}</div></div>${r.perm?`<span class="perm-open">${r.perm}</span>`:''}<span class="nav-chev">›</span></div>`).join('');
+}
+
+/* ─── permission folders ─── */
+const FOLDERS=[
+  {name:'財務資料夾',icon:'💰',fields:[['Price / kg','SKU',1],['MOQ','SKU',1],['Bank account','Company',0]],grants:[['NexBrand Co.','採購部','Rachel L.']]},
+  {name:'關務資料夾',icon:'📦',fields:[['HS Code','SPU',1],['Country of Origin','SPU',1],['EORI','Company',1],['REACH Status','SPU',0]],grants:[['NexBrand Co.','關務部','James Liu'],['Apex Factory','Compliance','K. Matsuda']]},
+  {name:'DPP 資料夾',icon:'🌱',fields:[['GRS Content','SPU',1],['Bio content','SPU',1],['Compliance docs','SPU',1]],grants:[['GlobalBrand R&D','Material Eng.','T. Kim']]},
+  {name:'材料資料夾',icon:'🧵',fields:[['Tensile Strength','SKU',1],['Density','SKU',1],['Composition','SPU',1]],grants:[['NexBrand Co.','R&D','James Liu']]},
+];
+function renderFolders(){
+  document.getElementById('folders').innerHTML=FOLDERS.map((f,i)=>`<div class="folder ${i===0?'open':''}">
+    <div class="folder-hd" onclick="this.parentElement.classList.toggle('open')"><div class="folder-ico">${f.icon}</div><div class="folder-name">${f.name} <span class="priv-tag">🔒 PRIVATE</span></div><span class="folder-count">${f.fields.filter(x=>x[2]).length} 欄位</span><span class="folder-chev">›</span></div>
+    <div class="folder-body">
+      <div style="font-size:12px;color:#86868B;margin-bottom:8px">勾選屬於此資料夾的欄位：</div>
+      ${f.fields.map(x=>`<div class="field-check" onclick="this.querySelector('.cbox').classList.toggle('on');this.querySelector('.cbox').textContent=this.querySelector('.cbox').classList.contains('on')?'✓':''"><div class="cbox ${x[2]?'on':''}">${x[2]?'✓':''}</div><span class="field-label">${x[0]}</span><span class="field-type">${x[1]}</span></div>`).join('')}
+      <div style="font-size:13px;font-weight:600;margin:16px 0 10px">已授權帳號（公司 · 單位 · 帳號）</div>
+      <table class="gtable"><thead><tr><th>公司</th><th>單位</th><th>帳號</th><th>狀態</th><th></th></tr></thead><tbody>
+      ${f.grants.map(g=>`<tr><td>${g[0]}</td><td style="color:#86868B">${g[1]}</td><td>${g[2]}</td><td><span class="status-ok">Active</span></td><td><button class="btn-link-red">Revoke</button></td></tr>`).join('')}
+      </tbody></table>
+      <button class="btn-dashed" style="margin-top:8px" onclick="alert('授權新帳號（公司 · 單位 · 帳號）')">+ 授權新帳號</button>
+    </div></div>`).join('');
+}
+
+/* ─── requests (received) ─── */
+const THREADS=[
+  {id:'t1',from:'BA',name:'Brand-A · 開發部',subject:'Recycled Polyester Mesh 220g',unread:true,msgs:[
+    {who:'them',t:'Hi — can you confirm GRS lead time for 5,000m black 58"?',time:'09:20'},
+    {who:'me',t:'30 days ex-works HCMC. GRS scope certificate attached.',time:'09:24',att:'GRS-Scope-Cert.pdf'},
+    {who:'them',t:'Great, please also share the DPP folder.',time:'09:31'},
+  ]},
+  {id:'t2',from:'BB',name:'Brand-B · 材料部',subject:'Full Grain Cow Leather — DPP docs',unread:true,msgs:[
+    {who:'them',t:'We accepted your invite. Please send the chrome-free tannage report.',time:'Yesterday'},
+  ]},
+  {id:'t3',from:'FB',name:'Factory Group B · 採購部',subject:'TPU Film sample',unread:false,msgs:[
+    {who:'them',t:'Received the 0.15mm sample, thanks.',time:'Jun 11'},
+    {who:'me',t:'Glad it arrived. Quotation Q-2026-021 is valid until Jul 5.',time:'Jun 11'},
+  ]},
+];
+let activeThread='t1';
+function renderRequests(){
+  document.getElementById('req-list').innerHTML=THREADS.map(t=>{const last=t.msgs[t.msgs.length-1];
+    return `<div class="req-item ${t.id===activeThread?'active':''}" onclick="openThread('${t.id}')"><div class="req-ava">${t.from}</div><div style="flex:1;min-width:0"><div class="req-name">${t.name} ${t.unread?'<span class="req-dot"></span>':''}</div><div class="req-snippet">${t.subject}</div><div class="req-snippet">${last.t}</div></div></div>`;}).join('');
+  const t=THREADS.find(x=>x.id===activeThread)||THREADS[0]; t.unread=false;
+  document.getElementById('req-hd').innerHTML=`<div class="req-ava" style="width:30px;height:30px">${t.from}</div> ${t.name} · <span style="color:#86868B;font-weight:400">${t.subject}</span>`;
+  const box=document.getElementById('req-msgs'); box.innerHTML=t.msgs.map(msgHtml).join(''); box.scrollTop=box.scrollHeight;
+}
+function openThread(id){activeThread=id;renderRequests();}
+function msgHtml(m){return `<div class="msg ${m.who}">${m.t}${m.att?`<span class="msg-attach">📎 ${m.att}</span>`:''}<span class="msg-time">${m.time}</span></div>`;}
+function sendMsg(){const inp=document.getElementById('req-input');const v=inp.value.trim();if(!v)return;const t=THREADS.find(x=>x.id===activeThread);t.msgs.push({who:'me',t:v,time:'Now'});inp.value='';const box=document.getElementById('req-msgs');box.innerHTML=t.msgs.map(msgHtml).join('');box.scrollTop=box.scrollHeight;}
+
+/* ─── i18n ─── */
+let LANG='en';
+const STR={
+  s_company:{en:'Company',zh:'公司管理'},s_smartpn:{en:'SmartPN',zh:'SmartPN'},s_inbox:{en:'Inbox',zh:'收件匣'},
+  m_company:{en:'Company Setup',zh:'公司建立'},m_smartpn:{en:'Create SmartPN',zh:'SmartPN 建立'},
+  m_raw:{en:'Raw Material',zh:'原物料'},m_secondary:{en:'Secondary',zh:'二次加工'},m_permission:{en:'Permissions',zh:'權限管理'},
+  m_pricing:{en:'Pricing',zh:'單價管理'},m_mapping:{en:'Mapping Sign-off',zh:'Mapping 驗收'},m_bi:{en:'Business Dashboard',zh:'經營儀表板'},m_requests:{en:'Requests',zh:'對話'},
+  t_basic:{en:'Basic',zh:'基本資料'},t_cert:{en:'Certifications',zh:'認證'},t_fin:{en:'Financial',zh:'財務資料夾'},t_customs:{en:'Customs',zh:'關務資料夾'},t_sub:{en:'Subsidiaries',zh:'子公司'},
+  save:{en:'Save',zh:'儲存'},cancel:{en:'Cancel',zh:'取消'},
+};
+function T(k){return (STR[k]||{})[LANG]||k;}
+function toggleLang(){LANG=LANG==='en'?'zh':'en';document.getElementById('lang-toggle').textContent=LANG==='en'?'中文':'EN';document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.dataset.i18n;if(STR[k])el.textContent=T(k);});}
+
+/* ─── init ─── */
+addOption(); addOption();
+document.getElementById('option-cards').children[0] && (function(){
+  const w=document.getElementById('option-cards');
+  // seed first two options with sample values
+  const f=w.children[0].querySelectorAll('input'); if(f.length){f[0].value='Black';f[1].value='58"';f[2].value='70 g/m²';f[3].value='2.75';f[4].value='30';}
+  const g=w.children[1]&&w.children[1].querySelectorAll('input'); if(g&&g.length){g[0].value='Navy';g[1].value='44"';g[2].value='70 g/m²';g[3].value='2.70';g[4].value='28';}
+})();
+renderRaw();
+renderFolders();
+fillTextures();
+</script>
+
+<!-- ═══════════ v3 COUNCIL OVERLAY (疊加，不動 v1 既有函式) ═══════════ -->
+<script>
+/* inline MOCK_WORLD — identical across v3 brand & supplier */
+const MOCK_WORLD = (function () {
+  const SUP = [
+    { id:'FV', name:'Formosa Vietnam Co.', mode:'api', country:'Vietnam', certs:[{name:'OEKO-TEX Standard 100',by:'OEKO-TEX',exp:'2027-03-31'},{name:'GRS',by:'Control Union',exp:'2026-11-30'}] },
+    { id:'AP', name:'Apex Textile Co.', mode:'api', country:'Taiwan', certs:[{name:'ISO 9001',by:'BSI',exp:'2027-06-30'},{name:'OEKO-TEX Standard 100',by:'OEKO-TEX',exp:'2026-09-30'}] },
+    { id:'SS', name:'Sunrise Synthetics', mode:'smartpn', country:'Vietnam', certs:[{name:'ISO 9001',by:'Intertek',exp:'2026-10-31'}] },
+  ];
+  const NAMES = { FV:['Recycled Poly Mesh 220g','PU Synthetic Leather 1.2mm','Ripstop Nylon 70D','GRS Knit Upper 380g','TPU Mesh Laminate','Recycled Twill 180g','Eco Sandwich Mesh','Bonded Tricot 150g'],
+    AP:['Full Grain Cow Leather','Microfiber Suede 1.0mm','Jacquard Knit 380g','Nubuck Leather 1.4mm','Woven Label Tape','Engineered Mesh 300g','PU Coated Canvas','Ballistic Nylon 1680D'],
+    SS:['Commodity Mesh 200g','Poly Oxford 300D','Basic Tricot 120g','PVC Film 0.20mm','Nylon Taffeta 210T','Cotton Canvas 12oz','Foam Sheet EVA 3mm','Non-woven Lining'] };
+  const CAT=['Textile','Synthetic Leather','Leather','Film','Mesh','Trim']; const pick=(a,i)=>a[i%a.length]; const materials=[];
+  SUP.forEach((s,si)=>{ NAMES[s.id].forEach((nm,mi)=>{ const gi=si*10+mi, spn='SPA-'+s.id+'-'+(1000+gi), pe=3.20+(gi%9)*0.55;
+    const src=(a)=>({system:s.mode==='api'?(s.name+' ERP'):'SmartPN',authority:a,sync:(5+gi%40)+' min ago',cached:s.mode!=='api'});
+    const fields=[{k:'Category',v:pick(CAT,gi),perm:'public',src:src('Supplier')},{k:'Weight',v:(120+(gi%12)*20)+' g/m²',perm:'public',src:src('Supplier')},{k:'Width',v:(140+(gi%3)*8)+' cm',perm:'public',src:src('Supplier')},{k:'GRS Content',v:(60+(gi%4)*10)+'%',perm:(gi%5===0?'granted':'public'),grantedTo:['Brand-A · R&D'],src:src('Supplier')},{k:'Compliance docs',v:'REACH / SVHC declaration',perm:(gi%4===0?'private':'public'),src:src('Supplier')},{k:'Financial terms',v:'Net 60 · FOB HCMC',perm:'private',src:src('Supplier')}];
+    const quotes=[{customer:'Brand-A',tier:'Standard',price:+(pe).toFixed(2),exp:'2026-08-31'},{customer:'Brand-B',tier:'Volume 30k+',price:+(pe-0.35).toFixed(2),exp:'2026-09-15'}];
+    const history=[{date:'2026-06-18',field:'GRS Content',old:(50+(gi%4)*10)+'%',new:(60+(gi%4)*10)+'%',by:'Supplier'},{date:'2026-05-30',field:'Weight',old:(110+(gi%12)*20)+' g/m²',new:(120+(gi%12)*20)+' g/m²',by:'Supplier'},{date:'2026-05-12',field:'Width',old:(138+(gi%3)*8)+' cm',new:(140+(gi%3)*8)+' cm',by:'Supplier'}];
+    materials.push({id:spn,spn,name:nm,sup:s.id,cat:pick(CAT,gi),mode:s.mode,dppComplete:10+(gi%5),dppTotal:14,fields,quotes,history,reviews:[],threads:[]}); });});
+  const byId=id=>materials.find(m=>m.id===id); const gm=byId('SPA-FV-1003'); if(gm)gm.grantedOnly=true;
+  const accounts=[{id:'A',name:'Brand-A',visibleIds:['SPA-FV-1000','SPA-FV-1002','SPA-FV-1003','SPA-AP-1010','SPA-SS-1020']},{id:'B',name:'Brand-B',visibleIds:['SPA-FV-1000','SPA-AP-1010','SPA-SS-1020']}];
+  const mappingBatches=[{name:'財務 Financial',fields:'單價 / 付款條件 / 幣別',status:'signed',signedBy:'T. Kim',signedAt:'2026-06-10'},{name:'關務 Customs',fields:'HS Code / 原產地 / 稅則',status:'pending',signedBy:null,signedAt:null},{name:'物性 Physical',fields:'成分 / 規格 / 認證欄位',status:'unsubmitted',signedBy:null,signedAt:null}];
+  const evidenceRecords=[{ts:'2026-06-19 09:12',event:'exchange.authorized',party:'Brand-A · R&D',batch:'財務 Financial',ref:'EVX-4471'},{ts:'2026-06-18 14:03',event:'exchange.synced',party:'Factory Group B',batch:'關務 Customs',ref:'EVX-4468'},{ts:'2026-06-15 11:47',event:'grant.revoked',party:'Brand-C · 材料部',batch:'物性 Physical',ref:'EVX-4455'}];
+  function visibleTo(acc){ const set=new Set(acc.visibleIds); return materials.filter(m=>set.has(m.id)); }
+  return { suppliers:SUP, materials, accounts, mappingBatches, evidenceRecords, visibleTo };
+})();
+let PREVIEW = MOCK_WORLD.accounts[0];
+
+/* ─ 每欄位權限三態面板 (req 3) — 疊加一個新頁，不動 v1 renderRaw/renderFolders ─ */
+(function addPermPanel(){
+  const main=document.querySelector('.main')||document.body;
+  const view=document.createElement('div'); view.className='view'; view.id='view-permfields'; view.style.display='none';
+  view.innerHTML=`<div style="font-size:22px;font-weight:600;margin-bottom:4px">Field Permissions</div>
+    <div style="font-size:13px;color:#86868B;margin-bottom:16px">每個欄位設 公開 / 私密 / 授權（授權＝公司·單位·帳號）。私密/授權欄位不進搜尋索引。</div>
+    <div id="pf-body"></div>`;
+  main.appendChild(view);
+  // nav entry
+  const navBtn=document.createElement('button'); navBtn.className='nav-sub'; navBtn.innerHTML='<span class="nav-sub-dot"></span><span>欄位權限三態</span>';
+  navBtn.onclick=function(){ document.querySelectorAll('.view').forEach(v=>v.style.display='none'); view.style.display=''; renderPermFields(); };
+  const anchor=[...document.querySelectorAll('.nav-sub')].find(b=>/單價|pricing/i.test(b.textContent)) || document.querySelector('.nav-sub');
+  if(anchor&&anchor.parentElement) anchor.parentElement.insertBefore(navBtn, anchor.nextSibling);
+  renderPermFields();
+})();
+function setPF(mi,fk,perm){ const m=MOCK_WORLD.materials.filter(x=>x.sup==='FV')[mi]; const f=m.fields.find(x=>x.k===fk); if(f){f.perm=perm; renderPermFields();} }
+function renderPermFields(){ const body=document.getElementById('pf-body'); if(!body)return;
+  const MY=MOCK_WORLD.materials.filter(m=>m.sup==='FV');
+  body.innerHTML=MY.map((m,mi)=>`<div style="background:#fff;border:0.5px solid #D2D2D7;border-radius:12px;padding:14px 16px;margin-bottom:12px">
+    <div style="font-weight:600;margin-bottom:6px">${m.name} <span style="color:#86868B;font-size:12px">· ${m.spn}</span></div>
+    ${m.fields.map(f=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid #EDEDED;font-size:13px">
+      <span>${f.k}</span>
+      <span style="display:inline-flex;border:0.5px solid #D2D2D7;border-radius:8px;overflow:hidden">
+        <button onclick="setPF(${mi},'${f.k}','public')" style="font-size:11px;padding:4px 10px;border:none;cursor:pointer;font-family:inherit;background:${f.perm==='public'?'#1D7340':'#fff'};color:${f.perm==='public'?'#fff':'#86868B'}">公開</button>
+        <button onclick="setPF(${mi},'${f.k}','private')" style="font-size:11px;padding:4px 10px;border:none;cursor:pointer;font-family:inherit;background:${f.perm==='private'?'#B26A00':'#fff'};color:${f.perm==='private'?'#fff':'#86868B'}">私密</button>
+        <button onclick="setPF(${mi},'${f.k}','granted')" style="font-size:11px;padding:4px 10px;border:none;cursor:pointer;font-family:inherit;background:${f.perm==='granted'?'#0071E3':'#fff'};color:${f.perm==='granted'?'#fff':'#86868B'}">授權</button>
+      </span></div>`).join('')}</div>`).join('');
+}
+
+/* ─ Boss 視角 (只讀) — #boss 直達 BI，隱藏編輯導覽 ─ */
+function applyBossMode(){ if(location.hash!=='#boss') return;
+  const biNav=[...document.querySelectorAll('.nav-item,.nav-sub')].find(b=>/bi|經營|dashboard/i.test(b.textContent+(b.getAttribute('onclick')||'')));
+  if(typeof showView==='function' && biNav) showView('bi', biNav);
+  // read-only banner + 隱藏其他導覽
+  if(!document.getElementById('bossBanner')){ const b=document.createElement('div'); b.id='bossBanner';
+    b.style.cssText='background:#1D1D1F;color:#fff;font-size:12px;padding:8px 16px;text-align:center';
+    b.textContent=(LANG==='zh'?'Boss 視角（只讀）· gross-margin 卡已依議會定案移除':'Boss view (read-only) · gross-margin card removed per council');
+    document.body.insertBefore(b, document.body.firstChild); }
+  document.querySelectorAll('.nav-item,.nav-sub').forEach(x=>{ if(x!==biNav) x.style.opacity='0.4'; x.style.pointerEvents=x===biNav?'':'none'; });
+}
+window.addEventListener('hashchange', applyBossMode);
+// 在 v1 預設視圖初始化之後再套用 Boss 只讀（多次重申，避免與 v1 init 競態）
+window.addEventListener('load', ()=>{ [60,200,400].forEach(d=>setTimeout(applyBossMode,d)); });
+[60,200,400].forEach(d=>setTimeout(applyBossMode,d));
+
+/* ─ 引導腳本 guided demo ─ */
+const GUIDE=[
+  {zh:'① 供應商端：新建料號（含二次加工順序編碼）。',en:'① Supplier: create a part number (incl. secondary-process sequential coding).'},
+  {zh:'② 交給 SmartPN：三軌之一（自接 API / 代接 / 作主系統）同步資料。',en:'② Hand to SmartPN: sync via one of three tracks.'},
+  {zh:'③ Mapping 分批驗收簽署：未簽署批次不流通。',en:'③ Mapping batch sign-off: unsigned batches do not flow.'},
+  {zh:'④ 權限授權給品牌帳號 A：私密欄位選擇性開放。',en:'④ Grant to Brand account A: selectively open private fields.'},
+  {zh:'⑤ 品牌端搜尋到 → 報價單 → 交換（產生交換存證記錄）。',en:'⑤ Brand finds it → quote → exchange (evidence record generated).'},
+];
+let _gi=0; function startGuide(){ _gi=0; showGuide(); }
+function showGuide(){ let o=document.getElementById('guideOv'); if(!o){ o=document.createElement('div'); o.id='guideOv';
+  o.style.cssText='position:fixed;right:20px;bottom:72px;z-index:9999;max-width:340px;background:#1D1D1F;color:#fff;border-radius:14px;padding:16px 18px;box-shadow:0 10px 40px rgba(0,0,0,.3);font-size:13px;line-height:1.6'; document.body.appendChild(o); }
+  const g=GUIDE[_gi]; o.innerHTML=`<div style="font-weight:600;margin-bottom:6px">${LANG==='zh'?'演示流程':'Guided demo'} · ${_gi+1}/${GUIDE.length}</div><div>${LANG==='zh'?g.zh:g.en}</div>
+    <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end"><button onclick="endGuide()" style="font-size:12px;border:none;background:rgba(255,255,255,.15);color:#fff;border-radius:7px;padding:5px 12px;cursor:pointer">${LANG==='zh'?'跳過':'Skip'}</button>
+    <button onclick="nextGuide()" style="font-size:12px;border:none;background:#0071E3;color:#fff;border-radius:7px;padding:5px 12px;cursor:pointer">${_gi<GUIDE.length-1?(LANG==='zh'?'下一步':'Next'):(LANG==='zh'?'完成':'Done')}</button></div>`; }
+function nextGuide(){ if(_gi<GUIDE.length-1){ _gi++; showGuide(); } else endGuide(); }
+function endGuide(){ document.getElementById('guideOv')?.remove(); }
+(function guideBtn(){ const b=document.createElement('button'); b.id='guideBtn';
+  b.style.cssText='position:fixed;right:20px;bottom:20px;z-index:9998;background:#1D7340;color:#fff;border:none;border-radius:22px;padding:11px 18px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.2);font-family:inherit';
+  b.textContent='▶ 演示流程 / Guided'; b.onclick=startGuide; document.body.appendChild(b); })();
+
+/* ─ 測試鉤子 + V1_PARITY ─ */
+window.MOCK_WORLD = MOCK_WORLD;
+window.setAccount = (id)=>{ PREVIEW=MOCK_WORLD.accounts.find(a=>a.id===id)||PREVIEW; };
+window.getVisibleMaterials = ()=>MOCK_WORLD.visibleTo(PREVIEW);
+window.setLang = (lg)=>{ if(lg && ((lg==='zh')!==(LANG==='zh'))) toggleLang(); };
+window.V1_PARITY = ['T','addOption','fillTextures','msgHtml','openThread','optionCard','regenSpn','renderFolders','renderRaw','renderRequests','sendMsg','setLevel','setWho','showView','switchTab','syncOptionPattern','texSVG','texURI','toggleLang'];
+</script>
+</body>
+</html>

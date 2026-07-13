@@ -4,7 +4,9 @@ Last updated: 2026-07-13
 
 ## 線別狀態（2026-07-13）
 - **IE 線：PAUSED**（第三批 Task F–O 全綠已 push，等 ME129 按更新＋Jim 於 /admin/recalc-cutting 派發重算）。
-- **SmartPN Atlas SaaS 線：ACTIVE**（議會兩輪定案；Demo v2 已落地 = docs/preview/SMARTPN_DEMO_V2.html + SMARTPN_DEMO_SUPPLIER_V2.html，見 43 號檔）。
+- **SmartPN Atlas SaaS 線：ACTIVE**（議會兩輪定案；**Demo v3 已落地**＝v1 全功能+議會八項+Boss視角+引導腳本，
+  `docs/preview/SMARTPN_DEMO_V3.html` + `SMARTPN_DEMO_SUPPLIER_V3.html`，INDEX 主入口；v2 入口移除檔案留，v1 留對照。見 43 號檔）。
+  **改版鐵則**（27_WORKING_RULES）：改版一律疊加不重寫，驗收必含功能迴歸（V1_PARITY 缺一即 FAIL）。
 
 ---
 
