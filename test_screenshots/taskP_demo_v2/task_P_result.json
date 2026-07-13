@@ -1,0 +1,46 @@
+{
+  "brand": {
+    "hooks": true,
+    "total": 24,
+    "A": [
+      "SPA-FV-1000",
+      "SPA-FV-1002",
+      "SPA-FV-1003",
+      "SPA-AP-1010",
+      "SPA-SS-1020"
+    ],
+    "B": [
+      "SPA-FV-1000",
+      "SPA-AP-1010",
+      "SPA-SS-1020"
+    ],
+    "privateNotInB": true,
+    "violations": {
+      "smartpnVerified": false,
+      "grossMargin": false,
+      "whoViewed": false
+    }
+  },
+  "supplier": {
+    "hooks": true,
+    "total": 24,
+    "sample3": [
+      "Recycled Poly Mesh 220g",
+      "Full Grain Cow Leather",
+      "Commodity Mesh 200g"
+    ],
+    "A": 5,
+    "B": 3,
+    "violations": {
+      "smartpnVerified": false,
+      "grossMargin": false,
+      "whoViewed": false
+    }
+  },
+  "errors": [],
+  "consistency": {
+    "same_total": true,
+    "same_AB": true
+  },
+  "ALL_PASS": true
+}

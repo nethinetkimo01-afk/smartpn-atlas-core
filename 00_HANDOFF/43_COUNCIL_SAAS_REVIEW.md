@@ -78,3 +78,17 @@ API 可行性驗證（Jim 自留）、品牌端 KPI dashboard mock、工廠視�
 
 ## Demo 已知違規（第二步修正）
 SmartPN Verified 字樣、Boss BI 毛利率卡、「誰看過我的材料」頁。
+
+## Demo v2 已落地（2026-07-13, Task P）
+議會定案落地版：`docs/preview/SMARTPN_DEMO_V2.html`（品牌端）＋`SMARTPN_DEMO_SUPPLIER_V2.html`（供應商端），
+舊 v1 檔保留對照，INDEX.html 加 v2 入口（標「議會定案版」）。兩檔共用同一份 `MOCK_WORLD`（24 材料，deterministic）。
+- 八項介面需求全落地：①欄位級來源標示（Source/Authority/Sync/Cached，點擊展開）②FSM「N results visible to you」+
+  帳號 A/B 切換（A 見 5 / B 見 3，選擇性開放）③供應商端每欄位權限三態（公開/私密/授權·公司單位帳號）
+  ④Mapping 分批驗收（財務已簽/關務待驗/物性未送；未簽=不流通鎖；簽署頁明示 D4 責任移轉）
+  ⑤交換存證選配開關+清單（只交易記錄、無內容）⑥公開欄位版本歷史 ⑦帳號隨用隨增（席次/量價/無上限/無免費試用）
+  ⑧Export my data（統一料號不匯出）。
+- 三違規拆除（全域 0 命中）：SmartPN Verified→第三方發證機構+效期；Boss BI 毛利率卡移除；誰看過→商場模式聯絡許可開關。
+- 測試鉤子：`window.MOCK_WORLD / setAccount(id) / getVisibleMaterials() / setLang(lg)`（純測試，不影響 UI）。
+- Playwright 驗收全 PASS：兩檔 0 JS 錯誤；MOCK_WORLD 兩視角一致（同 24 材料、抽 3 筆名稱相符、A/B=5/3）；
+  私密材料(SPA-FV-1003)在 B 帳號 FSM/搜尋/下拉完全不出現；EN/ZH 全頁切換；三違規全文 0 命中。
+  證據：`test_screenshots/taskP_demo_v2/`（P1–P8 逐項截圖 + task_P_result.json）。

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartPN Atlas — Brand Portal (v2)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'SF Pro Text','Helvetica Neue',Arial,'Microsoft JhengHei',sans-serif;background:#F5F5F7;color:#1D1D1F;-webkit-font-smoothing:antialiased;font-size:15px}
+.topbar{display:flex;align-items:center;gap:16px;padding:0 28px;height:52px;background:rgba(255,255,255,0.92);backdrop-filter:saturate(180%) blur(20px);border-bottom:0.5px solid #D2D2D7;position:sticky;top:0;z-index:20}
+.brand{font-size:16px;font-weight:600;letter-spacing:-0.3px}
+.v2tag{font-size:10px;font-weight:700;background:#1D7340;color:#fff;border-radius:6px;padding:2px 7px}
+.spacer{flex:1}
+.acct-switch{display:flex;gap:0;border:0.5px solid #D2D2D7;border-radius:8px;overflow:hidden}
+.acct-switch button{font-size:12px;padding:5px 12px;border:none;background:#fff;cursor:pointer;font-family:inherit;color:#86868B}
+.acct-switch button.on{background:#0071E3;color:#fff}
+.lang-btn{font-size:12px;border:0.5px solid #D2D2D7;background:#fff;border-radius:8px;padding:5px 11px;cursor:pointer;font-family:inherit}
+.layout{display:flex}
+.side{width:180px;border-right:0.5px solid #D2D2D7;min-height:calc(100vh - 52px);padding:14px 0;background:#fff}
+.side button{display:block;width:100%;text-align:left;border:none;background:none;font-family:inherit;font-size:13px;padding:11px 22px;cursor:pointer;color:#1D1D1F;border-left:2px solid transparent}
+.side button.on{color:#0071E3;border-left-color:#0071E3;background:#F0F7FF}
+.main{flex:1;padding:28px 36px;max-width:1000px}
+.page{display:none}.page.on{display:block}
+.h1{font-size:22px;font-weight:600;letter-spacing:-0.4px;margin-bottom:4px}
+.sub{font-size:13px;color:#86868B;margin-bottom:18px}
+.rc{font-size:13px;color:#1D1D1F;margin-bottom:2px;font-weight:500}
+.rc-note{font-size:11px;color:#B26A00;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.card{background:#fff;border:0.5px solid #D2D2D7;border-radius:14px;overflow:hidden;cursor:pointer;transition:box-shadow .15s,transform .15s}
+.card:hover{box-shadow:0 6px 22px rgba(0,0,0,.08);transform:translateY(-2px)}
+.card-img{height:96px;background:linear-gradient(135deg,#E8EDF3,#F5F5F7);position:relative}
+.dpp{position:absolute;top:8px;left:8px;font-size:10px;font-weight:600;color:#1D7340;background:#fff;border:0.5px solid #1D7340;border-radius:8px;padding:2px 7px}
+.dpp.miss{color:#86868B;border-color:#D2D2D7}
+.card-b{padding:12px 14px}
+.card-name{font-size:14px;font-weight:600;line-height:1.3;margin-bottom:3px}
+.card-sup{font-size:12px;color:#0071E3;margin-bottom:8px}
+.card-price{font-size:12px;color:#86868B}
+.qonly{color:#B26A00}
+.mtable{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border:0.5px solid #D2D2D7;border-radius:12px;overflow:hidden}
+.mtable td,.mtable th{padding:10px 14px;border-bottom:0.5px solid #EDEDED;text-align:left}
+.mtable th{color:#86868B;font-weight:600;font-size:12px}
+.perm{font-size:10px;font-weight:600;border-radius:6px;padding:1px 7px}
+.perm.public{color:#1D7340;background:#E8F6EC}
+.perm.private{color:#B26A00;background:#FFF6E5}
+.perm.granted{color:#0071E3;background:#EAF3FF}
+.src-btn{font-size:11px;color:#0071E3;border:none;background:none;cursor:pointer;font-family:inherit;padding:0}
+.srcbox{font-size:11px;color:#555;background:#F5F7FA;border:0.5px solid #E2E8F0;border-radius:8px;padding:8px 10px;margin-top:6px;line-height:1.6;display:none}
+.btn{font-size:13px;border:0.5px solid #D2D2D7;background:#fff;border-radius:9px;padding:8px 16px;cursor:pointer;font-family:inherit}
+.btn-p{background:#0071E3;color:#fff;border-color:#0071E3}
+.btn-row{display:flex;gap:10px;margin:16px 0}
+.sec{font-size:15px;font-weight:600;margin:22px 0 10px}
+.mv{background:#fff;border:0.5px solid #D2D2D7;border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid #EDEDED;font-size:13px}
+.row:last-child{border:none}
+.muted{color:#86868B;font-size:12px}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;display:flex;align-items:center;justify-content:center}
+.modal{background:#fff;border-radius:14px;padding:22px;min-width:420px;max-width:92vw}
+.footer{text-align:center;font-size:11px;color:#86868B;padding:24px 40px 44px;border-top:0.5px solid #E5E5EA;margin-top:30px}
+.chip{font-size:11px;background:#F0F0F0;border-radius:6px;padding:2px 8px;color:#555}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="brand">SmartPN Atlas</span><span class="v2tag" data-i18n="v2">議會定案版 v2</span>
+  <span class="spacer"></span>
+  <span class="muted" data-i18n="viewingAs">Viewing as</span>
+  <div class="acct-switch" id="acctSwitch"></div>
+  <button class="lang-btn" id="langBtn" onclick="toggleLang()">中文</button>
+</div>
+<div class="layout">
+  <div class="side">
+    <button class="on" data-page="search" onclick="nav('search',this)" data-i18n="nav_search">Search</button>
+    <button data-page="fsm" onclick="nav('fsm',this)" data-i18n="nav_fsm">Find Same Material</button>
+    <button data-page="account" onclick="nav('account',this)" data-i18n="nav_account">Account &amp; Seats</button>
+    <button data-page="settings" onclick="nav('settings',this)" data-i18n="nav_settings">Settings</button>
+  </div>
+  <div class="main">
+    <!-- SEARCH -->
+    <div class="page on" id="page-search">
+      <div class="h1" data-i18n="s_title">Material Search</div>
+      <div class="rc" id="rc"></div><div class="rc-note" data-i18n="s_filtered">Permission-filtered — not the full market</div>
+      <div class="grid" id="grid"></div>
+    </div>
+    <!-- DETAIL -->
+    <div class="page" id="page-detail"></div>
+    <!-- FSM -->
+    <div class="page" id="page-fsm">
+      <div class="h1" data-i18n="fsm_title">Find Same Material</div>
+      <div class="sub" data-i18n="fsm_sub">物性比對（非料號）。曝光是授予的——你只透過供應商公開的欄位被找到。</div>
+      <div class="rc" id="fsm-rc"></div><div class="rc-note" data-i18n="s_filtered">Permission-filtered — not the full market</div>
+      <div class="grid" id="fsm-grid"></div>
+      <div class="muted" style="margin-top:16px" data-i18n="fsm_hint">切換右上角帳號（Brand-A / Brand-B）看「選擇性開放」：品牌搜到的材料，競品可能看不到、也不知存在。</div>
+    </div>
+    <!-- ACCOUNT / SEATS -->
+    <div class="page" id="page-account">
+      <div class="h1" data-i18n="acc_title">Account &amp; Seats</div>
+      <div class="sub" data-i18n="acc_sub">帳號隨用隨增，以量制價。席次不封頂。</div>
+      <div class="mv">
+        <div class="row"><span data-i18n="acc_cur">Current seats</span><b>8 active</b></div>
+        <div class="row"><span data-i18n="acc_month">Added this month</span><b style="color:#1D7340">+2 seats</b></div>
+        <div class="row"><span data-i18n="acc_vol">Volume pricing</span><span>1–10 · 11–30 · 31+ / seat/mo</span></div>
+        <div class="row"><span data-i18n="acc_cap" class="muted">No seat cap — add as you grow.</span><span></span></div>
+      </div>
+      <button class="btn btn-p" onclick="alert('Add seats — pay per seat as you grow, no upfront bulk purchase (demo)')" data-i18n="acc_add">＋ Add seats</button>
+    </div>
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="h1" data-i18n="set_title">Settings</div>
+      <div class="mv">
+        <div class="row"><span data-i18n="set_lang">Language</span><span>English / 中文</span></div>
+        <div class="row"><span data-i18n="set_export">Export my data</span><button class="btn" onclick="exportData()">⬇ Export</button></div>
+        <div class="row"><span class="muted" data-i18n="set_exportNote">SmartPN 統一料號為 SmartPN 財產，不隨匯出交付（退出權）。</span><span></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="footer" data-i18n="footer">資料提供者對資料正確性負全責；SmartPN 負責交換。 · Data providers are solely responsible for accuracy; SmartPN facilitates exchange.</div>
+
+<script>
+/* ═══ inline MOCK_WORLD (identical to supplier v2) ═══ */
+const MOCK_WORLD = (function () {
+  const SUP = [
+    { id:'FV', name:'Formosa Vietnam Co.', mode:'api', country:'Vietnam',
+      certs:[{name:'OEKO-TEX Standard 100',by:'OEKO-TEX',exp:'2027-03-31'},{name:'GRS',by:'Control Union',exp:'2026-11-30'}] },
+    { id:'AP', name:'Apex Textile Co.', mode:'api', country:'Taiwan',
+      certs:[{name:'ISO 9001',by:'BSI',exp:'2027-06-30'},{name:'OEKO-TEX Standard 100',by:'OEKO-TEX',exp:'2026-09-30'}] },
+    { id:'SS', name:'Sunrise Synthetics', mode:'smartpn', country:'Vietnam',
+      certs:[{name:'ISO 9001',by:'Intertek',exp:'2026-10-31'}] },
+  ];
+  const NAMES = {
+    FV:['Recycled Poly Mesh 220g','PU Synthetic Leather 1.2mm','Ripstop Nylon 70D','GRS Knit Upper 380g','TPU Mesh Laminate','Recycled Twill 180g','Eco Sandwich Mesh','Bonded Tricot 150g'],
+    AP:['Full Grain Cow Leather','Microfiber Suede 1.0mm','Jacquard Knit 380g','Nubuck Leather 1.4mm','Woven Label Tape','Engineered Mesh 300g','PU Coated Canvas','Ballistic Nylon 1680D'],
+    SS:['Commodity Mesh 200g','Poly Oxford 300D','Basic Tricot 120g','PVC Film 0.20mm','Nylon Taffeta 210T','Cotton Canvas 12oz','Foam Sheet EVA 3mm','Non-woven Lining'],
+  };
+  const CAT = ['Textile','Synthetic Leather','Leather','Film','Mesh','Trim'];
+  const pick = (arr,i)=>arr[i%arr.length];
+  const materials = [];
+  SUP.forEach((s, si) => { NAMES[s.id].forEach((nm, mi) => {
+    const gi = si*10 + mi, spn = 'SPA-'+s.id+'-'+(1000+gi), priceEvery = 3.20 + (gi%9)*0.55;
+    const src = (auth)=>({ system: s.mode==='api'?(s.name+' ERP'):'SmartPN', authority:auth, sync:(5+gi%40)+' min ago', cached: s.mode==='api'?false:true });
+    const fields = [
+      { k:'Category', v: pick(CAT, gi), perm:'public', src: src('Supplier') },
+      { k:'Weight', v: (120+(gi%12)*20)+' g/m²', perm:'public', src: src('Supplier') },
+      { k:'Width', v: (140+(gi%3)*8)+' cm', perm:'public', src: src('Supplier') },
+      { k:'GRS Content', v: (60+(gi%4)*10)+'%', perm:(gi%5===0?'granted':'public'), grantedTo:['Brand-A · R&D'], src: src('Supplier') },
+      { k:'Compliance docs', v:'REACH / SVHC declaration', perm:(gi%4===0?'private':'public'), src: src('Supplier') },
+      { k:'Financial terms', v:'Net 60 · FOB HCMC', perm:'private', src: src('Supplier') },
+    ];
+    const quotes = [
+      { customer:'Brand-A', tier:'Standard', price:+(priceEvery).toFixed(2), exp:'2026-08-31' },
+      { customer:'Brand-B', tier:'Volume 30k+', price:+(priceEvery-0.35).toFixed(2), exp:'2026-09-15' },
+    ];
+    const history = [
+      { date:'2026-06-18', field:'GRS Content', old:(50+(gi%4)*10)+'%', new:(60+(gi%4)*10)+'%', by:'Supplier' },
+      { date:'2026-05-30', field:'Weight', old:(110+(gi%12)*20)+' g/m²', new:(120+(gi%12)*20)+' g/m²', by:'Supplier' },
+      { date:'2026-05-12', field:'Width', old:(138+(gi%3)*8)+' cm', new:(140+(gi%3)*8)+' cm', by:'Supplier' },
+    ];
+    materials.push({ id: spn, spn, name: nm, sup: s.id, cat: pick(CAT, gi), mode: s.mode, dppComplete: 10+(gi%5), dppTotal: 14, fields, quotes, history });
+  });});
+  const byId = id => materials.find(m=>m.id===id);
+  const A_VIS = ['SPA-FV-1000','SPA-FV-1002','SPA-FV-1003','SPA-AP-1010','SPA-SS-1020'];
+  const B_VIS = ['SPA-FV-1000','SPA-AP-1010','SPA-SS-1020'];
+  const gm = byId('SPA-FV-1003'); if (gm) gm.grantedOnly = true;
+  const accounts = [ { id:'A', name:'Brand-A', visibleIds: A_VIS }, { id:'B', name:'Brand-B', visibleIds: B_VIS } ];
+  const mappingBatches = [
+    { name:'財務 Financial', fields:'單價 / 付款條件 / 幣別', status:'signed', signedBy:'T. Kim', signedAt:'2026-06-10' },
+    { name:'關務 Customs', fields:'HS Code / 原產地 / 稅則', status:'pending', signedBy:null, signedAt:null },
+    { name:'物性 Physical', fields:'成分 / 規格 / 認證欄位', status:'unsubmitted', signedBy:null, signedAt:null },
+  ];
+  const evidenceRecords = [
+    { ts:'2026-06-19 09:12', event:'exchange.authorized', party:'Brand-A · R&D', batch:'財務 Financial', ref:'EVX-4471' },
+    { ts:'2026-06-18 14:03', event:'exchange.synced', party:'Factory Group B', batch:'關務 Customs', ref:'EVX-4468' },
+    { ts:'2026-06-15 11:47', event:'grant.revoked', party:'Brand-C · 材料部', batch:'物性 Physical', ref:'EVX-4455' },
+  ];
+  function visibleTo(acc){ const set=new Set(acc.visibleIds); return materials.filter(m=>set.has(m.id)); }
+  return { suppliers: SUP, materials, accounts, mappingBatches, evidenceRecords, visibleTo };
+})();
+
+/* ═══ i18n ═══ */
+let LANG='en';
+const S={
+  v2:{en:'Council-final v2',zh:'議會定案版 v2'}, viewingAs:{en:'Viewing as',zh:'目前帳號'},
+  nav_search:{en:'Search',zh:'搜尋'}, nav_fsm:{en:'Find Same Material',zh:'尋找相同材料'}, nav_account:{en:'Account & Seats',zh:'帳號 · 席次'}, nav_settings:{en:'Settings',zh:'設定'},
+  s_title:{en:'Material Search',zh:'材料搜尋'}, s_filtered:{en:'Permission-filtered — not the full market',zh:'依權限過濾 — 非全市場'},
+  fsm_title:{en:'Find Same Material',zh:'尋找相同材料'}, fsm_sub:{en:'By material properties, not part number. Exposure is granted, not taken.',zh:'物性比對（非料號）。曝光是授予的——你只透過供應商公開的欄位被找到。'},
+  fsm_hint:{en:'Switch account (Brand-A / Brand-B) top-right to see selective openness — a competitor may not see, or even know of, a material you found.',zh:'切換右上角帳號（Brand-A / Brand-B）看「選擇性開放」：品牌搜到的材料，競品可能看不到、也不知存在。'},
+  acc_title:{en:'Account & Seats',zh:'帳號 · 席次'}, acc_sub:{en:'Add seats as you grow — volume pricing, no seat cap.',zh:'帳號隨用隨增，以量制價。席次不封頂。'},
+  acc_cur:{en:'Current seats',zh:'目前席次'}, acc_month:{en:'Added this month',zh:'本月新增'}, acc_vol:{en:'Volume pricing',zh:'量價級距'}, acc_cap:{en:'No seat cap — add as you grow.',zh:'席次不封頂，隨用隨增。'}, acc_add:{en:'＋ Add seats',zh:'＋ 加購席次'},
+  set_title:{en:'Settings',zh:'設定'}, set_lang:{en:'Language',zh:'語言'}, set_export:{en:'Export my data',zh:'匯出我的資料'}, set_exportNote:{en:'SmartPN unified part numbers remain SmartPN property and are not exported (exit right).',zh:'SmartPN 統一料號為 SmartPN 財產，不隨匯出交付（退出權）。'},
+  footer:{en:'Data providers are solely responsible for accuracy; SmartPN facilitates exchange.',zh:'資料提供者對資料正確性負全責；SmartPN 負責交換。'},
+};
+function T(k){ return (S[k]||{})[LANG]||k; }
+function toggleLang(){ LANG=LANG==='en'?'zh':'en'; document.getElementById('langBtn').textContent=LANG==='en'?'中文':'EN';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ if(S[el.dataset.i18n]) el.textContent=T(el.dataset.i18n); }); render(); }
+
+/* ═══ state ═══ */
+let ACC = MOCK_WORLD.accounts[0];   // Brand-A default
+function setAcct(id){ ACC = MOCK_WORLD.accounts.find(a=>a.id===id); renderAcctSwitch(); render(); }
+function renderAcctSwitch(){ document.getElementById('acctSwitch').innerHTML =
+  MOCK_WORLD.accounts.map(a=>`<button class="${a.id===ACC.id?'on':''}" onclick="setAcct('${a.id}')">${a.name}</button>`).join(''); }
+
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function supName(id){ return (MOCK_WORLD.suppliers.find(s=>s.id===id)||{}).name||id; }
+
+/* ═══ nav ═══ */
+function nav(p, el){ document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+  document.getElementById('page-'+p).classList.add('on');
+  document.querySelectorAll('.side button').forEach(b=>b.classList.remove('on'));
+  if(el) el.classList.add('on'); else document.querySelector(`.side button[data-page="${p}"]`)?.classList.add('on');
+  render(); }
+
+/* ═══ render ═══ */
+function cardHtml(m){
+  const price = m.quotes.length ? '<span class="qonly">Request quotation</span>' : '—';
+  return `<div class="card" onclick="openMat('${m.id}')">
+    <div class="card-img">${m.dppComplete>=12?`<div class="dpp" title="欄位齊全度，非驗證">DPP ${m.dppComplete}/${m.dppTotal}</div>`:`<div class="dpp miss">Missing metadata</div>`}</div>
+    <div class="card-b"><div class="card-name">${esc(m.name)}</div><div class="card-sup">${esc(supName(m.sup))}</div>
+    <div class="card-price">Price · ${price}</div></div></div>`;
+}
+function render(){
+  renderAcctSwitch();
+  const vis = MOCK_WORLD.visibleTo(ACC);
+  document.getElementById('rc').textContent = `${vis.length} results visible to you · ${ACC.name}`;
+  document.getElementById('grid').innerHTML = vis.map(cardHtml).join('') || '<div class="muted">No materials visible to this account.</div>';
+  // FSM — same visibility scope (private/granted-only never appear for unauthorized acct)
+  const fsm = vis;
+  document.getElementById('fsm-rc').textContent = `${fsm.length} results visible to you · ${ACC.name}`;
+  document.getElementById('fsm-grid').innerHTML = fsm.map(cardHtml).join('') || '<div class="muted">No matches visible.</div>';
+}
+
+function srcLine(f){ const s=f.src; return `Source: ${s.system} · Authority: ${s.authority} · Synced ${s.sync} · ${s.cached?'Cached':'Not cached'}`; }
+function openMat(id){
+  const m = MOCK_WORLD.materials.find(x=>x.id===id); if(!m) return;
+  const sup = MOCK_WORLD.suppliers.find(s=>s.id===m.sup);
+  // field rows — only fields the account may see (private hidden unless we own; granted only if grantee).
+  const canSee=(f)=> f.perm==='public' || (f.perm==='granted' && ACC.id==='A') ; // private never shown to brand
+  const rows = m.fields.filter(canSee).map((f,i)=>`<tr>
+      <td>${esc(f.k)}</td><td>${esc(f.v)}</td>
+      <td><span class="perm ${f.perm}">${f.perm}</span></td>
+      <td><button class="src-btn" onclick="var b=document.getElementById('src-${i}');b.style.display=b.style.display==='block'?'none':'block'">source ⌄</button>
+        <div class="srcbox" id="src-${i}">${esc(srcLine(f))}</div></td></tr>`).join('');
+  const hidden = m.fields.filter(f=>!canSee(f)).length;
+  const quoteRows = m.quotes.map(q=>`<tr><td>${esc(q.customer)}</td><td>${esc(q.tier)}</td><td>USD ${q.price.toFixed(2)}</td><td class="muted">exp ${q.exp}</td></tr>`).join('');
+  const hist = m.history.map(h=>`<tr><td class="muted">${h.date}</td><td>${esc(h.field)}</td><td>${esc(h.old)} → ${esc(h.new)}</td><td class="muted">${esc(h.by)}</td></tr>`).join('');
+  const certs = sup.certs.map(c=>`<tr><td>${esc(c.name)}</td><td>${esc(c.by)}</td><td>${c.exp}</td></tr>`).join('');
+  document.getElementById('page-detail').innerHTML = `
+    <button class="btn" onclick="nav('search')">← Back</button>
+    <div class="h1" style="margin-top:12px">${esc(m.name)}</div>
+    <div class="sub">SmartPN ID · <b>${m.spn}</b> · Maintained by ${esc(sup.name)} ·
+      <span class="chip">${m.mode==='api'?'🔗 API-mapped · Not cached':'🗄️ SmartPN-maintained'}</span></div>
+
+    <div class="sec">Fields <span class="muted">(1) hover/點 source 看來源鏈</span></div>
+    <table class="mtable"><thead><tr><th>Field</th><th>Value</th><th>Permission</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
+    ${hidden?`<div class="muted" style="margin-top:6px">🔒 ${hidden} field(s) private / not granted to this account — hidden.</div>`:''}
+
+    <div class="sec">Pricing <span class="muted">價格只掛報價單（一單一客戶一授權），不掛統一 ID</span></div>
+    <table class="mtable"><thead><tr><th>Customer</th><th>Tier</th><th>Price</th><th>Valid</th></tr></thead><tbody>${quoteRows}</tbody></table>
+
+    <div class="sec">Version history <span class="muted">(6) 公開欄位修改記錄</span></div>
+    <table class="mtable"><thead><tr><th>Date</th><th>Field</th><th>Change</th><th>By</th></tr></thead><tbody>${hist}</tbody></table>
+
+    <div class="sec">Certifications <span class="muted">第三方發證機構 + 效期</span></div>
+    <table class="mtable"><thead><tr><th>Certification</th><th>Issued by</th><th>Valid until</th></tr></thead><tbody>${certs}</tbody></table>
+    <div class="muted" style="margin-top:6px">認證由第三方發證機構背書；SmartPN 不簽發、不驗證內容真偽。DPP ${m.dppComplete}/${m.dppTotal} ＝欄位齊全度。</div>
+  `;
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+  document.getElementById('page-detail').classList.add('on');
+}
+
+function exportData(){
+  const bg=document.createElement('div'); bg.className='modal-bg';
+  bg.innerHTML=`<div class="modal"><div style="font-size:17px;font-weight:600;margin-bottom:8px">${LANG==='en'?'Export my data':'匯出我的資料'}</div>
+    <div class="muted" style="margin-bottom:14px">${LANG==='en'?'Exports data you maintain/publish. SmartPN unified part numbers remain SmartPN property and are NOT exported (exit right).':'匯出你自己維護/發布的資料。SmartPN 統一料號為 SmartPN 財產，不隨匯出交付（退出權）。'}</div>
+    <div style="text-align:right"><button class="btn" onclick="this.closest('.modal-bg').remove()">${LANG==='en'?'Close':'關閉'}</button>
+    <button class="btn btn-p" onclick="this.closest('.modal-bg').remove()" style="margin-left:8px">${LANG==='en'?'Export (demo)':'匯出（demo）'}</button></div></div>`;
+  bg.addEventListener('click',e=>{if(e.target===bg)bg.remove();}); document.body.appendChild(bg);
+}
+
+renderAcctSwitch(); render();
+
+/* ═══ 測試鉤子（純測試用途，不影響 UI） ═══ */
+window.MOCK_WORLD = MOCK_WORLD;
+window.setAccount = (id)=>setAcct(id);
+window.getVisibleMaterials = ()=>MOCK_WORLD.visibleTo(ACC);
+window.setLang = (lg)=>{ if(lg && lg!==LANG) toggleLang(); };
+</script>
+</body>
+</html>

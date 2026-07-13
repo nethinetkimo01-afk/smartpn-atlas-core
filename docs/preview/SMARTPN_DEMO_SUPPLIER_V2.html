@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartPN Atlas — Supplier Portal (v2)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'SF Pro Text','Helvetica Neue',Arial,'Microsoft JhengHei',sans-serif;background:#F5F5F7;color:#1D1D1F;-webkit-font-smoothing:antialiased;font-size:15px}
+.topbar{display:flex;align-items:center;gap:14px;padding:0 28px;height:52px;background:rgba(255,255,255,0.92);backdrop-filter:saturate(180%) blur(20px);border-bottom:0.5px solid #D2D2D7;position:sticky;top:0;z-index:20}
+.brand{font-size:16px;font-weight:600;letter-spacing:-0.3px}
+.v2tag{font-size:10px;font-weight:700;background:#1D7340;color:#fff;border-radius:6px;padding:2px 7px}
+.spacer{flex:1}
+.lang-btn{font-size:12px;border:0.5px solid #D2D2D7;background:#fff;border-radius:8px;padding:5px 11px;cursor:pointer;font-family:inherit}
+.layout{display:flex}
+.side{width:190px;border-right:0.5px solid #D2D2D7;min-height:calc(100vh - 52px);padding:14px 0;background:#fff}
+.side button{display:block;width:100%;text-align:left;border:none;background:none;font-family:inherit;font-size:13px;padding:11px 22px;cursor:pointer;color:#1D1D1F;border-left:2px solid transparent}
+.side button.on{color:#0071E3;border-left-color:#0071E3;background:#F0F7FF}
+.main{flex:1;padding:28px 36px;max-width:1000px}
+.page{display:none}.page.on{display:block}
+.h1{font-size:22px;font-weight:600;letter-spacing:-0.4px;margin-bottom:4px}
+.sub{font-size:13px;color:#86868B;margin-bottom:18px}
+.mtable{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border:0.5px solid #D2D2D7;border-radius:12px;overflow:hidden}
+.mtable td,.mtable th{padding:10px 14px;border-bottom:0.5px solid #EDEDED;text-align:left;vertical-align:middle}
+.mtable th{color:#86868B;font-weight:600;font-size:12px}
+.seg{display:inline-flex;border:0.5px solid #D2D2D7;border-radius:8px;overflow:hidden}
+.seg button{font-size:11px;padding:4px 10px;border:none;background:#fff;cursor:pointer;font-family:inherit;color:#86868B}
+.seg button.public.on{background:#1D7340;color:#fff}.seg button.private.on{background:#B26A00;color:#fff}.seg button.granted.on{background:#0071E3;color:#fff}
+.btn{font-size:13px;border:0.5px solid #D2D2D7;background:#fff;border-radius:9px;padding:8px 16px;cursor:pointer;font-family:inherit}
+.btn-p{background:#0071E3;color:#fff;border-color:#0071E3}.btn-g{background:#1D7340;color:#fff;border-color:#1D7340}
+.sec{font-size:15px;font-weight:600;margin:22px 0 10px}
+.mv{background:#fff;border:0.5px solid #D2D2D7;border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:0.5px solid #EDEDED;font-size:13px}
+.row:last-child{border:none}
+.muted{color:#86868B;font-size:12px}
+.status{font-size:11px;font-weight:600;border-radius:8px;padding:2px 9px}
+.status.signed{background:#E8F6EC;color:#1D7340}.status.pending{background:#FFF6E5;color:#B26A00}.status.unsub{background:#F0F0F0;color:#86868B}
+.lock{background:#FFF8E7;border:0.5px solid #F5A623;border-radius:10px;padding:12px 16px;font-size:13px;line-height:1.6;margin:14px 0;display:flex;gap:10px}
+.toggle{position:relative;display:inline-block;width:44px;height:24px;cursor:pointer}
+.toggle .tk{position:absolute;inset:0;background:#C7C7CC;border-radius:24px;transition:.15s}
+.toggle .tb{position:absolute;height:20px;width:20px;left:2px;top:2px;background:#fff;border-radius:50%;transition:.15s}
+.toggle.on .tk{background:#1D7340}.toggle.on .tb{left:22px}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;display:flex;align-items:center;justify-content:center}
+.modal{background:#fff;border-radius:14px;padding:22px;min-width:440px;max-width:92vw}
+.footer{text-align:center;font-size:11px;color:#86868B;padding:24px 40px 44px;border-top:0.5px solid #E5E5EA;margin-top:30px}
+.hbar-row{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:12px}
+.hbar-track{flex:1;height:8px;background:#F0F0F0;border-radius:5px;overflow:hidden}.hbar-fill{height:100%}
+.grantbox{font-size:11px;color:#0071E3;background:#EAF3FF;border-radius:8px;padding:6px 9px;margin-top:6px;display:none}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="brand">SmartPN Atlas · <span data-i18n="supName">Formosa Vietnam Co.</span></span><span class="v2tag" data-i18n="v2">議會定案版 v2</span>
+  <span class="spacer"></span>
+  <button class="lang-btn" id="langBtn" onclick="toggleLang()">中文</button>
+</div>
+<div class="layout">
+  <div class="side">
+    <button class="on" data-page="materials" onclick="nav('materials',this)" data-i18n="nav_mat">My Materials</button>
+    <button data-page="mapping" onclick="nav('mapping',this)" data-i18n="nav_map">Mapping Sign-off</button>
+    <button data-page="evidence" onclick="nav('evidence',this)" data-i18n="nav_evi">Evidence &amp; Settings</button>
+    <button data-page="contacts" onclick="nav('contacts',this)" data-i18n="nav_con">Contact Permissions</button>
+    <button data-page="bi" onclick="nav('bi',this)" data-i18n="nav_bi">Business Dashboard</button>
+  </div>
+  <div class="main">
+    <!-- MATERIALS + per-field permission -->
+    <div class="page on" id="page-materials">
+      <div class="h1" data-i18n="mat_title">My Materials</div>
+      <div class="sub" data-i18n="mat_sub">每個欄位可設 公開 / 私密 / 授權（授權＝公司·單位·帳號三層）。私密/授權欄位不進搜尋索引。</div>
+      <div id="mat-list"></div>
+    </div>
+    <!-- MAPPING sign-off -->
+    <div class="page" id="page-mapping">
+      <div class="h1" data-i18n="map_title">Mapping Sign-off</div>
+      <div class="sub" data-i18n="map_sub">分批 mapping → 擁有者端測試核對 → 簽署啟用。未簽署批次不流通。</div>
+      <table class="mtable"><thead><tr><th data-i18n="t_batch">Batch</th><th data-i18n="t_fields">Fields</th><th data-i18n="t_status">Status</th><th data-i18n="t_flow">Exchange</th><th></th></tr></thead>
+        <tbody id="map-body"></tbody></table>
+      <div class="lock"><span>🔒</span><span data-i18n="map_lock">未簽署啟用的 mapping 批次不上線、不參與任何交換。簽署＝資料正確性責任移轉給提供方（食品成分表原則）。</span></div>
+    </div>
+    <!-- EVIDENCE & SETTINGS -->
+    <div class="page" id="page-evidence">
+      <div class="h1" data-i18n="evi_title">Evidence &amp; Settings</div>
+      <div class="mv">
+        <div class="row"><div><b data-i18n="evi_toggle">交換存證（選配）</b><div class="muted" data-i18n="evi_note">僅記錄交易事件，不儲存交換內容，永不進入可搜尋資料庫。</div></div>
+          <div class="toggle" id="eviToggle" onclick="toggleEvi()"><span class="tk"></span><span class="tb"></span></div></div>
+      </div>
+      <div class="sec" data-i18n="evi_list">交換存證清單（只有交易記錄，無內容）</div>
+      <table class="mtable"><thead><tr><th>Timestamp</th><th>Event</th><th>Party</th><th>Batch</th><th>Ref</th><th></th></tr></thead>
+        <tbody id="evi-body"></tbody></table>
+      <div class="sec" data-i18n="set_data">Data</div>
+      <div class="mv"><div class="row"><span data-i18n="set_export">Export my data</span><button class="btn" onclick="exportData()">⬇ Export</button></div>
+        <div class="row"><span class="muted" data-i18n="set_exportNote">SmartPN 統一料號為 SmartPN 財產，不隨匯出交付（退出權）。</span><span></span></div></div>
+    </div>
+    <!-- CONTACT PERMISSIONS (mall model, replaces who-viewed) -->
+    <div class="page" id="page-contacts">
+      <div class="h1" data-i18n="con_title">Contact Permissions</div>
+      <div class="sub" data-i18n="con_sub">商場模式：瀏覽方決定供應商能否聯絡他。不顯示個人姓名 / 帳號 / 聯絡方式。</div>
+      <table class="mtable"><thead><tr><th data-i18n="c_viewer">Viewer</th><th data-i18n="c_allow">Allows contact?</th></tr></thead>
+        <tbody id="con-body"></tbody></table>
+    </div>
+    <!-- BI (no gross-margin card) -->
+    <div class="page" id="page-bi">
+      <div class="h1" data-i18n="bi_title">Business Dashboard</div>
+      <div class="sub" data-i18n="bi_sub">決策參考（不含 gross-margin 卡）</div>
+      <div id="bi-body"></div>
+    </div>
+  </div>
+</div>
+<div class="footer" data-i18n="footer">資料提供者對資料正確性負全責；SmartPN 負責交換。 · Data providers are solely responsible for accuracy; SmartPN facilitates exchange.</div>
+
+<script>
+/* ═══ inline MOCK_WORLD (identical to brand v2) ═══ */
+const MOCK_WORLD = (function () {
+  const SUP = [
+    { id:'FV', name:'Formosa Vietnam Co.', mode:'api', country:'Vietnam',
+      certs:[{name:'OEKO-TEX Standard 100',by:'OEKO-TEX',exp:'2027-03-31'},{name:'GRS',by:'Control Union',exp:'2026-11-30'}] },
+    { id:'AP', name:'Apex Textile Co.', mode:'api', country:'Taiwan',
+      certs:[{name:'ISO 9001',by:'BSI',exp:'2027-06-30'},{name:'OEKO-TEX Standard 100',by:'OEKO-TEX',exp:'2026-09-30'}] },
+    { id:'SS', name:'Sunrise Synthetics', mode:'smartpn', country:'Vietnam',
+      certs:[{name:'ISO 9001',by:'Intertek',exp:'2026-10-31'}] },
+  ];
+  const NAMES = {
+    FV:['Recycled Poly Mesh 220g','PU Synthetic Leather 1.2mm','Ripstop Nylon 70D','GRS Knit Upper 380g','TPU Mesh Laminate','Recycled Twill 180g','Eco Sandwich Mesh','Bonded Tricot 150g'],
+    AP:['Full Grain Cow Leather','Microfiber Suede 1.0mm','Jacquard Knit 380g','Nubuck Leather 1.4mm','Woven Label Tape','Engineered Mesh 300g','PU Coated Canvas','Ballistic Nylon 1680D'],
+    SS:['Commodity Mesh 200g','Poly Oxford 300D','Basic Tricot 120g','PVC Film 0.20mm','Nylon Taffeta 210T','Cotton Canvas 12oz','Foam Sheet EVA 3mm','Non-woven Lining'],
+  };
+  const CAT = ['Textile','Synthetic Leather','Leather','Film','Mesh','Trim'];
+  const pick = (arr,i)=>arr[i%arr.length];
+  const materials = [];
+  SUP.forEach((s, si) => { NAMES[s.id].forEach((nm, mi) => {
+    const gi = si*10 + mi, spn = 'SPA-'+s.id+'-'+(1000+gi), priceEvery = 3.20 + (gi%9)*0.55;
+    const src = (auth)=>({ system: s.mode==='api'?(s.name+' ERP'):'SmartPN', authority:auth, sync:(5+gi%40)+' min ago', cached: s.mode==='api'?false:true });
+    const fields = [
+      { k:'Category', v: pick(CAT, gi), perm:'public', src: src('Supplier') },
+      { k:'Weight', v: (120+(gi%12)*20)+' g/m²', perm:'public', src: src('Supplier') },
+      { k:'Width', v: (140+(gi%3)*8)+' cm', perm:'public', src: src('Supplier') },
+      { k:'GRS Content', v: (60+(gi%4)*10)+'%', perm:(gi%5===0?'granted':'public'), grantedTo:['Brand-A · R&D'], src: src('Supplier') },
+      { k:'Compliance docs', v:'REACH / SVHC declaration', perm:(gi%4===0?'private':'public'), src: src('Supplier') },
+      { k:'Financial terms', v:'Net 60 · FOB HCMC', perm:'private', src: src('Supplier') },
+    ];
+    const quotes = [
+      { customer:'Brand-A', tier:'Standard', price:+(priceEvery).toFixed(2), exp:'2026-08-31' },
+      { customer:'Brand-B', tier:'Volume 30k+', price:+(priceEvery-0.35).toFixed(2), exp:'2026-09-15' },
+    ];
+    const history = [
+      { date:'2026-06-18', field:'GRS Content', old:(50+(gi%4)*10)+'%', new:(60+(gi%4)*10)+'%', by:'Supplier' },
+      { date:'2026-05-30', field:'Weight', old:(110+(gi%12)*20)+' g/m²', new:(120+(gi%12)*20)+' g/m²', by:'Supplier' },
+      { date:'2026-05-12', field:'Width', old:(138+(gi%3)*8)+' cm', new:(140+(gi%3)*8)+' cm', by:'Supplier' },
+    ];
+    materials.push({ id: spn, spn, name: nm, sup: s.id, cat: pick(CAT, gi), mode: s.mode, dppComplete: 10+(gi%5), dppTotal: 14, fields, quotes, history });
+  });});
+  const byId = id => materials.find(m=>m.id===id);
+  const A_VIS = ['SPA-FV-1000','SPA-FV-1002','SPA-FV-1003','SPA-AP-1010','SPA-SS-1020'];
+  const B_VIS = ['SPA-FV-1000','SPA-AP-1010','SPA-SS-1020'];
+  const gm = byId('SPA-FV-1003'); if (gm) gm.grantedOnly = true;
+  const accounts = [ { id:'A', name:'Brand-A', visibleIds: A_VIS }, { id:'B', name:'Brand-B', visibleIds: B_VIS } ];
+  const mappingBatches = [
+    { name:'財務 Financial', fields:'單價 / 付款條件 / 幣別', status:'signed', signedBy:'T. Kim', signedAt:'2026-06-10' },
+    { name:'關務 Customs', fields:'HS Code / 原產地 / 稅則', status:'pending', signedBy:null, signedAt:null },
+    { name:'物性 Physical', fields:'成分 / 規格 / 認證欄位', status:'unsubmitted', signedBy:null, signedAt:null },
+  ];
+  const evidenceRecords = [
+    { ts:'2026-06-19 09:12', event:'exchange.authorized', party:'Brand-A · R&D', batch:'財務 Financial', ref:'EVX-4471' },
+    { ts:'2026-06-18 14:03', event:'exchange.synced', party:'Factory Group B', batch:'關務 Customs', ref:'EVX-4468' },
+    { ts:'2026-06-15 11:47', event:'grant.revoked', party:'Brand-C · 材料部', batch:'物性 Physical', ref:'EVX-4455' },
+  ];
+  function visibleTo(acc){ const set=new Set(acc.visibleIds); return materials.filter(m=>set.has(m.id)); }
+  return { suppliers: SUP, materials, accounts, mappingBatches, evidenceRecords, visibleTo };
+})();
+
+/* This portal = Formosa Vietnam Co. (FV). Owner sees ALL own fields incl. private. */
+const OWNER='FV';
+const MY = MOCK_WORLD.materials.filter(m=>m.sup===OWNER);
+let PREVIEW = MOCK_WORLD.accounts[0];  // used by test hook getVisibleMaterials
+
+let LANG='en';
+const S={
+  v2:{en:'Council-final v2',zh:'議會定案版 v2'}, supName:{en:'Formosa Vietnam Co.',zh:'Formosa Vietnam Co.'},
+  nav_mat:{en:'My Materials',zh:'我的材料'}, nav_map:{en:'Mapping Sign-off',zh:'Mapping 驗收'}, nav_evi:{en:'Evidence & Settings',zh:'存證 · 設定'}, nav_con:{en:'Contact Permissions',zh:'聯絡許可'}, nav_bi:{en:'Business Dashboard',zh:'經營儀表板'},
+  mat_title:{en:'My Materials',zh:'我的材料'}, mat_sub:{en:'Set each field public / private / granted (granted = company · unit · account). Private/granted fields are not indexed for search.',zh:'每個欄位可設 公開 / 私密 / 授權（授權＝公司·單位·帳號三層）。私密/授權欄位不進搜尋索引。'},
+  map_title:{en:'Mapping Sign-off',zh:'Mapping 驗收'}, map_sub:{en:'Batch mapping → owner-side check → sign to activate. Unsigned batches do not flow.',zh:'分批 mapping → 擁有者端測試核對 → 簽署啟用。未簽署批次不流通。'},
+  map_lock:{en:'Unsigned mapping batches are not live and do not participate in any exchange. Signing transfers data-accuracy responsibility to the provider (food-label principle).',zh:'未簽署啟用的 mapping 批次不上線、不參與任何交換。簽署＝資料正確性責任移轉給提供方（食品成分表原則）。'},
+  t_batch:{en:'Batch',zh:'批次'}, t_fields:{en:'Fields',zh:'欄位範圍'}, t_status:{en:'Status',zh:'狀態'}, t_flow:{en:'Exchange',zh:'交換'},
+  evi_title:{en:'Evidence & Settings',zh:'存證 · 設定'}, evi_toggle:{en:'Exchange evidence (optional)',zh:'交換存證（選配）'}, evi_note:{en:'Records transaction events only — no exchange content stored, never in the searchable database.',zh:'僅記錄交易事件，不儲存交換內容，永不進入可搜尋資料庫。'}, evi_list:{en:'Evidence log (transaction records only, no content)',zh:'交換存證清單（只有交易記錄，無內容）'},
+  set_data:{en:'Data',zh:'資料'}, set_export:{en:'Export my data',zh:'匯出我的資料'}, set_exportNote:{en:'SmartPN unified part numbers remain SmartPN property and are not exported (exit right).',zh:'SmartPN 統一料號為 SmartPN 財產，不隨匯出交付（退出權）。'},
+  con_title:{en:'Contact Permissions',zh:'聯絡許可'}, con_sub:{en:'Mall model: the viewer decides whether the supplier may contact them. Never shows personal name / account / contact.',zh:'商場模式：瀏覽方決定供應商能否聯絡他。不顯示個人姓名 / 帳號 / 聯絡方式。'},
+  c_viewer:{en:'Viewer',zh:'瀏覽方'}, c_allow:{en:'Allows contact?',zh:'允許聯絡？'},
+  bi_title:{en:'Business Dashboard',zh:'經營儀表板'}, bi_sub:{en:'Decision support (no gross-margin card).',zh:'決策參考（不含 gross-margin 卡）'},
+  footer:{en:'Data providers are solely responsible for accuracy; SmartPN facilitates exchange.',zh:'資料提供者對資料正確性負全責；SmartPN 負責交換。'},
+};
+function T(k){ return (S[k]||{})[LANG]||k; }
+function toggleLang(){ LANG=LANG==='en'?'zh':'en'; document.getElementById('langBtn').textContent=LANG==='en'?'中文':'EN';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ if(S[el.dataset.i18n]) el.textContent=T(el.dataset.i18n); }); render(); }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function nav(p, el){ document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+  document.getElementById('page-'+p).classList.add('on');
+  document.querySelectorAll('.side button').forEach(b=>b.classList.remove('on'));
+  if(el) el.classList.add('on'); render(); }
+
+/* ─ req 3: per-field permission tri-state ─ */
+function setPerm(mid, fk, perm){ const m=MY.find(x=>x.id===mid); const f=m.fields.find(x=>x.k===fk); if(f){ f.perm=perm; renderMaterials(); } }
+function renderMaterials(){
+  document.getElementById('mat-list').innerHTML = MY.map(m=>{
+    const rows = m.fields.map(f=>`<tr>
+      <td>${esc(f.k)}</td><td>${esc(f.v)}</td>
+      <td><span class="seg">
+        <button class="public ${f.perm==='public'?'on':''}" onclick="setPerm('${m.id}','${f.k}','public')">${LANG==='en'?'Public':'公開'}</button>
+        <button class="private ${f.perm==='private'?'on':''}" onclick="setPerm('${m.id}','${f.k}','private')">${LANG==='en'?'Private':'私密'}</button>
+        <button class="granted ${f.perm==='granted'?'on':''}" onclick="setPerm('${m.id}','${f.k}','granted')">${LANG==='en'?'Granted':'授權'}</button>
+      </span>${f.perm==='granted'?`<div class="grantbox" style="display:block">→ ${esc((f.grantedTo||['公司 · 單位 · 帳號']).join(', '))}</div>`:''}</td></tr>`).join('');
+    return `<div class="mv"><div style="font-weight:600;margin-bottom:4px">${esc(m.name)} <span class="muted">· ${m.spn}</span></div>
+      <table class="mtable"><thead><tr><th>Field</th><th>Value</th><th>Permission</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }).join('');
+}
+
+/* ─ req 4: mapping sign-off ─ */
+function renderMapping(){
+  document.getElementById('map-body').innerHTML = MOCK_WORLD.mappingBatches.map((b,i)=>{
+    const st = b.status==='signed'?['signed', LANG==='en'?'✓ Signed':'✓ 已簽署啟用']
+             : b.status==='pending'?['pending', LANG==='en'?'Pending sign-off':'待驗收']
+             : ['unsub', LANG==='en'?'Not submitted':'未送驗'];
+    const flow = b.status==='signed' ? `<span style="color:#1D7340">${LANG==='en'?'In exchange':'參與交換'}</span>`
+                                     : `<span style="color:#B26A00">${LANG==='en'?'Not in any exchange':'不參與任何交換'}</span>`;
+    const act = b.status==='signed' ? `<button class="btn" onclick="alert('${b.name}: signed by ${b.signedBy} on ${b.signedAt}')">${LANG==='en'?'View sign-off':'查看簽署'}</button>`
+              : b.status==='pending' ? `<button class="btn btn-g" onclick="signOff(${i})">${LANG==='en'?'Sign to activate':'簽署啟用'}</button>`
+              : `<button class="btn" onclick="alert('Owner-side check first (demo)')">${LANG==='en'?'Submit for sign-off':'送驗收'}</button>`;
+    return `<tr><td><b>${esc(b.name)}</b></td><td>${esc(b.fields)}</td><td><span class="status ${st[0]}">${st[1]}</span></td><td>${flow}</td><td>${act}</td></tr>`;
+  }).join('');
+}
+function signOff(i){
+  const b=MOCK_WORLD.mappingBatches[i];
+  const bg=document.createElement('div'); bg.className='modal-bg';
+  bg.innerHTML=`<div class="modal"><div style="font-size:17px;font-weight:600;margin-bottom:6px">${LANG==='en'?'Sign-off':'驗收簽署'} — ${esc(b.name)}</div>
+    <div class="lock" style="margin-top:4px"><span>⚠</span><span>${LANG==='en'?'After signing, data-accuracy responsibility belongs to the provider (D4, food-label principle). Unsigned batches do not flow.':'簽署後，資料正確性責任歸提供方（D4，食品成分表原則）。未簽署批次不流通。'}</span></div>
+    <div style="text-align:right;margin-top:14px"><button class="btn" onclick="this.closest('.modal-bg').remove()">${LANG==='en'?'Cancel':'取消'}</button>
+    <button class="btn btn-g" style="margin-left:8px" onclick="MOCK_WORLD.mappingBatches[${i}].status='signed';MOCK_WORLD.mappingBatches[${i}].signedBy='You';MOCK_WORLD.mappingBatches[${i}].signedAt='2026-07-13';this.closest('.modal-bg').remove();renderMapping();">${LANG==='en'?'Sign & activate':'簽署並啟用'}</button></div></div>`;
+  bg.addEventListener('click',e=>{if(e.target===bg)bg.remove();}); document.body.appendChild(bg);
+}
+
+/* ─ req 5: evidence ─ */
+let EVI_ON=false;
+function toggleEvi(){ EVI_ON=!EVI_ON; document.getElementById('eviToggle').classList.toggle('on',EVI_ON); renderEvidence(); }
+function renderEvidence(){
+  const body=document.getElementById('evi-body');
+  if(!EVI_ON){ body.innerHTML=`<tr><td colspan="6" class="muted" style="text-align:center;padding:18px">${LANG==='en'?'Exchange evidence is OFF — no records kept.':'交換存證未啟用 — 不留任何記錄。'}</td></tr>`; return; }
+  body.innerHTML = MOCK_WORLD.evidenceRecords.map(r=>`<tr><td class="muted">${r.ts}</td><td><span class="chip" style="font-size:11px;background:#F0F0F0;border-radius:6px;padding:2px 7px">${esc(r.event)}</span></td><td>${esc(r.party)}</td><td>${esc(r.batch)}</td><td class="muted">${r.ref}</td>
+    <td><button class="btn" onclick="alert('${LANG==='en'?'Transaction record only — no exchange content is stored or viewable.':'僅交易記錄 — 無內容可看、不儲存交換內容。'}')">${LANG==='en'?'Open':'點開'}</button></td></tr>`).join('');
+}
+
+/* ─ req 6 (contacts / mall model) ─ */
+const CONTACTS=[{v:'Brand-A',a:true},{v:'Brand-B',a:false},{v:'Factory Group C',a:true}];
+function renderContacts(){
+  document.getElementById('con-body').innerHTML = CONTACTS.map((c,i)=>`<tr><td>${esc(c.v)}</td>
+    <td><div class="toggle ${c.a?'on':''}" onclick="CONTACTS[${i}].a=!CONTACTS[${i}].a;this.classList.toggle('on')"><span class="tk"></span><span class="tb"></span></div></td></tr>`).join('');
+}
+
+/* ─ BI (no gross-margin) ─ */
+function renderBi(){
+  document.getElementById('bi-body').innerHTML = `
+    <div class="mv"><div style="font-weight:600">① 總營業額 Revenue</div><div style="font-size:26px;font-weight:700;margin:6px 0">$4.08M</div><div class="muted">FV $2.45M · FI $1.63M</div></div>
+    <div class="mv"><div style="font-weight:600">② 產品銷售佔比 Product mix</div>
+      ${[['Recycled Mesh',31],['PU Leather',22],['TPU Film',18],['Others',29]].map(r=>`<div class="hbar-row"><span style="width:120px">${r[0]}</span><div class="hbar-track"><div class="hbar-fill" style="width:${r[1]*2}%;background:#1D1D1F"></div></div><span>${r[1]}%</span></div>`).join('')}</div>
+    <div class="mv"><div style="font-weight:600">⑦ 客戶集中度 Customer concentration</div>
+      ${[['Factory A',35],['Factory B',21],['Factory C',12]].map(r=>`<div class="hbar-row"><span style="width:120px">${r[0]}</span><div class="hbar-track"><div class="hbar-fill" style="width:${r[1]*2}%;background:#86868B"></div></div><span>${r[1]}%</span></div>`).join('')}
+      <div class="muted" style="margin-top:6px">⚠ 前三大 68% — 集中度偏高</div></div>
+    <div class="muted">（gross-margin 卡已依議會定案移除；其餘 KPI 保留）</div>`;
+}
+
+function exportData(){
+  const bg=document.createElement('div'); bg.className='modal-bg';
+  bg.innerHTML=`<div class="modal"><div style="font-size:17px;font-weight:600;margin-bottom:8px">${LANG==='en'?'Export my data':'匯出我的資料'}</div>
+    <div class="muted" style="margin-bottom:14px">${LANG==='en'?'Exports data you maintain/publish. SmartPN unified part numbers remain SmartPN property and are NOT exported (exit right).':'匯出你自己維護/發布的資料。SmartPN 統一料號為 SmartPN 財產，不隨匯出交付（退出權）。'}</div>
+    <div style="text-align:right"><button class="btn" onclick="this.closest('.modal-bg').remove()">${LANG==='en'?'Close':'關閉'}</button></div></div>`;
+  bg.addEventListener('click',e=>{if(e.target===bg)bg.remove();}); document.body.appendChild(bg);
+}
+
+function render(){ renderMaterials(); renderMapping(); renderEvidence(); renderContacts(); renderBi(); }
+render();
+
+/* ═══ 測試鉤子（純測試用途，不影響 UI） ═══ */
+window.MOCK_WORLD = MOCK_WORLD;
+window.setAccount = (id)=>{ PREVIEW = MOCK_WORLD.accounts.find(a=>a.id===id)||PREVIEW; };
+window.getVisibleMaterials = ()=>MOCK_WORLD.visibleTo(PREVIEW);
+window.setLang = (lg)=>{ if(lg && lg!==LANG) toggleLang(); };
+</script>
+</body>
+</html>
