@@ -1,0 +1,41 @@
+{
+  "scenarios": {
+    "manager_access": {
+      "entryVisible": true,
+      "denied": false,
+      "addedNewShows": true,
+      "PASS": true
+    },
+    "referenced_lock": {
+      "showsRefCount": true,
+      "renameDisabled": true,
+      "delDisabled": true,
+      "apiRenameStatus": 409,
+      "apiDeleteStatus": 409,
+      "PASS": true
+    },
+    "noaccess_test_editor": {
+      "entryHidden": true,
+      "pageStatus": 403,
+      "apiStatus": 403,
+      "PASS": true
+    },
+    "noaccess_tongcai": {
+      "entryHidden": true,
+      "pageStatus": 403,
+      "apiStatus": 403,
+      "PASS": true
+    },
+    "dropdown": {
+      "appearsAfterAdd": true,
+      "goneAfterDisable": true,
+      "PASS": true
+    },
+    "fuzz": {
+      "pageErrors": 0,
+      "PASS": true
+    }
+  },
+  "errors": [],
+  "ALL_PASS": true
+}

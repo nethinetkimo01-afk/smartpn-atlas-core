@@ -476,6 +476,21 @@ Jim 傾向 B，待確認後實作
   editor 無權鞋型全灰、有權鞋型正常；admin 不受影響；eolr read_only 純文字/admin 下拉；
   allocation read_only 勾選框全禁用。
 
+### 設備種類管理（Task K 定案 2026-07-13；權限＝manager/admin）
+- 設備種類選項**由 manager/admin 在 `/admin/equipment-types` 自行維護，不經 Code**。
+  （2026-07-13 Jim 定案：由 admin-only 改為 **manager＋admin**；editor/read_only → 403、入口不顯示。）
+- **引用鎖定**：已被 `ie_process` 任何列引用的設備種類＝**名稱鎖定不可改、不可刪除，只能停用**；
+  未被引用的可改名、可刪除。**停用＝下拉不再出現，既有資料照常顯示。**
+- 前端：已引用列的「改名／刪除」鈕**反灰不可點 + 顯示引用筆數**（例「已被 37 道工序使用」）；
+  未引用可改名/刪除（刪除二次確認）。停用/啟用、排序**不受引用限制**。
+- 後端 API `/api/equipment_types`：GET（下拉來源，任何登入者，只回 active=1）；
+  POST/PUT/DELETE + `/api/equipment_types/admin`（含停用項+引用數）一律 **`_require_manager()`**（manager/admin）。
+  改名/刪除被引用 → **409**（`referenced=true, ref_count`）。
+- **與 Task I 的關係**：manager 在 **IE 工序資料**仍是全灰唯讀（不變）；此處只開「設備種類選項維護」
+  這一個管理功能給 manager，**不是**開 IE 編輯權。入口鈕在 `ie_interface.html`（非細表），
+  不受 `applyReadOnlyDOM` 影響 → 對 manager 顯示且可點。
+- 下拉快取：`ie_cell_detail` init 從 `/api/equipment_types` 快取一次；**停用後重新載入細表即生效**（每次載入重取）。
+
 ### 語言切換不洗資料（定案修法）
 `setLang()` 改為 DOM in-place 更新：
 遍歷 `td.name[data-zh]`，直接替換 innerHTML/textContent。

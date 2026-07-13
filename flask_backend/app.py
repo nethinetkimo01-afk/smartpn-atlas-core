@@ -579,8 +579,47 @@ def ie_get_groups(header_id):
 
 @app.route('/api/equipment_types', methods=['GET'])
 def equipment_types_api():
-    # 設備種類「可管理選項清單」：回 active 選項（依 sort_order）
+    # 設備種類「可管理選項清單」：回 active 選項（依 sort_order）。下拉來源，任何登入者可讀。
     return jsonify(db.list_equipment_types())
+
+# ── Task K：設備種類管理（manager/admin 限定；editor/read_only → 403） ─────────
+@app.route('/admin/equipment-types')
+def equipment_types_page():
+    err = _require_manager()
+    if err: return err
+    return send_from_directory('..', 'equipment_types_admin.html')
+
+@app.route('/api/equipment_types/admin', methods=['GET'])
+def equipment_types_admin_list():
+    err = _require_manager()
+    if err: return err
+    return jsonify(db.list_equipment_types_admin())
+
+@app.route('/api/equipment_types', methods=['POST'])
+def equipment_types_add():
+    err = _require_manager()
+    if err: return err
+    d = request.get_json(force=True)
+    return jsonify(db.add_equipment_type(d.get('name'), d.get('sort_order', 0)))
+
+@app.route('/api/equipment_types/<int:tid>', methods=['PUT'])
+def equipment_types_update(tid):
+    err = _require_manager()
+    if err: return err
+    d = request.get_json(force=True)
+    r = db.update_equipment_type(tid, d.get('name'), d.get('sort_order'), d.get('active'))
+    if not r.get('ok') and r.get('referenced'):
+        return jsonify(r), 409
+    return jsonify(r)
+
+@app.route('/api/equipment_types/<int:tid>', methods=['DELETE'])
+def equipment_types_delete(tid):
+    err = _require_manager()
+    if err: return err
+    r = db.delete_equipment_type(tid)
+    if not r.get('ok') and r.get('referenced'):
+        return jsonify(r), 409
+    return jsonify(r)
 
 @app.route('/api/ie/<int:header_id>/sum', methods=['GET'])
 def ie_sum_api(header_id):

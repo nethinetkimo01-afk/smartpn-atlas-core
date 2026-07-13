@@ -2312,6 +2312,105 @@ def list_equipment_types(include_inactive=False):
         conn.close()
 
 
+# ── Task K：設備種類管理（manager/admin） ─────────────────────────────────────
+def _equip_ref_count(conn, name):
+    """該設備種類被 ie_process 幾道未刪除工序引用。"""
+    if not name:
+        return 0
+    return conn.execute(
+        "SELECT COUNT(*) FROM ie_process WHERE equipment_type=? AND (flag IS NULL OR flag!='deleted')",
+        (name,)).fetchone()[0]
+
+def list_equipment_types_admin():
+    """管理頁用：含停用項 + 每項引用筆數（ref_count）。"""
+    conn = get_conn()
+    try:
+        rows = conn.execute(
+            'SELECT id, name, sort_order, active FROM equipment_types ORDER BY sort_order ASC, id ASC'
+        ).fetchall()
+        out = []
+        for r in rows:
+            d = dict(r)
+            d['ref_count'] = _equip_ref_count(conn, r['name'])
+            out.append(d)
+        return {'ok': True, 'options': out}
+    except Exception as e:
+        return {'ok': False, 'error': str(e), 'options': []}
+    finally:
+        conn.close()
+
+def add_equipment_type(name, sort_order=0):
+    name = (name or '').strip()
+    if not name:
+        return {'ok': False, 'error': '名稱不可為空'}
+    conn = get_conn()
+    try:
+        if conn.execute('SELECT 1 FROM equipment_types WHERE name=?', (name,)).fetchone():
+            return {'ok': False, 'error': '名稱已存在'}
+        try:
+            so = int(sort_order)
+        except (TypeError, ValueError):
+            so = 0
+        conn.execute('INSERT INTO equipment_types (name, sort_order, active) VALUES (?,?,1)', (name, so))
+        conn.commit()
+        return {'ok': True, 'id': conn.execute('SELECT last_insert_rowid()').fetchone()[0]}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+def update_equipment_type(tid, name=None, sort_order=None, active=None):
+    """改名/調排序/停用啟用。改名：若已被引用→拒絕(referenced=True，供 409)。
+    排序/停用啟用：不受引用限制。"""
+    conn = get_conn()
+    try:
+        cur = conn.execute('SELECT id, name, sort_order, active FROM equipment_types WHERE id=?', (tid,)).fetchone()
+        if not cur:
+            return {'ok': False, 'error': '設備種類不存在'}
+        # 改名：引用檢查
+        if name is not None and name.strip() and name.strip() != cur['name']:
+            newname = name.strip()
+            ref = _equip_ref_count(conn, cur['name'])
+            if ref > 0:
+                return {'ok': False, 'referenced': True, 'ref_count': ref,
+                        'error': f'已被 {ref} 道工序使用，名稱鎖定不可改'}
+            if conn.execute('SELECT 1 FROM equipment_types WHERE name=? AND id!=?', (newname, tid)).fetchone():
+                return {'ok': False, 'error': '名稱已存在'}
+            conn.execute('UPDATE equipment_types SET name=? WHERE id=?', (newname, tid))
+        if sort_order is not None:
+            try:
+                conn.execute('UPDATE equipment_types SET sort_order=? WHERE id=?', (int(sort_order), tid))
+            except (TypeError, ValueError):
+                pass
+        if active is not None:
+            conn.execute('UPDATE equipment_types SET active=? WHERE id=?', (1 if int(active) else 0, tid))
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+def delete_equipment_type(tid):
+    """刪除：若被引用→拒絕(referenced=True，供 409)。未引用→刪除。"""
+    conn = get_conn()
+    try:
+        cur = conn.execute('SELECT id, name FROM equipment_types WHERE id=?', (tid,)).fetchone()
+        if not cur:
+            return {'ok': False, 'error': '設備種類不存在'}
+        ref = _equip_ref_count(conn, cur['name'])
+        if ref > 0:
+            return {'ok': False, 'referenced': True, 'ref_count': ref,
+                    'error': f'已被 {ref} 道工序使用，不可刪除（請改為停用）'}
+        conn.execute('DELETE FROM equipment_types WHERE id=?', (tid,))
+        conn.commit()
+        return {'ok': True}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        conn.close()
+
+
 def get_db_stats():
     conn = get_conn()
     try:
