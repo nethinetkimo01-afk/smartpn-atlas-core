@@ -278,7 +278,7 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
   <button class="fc active" onclick="setTypeFilter('all',this)" data-i18n="f_all">All</button>
   <button class="fc" onclick="setTypeFilter('raw',this)" data-i18n="f_raw">Raw Material</button>
   <button class="fc" onclick="setTypeFilter('secondary',this)" data-i18n="f_sec">Secondary</button>
-  <button class="fc dpp" onclick="toggleDppFilter(this)">DPP-ready</button>
+  <button class="fc dpp" onclick="toggleDppFilter(this)" title="欄位齊全度篩選">DPP complete</button>
   <div class="filter-sep"></div>
   <span class="filter-label" data-i18n="f_price">Price / m</span>
   <div class="price-range-wrap">
@@ -408,9 +408,27 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
   <div class="section-title" data-i18n="settings">Settings</div>
   <div class="settings-row"><span class="settings-label">Language</span><span class="settings-val">English / 中文</span></div>
   <div class="settings-row"><span class="settings-label">Default search results</span><span class="settings-val">All (OPEN + my access)</span></div>
-  <div class="settings-row"><span class="settings-label">DPP-ready filter</span><div class="toggle"></div></div>
+  <div class="settings-row"><span class="settings-label">DPP completeness filter</span><div class="toggle"></div></div>
   <div class="settings-row"><span class="settings-label">Email on permission changes</span><div class="toggle"></div></div>
   <div class="settings-row"><span class="settings-label">Show LT in search results</span><div class="toggle"></div></div>
+
+  <!-- B7：帳號隨用隨增 -->
+  <div class="section-title" style="margin-top:28px">Account &amp; Seats</div>
+  <div class="settings-row"><span class="settings-label">Current seats</span><span class="settings-val">8 active</span></div>
+  <div class="settings-row"><span class="settings-label">Added this month</span><span class="settings-val" style="color:#1D7340">+2 seats</span></div>
+  <div class="settings-row"><span class="settings-label">Volume pricing</span><span class="settings-val">1–10: $X · 11–30: $Y · 31+: $Z / seat/mo</span></div>
+  <div class="settings-row"><span class="settings-label">Add seats as you grow</span><button class="btn-blue-ghost" style="padding:5px 12px" onclick="alert('Add seats — pay per seat, no upfront bulk purchase (demo)')">＋ Add seats</button></div>
+
+  <!-- B8：Export my data -->
+  <div class="section-title" style="margin-top:28px">Data</div>
+  <div class="settings-row"><span class="settings-label">Export my data</span><button class="btn-ghost" style="padding:5px 12px" onclick="alert('Export my data (demo).\n\n匯出你自己維護/發布的資料。\nSmartPN 核發的統一料號為 SmartPN 財產，不隨匯出交付。')">⬇ Export</button></div>
+  <div class="settings-row"><span class="settings-label" style="color:#86868B;font-size:12px">SmartPN 統一料號不隨匯出交付（退出權）。</span><span></span></div>
+
+  <!-- C3：Shared BOM vs actual BOM（mock 標示） -->
+  <div class="section-title" style="margin-top:28px">Shared BOM (S05)</div>
+  <div class="settings-row"><span class="settings-label">Shared BOM · Model KI9853</span><span class="settings-val">Ripstop Nylon 70D · GRS Mesh 220g · TPU Film 0.15mm</span></div>
+  <div class="settings-row"><span class="settings-label">Factory A — actual</span><span class="settings-val" style="color:#1D7340">符合 Shared BOM</span></div>
+  <div class="settings-row"><span class="settings-label">Factory B — actual</span><span class="settings-val" style="color:#B26A00">替代 1 項：GRS Mesh → local equiv（+$0.12/yd，已核准）</span></div>
 </div>
 
 <!-- FSM MODAL -->
@@ -424,6 +442,11 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
     </div>
     <div class="fsm-modal-body" id="fsm-modal-body"></div>
   </div>
+</div>
+
+<!-- C2：責任 footer -->
+<div style="text-align:center;font-size:11px;color:#86868B;padding:16px 40px 40px;border-top:0.5px solid #E5E5EA;margin-top:24px">
+  資料提供者對資料正確性負全責；SmartPN 負責交換。 · Data providers are solely responsible for accuracy; SmartPN facilitates exchange.
 </div>
 
 <script>
@@ -466,13 +489,13 @@ function matURI(m, size) { return texURI(texturePattern(m), size || 300); }
 /* ═══ MOCK DATA (37_DEMO_MOCK_DATA.md) ═══ */
 const SUPPLIERS = {
   FV: { id:'FV', name:'Formosa Vietnam Co.', short:'FV', country:'Vietnam', location:'Ho Chi Minh City, Vietnam', category:'Textiles & Synthetics', desc:'Formosa Materials Group subsidiary. Recycled mesh textiles, PU synthetic leather and specialty fabrics. GRS and ISO 9001 certified.', dpp:true,
-    certs:[{name:'ISO 9001',by:'TÜV Rheinland',exp:'2027-03-31'},{name:'GRS (Global Recycled Standard)',by:'Control Union',exp:'2026-11-30'},{name:'DPP-ready',by:'SmartPN Verified',exp:'2026-12-31'}],
+    certs:[{name:'ISO 9001',by:'TÜV Rheinland',exp:'2027-03-31'},{name:'GRS (Global Recycled Standard)',by:'Control Union',exp:'2026-11-30'}],
     reviews:[] },
   FI: { id:'FI', name:'Formosa Indonesia Co.', short:'FI', country:'Indonesia', location:'Jakarta, Indonesia', category:'Films & Secondary Processing', desc:'Formosa Materials Group subsidiary. TPU laminating films and secondary processing. ISO 9001 certified.', dpp:true,
-    certs:[{name:'ISO 9001',by:'SGS',exp:'2027-01-15'},{name:'DPP-ready',by:'SmartPN Verified',exp:'2026-12-31'}],
+    certs:[{name:'ISO 9001',by:'SGS',exp:'2027-01-15'}],
     reviews:[] },
   AP: { id:'AP', name:'Apex Textile Co.', short:'AP', country:'Taiwan', location:'Taipei, Taiwan', category:'Textiles & Leather', desc:'DPP-ready textile specialist. Full grain leather, jacquard knit and microfiber suede for global footwear brands.', dpp:true,
-    certs:[{name:'ISO 9001',by:'BSI',exp:'2027-06-30'},{name:'OEKO-TEX Standard 100',by:'OEKO-TEX',exp:'2026-09-30'},{name:'DPP-ready',by:'SmartPN Verified',exp:'2026-12-31'}],
+    certs:[{name:'ISO 9001',by:'BSI',exp:'2027-06-30'},{name:'OEKO-TEX Standard 100',by:'OEKO-TEX',exp:'2026-09-30'}],
     reviews:[{initials:'BC',name:'Brand-C',org:'Brand-C',date:'Jun 9',stars:5,text:'DPP 資料配合度高，配合速度業界最快。',perm:'OPEN'}] },
   SS: { id:'SS', name:'Sunrise Synthetics', short:'SS', country:'Vietnam', location:'Da Nang, Vietnam', category:'Commodity Textiles', desc:'Regional supplier. Competitive pricing with longer lead times. REACH compliant.', dpp:false,
     certs:[{name:'ISO 9001',by:'Intertek',exp:'2026-10-31'},{name:'REACH',by:'Self-declared',exp:'2026-12-31'}],
@@ -495,7 +518,7 @@ const MATERIALS = [
     skuVariants:[{ key:'CLR-015', label:'Clear · 0.15mm', price:1.45, lt:25, fields:{Thickness:'0.15mm',Color:'Clear',Hardness:'85 Shore A','Tensile strength':'40 MPa'} }],
     reviews:[] },
   { id:'SPA-MAT-0003', spn:'SPA-MAT-9HFK', gs1:null, name:'PU Synthetic Leather 1.2mm', sup:'FV', type:'raw', cat:'人造皮', views:118, spuCode:'PU-SL-12', skuKey:'BLK-MAT',
-    price:3.80, priceUnit:'m', lt:35, perm:'OPEN', dpp:false, updated:'Jun 11',
+    price:3.80, priceUnit:'m', lt:35, perm:'OPEN', quoteOnly:true, dpp:false, updated:'Jun 11',
     spuFields:{ Category:'Synthetic Leather', Base:'Woven polyester', Coating:'PU top coat', Standard:'QB/T 2729' },
     skuVariants:[
       { key:'BLK-MAT', label:'Black · Matt', price:3.80, lt:35, fields:{Thickness:'1.2mm',Color:'Black',Finish:'Matt','Peel strength':'≥30 N/cm',Abrasion:'20,000 cycles'} },
@@ -503,7 +526,7 @@ const MATERIALS = [
     ],
     reviews:[] },
   { id:'SPA-MAT-0004', spn:'SPA-MAT-4XBV', gs1:'4719876500041', name:'Full Grain Cow Leather', sup:'AP', type:'raw', cat:'皮料', views:142, spuCode:'FGCL-NATURAL', skuKey:'1.2-NAT',
-    price:8.50, priceUnit:'sqft', lt:45, perm:'OPEN', dpp:true, updated:'Jun 13',
+    price:8.50, priceUnit:'sqft', lt:45, perm:'OPEN', quoteOnly:true, dpp:true, updated:'Jun 13',
     spuFields:{ Category:'Leather', Origin:'South America', Tannage:'Chrome-free vegetable', Standard:'IUF 450' },
     skuVariants:[
       { key:'1.2-NAT', label:'1.2mm · Natural', price:8.50, lt:45, fields:{Thickness:'1.2mm',Color:'Natural Tan',Finish:'Full grain','Tensile strength':'≥200 N/cm²'} },
@@ -645,13 +668,13 @@ function cardHtml(m){
   const sup=SUPPLIERS[m.sup];
   return `<div class="mat-card" onclick="openSpu('${m.id}')">
     <div class="mc-img"><img src="${matURI(m,300)}" alt="${m.name}">
-      ${m.dpp?'<div class="dpp-badge">DPP-ready</div>':''}
+      ${m.dpp?'<div class="dpp-badge" title="欄位齊全度，非內容驗證">DPP 12/14</div>':'<div class="dpp-badge" style="color:#86868B;border-color:#D2D2D7" title="欄位齊全度">Missing metadata</div>'}
       ${m.type==='secondary'?'<div class="secondary-tag">Secondary</div>':''}
     </div>
     <div class="mc-name">${m.name}</div>
     <button class="mc-supplier-link" onclick="event.stopPropagation();openCompanyFromCard('${m.sup}')">${sup.name}</button>
     ${starsHtml(avgStars(m.reviews))}
-    <div class="mc-price-row"><span>Price / ${m.priceUnit} <span class="mc-price-val">USD ${m.price.toFixed(2)}</span></span><span>LT <span class="mc-price-val">${m.lt}d</span></span></div>
+    <div class="mc-price-row"><span>Price / ${m.priceUnit} <span class="mc-price-val">${m.quoteOnly?'<span style="color:#B26A00">Request quotation</span>':'USD '+m.price.toFixed(2)}</span></span><span>LT <span class="mc-price-val">${m.lt}d</span></span></div>
     ${permLabel(m.perm)}
   </div>`;
 }
@@ -659,7 +682,9 @@ function renderGrid(mats){
   const list=mats||getFiltered();
   const wrap=document.getElementById('mat-grid-wrap'), countEl=document.getElementById('result-count');
   updateCatCounts();
-  countEl.textContent=`${list.length} material${list.length!==1?'s':''}`+(externalView?' · External View (PRIVATE hidden)':'');
+  // B2: 搜尋結果權限標示——只顯示對你可見的結果，非全市場
+  countEl.innerHTML=`${list.length} result${list.length!==1?'s':''} visible to you`+(externalView?' · External View (PRIVATE hidden)':'')
+    +`<div style="font-size:11px;color:#B26A00;margin-top:2px">Permission-filtered — not the full market</div>`;
   wrap.innerHTML=list.length?`<div class="mat-grid">${list.map(cardHtml).join('')}</div>`:'<div class="mat-grid"><div class="no-results">No materials match your filters.</div></div>';
 }
 function updateCatCounts(){
@@ -693,7 +718,7 @@ function selectOpt(key){ currentSku=currentMat.skuVariants.find(v=>v.key===key)|
 function renderSpuPage(m){
   const sup=SUPPLIERS[m.sup], sku=currentSku;
   document.getElementById('spu-hero').innerHTML=`
-    <div class="spu-img"><img src="${matURI(m,400)}" alt="${m.name}">${m.dpp?'<div class="spu-dpp-badge">DPP-ready</div>':''}</div>
+    <div class="spu-img"><img src="${matURI(m,400)}" alt="${m.name}">${m.dpp?'<div class="spu-dpp-badge" title="欄位齊全度，非內容驗證">DPP fields 12/14 complete</div>':'<div class="spu-dpp-badge" style="background:#86868B">Missing metadata</div>'}</div>
     <div class="spu-info">
       <div class="spu-type-tag">${m.type==='secondary'?'Secondary Process':'Raw Material'}</div>
       <div class="spu-title">${m.name}</div>
@@ -702,12 +727,17 @@ function renderSpuPage(m){
       <div class="spu-perm ${m.perm.toLowerCase()}">${m.perm}${avgStars(m.reviews)?`　·　★ ${avgStars(m.reviews).toFixed(1)}`:''}</div>
       <div>Maintained by <button class="supplier-link" onclick="openCompanyFromSpu('${m.sup}')">${sup.name}</button></div>
       <div class="spu-maintained">${sup.location}</div>
+      ${(function(){const api=['FV','FI','AP'].includes(m.sup);return `<div class="spu-source" style="font-size:11px;color:#86868B;margin-top:6px;border:0.5px solid #E5E5EA;border-radius:6px;padding:5px 10px;display:inline-block">`+(api
+        ? `🔗 <b>API-mapped</b> · Source: Supplier ERP (${sup.name}) · Authority: Supplier · Synced 8 min ago · Not cached`
+        : `🗄️ <b>SmartPN-maintained</b> · Authority: Supplier (delegated) · Stored in SmartPN`)+`</div>`;})()}
       <div class="opt-row">
         <div class="opt-label" data-i18n="options">Options</div>
         <div class="opt-list">${m.skuVariants.map(v=>`<button class="opt-btn ${v.key===sku.key?'selected':''}" onclick="selectOpt('${v.key}')"><img src="${matURI(m,80)}" alt="">${v.label}</button>`).join('')}</div>
       </div>
       <div class="spu-price-block">
-        <div><div class="spu-price-label" data-i18n="price">Price / ${m.priceUnit}</div><div class="spu-price-val">USD ${sku.price.toFixed(2)}</div><div class="spu-price-sub">${sku.label}</div></div>
+        <div><div class="spu-price-label" data-i18n="price">Price / ${m.priceUnit}</div>${m.quoteOnly
+          ? '<div class="spu-price-val" style="font-size:16px;color:#B26A00">Request quotation</div><div class="spu-price-sub">Price is private — one quote, one customer</div>'
+          : `<div class="spu-price-val">USD ${sku.price.toFixed(2)}</div><div class="spu-price-sub">${sku.label}</div>`}</div>
         <div><div class="spu-price-label" data-i18n="leadtime">Lead time</div><div class="spu-price-val">${sku.lt} days</div></div>
         ${m.dpp?'<div><div class="spu-price-label">DPP data</div><div class="spu-price-val" style="color:#1D7340;font-size:16px">Available</div></div>':''}
       </div>
@@ -716,6 +746,7 @@ function renderSpuPage(m){
         <button class="btn-ghost" onclick="showPage('compare')" data-i18n="compare">Compare</button>
         <button class="btn-blue-ghost" onclick="findSameMaterial('${m.id}','${m.spuCode}','${sku.key}')" data-i18n="fsm">Find Same Material</button>
         <button class="btn-blue-ghost" onclick="openRequestFor('${m.sup}','${m.name.replace(/'/g,"")}')" data-i18n="request">Request</button>
+        <button class="btn-ghost" onclick="showFieldHistory('${m.id}')" data-i18n="history">History</button>
       </div>
     </div>`;
   let spec=`<div class="spec-section-title" data-i18n="overview">Material Overview</div>`;
@@ -723,6 +754,29 @@ function renderSpuPage(m){
   for(const[k,v] of Object.entries(sku.fields)) spec+=`<div class="spec-row"><span class="spec-label">${k}</span><span class="spec-val">${v}</span></div>`;
   document.getElementById('spu-spec-body').innerHTML=spec;
   document.getElementById('spu-reviews-body').innerHTML=reviewsHtml(m);
+}
+// B6：公開欄位修改記錄（mock）——只有公開資料有版本歷史
+function showFieldHistory(id){
+  const m=MATERIALS.find(x=>x.id===id)||currentMat;
+  document.getElementById('fieldHistModal')?.remove();
+  const rows=[
+    ['2026-06-18','Price (Standard tier)','USD 4.10 → USD 3.95','Supplier'],
+    ['2026-05-30','GRS Content','78% → 82%','Supplier'],
+    ['2026-05-12','Lead time','50 → 45 days','Supplier'],
+  ].map(r=>`<tr><td style="color:#86868B">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td style="color:#86868B">${r[3]}</td></tr>`).join('');
+  const ov=document.createElement('div');
+  ov.id='fieldHistModal';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:9999;display:flex;align-items:center;justify-content:center';
+  ov.innerHTML=`<div style="background:#fff;border-radius:12px;padding:22px;min-width:420px;max-width:92vw">
+    <div style="font-size:16px;font-weight:600;margin-bottom:4px">Version history — ${m?m.name:''}</div>
+    <div style="font-size:12px;color:#86868B;margin-bottom:12px">Public fields only. Private data keeps zero version records on SmartPN.</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="color:#86868B;text-align:left"><th style="padding:4px 8px">Date</th><th>Field</th><th>Change</th><th>By</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    <div style="text-align:right;margin-top:14px"><button onclick="document.getElementById('fieldHistModal').remove()" style="padding:7px 16px;border:1px solid #ccc;border-radius:7px;background:#fff;cursor:pointer">Close</button></div>
+  </div>`;
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+  document.body.appendChild(ov);
 }
 function permBadge(r){ return r.perm!=='SHARED'
   ? `<span class="review-perm" style="color:#1D7340;background:#F0FFF4">🌐 Public · supplier-visible</span>`
@@ -755,7 +809,7 @@ function renderCompanyPage(supId){
     <div class="company-hero"><div class="company-avatar">${s.short}</div>
       <div><div class="company-name">${s.name}</div><div class="company-meta">${s.country} · ${s.category}</div>
       <div class="company-desc">${s.desc}</div>
-      ${s.dpp?'<div class="dpp-hero-badge">✓ DPP-ready supplier — compliance docs available on request</div>':''}</div></div>
+      ${s.dpp?'<div class="dpp-hero-badge" title="欄位齊全度，非內容驗證">DPP fields 12/14 complete — compliance docs available on request</div>':''}</div></div>
     <div class="info-grid">
       <div class="info-card"><div class="info-card-label">Country</div><div class="info-card-val">${s.country}</div></div>
       <div class="info-card"><div class="info-card-label">Materials in Demo</div><div class="info-card-val">${mats.length}</div></div>
@@ -763,8 +817,9 @@ function renderCompanyPage(supId){
     </div>
     <div class="section-title" data-i18n="certs">Certifications</div>
     <table class="cert-table"><thead><tr><th>Certification</th><th>Issued by</th><th>Valid until</th></tr></thead><tbody>
-      ${s.certs.map(c=>`<tr><td>${c.name==='DPP-ready'?'<span class="b-dpp">✓ DPP-ready</span>':c.name}</td><td>${c.by}</td><td>${c.exp}</td></tr>`).join('')}
+      ${s.certs.map(c=>`<tr><td>${c.name}</td><td>${c.by}</td><td>${c.exp}</td></tr>`).join('')}
     </tbody></table>
+    <div style="font-size:12px;color:#86868B;margin-top:6px">認證由第三方發證機構背書；SmartPN 不驗證內容真偽。</div>
     <div class="section-title">Materials from ${s.name}</div>
     <div class="lib-grid">${mats.map(m=>libRow(m,true)).join('')||'<div style="color:#86868B;font-size:14px;padding:12px 0">No visible materials.</div>'}</div>
     <div class="section-title" style="margin-top:28px">Public Reviews</div>
@@ -873,7 +928,7 @@ const STRINGS={
   cat_leather:{en:'Leather',zh:'皮料'},cat_synleather:{en:'Synthetic Leather',zh:'人造皮'},cat_textile:{en:'Textile',zh:'紡織'},cat_film:{en:'Film',zh:'薄膜'},cat_secondary:{en:'Secondary',zh:'二次加工'},
   materialSearch:{en:'Material Search',zh:'材料搜尋'},back:{en:'Back',zh:'返回'},options:{en:'Options',zh:'規格選項'},
   price:{en:'Price',zh:'單價'},leadtime:{en:'Lead time',zh:'交期'},addLib:{en:'Add to My Library',zh:'加入材料庫'},
-  compare:{en:'Compare',zh:'比較'},fsm:{en:'Find Same Material',zh:'尋找相同材料'},request:{en:'Request',zh:'發起對話'},
+  compare:{en:'Compare',zh:'比較'},fsm:{en:'Find Same Material',zh:'尋找相同材料'},request:{en:'Request',zh:'發起對話'},history:{en:'History',zh:'歷史記錄'},
   overview:{en:'Material Overview',zh:'材料總覽'},certs:{en:'Certifications',zh:'認證'},
   shareLib:{en:'Share with my company',zh:'分享給同公司'},libNote:{en:'Personal library — private to your account. Sharing grants read access to selected colleagues.',zh:'個人材料庫，帳號獨立。分享後可讓同公司指定同事讀取。'},
   send:{en:'Send',zh:'送出'},postReview:{en:'Post review',zh:'發表評論'},reviewNote:{en:'Public reviews are visible to the supplier; private only to your company.',zh:'公開評論供應商可見；私密評論僅同公司可見。'},

@@ -231,7 +231,7 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
       <button class="nav-sub" onclick="showView('secondary',this)"><span class="nav-sub-dot"></span><span data-i18n="m_secondary">二次加工</span></button>
       <button class="nav-sub" onclick="showView('permission',this)"><span class="nav-sub-dot"></span><span data-i18n="m_permission">權限管理</span></button>
       <button class="nav-sub" onclick="showView('pricing',this)"><span class="nav-sub-dot"></span><span data-i18n="m_pricing">單價管理</span></button>
-      <button class="nav-sub" onclick="showView('who',this)"><span class="nav-sub-dot"></span><span data-i18n="m_who">誰看過我的材料</span></button>
+      <button class="nav-sub" onclick="showView('mapping',this)"><span class="nav-sub-dot"></span><span data-i18n="m_mapping">Mapping 驗收</span></button>
     </div>
     <div class="sidebar-section">Boss BI</div>
     <div class="nav-group">
@@ -283,8 +283,8 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
           <table class="gtable"><thead><tr><th>認證名稱</th><th>發證單位</th><th>到期日</th><th>文件</th><th></th></tr></thead><tbody>
             <tr><td>ISO 9001</td><td>TÜV Rheinland</td><td>2027-03-31</td><td><span class="chip">ISO9001.pdf</span></td><td><button class="btn-link-red">移除</button></td></tr>
             <tr><td>GRS (Global Recycled Standard)</td><td>Control Union</td><td>2026-11-30</td><td><span class="chip">GRS-Scope.pdf</span></td><td><button class="btn-link-red">移除</button></td></tr>
-            <tr><td><span class="verified">✓ DPP-ready</span></td><td>SmartPN Verified</td><td>2026-12-31</td><td><span class="chip">DPP-cert.pdf</span></td><td><button class="btn-link-red">移除</button></td></tr>
           </tbody></table>
+          <div style="font-size:12px;color:#86868B;margin-top:8px">認證由第三方發證機構背書並顯示效期；SmartPN 不簽發、不驗證內容真偽（「SmartPN Verified」不存在）。DPP 狀態＝欄位齊全度，另見材料頁。</div>
           <button class="btn-dashed" onclick="alert('新增認證：名稱 / 發證單位 / 到期日 / 上傳文件')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>新增認證 + 上傳文件</button>
         </div>
       </div>
@@ -318,7 +318,7 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
 
       <div class="tab-panel" id="c-sub">
         <div class="company-tree">
-          <div class="company-node"><div class="company-node-ava">FMG</div><div style="flex:1"><div class="company-node-name">Formosa Materials Group</div><div class="company-node-meta">母公司 · Taipei, Taiwan</div></div><span class="verified">Verified</span></div>
+          <div class="company-node"><div class="company-node-ava">FMG</div><div style="flex:1"><div class="company-node-name">Formosa Materials Group</div><div class="company-node-meta">母公司 · Taipei, Taiwan</div></div><span class="verified" style="background:#F0F7FF;color:#0071E3">Group HQ</span></div>
           <div class="company-node child"><div class="company-node-ava">FV</div><div style="flex:1"><div class="company-node-name">Formosa Vietnam Co.</div><div class="company-node-meta">子公司 · Ho Chi Minh City, Vietnam · 網布 / 合成皮</div></div><span class="nav-chev">›</span></div>
           <div class="company-node child"><div class="company-node-ava">FI</div><div style="flex:1"><div class="company-node-name">Formosa Indonesia Co.</div><div class="company-node-meta">子公司 · Jakarta, Indonesia · 薄膜 / 二次加工</div></div><span class="nav-chev">›</span></div>
         </div>
@@ -381,6 +381,15 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
       <div class="warn-box"><span>🔒</span><span>所有新材料預設 <strong>PRIVATE</strong>。授權以「資料夾」為單位，授權對象 = 公司 + 單位 + 個人帳號。</span></div>
       <div id="folders"></div>
       <button class="btn-dashed" onclick="alert('新增欄位資料夾（命名）→ 勾選欄位 → 授權')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>新增欄位資料夾</button>
+      <!-- B5：交換存證選配開關 -->
+      <div class="form-card" style="margin-top:22px"><div class="form-card-title">交換存證（選配）</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0">
+          <div style="font-size:13px;color:#1D1D1F">啟用交換存證
+            <div style="font-size:12px;color:#86868B;margin-top:4px">僅記錄交易事件（誰、何時、哪批授權），<strong>不儲存交換內容</strong>，且<strong>永不進入可搜尋資料庫</strong>。</div>
+          </div>
+          <label style="position:relative;display:inline-block;width:44px;height:24px"><input type="checkbox" id="evi-toggle" style="opacity:0;width:0;height:0"><span onclick="var c=document.getElementById('evi-toggle');c.checked=!c.checked;this.style.background=c.checked?'#1D7340':'#C7C7CC';this.firstElementChild.style.left=c.checked?'22px':'2px'" style="position:absolute;cursor:pointer;inset:0;background:#C7C7CC;border-radius:24px;transition:.15s"><span style="position:absolute;height:20px;width:20px;left:2px;top:2px;background:#fff;border-radius:50%;transition:.15s"></span></span></label>
+        </div>
+      </div>
     </div>
 
     <!-- 單價管理 -->
@@ -408,20 +417,19 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
       </div>
     </div>
 
-    <!-- 誰看過我的材料 -->
-    <div class="view fade-in" id="view-who">
-      <div class="page-header"><div class="page-title" data-i18n="m_who">誰看過我的材料</div><div class="page-sub">瀏覽者隱私分級 — 公開又隱私</div></div>
-      <div class="privacy-notice"><strong>GRANT 哲學：</strong>瀏覽者的隱私也是隱私。供應商得到誘因（知道有人在看），Brand 得到安全（不被騷擾）。永不顯示個人姓名 / 帳號 / 聯絡方式。</div>
-      <div class="privacy-toggle"><button class="on" onclick="setWho('company',this)">公司名 + 次數</button><button onclick="setWho('fuzzy',this)">行業 / 地區模糊</button></div>
-      <div id="who-company" class="mat-list">
-        <div class="view-row"><div class="view-ava" style="background:#E8F0FE;color:#0071E3">BA</div><div class="view-name">Brand-A</div><div class="view-cnt">12</div></div>
-        <div class="view-row"><div class="view-ava" style="background:#F0FFF4;color:#1D7340">BB</div><div class="view-name">Brand-B</div><div class="view-cnt">7</div></div>
-        <div class="view-row"><div class="view-ava" style="background:#FFF8E7;color:#F5A623">FD</div><div class="view-name">Factory Group D</div><div class="view-cnt">3</div></div>
-      </div>
-      <div id="who-fuzzy" class="mat-list" style="display:none">
-        <div class="view-row"><div class="view-ava" style="background:#F0F7FF">👟</div><div class="view-name">歐洲運動品牌 × 2</div><div class="view-cnt">19</div></div>
-        <div class="view-row"><div class="view-ava" style="background:#F5F5F7">🏭</div><div class="view-name">亞洲代工集團 × 1</div><div class="view-cnt">3</div></div>
-      </div>
+    <!-- B4：Mapping 驗收 -->
+    <div class="view fade-in" id="view-mapping">
+      <div class="page-header"><div class="page-title" data-i18n="m_mapping">Mapping 驗收</div><div class="page-sub">分批 mapping → 擁有者端測試核對 → 簽署啟用。未簽署批次不參與任何交換。</div></div>
+      <div class="info-box">分批進行（財務 → 關務 → 物性…），一次全量 mapping 錯誤率高。驗收簽署為啟用前強制步驟；簽署後資料正確性責任歸提供方（食品成分表原則）。</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:8px">
+        <thead><tr style="color:#86868B;text-align:left;border-bottom:0.5px solid #D2D2D7"><th style="padding:8px">批次</th><th>欄位範圍</th><th>狀態</th><th>交換</th><th></th></tr></thead>
+        <tbody>
+          <tr style="border-bottom:0.5px solid #E5E5EA"><td style="padding:10px 8px"><b>Batch 1 · 財務</b></td><td>單價 / 付款條件 / 幣別</td><td><span style="background:#E8F6EC;color:#1D7340;border-radius:8px;padding:2px 9px;font-size:12px">✓ 已簽署啟用</span></td><td style="color:#1D7340">參與交換</td><td><button class="btn-link">查看簽署</button></td></tr>
+          <tr style="border-bottom:0.5px solid #E5E5EA"><td style="padding:10px 8px"><b>Batch 2 · 關務</b></td><td>HS Code / 原產地 / 稅則</td><td><span style="background:#FFF8E7;color:#B26A00;border-radius:8px;padding:2px 9px;font-size:12px">待驗收</span></td><td style="color:#B26A00">不參與任何交換</td><td><button class="btn-blue-ghost" style="padding:4px 12px" onclick="alert('擁有者端測試核對 → 簽署啟用（demo）')">送驗收</button></td></tr>
+          <tr><td style="padding:10px 8px"><b>Batch 3 · 物性</b></td><td>成分 / 規格 / 認證欄位</td><td><span style="background:#F0F0F0;color:#86868B;border-radius:8px;padding:2px 9px;font-size:12px">mapping 中</span></td><td style="color:#86868B">不參與任何交換</td><td><button class="btn-link">編輯 mapping</button></td></tr>
+        </tbody>
+      </table>
+      <div class="warn-box" style="margin-top:18px"><span>🔒</span><span>未簽署啟用的 mapping 批次<strong>不上線、不參與任何交換</strong>。簽署＝資料正確性責任移轉給提供方。</span></div>
     </div>
 
     <!-- Boss BI -->
@@ -439,12 +447,6 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
         <div class="bi-card"><div class="bi-label">③ 各公司營收佔比</div><div class="hbar">
           <div class="hbar-row"><span class="hbar-label">Formosa Vietnam</span><div class="hbar-track"><div class="hbar-fill" style="width:100%;background:#1D1D1F"></div></div><span class="hbar-val">$2.45M·60%</span></div>
           <div class="hbar-row"><span class="hbar-label">Formosa Indonesia</span><div class="hbar-track"><div class="hbar-fill" style="width:67%;background:#86868B"></div></div><span class="hbar-val">$1.63M·40%</span></div></div></div>
-        <div class="bi-card"><div class="bi-label">④ 各產品利潤比（毛利率）</div><div class="hbar">
-          <div class="hbar-row"><span class="hbar-label">Laminated Mesh（二次）</span><div class="hbar-track"><div class="hbar-fill" style="width:100%;background:#1D7340"></div></div><span class="hbar-val" style="color:#1D7340">28%</span></div>
-          <div class="hbar-row"><span class="hbar-label">PU Leather</span><div class="hbar-track"><div class="hbar-fill" style="width:68%;background:#1D7340"></div></div><span class="hbar-val" style="color:#1D7340">19%</span></div>
-          <div class="hbar-row"><span class="hbar-label">Recycled Mesh</span><div class="hbar-track"><div class="hbar-fill" style="width:54%;background:#F5A623"></div></div><span class="hbar-val" style="color:#F5A623">15%</span></div>
-          <div class="hbar-row"><span class="hbar-label">TPU Film</span><div class="hbar-track"><div class="hbar-fill" style="width:39%;background:#FF3B30"></div></div><span class="hbar-val" style="color:#FF3B30">11%</span></div></div>
-          <div class="bi-sub" style="color:#1D7340">★ 二次加工最賺 — 主力推</div></div>
         <div class="bi-card"><div class="bi-label">⑦ 客戶集中度（前三大）</div><div class="hbar">
           <div class="hbar-row"><span class="hbar-label">Factory Group A</span><div class="hbar-track"><div class="hbar-fill" style="width:100%;background:#1D1D1F"></div></div><span class="hbar-val">35%</span></div>
           <div class="hbar-row"><span class="hbar-label">Factory Group B</span><div class="hbar-track"><div class="hbar-fill" style="width:60%;background:#86868B"></div></div><span class="hbar-val">21%</span></div>
@@ -479,6 +481,11 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
     </div>
 
   </div>
+</div>
+
+<!-- C2：責任 footer -->
+<div style="text-align:center;font-size:11px;color:#86868B;padding:16px 40px 40px;border-top:0.5px solid #E5E5EA">
+  資料提供者對資料正確性負全責；SmartPN 負責交換。 · Data providers are solely responsible for accuracy; SmartPN facilitates exchange.
 </div>
 
 <script>
@@ -608,7 +615,7 @@ const STR={
   s_company:{en:'Company',zh:'公司管理'},s_smartpn:{en:'SmartPN',zh:'SmartPN'},s_inbox:{en:'Inbox',zh:'收件匣'},
   m_company:{en:'Company Setup',zh:'公司建立'},m_smartpn:{en:'Create SmartPN',zh:'SmartPN 建立'},
   m_raw:{en:'Raw Material',zh:'原物料'},m_secondary:{en:'Secondary',zh:'二次加工'},m_permission:{en:'Permissions',zh:'權限管理'},
-  m_pricing:{en:'Pricing',zh:'單價管理'},m_who:{en:'Who viewed my materials',zh:'誰看過我的材料'},m_bi:{en:'Business Dashboard',zh:'經營儀表板'},m_requests:{en:'Requests',zh:'對話'},
+  m_pricing:{en:'Pricing',zh:'單價管理'},m_mapping:{en:'Mapping Sign-off',zh:'Mapping 驗收'},m_bi:{en:'Business Dashboard',zh:'經營儀表板'},m_requests:{en:'Requests',zh:'對話'},
   t_basic:{en:'Basic',zh:'基本資料'},t_cert:{en:'Certifications',zh:'認證'},t_fin:{en:'Financial',zh:'財務資料夾'},t_customs:{en:'Customs',zh:'關務資料夾'},t_sub:{en:'Subsidiaries',zh:'子公司'},
   save:{en:'Save',zh:'儲存'},cancel:{en:'Cancel',zh:'取消'},
 };
