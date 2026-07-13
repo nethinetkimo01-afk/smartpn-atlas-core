@@ -1,0 +1,26 @@
+{
+  "task": "F — 裁斷機 standard_time DB 重算 ×1.0 (方案a)",
+  "env": "隔離副本 flask_backend/data/atlas_taskF.db (由 atlas.db 複製；正式庫/ME129 全程未動)",
+  "scope_sql": "segment='cutting' AND zone='裁斷機' AND cut_per_hour>0 AND layers_per_cut>0 AND qty_per_pair>0 AND (value_type IS NULL OR value_type != 'manual') AND (flag IS NULL OR flag != 'deleted')",
+  "formula": "standard_time = 3600 / cut_per_hour / layers_per_cut * qty_per_pair * 1.0",
+  "excluded": "ATOM / EMMA / Laser / YINGHUI / 移印 / 轉印 (手工標時區) 全部不動；裁斷機區內缺三要素的手工列、value_type='manual'、已刪除列 不動",
+  "local_db_note": "本機 atlas.db 的公式型裁斷機列已是 ×1.0(0 需變更)，符合『本機無真實 cutting 資料』。實際受影響筆數以 ME129 --dry-run 為準。",
+  "e2e_on_isolated_copy": {
+    "step1_simulate_ME129": "把 13 筆公式型裁斷機列 standard_time 設為 ×1.1 (模擬 ME129 Excel 基礎值)",
+    "step2_dry_run": {"in_scope": 13, "would_change": 13, "wrote": false},
+    "step3_apply": {"updated": 13, "backup_created": "backup/atlas_precutrecalc_<ts>.db"},
+    "step4_consistency": {"rows_checked": 13, "db_vs_細表_mismatch": 0, "verdict": "CONSISTENT"},
+    "step5_bianche_theory": {"sample_id": 33060, "db_std": 18.9474, "bianche_theory_eolr120": 0.6316, "細表_theory": 0.6316, "verdict": "MATCH"},
+    "step6_rollback": {"restored_id_33060_std": 20.842105, "expected_x1.1": 20.842105, "verdict": "RESTORED", "pre_rollback_safety_backup": true}
+  },
+  "sample_old_to_new": [
+    {"id": 33060, "lay": 1, "qty": 2, "cph": 380, "old_x11": 20.842105, "new_x10": 18.947368},
+    {"id": 33062, "lay": 1, "qty": 4, "cph": 380, "old_x11": 41.684211, "new_x10": 37.894737},
+    {"id": 33064, "lay": 1, "qty": 4, "cph": 450, "old_x11": 35.200000, "new_x10": 32.000000},
+    {"id": 33068, "lay": 4, "qty": 2, "cph": 500, "old_x11": 3.960000, "new_x10": 3.600000}
+  ],
+  "theory_note": "理論人數各處(細表 _calc_theory / bianche zone_theory)皆即時由 standard_time÷(3600÷eolr) 導出，未獨立存欄；重算 standard_time 即連動更新。allocation_item.theory_mp 為撥人快照另一機制，非本次目標。",
+  "bianche_unchanged": "get_bianche_data 維持讀 DB standard_time (zone_theory)，未改即時算 — 鎖定版=快照語意。",
+  "deliverables": ["flask_backend/recalc_cutting_x10.py", "flask_backend/rollback_cutting_x10.py", "00_HANDOFF/Task_F_執行說明_20260713.md"],
+  "me129_status": "正式庫本批未動；等 Jim 看報告後在 ME129 執行 recalc_cutting_x10.py --dry-run → 確認筆數 → --apply。"
+}
