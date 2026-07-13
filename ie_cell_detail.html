@@ -415,6 +415,14 @@ const COL_LABELS = {
   production_target:'生産目標',
   theory_operators:'理論人數', actual_operators:'實際人數',
 };
+// Task J：STF 段「區塊共用表頭」欄名覆蓋層。只改「顯示名稱」（欄位 key/DB/公式/導出/合併鈕全不動）。
+// STF 段所有區塊（打粗/照射/水洗/貼底/水蜘蛛…及未來新增區）自動繼承——不逐區硬寫。
+// 三語：中/英/越。裁斷/針車/成型段不受影響（只 seg==='stf' 生效）。
+const SEG_COL_LABELS = {
+  stf: {
+    actual_operators: { zh:'EOLR=190 實際人數', en:'EOLR=190 Actual operators', vi:'EOLR=190 Số người thực tế' },
+  },
+};
 const EDITABLE_COLS = new Set(['cut_per_hour','normal_time','qty_per_pair','layers_per_cut']);
 
 // Cutting zones WITHOUT post-process data (ATOM/Laser/YINGHUI use normal_time formula)
@@ -1112,10 +1120,18 @@ function renderZoneCard(z, seg, eolr) {
     h += '<div class="zone-body"><table class="proc-table"><thead><tr>';
     h += `<th style="width:22px"></th>`;
     for (const col of cols) {
-      const lbl = COL_LABELS[col] || col;
       const isLeft = col === 'process_name' || col === 'part_name';
       const cls = (col === 'theory_operators' || col === 'production_target') ? 'th-theory' : col === 'actual_operators' ? 'th-actual' : isLeft ? 'left' : '';
-      h += `<th${cls ? ` class="${cls}"` : ''}>${lbl}</th>`;
+      // Task J：STF 段共用表頭覆蓋（含三語 data-*，供 setLang 即時切換）
+      const ov = (SEG_COL_LABELS[seg] || {})[col];
+      let lbl, langAttr = '';
+      if (ov) {
+        lbl = ov[LANG] || ov.zh;
+        langAttr = ` data-seg-th data-zh="${esc(ov.zh)}" data-en="${esc(ov.en)}" data-vi="${esc(ov.vi)}"`;
+      } else {
+        lbl = COL_LABELS[col] || col;
+      }
+      h += `<th${cls ? ` class="${cls}"` : ''}${langAttr}>${lbl}</th>`;
     }
     h += `</tr></thead><tbody id="tbody-gen-${esc(zone)}">`;
 
@@ -1482,6 +1498,10 @@ function setLang(l) {
     } else {
       td.textContent = zh;
     }
+  });
+  // Task J：STF 共用表頭（EOLR=190 實際人數）三語即時切換，不 re-render
+  document.querySelectorAll('th[data-seg-th]').forEach(th => {
+    th.textContent = th.dataset[l] || th.dataset.zh || th.textContent;
   });
 }
 function applyLangUI(l) {

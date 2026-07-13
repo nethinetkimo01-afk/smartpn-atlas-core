@@ -1,0 +1,86 @@
+{
+  "scenarios": {
+    "stf_headers": {
+      "zones_checked": [
+        "打粗",
+        "照射",
+        "水洗",
+        "貼底",
+        "水蜘蛛 (WS)"
+      ],
+      "count": 5,
+      "zh_headers": [
+        {
+          "zone": "打粗",
+          "actualHeader": "EOLR=190 實際人數"
+        },
+        {
+          "zone": "照射",
+          "actualHeader": "EOLR=190 實際人數"
+        },
+        {
+          "zone": "水洗",
+          "actualHeader": "EOLR=190 實際人數"
+        },
+        {
+          "zone": "貼底",
+          "actualHeader": "EOLR=190 實際人數"
+        },
+        {
+          "zone": "水蜘蛛 (WS)",
+          "actualHeader": "EOLR=190 實際人數"
+        }
+      ],
+      "vi_sample": {
+        "zone": "打粗",
+        "actualHeader": "EOLR=190 Số người thực tế"
+      },
+      "back_ok": true,
+      "PASS": true
+    },
+    "other_segments": {
+      "stitching": [
+        "實際人數",
+        "實際人數",
+        "實際人數",
+        "實際人數",
+        "實際人數"
+      ],
+      "assembly": [
+        "實際人數",
+        "實際人數",
+        "實際人數",
+        "實際人數"
+      ],
+      "cutting_has_eolr190": false,
+      "other_has_eolr190": false,
+      "PASS": true
+    },
+    "fill_regression": {
+      "fillFound": false,
+      "headerStillRenamed": true,
+      "hasMergeBtn": false,
+      "PASS": true
+    },
+    "read_only": {
+      "zones": [
+        "打粗",
+        "照射",
+        "水洗",
+        "貼底",
+        "水蜘蛛 (WS)"
+      ],
+      "headers": [
+        "EOLR=190 實際人數",
+        "EOLR=190 實際人數",
+        "EOLR=190 實際人數",
+        "EOLR=190 實際人數",
+        "EOLR=190 實際人數"
+      ],
+      "inputs": 0,
+      "PASS": true
+    }
+  },
+  "errors": [],
+  "ALL_PASS": true
+}

@@ -20,6 +20,7 @@ Claude 是中樞不是打字機：自行思考、主動 web_search 查市面成�
 - **Task H** ✅：IE 裁斷段界面改版（ATOM/EMMA 精簡 5 欄、裁斷機加「連刀」欄 `interlock_cut` DEFAULT 1 +公式÷連刀、
   新增「裁斷手工」區 type M）。規格見 27_WORKING_RULES §二「①-H」；Playwright 4 情境全 PASS + read_only 403 迴歸。
 - **Task H-1** ✅：連刀欄移到「層數」左邊（只動顯示順序，公式/DB/36欄不變）；匯入按 DB 欄名（不受欄序影響）並補帶 interlock_cut。Playwright 3 情境全 PASS。
+- **Task J** ✅：STF 段所有區塊「實際人數」→「EOLR=190 實際人數」（三語），改在 STF 共用表頭定義層（`SEG_COL_LABELS.stf`），新增 STF 區自動繼承；只改顯示名稱，其他段不動。Playwright 4 情境全 PASS。
 - **Task I** ✅：前端角色感知渲染（read_only/無權 editor 全灰、input/select→灰底文字、操作鈕不顯示、
   連刀→文字；eolr/allocation 同規則；後端 403 保留=雙層防線）。規格見 27_WORKING_RULES §十「角色感知渲染」。
   Playwright 5 情境全 PASS（含 read_only API 寫入 403）。**注意**：manager 因後端 `_can_edit_ie` 現為 IE 唯讀→亦全灰（既有設計，Task I 未改後端）。
