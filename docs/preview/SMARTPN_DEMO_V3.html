@@ -714,8 +714,9 @@ function renderCatThumbs(){
 /* ═══ SPU ═══ */
 function openSpu(id){ currentMat=MATERIALS.find(m=>m.id===id); if(!currentMat)return; currentSku=currentMat.skuVariants[0]; reviewPerm='OPEN'; renderSpuPage(currentMat); showPage('spu'); }
 function openMaterial(id){ openSpu(id); }
-function selectOpt(key){ currentSku=currentMat.skuVariants.find(v=>v.key===key)||currentSku; renderSpuPage(currentMat); }
+function selectOpt(key){ if(!currentMat) return; currentSku=currentMat.skuVariants.find(v=>v.key===key)||currentSku; renderSpuPage(currentMat); }
 function renderSpuPage(m){
+  if(!m) return;   // R-1：無材料脈絡不渲染
   const sup=SUPPLIERS[m.sup], sku=currentSku;
   document.getElementById('spu-hero').innerHTML=`
     <div class="spu-img"><img src="${matURI(m,400)}" alt="${m.name}">${m.dpp?'<div class="spu-dpp-badge" title="欄位齊全度，非內容驗證">DPP fields 12/14 complete</div>':'<div class="spu-dpp-badge" style="background:#86868B">Missing metadata</div>'}</div>
@@ -758,6 +759,7 @@ function renderSpuPage(m){
 // B6：公開欄位修改記錄（mock）——只有公開資料有版本歷史
 function showFieldHistory(id){
   const m=MATERIALS.find(x=>x.id===id)||currentMat;
+  if(!m) return;   // R-1：無材料脈絡不開空歷史視窗
   document.getElementById('fieldHistModal')?.remove();
   const rows=[
     ['2026-06-18','Price (Standard tier)','USD 4.10 → USD 3.95','Supplier'],
@@ -851,7 +853,7 @@ function openThread(id,keep){
   document.querySelectorAll('.req-item').forEach(el=>el.classList.remove('active'));
 }
 function msgHtml(m){ return `<div class="msg ${m.who}">${m.t}${m.att?`<span class="msg-attach">📎 ${m.att}</span>`:''}<span class="msg-time">${m.time}</span></div>`; }
-function sendMsg(){ const inp=document.getElementById('req-input'); const v=inp.value.trim(); if(!v)return; const t=THREADS.find(x=>x.id===activeThread); t.msgs.push({who:'me',t:v,time:'Now'}); inp.value=''; const box=document.getElementById('req-msgs'); box.innerHTML=t.msgs.map(msgHtml).join(''); box.scrollTop=box.scrollHeight; }
+function sendMsg(){ const inp=document.getElementById('req-input'); if(!inp) return; const v=inp.value.trim(); if(!v)return; const t=THREADS.find(x=>x.id===activeThread); if(!t) return; t.msgs.push({who:'me',t:v,time:'Now'}); inp.value=''; const box=document.getElementById('req-msgs'); box.innerHTML=t.msgs.map(msgHtml).join(''); box.scrollTop=box.scrollHeight; }
 function openRequestFor(supId,name){ const ex=THREADS.find(t=>t.sup===supId); if(ex){activeThread=ex.id;} else { const nid='t'+(THREADS.length+1); THREADS.push({id:nid,sup:supId,subject:name,unread:false,msgs:[{who:'me',t:`Hi, I'd like to request information about ${name}.`,time:'Now'}]}); activeThread=nid; } showPage('requests'); }
 
 /* ═══ FIND SAME MATERIAL ═══ */
@@ -861,6 +863,7 @@ function findSameMaterial(fromId,spuCode,skuKey){
   document.getElementById('fsm-modal').style.display='flex'; document.body.style.overflow='hidden';
 }
 function renderFsmBody(){
+  if(!fsmContext) return;   // R-1：無脈絡不渲染
   const{fromId,spuCode,skuKey}=fsmContext;
   const scope=MATERIALS.filter(inFsmScope);
   const identical=scope.filter(m=>m.spuCode===spuCode&&m.skuKey===skuKey&&m.id!==fromId);
@@ -880,6 +883,7 @@ function fsmCard(m){ const sup=SUPPLIERS[m.sup];
     <div style="text-align:right"><div style="font-size:14px;font-weight:600">USD ${m.price.toFixed(2)}</div><div style="font-size:12px;color:#86868B">${m.lt}d LT</div></div></div>`; }
 function closeFsmModal(){ document.getElementById('fsm-modal').style.display='none'; document.body.style.overflow=''; }
 function openFsmInNewWindow(){
+  if(!fsmContext) return;   // R-1：無 FSM 脈絡不動作（不噴例外）
   const{fromId,spuCode,skuKey}=fsmContext; const scope=MATERIALS.filter(inFsmScope);
   const identical=scope.filter(m=>m.spuCode===spuCode&&m.skuKey===skuKey&&m.id!==fromId);
   const alt=scope.filter(m=>m.spuCode===spuCode&&m.skuKey!==skuKey&&m.id!==fromId);

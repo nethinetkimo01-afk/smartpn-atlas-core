@@ -1,0 +1,23 @@
+{
+  "scenarios": {
+    "direct_null_calls": {
+      "thrown": [],
+      "PASS": true
+    },
+    "fuzz": {
+      "pageErrorsDuringFuzz": 0,
+      "PASS": true
+    },
+    "normal_flow": {
+      "spu": true,
+      "fsmModalShown": true,
+      "fsmBodyRendered": true,
+      "fsmContextSet": true,
+      "newWindowNoThrow": true,
+      "compareRendered": true,
+      "PASS": true
+    }
+  },
+  "errors": [],
+  "ALL_PASS": true
+}

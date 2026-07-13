@@ -109,3 +109,13 @@ SmartPN Verified 字樣、Boss BI 毛利率卡、「誰看過我的材料」頁�
 - INDEX：v3 標「議會定案完整版」為主入口 + Boss 第三入口；**v2 入口移除（檔案保留）**；v1 留對照。
 - Playwright 全 PASS（`test_screenshots/taskR_demo_v3/` R1–R6 + task_R_result.json）：兩檔 0 錯、V1_PARITY 0 missing、
   MOCK_WORLD 兩視角一致、私密材料在 B 完全不出現、引導 5 步走通、Boss 無錯無毛利率。
+
+### Demo v3 修補 · R-1（FSM 空脈絡例外）
+- **根因**：`openFsmInNewWindow`/`renderFsmBody` 在 `fsmContext=null` 時 `const{fromId}=fsmContext` → TypeError。
+- **修法（第一性原則 + 防禦層）**：FSM 操作鈕本就在 FSM modal 內（無脈絡＝modal 隱藏不顯示）；各依賴脈絡函式入口加
+  null guard 安靜 return。
+- **全檔同型掃描結果**（空脈絡逐一觸發）：已修 `openFsmInNewWindow`（fsmContext）、`renderFsmBody`（fsmContext）、
+  `selectOpt`（currentMat）、`sendMsg`（activeThread→t）、`renderSpuPage`（m）、`showFieldHistory`（m，原用 `m?:''` 不崩、
+  仍加 guard 不開空視窗）。`openSpu`（原已 `if(!currentMat)return`）、`openThread`（原已 `if(!t)return`）本就安全。
+- **Playwright（隔離 v3）全 PASS**：7 個依賴脈絡函式空脈絡呼叫 0 例外；全頁亂點兩遍 **0 pageerror**；
+  正常 FSM 動線（開材料→FSM modal→比對→新視窗）迴歸。證據：`test_screenshots/taskR1_fsm/task_R1_result.json`。
