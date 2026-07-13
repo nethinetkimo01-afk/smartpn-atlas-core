@@ -24,7 +24,8 @@ Jim 說「交給你」時中樞代決並記錄理由，Jim 可推翻。
 
 ## 四、未結待辦（依序）
 1. ME129 按更新（ie5/Thanh 可按）→ 抽查：標時39600、連刀欄在層數左、STF八欄舊值不變、tongcai全灰。
-2. ME129 跑 recalc_cutting_x10.py --dry-run → 筆數回報中樞判讀 → --apply（自動備份，rollback 可還原）。
+2. jim 於瀏覽器 /admin/recalc-cutting：預覽→確認執行（自動備份，可一鍵還原）。不再派 cmd 到 ME129；
+   腳本 recalc_cutting_x10.py 保留為備援。
 3. 設備種類選項：ie5 自行上 /admin/equipment-types 維護，不經 Code。
 4. 編制表 Step5/6：待條件解鎖後在有 IE 資料環境重跑。
 5. 已代決待追認：manager 對 IE 工序維持唯讀（編審分離）；Thanh 需編輯時另開 editor 帳號。

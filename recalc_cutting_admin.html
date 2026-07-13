@@ -1,0 +1,147 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>裁斷標時重算 ×1.0</title>
+<style>
+  :root{--line:#e4e9f2;--ink:#1d1d1f;--mut:#8a8a8e;--blue:#0066cc}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"Microsoft JhengHei",sans-serif;color:var(--ink);background:#f5f5f7}
+  .hdr{background:#1a2744;color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
+  .hdr h1{font-size:16px;margin:0;font-weight:600}
+  .hdr a{color:#cdd6f4;font-size:13px;text-decoration:none}
+  .wrap{max-width:900px;margin:20px auto;padding:0 16px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+  .card h2{font-size:14px;margin:0 0 6px}
+  .step{font-size:11px;color:#fff;background:#1a2744;border-radius:10px;padding:1px 8px;margin-right:6px}
+  table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+  th,td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:right}
+  th:nth-child(2),td:nth-child(2){text-align:left}
+  th{color:var(--mut);font-weight:600}
+  .btn{border:1px solid var(--line);background:#fff;border-radius:6px;padding:7px 14px;font-size:13px;cursor:pointer}
+  .btn:hover{background:#f0f4fb}.btn[disabled]{opacity:.45;cursor:not-allowed}
+  .btn-pri{background:#1a2744;color:#fff;border-color:#1a2744}
+  .btn-danger{background:#c0392b;color:#fff;border-color:#c0392b}
+  .btn-warn{background:#b26a00;color:#fff;border-color:#b26a00}
+  .stat{display:inline-block;margin-right:18px;font-size:13px}.stat b{font-size:18px}
+  .msg{padding:10px 14px;border-radius:8px;margin:10px 0;font-size:13px;display:none}
+  .msg.err{background:#fdecea;color:#b71c1c;display:block}.msg.ok{background:#e8f5e9;color:#1b5e20;display:block}
+  .msg.busy{background:#fff8e1;color:#8a6d00;display:block}
+  .note{color:var(--mut);font-size:12px;line-height:1.7}
+  #denied{display:none;padding:40px;text-align:center;color:#b71c1c;font-size:15px}
+</style>
+<div class="hdr"><h1>🔧 裁斷標準時間重算 ×1.0</h1><a href="/ie">← 返回 IE 清單</a></div>
+<div class="wrap">
+  <div id="denied">您沒有權限使用此頁（限 admin）。</div>
+  <div id="app" style="display:none">
+    <p class="note">正式庫維運操作：<b>預覽 → 確認 → 自動備份 → 可還原</b>。範圍僅「公式型裁斷機列」
+      （裁斷機區且 刀/層/件齊全），手工標時列一律排除、不動。</p>
+    <div id="msg" class="msg"></div>
+
+    <div class="card">
+      <h2><span class="step">① 預覽</span>dry-run（只算不寫）</h2>
+      <button class="btn btn-pri" id="btnPreview" onclick="preview()">預覽受影響筆數</button>
+      <div id="previewResult" style="margin-top:10px;display:none">
+        <div>
+          <span class="stat">範圍內公式列：<b id="pIn">—</b></span>
+          <span class="stat">需變更：<b id="pChange" style="color:#c0392b">—</b></span>
+          <span class="stat">排除(手工/不完整)：<b id="pExcl">—</b></span>
+        </div>
+        <table><thead><tr><th>id</th><th>art</th><th>層</th><th>件</th><th>刀</th><th>連刀</th><th>舊值</th><th>新值(×1.0)</th></tr></thead>
+          <tbody id="pRows"></tbody></table>
+        <div class="note" id="pMore"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="step">② 執行</span>自動備份 → 重算</h2>
+      <button class="btn btn-danger" id="btnApply" onclick="apply()">執行重算（先備份）</button>
+      <span class="note" style="margin-left:10px">按下會二次確認；先整庫備份再寫入。</span>
+      <div id="applyResult" class="note" style="margin-top:8px"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="step">③ 還原</span>由備份還原</h2>
+      <button class="btn" onclick="loadBackups()">重新整理備份清單</button>
+      <table><thead><tr><th style="text-align:left">備份檔</th><th>大小</th><th>操作</th></tr></thead>
+        <tbody id="bkRows"></tbody></table>
+    </div>
+    <p class="note">腳本 <code>recalc_cutting_x10.py / rollback_cutting_x10.py</code> 保留為備援；
+      <b>主要路徑＝本管理頁</b>。ME129 現場只使用系統，不操作維運。</p>
+  </div>
+</div>
+<script>
+let BUSY = false;
+const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const fmt = v => v==null?'NULL':(Math.round(v*1e6)/1e6);
+function showMsg(m,cls){const e=document.getElementById('msg');e.textContent=m;e.className='msg '+cls;}
+function clearMsg(){document.getElementById('msg').className='msg';}
+
+async function init(){
+  let role=null;
+  try{ const d=await fetch('/api/me').then(r=>r.json()); role=d&&d.user&&d.user.role; }catch{}
+  if(role!=='admin'){ document.getElementById('denied').style.display='block'; return; }
+  document.getElementById('app').style.display='block';
+  loadBackups();
+}
+
+async function preview(){
+  clearMsg();
+  const btn=document.getElementById('btnPreview'); btn.disabled=true; btn.textContent='預覽中…';
+  try{
+    const d=await fetch('/api/recalc/cutting/preview').then(r=>r.json());
+    if(!d.ok){ showMsg('預覽失敗：'+(d.error||''),'err'); return; }
+    document.getElementById('pIn').textContent=d.in_scope;
+    document.getElementById('pChange').textContent=d.would_change;
+    document.getElementById('pExcl').textContent=d.excluded_manual;
+    const tb=document.getElementById('pRows'); tb.innerHTML='';
+    (d.samples||[]).forEach(s=>{
+      tb.insertAdjacentHTML('beforeend',
+        `<tr><td>${s.id}</td><td>${esc(s.art)}</td><td>${s.lay}</td><td>${s.qty}</td><td>${s.cph}</td><td>${s.il}</td><td>${fmt(s.old)}</td><td>${fmt(s.new)}</td></tr>`);
+    });
+    document.getElementById('pMore').textContent = d.would_change>10 ? `（僅顯示前 10 筆，共 ${d.would_change} 筆需變更）` : '';
+    document.getElementById('previewResult').style.display='block';
+    if(d.would_change===0) showMsg('公式列已是 ×1.0，無需變更。','ok');
+  }finally{ btn.disabled=false; btn.textContent='預覽受影響筆數'; }
+}
+
+async function apply(){
+  if(!confirm('確定執行重算？將先自動整庫備份，再把公式型裁斷機列標準時間改為 ×1.0。此操作會寫入正式資料。')) return;
+  clearMsg();
+  const btn=document.getElementById('btnApply'); btn.disabled=true; btn.textContent='執行中…（勿關閉）';
+  try{
+    const res=await fetch('/api/recalc/cutting/apply',{method:'POST'});
+    const d=await res.json();
+    if(res.status===409 && d.busy){ showMsg('⏳ 重算進行中（另一操作尚未完成），請稍候再試。','busy'); return; }
+    if(!d.ok){ showMsg('執行失敗：'+(d.error||''),'err'); document.getElementById('applyResult').textContent=''; return; }
+    if(d.changed===0){ showMsg('無需變更（公式列已是 ×1.0）。','ok'); return; }
+    showMsg(`✓ 完成：實改 ${d.changed} 筆。備份檔：${d.backup_file}`,'ok');
+    document.getElementById('applyResult').innerHTML=`實改 <b>${d.changed}</b> 筆 ｜ 備份還原點：<code>${esc(d.backup_file)}</code>（${esc(d.ts)}）`;
+    loadBackups();
+  }catch(e){ showMsg('執行失敗：'+(e.message||e),'err'); }
+  finally{ btn.disabled=false; btn.textContent='執行重算（先備份）'; }
+}
+
+async function loadBackups(){
+  const d=await fetch('/api/recalc/cutting/backups').then(r=>r.json()).catch(()=>({ok:false}));
+  const tb=document.getElementById('bkRows'); tb.innerHTML='';
+  if(!d.ok||!(d.backups||[]).length){ tb.innerHTML='<tr><td colspan="3" style="text-align:center;color:#8a8a8e">（尚無備份）</td></tr>'; return; }
+  d.backups.forEach(b=>{
+    tb.insertAdjacentHTML('beforeend',
+      `<tr><td style="text-align:left"><code>${esc(b.file)}</code></td><td>${(b.size/1048576).toFixed(1)} MB</td>`+
+      `<td><button class="btn btn-warn" onclick="rollback('${esc(b.file)}')">還原</button></td></tr>`);
+  });
+}
+
+async function rollback(file){
+  if(!confirm(`確定用備份「${file}」還原裁斷標準時間？還原前會再自動保護目前狀態。`)) return;
+  clearMsg();
+  try{
+    const res=await fetch('/api/recalc/cutting/rollback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({backup_file:file})});
+    const d=await res.json();
+    if(res.status===409 && d.busy){ showMsg('⏳ 重算/還原進行中，請稍候再試。','busy'); return; }
+    if(!d.ok){ showMsg('還原失敗：'+(d.error||''),'err'); return; }
+    showMsg(`✓ 已由 ${file} 還原（還原前狀態另存 ${d.guard}）。`,'ok');
+    loadBackups();
+  }catch(e){ showMsg('還原失敗：'+(e.message||e),'err'); }
+}
+init();
+</script>

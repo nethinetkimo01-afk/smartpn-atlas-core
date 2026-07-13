@@ -21,6 +21,8 @@ Claude 是中樞不是打字機：自行思考、主動 web_search 查市面成�
   新增「裁斷手工」區 type M）。規格見 27_WORKING_RULES §二「①-H」；Playwright 4 情境全 PASS + read_only 403 迴歸。
 - **Task H-1** ✅：連刀欄移到「層數」左邊（只動顯示順序，公式/DB/36欄不變）；匯入按 DB 欄名（不受欄序影響）並補帶 interlock_cut。Playwright 3 情境全 PASS。
 - **Task J** ✅：STF 段所有區塊「實際人數」→「EOLR=190 實際人數」（三語），改在 STF 共用表頭定義層（`SEG_COL_LABELS.stf`），新增 STF 區自動繼承；只改顯示名稱，其他段不動。Playwright 4 情境全 PASS。
+- **Task N** ✅：裁斷重算改為 admin 管理頁 `/admin/recalc-cutting`（預覽→確認→自動備份→可還原，執行中鎖擋並發），
+  取代 cmd 腳本派發（腳本保留備援）。原則寫入 27_WORKING_RULES §七。Playwright 5 情境全 PASS（含 lock 409、非 admin 全 403）。
 - **Task L** ✅：STF 段欄位標準化——所有區塊欄位組/公式與 Assembly 完全一致（正常時間×(1+寬放/100)，寬放默認10；
   移除舊 STF 特例）。舊資料相容(缺 normal→顯示存值，補填後轉公式)；不回填不重算；Task J 表頭不被蓋回；
   36欄/編制表 TCT 來源 standard_time 取值不變。Playwright 3 情境全 PASS。

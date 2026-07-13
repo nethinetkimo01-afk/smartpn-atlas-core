@@ -621,6 +621,44 @@ def equipment_types_delete(tid):
         return jsonify(r), 409
     return jsonify(r)
 
+# ── Task N：裁斷重算管理頁（admin 限定；預覽→執行→還原，取代 cmd 腳本派發） ───────
+@app.route('/admin/recalc-cutting')
+def recalc_cutting_page():
+    err = _require_admin()
+    if err: return err
+    return send_from_directory('..', 'recalc_cutting_admin.html')
+
+@app.route('/api/recalc/cutting/preview', methods=['GET'])
+def recalc_cutting_preview_api():
+    err = _require_admin()
+    if err: return err
+    return jsonify(db.recalc_cutting_preview())
+
+@app.route('/api/recalc/cutting/apply', methods=['POST'])
+def recalc_cutting_apply_api():
+    err = _require_admin()
+    if err: return err
+    r = db.recalc_cutting_apply(user=(_auth_user() or {}).get('username', 'admin'))
+    if not r.get('ok') and r.get('busy'):
+        return jsonify(r), 409
+    return jsonify(r)
+
+@app.route('/api/recalc/cutting/backups', methods=['GET'])
+def recalc_cutting_backups_api():
+    err = _require_admin()
+    if err: return err
+    return jsonify(db.recalc_cutting_backups())
+
+@app.route('/api/recalc/cutting/rollback', methods=['POST'])
+def recalc_cutting_rollback_api():
+    err = _require_admin()
+    if err: return err
+    d = request.get_json(force=True)
+    r = db.recalc_cutting_rollback(d.get('backup_file'), user=(_auth_user() or {}).get('username', 'admin'))
+    if not r.get('ok') and r.get('busy'):
+        return jsonify(r), 409
+    return jsonify(r)
+
 @app.route('/api/ie/<int:header_id>/sum', methods=['GET'])
 def ie_sum_api(header_id):
     eolr = request.args.get('eolr', 120)

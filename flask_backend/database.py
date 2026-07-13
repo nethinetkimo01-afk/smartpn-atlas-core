@@ -2411,6 +2411,126 @@ def delete_equipment_type(tid):
         conn.close()
 
 
+# ── Task N：裁斷 standard_time 重算 ×1.0（管理頁一鍵，取代 cmd 腳本派發） ─────────
+# 邏輯復用 recalc_cutting_x10.py / rollback_cutting_x10.py（腳本保留為備援，主要路徑=管理頁）。
+import threading as _threading
+_RECALC_LOCK = _threading.Lock()   # 執行中鎖：擋並發（第二人按→busy）
+_RECALC_SCOPE = ("segment='cutting' AND zone='裁斷機' "
+                 "AND cut_per_hour>0 AND layers_per_cut>0 AND qty_per_pair>0 "
+                 "AND (value_type IS NULL OR value_type != 'manual') "
+                 "AND (flag IS NULL OR flag != 'deleted')")
+_BACKUP_DIR = os.path.join(os.path.dirname(DB_PATH), '..', 'backup')
+
+def _recalc_new_std(lay, qty, cph, il):
+    # 與前端 fmCutA / recalc_cutting_x10.py 一致：3600÷刀÷層×件×1.0÷連刀
+    return 3600.0 / cph / lay * qty / (il or 1)
+
+def _recalc_scan():
+    conn = get_conn()
+    try:
+        cols = {r[1] for r in conn.execute('PRAGMA table_info(ie_process)').fetchall()}
+        il = 'interlock_cut' if 'interlock_cut' in cols else '1'
+        rows = conn.execute(
+            f'SELECT id, art, layers_per_cut, qty_per_pair, cut_per_hour, {il} AS il, standard_time '
+            f'FROM ie_process WHERE {_RECALC_SCOPE} ORDER BY id').fetchall()
+        total_machine = conn.execute(
+            "SELECT COUNT(*) FROM ie_process WHERE segment='cutting' AND zone='裁斷機' "
+            "AND (flag IS NULL OR flag != 'deleted')").fetchone()[0]
+        changes = []
+        for r in rows:
+            nv = _recalc_new_std(r['layers_per_cut'], r['qty_per_pair'], r['cut_per_hour'], r['il'])
+            old = r['standard_time']
+            if old is None or abs(old - nv) > 1e-9:
+                # 存完整浮點（與 recalc_cutting_x10.py 一致，避免四捨五入後再預覽又被判需變更）
+                changes.append({'id': r['id'], 'art': r['art'], 'lay': r['layers_per_cut'],
+                                'qty': r['qty_per_pair'], 'cph': r['cut_per_hour'], 'il': r['il'],
+                                'old': old, 'new': nv})
+        return {'in_scope': len(rows), 'changes': changes, 'excluded_manual': total_machine - len(rows)}
+    finally:
+        conn.close()
+
+def recalc_cutting_preview():
+    s = _recalc_scan()
+    return {'ok': True, 'in_scope': s['in_scope'], 'would_change': len(s['changes']),
+            'excluded_manual': s['excluded_manual'], 'samples': s['changes'][:10],
+            'busy': _RECALC_LOCK.locked()}
+
+def _online_backup(dest):
+    src = sqlite3.connect(DB_PATH); dst = sqlite3.connect(dest)
+    with dst:
+        src.backup(dst)
+    src.close(); dst.close()
+
+def recalc_cutting_apply(user='admin'):
+    if not _RECALC_LOCK.acquire(blocking=False):
+        return {'ok': False, 'busy': True, 'error': '重算進行中，請稍候再試'}
+    try:
+        s = _recalc_scan()
+        changes = s['changes']
+        if not changes:
+            return {'ok': True, 'changed': 0, 'backup_file': None, 'message': '無需變更（公式列已是 ×1.0）'}
+        ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+        os.makedirs(_BACKUP_DIR, exist_ok=True)
+        backup = os.path.join(_BACKUP_DIR, f'atlas_precutrecalc_{ts}.db')
+        _online_backup(backup)   # 先自動整庫備份
+        conn = get_conn()
+        try:
+            for c in changes:
+                conn.execute('UPDATE ie_process SET standard_time=? WHERE id=?', (c['new'], c['id']))
+            conn.commit()
+        finally:
+            conn.close()
+        return {'ok': True, 'changed': len(changes), 'backup_file': os.path.basename(backup), 'ts': ts}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        _RECALC_LOCK.release()
+
+def recalc_cutting_backups():
+    import glob
+    os.makedirs(_BACKUP_DIR, exist_ok=True)
+    out = []
+    for f in sorted(glob.glob(os.path.join(_BACKUP_DIR, 'atlas_precutrecalc_*.db')), reverse=True):
+        try:
+            out.append({'file': os.path.basename(f), 'size': os.stat(f).st_size})
+        except OSError:
+            pass
+    return {'ok': True, 'backups': out}
+
+def recalc_cutting_rollback(backup_file, user='admin'):
+    if not _RECALC_LOCK.acquire(blocking=False):
+        return {'ok': False, 'busy': True, 'error': '重算/還原進行中，請稍候再試'}
+    try:
+        # 白名單：只允許 backup 目錄內、命名合規的備份檔（防路徑穿越）
+        if not backup_file or '/' in backup_file or '\\' in backup_file \
+           or not backup_file.startswith('atlas_precutrecalc_') or not backup_file.endswith('.db'):
+            return {'ok': False, 'error': '無效備份檔名'}
+        path = os.path.join(_BACKUP_DIR, backup_file)
+        if not os.path.isfile(path):
+            return {'ok': False, 'error': '備份檔不存在'}
+        # 還原前先保護目前 DB（雙保險）
+        ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+        os.makedirs(_BACKUP_DIR, exist_ok=True)
+        guard = os.path.join(_BACKUP_DIR, f'atlas_prerollback_{ts}.db')
+        _online_backup(guard)
+        # 以 ATTACH 從備份逐列還原 standard_time（recalc 只動此欄，避免整檔覆蓋的檔案鎖問題）
+        conn = get_conn()
+        try:
+            conn.execute('ATTACH DATABASE ? AS bak', (path,))
+            conn.execute('UPDATE ie_process SET standard_time=('
+                         'SELECT b.standard_time FROM bak.ie_process b WHERE b.id=ie_process.id) '
+                         'WHERE id IN (SELECT id FROM bak.ie_process)')
+            conn.commit()
+            conn.execute('DETACH DATABASE bak')
+        finally:
+            conn.close()
+        return {'ok': True, 'restored_from': backup_file, 'guard': os.path.basename(guard)}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
+    finally:
+        _RECALC_LOCK.release()
+
+
 def get_db_stats():
     conn = get_conn()
     try:

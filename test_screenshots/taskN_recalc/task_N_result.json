@@ -1,0 +1,53 @@
+{
+  "scenarios": {
+    "admin_flow": {
+      "denied": false,
+      "preview": {
+        "inScope": "13",
+        "wouldChange": "13",
+        "excl": "7965",
+        "sampleRows": 10
+      },
+      "stdBefore": 43560,
+      "changed": "13",
+      "stdAfter": 39600,
+      "stdRollback": 43560,
+      "PASS": true
+    },
+    "lock": {
+      "statuses": [
+        200,
+        409
+      ],
+      "changedVals": [
+        13,
+        null
+      ],
+      "busy": [
+        null,
+        true
+      ],
+      "PASS": true
+    },
+    "noaccess_test_mgr": {
+      "entryHidden": true,
+      "pageStatus": 403,
+      "apiStatus": 403,
+      "PASS": true
+    },
+    "noaccess_test_editor": {
+      "entryHidden": true,
+      "pageStatus": 403,
+      "apiStatus": 403,
+      "PASS": true
+    },
+    "noaccess_tongcai": {
+      "entryHidden": true,
+      "pageStatus": 403,
+      "apiStatus": 403,
+      "PASS": true
+    }
+  },
+  "errors": [],
+  "ALL_PASS": true
+}
