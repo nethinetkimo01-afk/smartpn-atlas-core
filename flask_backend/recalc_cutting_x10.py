@@ -46,9 +46,9 @@ SCOPE = ("segment='cutting' AND zone='裁斷機' "
          "AND (flag IS NULL OR flag != 'deleted')")
 
 
-def new_std(lay, qty, cph):
-    # 與前端一致：3600 / 刀數 / 層數 × 件數 × 1.0（不四捨五入，存完整浮點）
-    return 3600.0 / cph / lay * qty
+def new_std(lay, qty, cph, il=1):
+    # 與前端一致：3600 / 刀數 / 層數 × 件數 × 1.0 ÷ 連刀（Task H；連刀默認1→向下相容）
+    return 3600.0 / cph / lay * qty / (il or 1)
 
 
 def main():
@@ -71,14 +71,17 @@ def main():
 
     conn = sqlite3.connect(args.db)
     conn.row_factory = sqlite3.Row
+    # interlock_cut 欄可能不存在（舊庫）→ 動態偵測，缺則視為 1
+    iep_cols = {r[1] for r in conn.execute('PRAGMA table_info(ie_process)').fetchall()}
+    il_sel = 'interlock_cut' if 'interlock_cut' in iep_cols else '1'
     rows = conn.execute(
         f'SELECT id, header_id, art, layers_per_cut, qty_per_pair, cut_per_hour, '
-        f'standard_time FROM ie_process WHERE {SCOPE} ORDER BY id').fetchall()
+        f'{il_sel} AS interlock_cut, standard_time FROM ie_process WHERE {SCOPE} ORDER BY id').fetchall()
 
     total = len(rows)
     changes = []   # (id, art, lay, qty, cph, old, new)
     for r in rows:
-        nv = new_std(r['layers_per_cut'], r['qty_per_pair'], r['cut_per_hour'])
+        nv = new_std(r['layers_per_cut'], r['qty_per_pair'], r['cut_per_hour'], r['interlock_cut'])
         old = r['standard_time']
         if old is None or abs(old - nv) > 1e-9:
             changes.append((r['id'], r['art'], r['layers_per_cut'], r['qty_per_pair'],
@@ -128,7 +131,7 @@ def main():
         'mode': 'apply' if args.apply else 'dry-run',
         'in_scope_rows': total, 'changed_rows': len(changes),
         'backup': backup_path, 'log_csv': log_csv,
-        'formula': '3600 / cut_per_hour / layers_per_cut * qty_per_pair * 1.0',
+        'formula': '3600 / cut_per_hour / layers_per_cut * qty_per_pair * 1.0 / interlock_cut',
         'scope_sql': SCOPE,
     }
     with open(os.path.join(out_dir, f'recalc_summary_{ts}.json'), 'w', encoding='utf-8') as f:

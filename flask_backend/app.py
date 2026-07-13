@@ -510,6 +510,7 @@ def ie_cell_add_row():
         actual_operators=d.get('actual_operators'),
         normal_time=d.get('normal_time'),
         allowance_pct=d.get('allowance_pct'),
+        interlock_cut=d.get('interlock_cut'),
     ))
 
 @app.route('/api/ie/cell/delete_row', methods=['POST'])

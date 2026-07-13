@@ -52,6 +52,10 @@ def init_db():
         # 版本控制 Step 1: add stage_id (真正綁版本；舊的 stage 欄位是假的固定=1)
         if 'stage_id' not in iep_cols:
             conn.execute("ALTER TABLE ie_process ADD COLUMN stage_id INTEGER")
+        # Task H (2026-07-13): 裁斷機「連刀」欄 — 標時公式 ÷連刀；default 1，既有資料全補 1
+        if 'interlock_cut' not in iep_cols:
+            conn.execute("ALTER TABLE ie_process ADD COLUMN interlock_cut INTEGER DEFAULT 1")
+            conn.execute("UPDATE ie_process SET interlock_cut=1 WHERE interlock_cut IS NULL")
         conn.commit()
     # 版本控制 Step 1: ie_stage.is_approved（鎖定版旗標，供 effective-stage 排序）
     ist_cols = [r[1] for r in conn.execute("PRAGMA table_info(ie_stage)").fetchall()]
@@ -1409,7 +1413,7 @@ def get_ie_process_by_header(header_id, segment='cutting'):
 
 
 ZONE_ORDER = {
-    'cutting':  ['裁斷機', 'ATOM', 'Laser', 'EMMA', 'YINGHUI', '移印', '轉印', '水蜘蛛', '_summary', '待分區'],
+    'cutting':  ['裁斷機', '裁斷手工', 'ATOM', 'Laser', 'EMMA', 'YINGHUI', '移印', '轉印', '水蜘蛛', '_summary', '待分區'],
     'stitching':['主流', '支流', '電腦針車', '折边', '水蜘蛛', '待分區'],
     'assembly': ['成型主區', '成型UV', '水蜘蛛', '待分區'],
     'stf':      ['打粗', '照射', '水洗', '貼底', '水蜘蛛', '待分區'],
@@ -1553,7 +1557,7 @@ def get_ie_cell_data(header_id, segment='cutting', eolr=120, stage_id=None, lock
                    normal_time, allowance_pct, standard_time, tct,
                    actual_operators, machine, cut_per_hour, qty_per_pair,
                    layers_per_cut, process_name_vi, process_name_zh, mat_cat,
-                   equipment_type,
+                   equipment_type, interlock_cut,
                    post_marking_std, post_marking_ops,
                    post_skiving_std, post_skiving_ops,
                    post_attach_std, post_attach_ops,
@@ -1750,7 +1754,7 @@ def approve_ie_edit(log_id, approver):
 
 def add_ie_process_row(header_id, segment, zone, process_name, standard_time, stage_id, user='demo', part_name=None, tct=None,
                        mat_cat=None, process_name_zh=None, cut_per_hour=None, qty_per_pair=None, layers_per_cut=None, actual_operators=None,
-                       normal_time=None, allowance_pct=None):
+                       normal_time=None, allowance_pct=None, interlock_cut=None):
     """Add a new process row and log the action."""
     # Auto-compute standard_time for stitching/assembly/STF rows (normal_time × allowance)
     # Cutting type A (裁斷機) intentionally stores NULL — frontend computes live from three fields
@@ -1780,11 +1784,11 @@ def add_ie_process_row(header_id, segment, zone, process_name, standard_time, st
         conn.execute('''
             INSERT INTO ie_process (header_id, art, segment, zone, seq, process_name, part_name, tct, standard_time, flag,
                                     mat_cat, process_name_zh, cut_per_hour, qty_per_pair, layers_per_cut, actual_operators,
-                                    normal_time, allowance_pct, stage_id)
-            VALUES (?,?,?,?,?,?,?,?,?, 'new',?,?,?,?,?,?,?,?,?)
+                                    normal_time, allowance_pct, interlock_cut, stage_id)
+            VALUES (?,?,?,?,?,?,?,?,?, 'new',?,?,?,?,?,?,?,?,?,?)
         ''', (header_id, art, segment, zone, max_seq + 1, process_name, part_name, tct, standard_time,
               mat_cat, process_name_zh, cut_per_hour, qty_per_pair, layers_per_cut, actual_operators,
-              normal_time, allowance_pct, eff_stage))
+              normal_time, allowance_pct, (int(interlock_cut) if interlock_cut else 1), eff_stage))
         conn.commit()
         new_id = conn.execute('SELECT last_insert_rowid()').fetchone()[0]
         # Log as edit
@@ -3091,7 +3095,7 @@ def set_eolr_setting(lean, month, eolr, updated_by=''):
 
 # ── 廠務編制表 計算 ────────────────────────────────────────────────────────────
 
-CUTTING_ZONES   = {'裁斷機', 'ATOM', 'Laser', 'EMMA', 'YINGHUI'}
+CUTTING_ZONES   = {'裁斷機', '裁斷手工', 'ATOM', 'Laser', 'EMMA', 'YINGHUI'}  # Task H: 裁斷手工=手工標時裁斷區，計入裁斷理論
 AUTO_ZONES      = {'ATOM', 'Laser', 'EMMA', 'YINGHUI'}   # can be checked out
 STITCH_ZONES    = {'電腦針車', '折边'}
 ASSEMBLY_ZONES  = {'成型主區', '成型UV', '水蜘蛛'}

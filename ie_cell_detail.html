@@ -782,7 +782,8 @@ async function loadSegment(seg) {
 }
 
 // ── Render dispatcher ──────────────────────────────────────────────────────────
-const CUTTING_ZONE_ORDER = ['裁斷機','ATOM','EMMA','Laser','YINGHUI','移印','轉印'];
+const CUTTING_ZONE_ORDER = ['裁斷機','裁斷手工','ATOM','EMMA','Laser','YINGHUI','移印','轉印'];
+const INTERLOCK_OPTIONS = [1,2,4,8,16];   // Task H 連刀下拉，默認 1
 
 function renderZones(data) {
   ZONE_ROWS = {};
@@ -815,8 +816,9 @@ function renderCuttingTab(data) {
 
 // ── Cutting zone card — 各區欄位照 27_WORKING_RULES.md 定案 ──────────────────
 // A=裁斷機(19) B=ATOM/EMMA(18) C=Laser(8) D=YINGHUI(12) E=移印/轉印(5)
-const CUTTING_ZONE_NUM  = {'裁斷機':'①','ATOM':'②','EMMA':'③','Laser':'④','YINGHUI':'⑤','移印':'⑥','轉印':'⑦'};
-const CUTTING_ZONE_TYPE = {'裁斷機':'A','ATOM':'B','EMMA':'B','Laser':'C','YINGHUI':'D','移印':'E','轉印':'E'};
+// Task H 定案：裁斷手工 插在 ①裁斷機 之後、ATOM 之前，編號順延；ATOM/EMMA 精簡為 C 型(5欄)
+const CUTTING_ZONE_NUM  = {'裁斷機':'①','裁斷手工':'②','ATOM':'③','EMMA':'④','Laser':'⑤','YINGHUI':'⑥','移印':'⑦','轉印':'⑧'};
+const CUTTING_ZONE_TYPE = {'裁斷機':'A','裁斷手工':'M','ATOM':'C','EMMA':'C','Laser':'C','YINGHUI':'D','移印':'E','轉印':'E'};
 
 function renderCuttingZoneCard(z, eolr) {
   const zone  = z.zone;
@@ -878,10 +880,17 @@ function _cutHead(type) {
   const CZ  = zh('層數','')+zh('件數','')+zh('標准時間','')+zh('理論人數','th-theory-col')+zh('裁機<br>要求人數','th-actual-col');
   let r3,r4,r5,r6;
   if (type === 'A') {
-    r3 = DEL+B3+G(6,'裁断')+P6G;
-    r4 = V3+vi('Số<br>lớp')+vi('Số pk<br>/đôi')+vi('Số<br>dao/H')+vi('TC<br>thời gian')+vi('Số người<br>lý luận')+vi('Yêu cầu<br>máy cắt')+P6V;
-    r5 = E3+en('No.of<br>Layer')+en('Qty<br>(1Prs)')+en('Cut<br>(Pr/H)')+en('Std time<br>(Secs)')+en('Operators<br>theory')+en('No.of<br>Oper.')+P6E;
-    r6 = Z3+zh('層數','')+zh('件數','')+zh('刀數/H','')+zh('標准時間<br><span style="font-size:8px;font-weight:400">(秒/雙)</span>','th-formula-col')+zh('理論人數','th-theory-col')+zh('裁機<br>要求人數','th-actual-col')+P6Z;
+    r3 = DEL+B3+G(7,'裁断')+P6G;
+    r4 = V3+vi('Số<br>lớp')+vi('Số pk<br>/đôi')+vi('Số<br>dao/H')+vi('Dao<br>liền')+vi('TC<br>thời gian')+vi('Số người<br>lý luận')+vi('Yêu cầu<br>máy cắt')+P6V;
+    r5 = E3+en('No.of<br>Layer')+en('Qty<br>(1Prs)')+en('Cut<br>(Pr/H)')+en('Inter<br>lock')+en('Std time<br>(Secs)')+en('Operators<br>theory')+en('No.of<br>Oper.')+P6E;
+    r6 = Z3+zh('層數','')+zh('件數','')+zh('刀數/H','')+zh('連刀','')+zh('標准時間<br><span style="font-size:8px;font-weight:400">(秒/雙)</span>','th-formula-col')+zh('理論人數','th-theory-col')+zh('裁機<br>要求人數','th-actual-col')+P6Z;
+  } else if (type === 'M') {
+    // Task H 裁斷手工：流程名稱(手工) / 標準時間(手工) / 理論人數(公式,灰) / 要求人數(手工)
+    const nameH = '<th rowspan="4" class="th-cut-group left" style="background:#1C1C1E;color:#3A3A3C;min-width:120px">流程名稱</th>';
+    r3 = DEL+nameH+G(3,'裁断手工');
+    r4 = vi('TC<br>thời gian')+vi('Số người<br>lý luận')+vi('Yêu cầu<br>người');
+    r5 = en('Std time<br>(Secs)')+en('Operators<br>theory')+en('No.of<br>Oper.');
+    r6 = zh('標准時間','th-formula-col')+zh('理論人數','th-theory-col')+zh('要求人數','th-actual-col');
   } else if (type === 'B') {
     r3 = DEL+B3+G(5,'裁断')+P5G;
     r4 = V3+CV+P5V; r5 = E3+CE+P5E; r6 = Z3+CZ+P5Z;
@@ -913,18 +922,26 @@ function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
   const edMA = (fld, v) => `<td class="num" style="padding:0"><input class="cell-inp" data-cfield="${fld}" value="${dv(v)}" onblur="commitEditStatic(this,${pid},'${fld}')" onkeydown="if(event.key==='Enter')this.blur()" oninput="recalcCuttingStdByPid(${pid})"></td>`;
   const fmC  = (v)      => `<td class="formula-cell">${dv(v)}</td>`;
   const thC  = (std)    => `<td class="formula-cell theory-cell" data-stdtime="${std??''}" data-zone="${esc(zone)}">${ops(std)}</td>`;
-  // Type-A live std/theory cells — ignore DB standard_time, compute from three fields
+  // Type-A live std/theory cells — ignore DB standard_time, compute from three fields (Task H: ÷連刀)
   const fmCutA = () => {
     const lay = parseFloat(row.layers_per_cut), qty = parseFloat(row.qty_per_pair), cph = parseFloat(row.cut_per_hour);
-    const v = (lay > 0 && qty > 0 && cph > 0) ? fmtNum(3600 / cph / lay * qty * 1.0) : '';
+    const il  = parseFloat(row.interlock_cut) || 1;
+    const v = (lay > 0 && qty > 0 && cph > 0) ? fmtNum(3600 / cph / lay * qty * 1.0 / il) : '';
     return `<td class="formula-cell cutting-std-a" data-pid="${pid}">${v}</td>`;
   };
   const thCA = () => {
     const lay = parseFloat(row.layers_per_cut), qty = parseFloat(row.qty_per_pair), cph = parseFloat(row.cut_per_hour);
+    const il  = parseFloat(row.interlock_cut) || 1;
     const divisor = 3600 / eolr;
     let stdRaw = '', thVal = '';
-    if (lay > 0 && qty > 0 && cph > 0) { stdRaw = 3600 / cph / lay * qty * 1.0; thVal = fmtNum(stdRaw / divisor); }
+    if (lay > 0 && qty > 0 && cph > 0) { stdRaw = 3600 / cph / lay * qty * 1.0 / il; thVal = fmtNum(stdRaw / divisor); }
     return `<td class="formula-cell theory-cell cutting-th-a" data-pid="${pid}" data-stdtime="${stdRaw}" data-zone="${esc(zone)}">${thVal}</td>`;
+  };
+  // Task H 連刀下拉（1/2/4/8/16，默認1）— onchange 即時重算+存值，不 reload（迴歸 Task D flush）
+  const ilSel = () => {
+    const cur = parseInt(row.interlock_cut) || 1;
+    const opts = INTERLOCK_OPTIONS.map(n => `<option value="${n}"${n===cur?' selected':''}>${n}</option>`).join('');
+    return `<td class="num" style="padding:0"><select class="cell-inp cut-interlock" data-pid="${pid}" onchange="onInterlockChange(${pid},this.value)">${opts}</select></td>`;
   };
   const zoneJ = esc(JSON.stringify(zone));
   const post5 = () => ['post_marking_std','post_skiving_std','post_attach_std','post_edge_std','post_heat_std'].map(sc => {
@@ -963,10 +980,14 @@ function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
   }
   let h = '<tr>';
   h += `<td class="del-cell"><button class="btn-ins" onclick="insertRowAfter(${pid})" title="在此列下方插入工序">插</button><button class="btn-del" onclick="deleteRow(${pid})" title="刪除">×</button></td>`;
-  h += `<td class="num" style="cursor:text;font-size:9px;min-width:50px" onclick="startTextEdit(this,${pid},'mat_cat')" data-tip="點擊編輯">${esc(row.mat_cat||'')}</td>`;
+  // Task H: 裁斷手工(type M) 無材料類別欄，只有 流程名稱/標時/理論/要求人數
+  if (type !== 'M')
+    h += `<td class="num" style="cursor:text;font-size:9px;min-width:50px" onclick="startTextEdit(this,${pid},'mat_cat')" data-tip="點擊編輯">${esc(row.mat_cat||'')}</td>`;
   h += nmC;
   if (type === 'A') {
-    h += edMA('layers_per_cut',row.layers_per_cut)+edMA('qty_per_pair',row.qty_per_pair)+edMA('cut_per_hour',row.cut_per_hour)+fmCutA()+thCA()+actTd+post6();
+    h += edMA('layers_per_cut',row.layers_per_cut)+edMA('qty_per_pair',row.qty_per_pair)+edMA('cut_per_hour',row.cut_per_hour)+ilSel()+fmCutA()+thCA()+actTd+post6();
+  } else if (type === 'M') {
+    h += edM('standard_time',std)+thC(std)+actTd;
   } else if (type === 'B') {
     h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('standard_time',std)+thC(std)+actTd+post5();
   } else if (type === 'C') {
@@ -994,10 +1015,17 @@ function addCuttingRow(zone) {
   const fm   = () => `<td class="formula-cell" style="font-size:9px">公式</td>`;
   const ni   = (id, ph) => `<td><input class="add-inp add-num" id="${id}" type="text" placeholder="${ph}" style="min-width:28px"></td>`;
   const ok   = `<td style="white-space:nowrap"><button class="btn-inline-ok" onclick="confirmAddCuttingRow(${zJ})">✓</button></td>`;
-  let c = `<td class="del-cell"><button class="btn-del" onclick="cancelAddCuttingRow(${zJ})" title="取消">✕</button></td><td><input class="add-inp" id="add-mat-${zE}" placeholder="材料" style="min-width:46px;font-size:10px"></td><td></td><td><input class="add-inp" id="add-name-${zE}" placeholder="部件名稱" style="min-width:90px"></td>`;
+  const cancelTd = `<td class="del-cell"><button class="btn-del" onclick="cancelAddCuttingRow(${zJ})" title="取消">✕</button></td>`;
+  // Task H: 裁斷手工(M) 無材料欄，只有 流程名稱 lead
+  let c = (type === 'M')
+    ? cancelTd + `<td><input class="add-inp" id="add-name-${zE}" placeholder="流程名稱" style="min-width:120px"></td>`
+    : cancelTd + `<td><input class="add-inp" id="add-mat-${zE}" placeholder="材料" style="min-width:46px;font-size:10px"></td><td></td><td><input class="add-inp" id="add-name-${zE}" placeholder="部件名稱" style="min-width:90px"></td>`;
   if (type === 'A') {
-    c += ni('add-lay-'+zE,'層')+ni('add-qty-'+zE,'件')+ni('add-cph-'+zE,'刀/H')+fm()+fm()+ni('add-act-'+zE,'人');
-    c += `<td colspan="10" style="background:#f1f8e9;text-align:center;font-size:9px;color:#aaa;border:1px dashed #c8e6c9">後製工序（新增後填入）</td>`;
+    const ilSel = `<td><select class="add-inp cut-interlock" id="add-il-${zE}" style="min-width:40px">${INTERLOCK_OPTIONS.map(n=>`<option value="${n}"${n===1?' selected':''}>${n}</option>`).join('')}</select></td>`;
+    c += ni('add-lay-'+zE,'層')+ni('add-qty-'+zE,'件')+ni('add-cph-'+zE,'刀/H')+ilSel+fm()+fm()+ni('add-act-'+zE,'人');
+    c += `<td colspan="12" style="background:#f1f8e9;text-align:center;font-size:9px;color:#aaa;border:1px dashed #c8e6c9">後製工序（新增後填入）</td>`;
+  } else if (type === 'M') {
+    c += ni('add-std-'+zE,'標時')+fm()+ni('add-act-'+zE,'人');
   } else if (type === 'B') {
     c += ni('add-lay-'+zE,'層')+ni('add-qty-'+zE,'件')+ni('add-std-'+zE,'標時')+fm()+ni('add-act-'+zE,'人');
     c += `<td colspan="10" style="background:#f1f8e9;text-align:center;font-size:9px;color:#aaa;border:1px dashed #c8e6c9">後製工序（新增後填入）</td>`;
@@ -1023,13 +1051,14 @@ async function confirmAddCuttingRow(zone) {
   const type = CUTTING_ZONE_TYPE[zone] || 'A';
   const zE   = esc(zone);
   const name = document.getElementById('add-name-'+zE)?.value?.trim();
-  if (!name) { alert('請輸入部件名稱'); return; }
+  if (!name) { alert(type==='M' ? '請輸入流程名稱' : '請輸入部件名稱'); return; }
   if (!(await flushPendingEdits()).ok) return;   // Task D: 新增前先存未提交編輯
   const payload = {header_id:HID, segment:SEG, zone, stage_id:STAGE?.id, user:'demo', process_name:name};
   const mat = document.getElementById('add-mat-'+zE)?.value?.trim()||null;
   const g = (id) => parseFloat(document.getElementById(id)?.value)||null;
-  Object.assign(payload, {mat_cat:mat});
-  if (type==='A') Object.assign(payload, {layers_per_cut:g('add-lay-'+zE),qty_per_pair:g('add-qty-'+zE),cut_per_hour:g('add-cph-'+zE),actual_operators:g('add-act-'+zE)});
+  if (type!=='M') Object.assign(payload, {mat_cat:mat});
+  if (type==='A') Object.assign(payload, {layers_per_cut:g('add-lay-'+zE),qty_per_pair:g('add-qty-'+zE),cut_per_hour:g('add-cph-'+zE),interlock_cut:g('add-il-'+zE)||1,actual_operators:g('add-act-'+zE)});
+  else if (type==='M') Object.assign(payload, {standard_time:g('add-std-'+zE),actual_operators:g('add-act-'+zE)});
   else if (type==='B'||type==='C'||type==='D') Object.assign(payload, {layers_per_cut:g('add-lay-'+zE),qty_per_pair:g('add-qty-'+zE),standard_time:g('add-std-'+zE),actual_operators:g('add-act-'+zE)});
   else Object.assign(payload, {standard_time:g('add-std-'+zE)});
   const r = await fetch('/api/ie/cell/add_row', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
@@ -1260,9 +1289,10 @@ function _rowStd(row, seg, zone) {
   if (seg === 'cutting') {
     if (zone === '裁斷機') {
       const lay = parseFloat(row.layers_per_cut), qty = parseFloat(row.qty_per_pair), cph = parseFloat(row.cut_per_hour);
-      return (lay > 0 && qty > 0 && cph > 0) ? (3600 / cph / lay * qty * 1.0) : NaN;
+      const il  = parseFloat(row.interlock_cut) || 1;
+      return (lay > 0 && qty > 0 && cph > 0) ? (3600 / cph / lay * qty * 1.0 / il) : NaN;   // Task H: ÷連刀
     }
-    return parseFloat(row.standard_time);
+    return parseFloat(row.standard_time);   // 裁斷手工/ATOM/EMMA/Laser… 手工標時
   }
   if (seg === 'stitching' || seg === 'assembly') {
     return (row.normal_time != null)
@@ -1314,9 +1344,13 @@ function renderCuttingTotalRow(z, zone, type, eolr) {
   const th  = `<td class="formula-cell zt-cell zt-theory">${fmtNum(t.theory)}</td>`;
   const ac  = `<td class="formula-cell zt-cell zt-actual">${fmtNum(t.actual)}</td>`;
   const E   = `<td class="zt-cell"></td>`;
-  const lead = E + E + `<td class="zt-cell zt-title">總計</td>`;   // del, mat_cat, name
+  // Task H: 裁斷手工(M) 無材料欄 → lead 只有 del + 總計(name)
+  const lead = (type === 'M')
+    ? E + `<td class="zt-cell zt-title">總計</td>`
+    : E + E + `<td class="zt-cell zt-title">總計</td>`;   // del, mat_cat, name
   let mid, tail = '';
-  if (type === 'A')      { mid = E + E + E + std + th + ac; tail = `<td class="zt-cell" colspan="12"></td>`; }
+  if (type === 'A')      { mid = E + E + E + E + std + th + ac; tail = `<td class="zt-cell" colspan="12"></td>`; } // 層/件/刀/連刀
+  else if (type === 'M') { mid = std + th + ac; }                  // 裁斷手工: 標時/理論/要求人數
   else if (type === 'B') { mid = E + E + std + th + ac;     tail = `<td class="zt-cell" colspan="10"></td>`; }
   else if (type === 'C') { mid = E + E + std + th + ac; }
   else if (type === 'D') { mid = E + E + std + th + ac;     tail = `<td class="zt-cell" colspan="4"></td>`; }
@@ -1362,23 +1396,35 @@ function recalcCuttingStdByPid(pid) {
     if (inp.dataset.cfield === 'qty_per_pair')   qty = v;
     if (inp.dataset.cfield === 'cut_per_hour')   cph = v;
   });
+  const selIl = tr.querySelector('select.cut-interlock');
+  const il    = selIl ? (parseFloat(selIl.value) || 1) : (parseFloat(findDataRow(pid)?.row?.interlock_cut) || 1);
   const divisor = 3600 / EOLR;
   if (lay > 0 && qty > 0 && cph > 0) {
-    const std = 3600 / cph / lay * qty * 1.0;
+    const std = 3600 / cph / lay * qty * 1.0 / il;   // Task H: ÷連刀
     stdCell.textContent = fmtNum(std);
     if (thCell) { thCell.dataset.stdtime = std; thCell.textContent = fmtNum(std / divisor); }
   } else {
     stdCell.textContent = '';
     if (thCell) { thCell.dataset.stdtime = ''; thCell.textContent = ''; }
   }
-  // 同步 DATA 並即時更新該區塊總計（裁斷機 typeA 現場改層/件/刀數）
+  // 同步 DATA 並即時更新該區塊總計（裁斷機 typeA 現場改層/件/刀數/連刀）
   const dr = findDataRow(pid);
   if (dr) {
     dr.row.layers_per_cut = isNaN(lay) ? null : lay;
     dr.row.qty_per_pair   = isNaN(qty) ? null : qty;
     dr.row.cut_per_hour   = isNaN(cph) ? null : cph;
+    dr.row.interlock_cut  = il;
     refreshZoneTotals(DATA.segment || SEG, dr.z.zone);
   }
+}
+
+// Task H 連刀下拉 onchange：即時重算 std/theory + 區塊總計，並即時存值（不 reload → 不丟未存編輯）
+function onInterlockChange(pid, val) {
+  const dr = findDataRow(pid);
+  if (dr) dr.row.interlock_cut = parseInt(val) || 1;
+  recalcCuttingStdByPid(pid);
+  const sel = document.querySelector(`select.cut-interlock[data-pid="${pid}"]`);
+  if (sel) saveSingleField(sel, pid, 'interlock_cut');
 }
 
 function updateTheoryAndTotal() {

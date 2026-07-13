@@ -1,0 +1,49 @@
+{
+  "scenarios": {
+    "interlock": {
+      "default": "1",
+      "std_il1": "39600",
+      "theory_il1": "1320",
+      "std_il4": "9900",
+      "theory_il4": "330",
+      "layers_after_il_change": "1",
+      "std_back_to_il1": "39600",
+      "PASS": true
+    },
+    "atomEmma": {
+      "probe": {
+        "ATOM": {
+          "present": true,
+          "dataRowCells": 8,
+          "hasPostHeaders": false,
+          "hasPostInputs": true
+        },
+        "EMMA": {
+          "present": true,
+          "dataRowCells": 8,
+          "hasPostHeaders": false,
+          "hasPostInputs": true
+        }
+      },
+      "PASS": true
+    },
+    "hand": {
+      "zoneExists": true,
+      "row": {
+        "cells": 5,
+        "name": "手工裁斷測試",
+        "theory": "2",
+        "totalStd": "60",
+        "totalTheory": "2"
+      },
+      "PASS": true
+    },
+    "fuzz": {
+      "pageErrors": 0,
+      "emptyAddAlerted": true,
+      "PASS": true
+    }
+  },
+  "errors": [],
+  "ALL_PASS": true
+}
