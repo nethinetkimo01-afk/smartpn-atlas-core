@@ -1,0 +1,49 @@
+{
+  "scenarios": {
+    "admin_order_formula": {
+      "ilIdx": 3,
+      "layIdx": 4,
+      "zhHeader": [
+        "材料類別",
+        "部件名稱",
+        "連刀",
+        "層數",
+        "件數",
+        "刀數/H",
+        "標准時間(秒/雙)",
+        "理論人數",
+        "裁機要求人數",
+        "標准時間",
+        "理論人數",
+        "標准時間",
+        "理論人數",
+        "標准時間",
+        "理論人數",
+        "標准時間",
+        "理論人數",
+        "標准時間",
+        "理論人數",
+        "標准時間",
+        "理論人數"
+      ],
+      "interlock_left_of_layers": true,
+      "std_il1": "39600",
+      "std_il4": "9900",
+      "layers_after_flush": "7",
+      "PASS": true
+    },
+    "read_only_pos": {
+      "selects": 0,
+      "ilPos": 2,
+      "layPos": 3,
+      "PASS": true
+    },
+    "import": {
+      "ok": true,
+      "imported": 13,
+      "PASS": true
+    }
+  },
+  "errors": [],
+  "ALL_PASS": true
+}

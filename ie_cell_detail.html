@@ -881,10 +881,11 @@ function _cutHead(type) {
   const CZ  = zh('層數','')+zh('件數','')+zh('標准時間','')+zh('理論人數','th-theory-col')+zh('裁機<br>要求人數','th-actual-col');
   let r3,r4,r5,r6;
   if (type === 'A') {
+    // Task H-1：連刀移到「層數」左邊（連刀｜層數｜件數｜刀數/H｜標時…）
     r3 = DEL+B3+G(7,'裁断')+P6G;
-    r4 = V3+vi('Số<br>lớp')+vi('Số pk<br>/đôi')+vi('Số<br>dao/H')+vi('Dao<br>liền')+vi('TC<br>thời gian')+vi('Số người<br>lý luận')+vi('Yêu cầu<br>máy cắt')+P6V;
-    r5 = E3+en('No.of<br>Layer')+en('Qty<br>(1Prs)')+en('Cut<br>(Pr/H)')+en('Inter<br>lock')+en('Std time<br>(Secs)')+en('Operators<br>theory')+en('No.of<br>Oper.')+P6E;
-    r6 = Z3+zh('層數','')+zh('件數','')+zh('刀數/H','')+zh('連刀','')+zh('標准時間<br><span style="font-size:8px;font-weight:400">(秒/雙)</span>','th-formula-col')+zh('理論人數','th-theory-col')+zh('裁機<br>要求人數','th-actual-col')+P6Z;
+    r4 = V3+vi('Dao<br>liền')+vi('Số<br>lớp')+vi('Số pk<br>/đôi')+vi('Số<br>dao/H')+vi('TC<br>thời gian')+vi('Số người<br>lý luận')+vi('Yêu cầu<br>máy cắt')+P6V;
+    r5 = E3+en('Inter<br>lock')+en('No.of<br>Layer')+en('Qty<br>(1Prs)')+en('Cut<br>(Pr/H)')+en('Std time<br>(Secs)')+en('Operators<br>theory')+en('No.of<br>Oper.')+P6E;
+    r6 = Z3+zh('連刀','')+zh('層數','')+zh('件數','')+zh('刀數/H','')+zh('標准時間<br><span style="font-size:8px;font-weight:400">(秒/雙)</span>','th-formula-col')+zh('理論人數','th-theory-col')+zh('裁機<br>要求人數','th-actual-col')+P6Z;
   } else if (type === 'M') {
     // Task H 裁斷手工：流程名稱(手工) / 標準時間(手工) / 理論人數(公式,灰) / 要求人數(手工)
     const nameH = '<th rowspan="4" class="th-cut-group left" style="background:#1C1C1E;color:#3A3A3C;min-width:120px">流程名稱</th>';
@@ -986,7 +987,7 @@ function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
     h += `<td class="num" style="cursor:text;font-size:9px;min-width:50px" onclick="startTextEdit(this,${pid},'mat_cat')" data-tip="點擊編輯">${esc(row.mat_cat||'')}</td>`;
   h += nmC;
   if (type === 'A') {
-    h += edMA('layers_per_cut',row.layers_per_cut)+edMA('qty_per_pair',row.qty_per_pair)+edMA('cut_per_hour',row.cut_per_hour)+ilSel()+fmCutA()+thCA()+actTd+post6();
+    h += ilSel()+edMA('layers_per_cut',row.layers_per_cut)+edMA('qty_per_pair',row.qty_per_pair)+edMA('cut_per_hour',row.cut_per_hour)+fmCutA()+thCA()+actTd+post6();
   } else if (type === 'M') {
     h += edM('standard_time',std)+thC(std)+actTd;
   } else if (type === 'B') {
@@ -1023,7 +1024,7 @@ function addCuttingRow(zone) {
     : cancelTd + `<td><input class="add-inp" id="add-mat-${zE}" placeholder="材料" style="min-width:46px;font-size:10px"></td><td></td><td><input class="add-inp" id="add-name-${zE}" placeholder="部件名稱" style="min-width:90px"></td>`;
   if (type === 'A') {
     const ilSel = `<td><select class="add-inp cut-interlock" id="add-il-${zE}" style="min-width:40px">${INTERLOCK_OPTIONS.map(n=>`<option value="${n}"${n===1?' selected':''}>${n}</option>`).join('')}</select></td>`;
-    c += ni('add-lay-'+zE,'層')+ni('add-qty-'+zE,'件')+ni('add-cph-'+zE,'刀/H')+ilSel+fm()+fm()+ni('add-act-'+zE,'人');
+    c += ilSel+ni('add-lay-'+zE,'層')+ni('add-qty-'+zE,'件')+ni('add-cph-'+zE,'刀/H')+fm()+fm()+ni('add-act-'+zE,'人');   // Task H-1: 連刀在最左
     c += `<td colspan="12" style="background:#f1f8e9;text-align:center;font-size:9px;color:#aaa;border:1px dashed #c8e6c9">後製工序（新增後填入）</td>`;
   } else if (type === 'M') {
     c += ni('add-std-'+zE,'標時')+fm()+ni('add-act-'+zE,'人');

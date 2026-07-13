@@ -2133,7 +2133,7 @@ def import_ie_zone(target_header_id, source_header_id, segment, zone, overwrite=
             SELECT seq, process_name, part_name, tct,
                    normal_time, allowance_pct, standard_time,
                    actual_operators, machine,
-                   cut_per_hour, qty_per_pair, layers_per_cut,
+                   cut_per_hour, qty_per_pair, layers_per_cut, interlock_cut,
                    process_name_vi, process_name_zh, mat_cat,
                    equipment_type,
                    post_marking_std, post_marking_ops,
@@ -2178,7 +2178,7 @@ def import_ie_zone(target_header_id, source_header_id, segment, zone, overwrite=
                   (header_id, art, segment, zone, seq,
                    process_name, part_name, tct, standard_time, flag,
                    mat_cat, process_name_zh, process_name_vi, equipment_type,
-                   cut_per_hour, qty_per_pair, layers_per_cut,
+                   cut_per_hour, qty_per_pair, layers_per_cut, interlock_cut,
                    actual_operators, normal_time, allowance_pct, machine,
                    post_marking_std, post_marking_ops,
                    post_skiving_std, post_skiving_ops,
@@ -2187,12 +2187,12 @@ def import_ie_zone(target_header_id, source_header_id, segment, zone, overwrite=
                    post_heat_std, post_heat_ops,
                    post_polish_std, post_polish_ops,
                    value_type, is_locked, source_sheet, formula, stage)
-                VALUES (?,?,?,?,?,?,?,?,?,NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                VALUES (?,?,?,?,?,?,?,?,?,NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             ''', (
                 target_header_id, target_art, segment, zone, i + 1,
                 r['process_name'], r['part_name'], r['tct'], std,
                 r['mat_cat'], r['process_name_zh'], r['process_name_vi'], r['equipment_type'],
-                r['cut_per_hour'], r['qty_per_pair'], r['layers_per_cut'],
+                r['cut_per_hour'], r['qty_per_pair'], r['layers_per_cut'], (r['interlock_cut'] if r['interlock_cut'] else 1),
                 r['actual_operators'], r['normal_time'], r['allowance_pct'], r['machine'],
                 r['post_marking_std'], r['post_marking_ops'],
                 r['post_skiving_std'], r['post_skiving_ops'],
