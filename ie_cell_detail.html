@@ -788,7 +788,7 @@ async function loadSegment(seg) {
 
 // ── Render dispatcher ──────────────────────────────────────────────────────────
 const CUTTING_ZONE_ORDER = ['裁斷機','裁斷手工','ATOM','EMMA','Laser','YINGHUI','移印','轉印'];
-const INTERLOCK_OPTIONS = [1,2,4,8,16];   // Task H 連刀下拉，默認 1
+const INTERLOCK_OPTIONS = [1,2,4,6,8,16];   // Task H 連刀下拉，默認 1（H-2 加 6）
 
 function renderZones(data) {
   ZONE_ROWS = {};

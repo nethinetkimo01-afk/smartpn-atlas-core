@@ -1,0 +1,28 @@
+{
+  "scenarios": {
+    "admin": {
+      "options": [
+        "1",
+        "2",
+        "4",
+        "6",
+        "8",
+        "16"
+      ],
+      "has6": true,
+      "orderOk": true,
+      "std_il1": "39600",
+      "std_il6": "6600",
+      "theory_il6": "220",
+      "layers_after_flush": "7",
+      "PASS": true
+    },
+    "read_only": {
+      "selects": 0,
+      "inputs": 0,
+      "PASS": true
+    }
+  },
+  "errors": [],
+  "ALL_PASS": true
+}
