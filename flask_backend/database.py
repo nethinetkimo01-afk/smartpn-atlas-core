@@ -1016,10 +1016,16 @@ def add_art_to_header(art, header_id):
         conn.close()
 
 def remove_art_from_header(art, header_id):
-    """Remove one ART from a header. Deletes the header if it becomes empty."""
+    """Remove one ART from a header. Deletes the header if it becomes empty.
+    Task O：比對寬鬆（TRIM＋不分大小寫）＋檢查 rowcount（刪到 0 列→回 ok:false，不再靜默成功）。"""
     conn = get_conn()
     try:
-        conn.execute('DELETE FROM ob_articles WHERE art=? AND header_id=?', (art, header_id))
+        cur = conn.execute(
+            'DELETE FROM ob_articles WHERE UPPER(TRIM(art))=UPPER(TRIM(?)) AND header_id=?',
+            (art, header_id))
+        if cur.rowcount == 0:
+            conn.rollback()
+            return {'ok': False, 'error': '此鞋型中找不到該 ART'}
         remaining = conn.execute(
             'SELECT COUNT(*) FROM ob_articles WHERE header_id=?', (header_id,)
         ).fetchone()[0]

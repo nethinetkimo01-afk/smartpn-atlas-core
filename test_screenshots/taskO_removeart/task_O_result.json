@@ -1,0 +1,35 @@
+{
+  "scenarios": {
+    "select_and_remove": {
+      "beforeCount": 13,
+      "modalCount": 13,
+      "hadDirty": true,
+      "afterCount": 12,
+      "PASS": true
+    },
+    "remove_last": {
+      "beforeCount": 1,
+      "isLastWarning": true,
+      "headerGone": true,
+      "PASS": true
+    },
+    "nonexistent": {
+      "status": 200,
+      "ok": false,
+      "error": "此鞋型中找不到該 ART",
+      "PASS": true
+    },
+    "noaccess_tongcai": {
+      "noDotMenu": true,
+      "apiStatus": 403,
+      "PASS": true
+    },
+    "noaccess_test_editor": {
+      "noDotMenu": true,
+      "apiStatus": 403,
+      "PASS": true
+    }
+  },
+  "errors": [],
+  "ALL_PASS": true
+}

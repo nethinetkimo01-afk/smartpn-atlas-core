@@ -582,12 +582,38 @@ async function addArtToModel(headerId, modelName){
   if(j.ok) loadData(); else alert('新增失敗：'+(j.error||''));
 }
 
-async function removeArtFromModel(headerId){
-  const art = prompt('輸入要移除的 ART 號碼：');
-  if(!art||!art.trim()) return;
-  if(!confirm(`確認移除 ${art.trim()} ？`)) return;
+// Task O：改「選擇視窗」——列出該 header 現有全部 ART，點選其一再確認（不再手打）
+function removeArtFromModel(headerId){
+  const rec = (allRecords||[]).find(r => r.id === headerId);
+  const arts = rec ? (rec.arts||[]) : [];
+  if(!arts.length){ alert('此鞋型查無 ART'); return; }
+  document.getElementById('artRemoveModal')?.remove();
+  const isLast = arts.length <= 1;
+  const btns = arts.map(a =>
+    `<button class="art-pick-btn" data-art="${esc(a)}" onclick="doRemoveArt(${headerId},this.getAttribute('data-art'),${arts.length})"
+       style="display:block;width:100%;text-align:left;margin:4px 0;padding:8px 12px;border:1px solid #ccd;border-radius:6px;background:#fff;cursor:pointer;font-size:13px">${esc(a)}</button>`).join('');
+  const ov = document.createElement('div');
+  ov.id = 'artRemoveModal';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:9999;display:flex;align-items:center;justify-content:center';
+  ov.innerHTML = `<div style="background:#fff;border-radius:10px;padding:18px;min-width:280px;max-width:90vw">
+      <div style="font-weight:600;margin-bottom:8px">選擇要移除的 ART</div>
+      ${isLast ? '<div style="color:#b26a00;font-size:12px;margin-bottom:6px">⚠ 此鞋型只有一個 ART，移除將刪除整個鞋型。</div>' : ''}
+      <div>${btns}</div>
+      <div style="text-align:right;margin-top:10px"><button onclick="document.getElementById('artRemoveModal').remove()"
+        style="padding:6px 14px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer">取消</button></div>
+    </div>`;
+  ov.addEventListener('click', e => { if(e.target === ov) ov.remove(); });
+  document.body.appendChild(ov);
+}
+async function doRemoveArt(headerId, art, count){
+  const isLast = count <= 1;
+  const msg = isLast
+    ? `「${art}」是最後一個 ART，移除將刪除整個鞋型，確定？`
+    : `確認移除 ART：${art}？`;
+  if(!confirm(msg)) return;
+  document.getElementById('artRemoveModal')?.remove();
   const r = await fetch('/api/ie/remove_art',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({header_id:headerId, art:art.trim()})});
+    body:JSON.stringify({header_id:headerId, art})});
   const j = await r.json();
   if(j.ok) loadData(); else alert('移除失敗：'+(j.error||''));
 }
