@@ -1,0 +1,49 @@
+{
+  "scenarios": {
+    "union_listing": {
+      "modal": {
+        "count": 3,
+        "arts": [
+          "ARTX-60ONLY",
+          "ARTX-120A",
+          "ARTX-120B"
+        ],
+        "hids": {
+          "ARTX-60ONLY": "201",
+          "ARTX-120A": "202",
+          "ARTX-120B": "202"
+        }
+      },
+      "includesCrossHeaderArt": true,
+      "crossHeaderHid": "201",
+      "PASS": true
+    },
+    "remove_cross_header": {
+      "before": {
+        "h60": true,
+        "h120": true
+      },
+      "after": {
+        "h60": false,
+        "h120": true
+      },
+      "h120Arts": [
+        "ARTX-120A",
+        "ARTX-120B"
+      ],
+      "PASS": true
+    },
+    "last_art_warning": {
+      "btns": 1,
+      "lastWarn": true,
+      "PASS": true
+    },
+    "taskO_regression": {
+      "ok": false,
+      "error": "此鞋型中找不到該 ART",
+      "PASS": true
+    }
+  },
+  "errors": [],
+  "ALL_PASS": true
+}

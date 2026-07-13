@@ -28,6 +28,8 @@ Claude 是中樞不是打字機：自行思考、主動 web_search 查市面成�
 - **Task H-2** ✅：連刀下拉加選項 6（1/2/4/6/8/16，默認1）。匯入無值白名單→無需改。Playwright：選6→標時÷6(39600→6600)、理論連動、flush/read_only 迴歸全 PASS。
 - **Task H-1** ✅：連刀欄移到「層數」左邊（只動顯示順序，公式/DB/36欄不變）；匯入按 DB 欄名（不受欄序影響）並補帶 interlock_cut。Playwright 3 情境全 PASS。
 - **Task J** ✅：STF 段所有區塊「實際人數」→「EOLR=190 實際人數」（三語），改在 STF 共用表頭定義層（`SEG_COL_LABELS.stf`），新增 STF 區自動繼承；只改顯示名稱，其他段不動。Playwright 4 情境全 PASS。
+- **Task O-1** ✅：移除 ART 選單缺漏修復（群組聯集）——列表列＝model 群組(60/120合併)，選單改列群組全 header 的 ART 聯集，
+  逐 ART 帶實際所屬 header_id 逐 header 移除；某 header 清空級聯刪、另一 EOLR 不受影響。Playwright 4 情境全 PASS。
 - **Task O** ✅：移除 ART 靜默失敗修復——後端比對放寬(TRIM+不分大小寫)+檢查 rowcount(刪0列→ok:false)；
   前端 prompt 改選擇視窗(列 ART 點選)；同類掃描僅 remove_art 有此 bug。Playwright 5 情境全 PASS。
 - **Task N** ✅：裁斷重算改為 admin 管理頁 `/admin/recalc-cutting`（預覽→確認→自動備份→可還原，執行中鎖擋並發），

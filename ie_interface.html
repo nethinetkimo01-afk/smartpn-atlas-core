@@ -582,15 +582,24 @@ async function addArtToModel(headerId, modelName){
   if(j.ok) loadData(); else alert('新增失敗：'+(j.error||''));
 }
 
-// Task O：改「選擇視窗」——列出該 header 現有全部 ART，點選其一再確認（不再手打）
+// Task O：選擇視窗（不再手打）。Task O-1：列表列＝model 群組（EOLR 60/120 兩 header 合併），
+// 選單資料源改為「該群組全部 header 的 ART 聯集」，每個 ART 帶其實際所屬 header_id(可多個)。
 function removeArtFromModel(headerId){
   const rec = (allRecords||[]).find(r => r.id === headerId);
-  const arts = rec ? (rec.arts||[]) : [];
+  if(!rec){ alert('此鞋型查無 ART'); return; }
+  const key = normKey(rec.model_name);
+  const sibs = (allRecords||[]).filter(r => normKey(r.model_name) === key);   // 同群組全部 header
+  const map = new Map();   // art → [header_ids]（同一 ART 掛多個 header 時逐一記）
+  sibs.forEach(r => (r.arts||[]).forEach(a => {
+    if(!map.has(a)) map.set(a, []);
+    if(!map.get(a).includes(r.id)) map.get(a).push(r.id);
+  }));
+  const arts = [...map.keys()];
   if(!arts.length){ alert('此鞋型查無 ART'); return; }
   document.getElementById('artRemoveModal')?.remove();
-  const isLast = arts.length <= 1;
+  const isLast = arts.length <= 1;   // 以群組聯集計數
   const btns = arts.map(a =>
-    `<button class="art-pick-btn" data-art="${esc(a)}" onclick="doRemoveArt(${headerId},this.getAttribute('data-art'),${arts.length})"
+    `<button class="art-pick-btn" data-art="${esc(a)}" data-hids="${map.get(a).join(',')}" onclick="doRemoveArt(this.getAttribute('data-art'),this.getAttribute('data-hids'),${arts.length})"
        style="display:block;width:100%;text-align:left;margin:4px 0;padding:8px 12px;border:1px solid #ccd;border-radius:6px;background:#fff;cursor:pointer;font-size:13px">${esc(a)}</button>`).join('');
   const ov = document.createElement('div');
   ov.id = 'artRemoveModal';
@@ -605,17 +614,23 @@ function removeArtFromModel(headerId){
   ov.addEventListener('click', e => { if(e.target === ov) ov.remove(); });
   document.body.appendChild(ov);
 }
-async function doRemoveArt(headerId, art, count){
+// Task O-1：帶「該 ART 實際所屬的 header_id」（可多個，逐 header 移除）；不是入口點那個 header
+async function doRemoveArt(art, hidsCsv, count){
   const isLast = count <= 1;
   const msg = isLast
     ? `「${art}」是最後一個 ART，移除將刪除整個鞋型，確定？`
     : `確認移除 ART：${art}？`;
   if(!confirm(msg)) return;
   document.getElementById('artRemoveModal')?.remove();
-  const r = await fetch('/api/ie/remove_art',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({header_id:headerId, art})});
-  const j = await r.json();
-  if(j.ok) loadData(); else alert('移除失敗：'+(j.error||''));
+  const hids = String(hidsCsv||'').split(',').map(s=>parseInt(s,10)).filter(Boolean);
+  let okAny=false, err='';
+  for(const hid of hids){   // 同一 ART 掛多個 header → 逐一移除；某 header 清空由後端級聯刪，另一 EOLR 不受影響
+    const r = await fetch('/api/ie/remove_art',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({header_id:hid, art})});
+    const j = await r.json();
+    if(j.ok) okAny=true; else err = j.error||err;
+  }
+  if(okAny) loadData(); else alert('移除失敗：'+(err||''));
 }
 
 async function changeEolrModal(headerId){
