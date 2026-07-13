@@ -1,0 +1,63 @@
+{
+  "scenarios": {
+    "columns_formula": {
+      "assemblyHeaderCols": 9,
+      "stfHeaderCols": [
+        9,
+        9,
+        9,
+        9
+      ],
+      "all_STF_match_assembly": true,
+      "taskJ_header_kept": true,
+      "cuploc_std": "110",
+      "zhaoshe_std": "88",
+      "tiedi_std": "55",
+      "cuploc_target": "32.7",
+      "cuploc_theory": "3.7",
+      "PASS": true
+    },
+    "formula_realdata": {
+      "checks": [
+        {
+          "zone": "打粗",
+          "normal": 20,
+          "allow": 10,
+          "std": 22,
+          "expect": 22
+        },
+        {
+          "zone": "照射",
+          "normal": 11.2,
+          "allow": 10,
+          "std": 12.3,
+          "expect": 12.32
+        },
+        {
+          "zone": "水洗",
+          "normal": 2,
+          "allow": 10,
+          "std": 2.2,
+          "expect": 2.2
+        },
+        {
+          "zone": "貼底",
+          "normal": 12,
+          "allow": 10,
+          "std": 13.2,
+          "expect": 13.2
+        }
+      ],
+      "verifiedRows": 4,
+      "allMatch": true,
+      "PASS": true
+    },
+    "read_only": {
+      "inputs": 0,
+      "headersAllRenamed": true,
+      "PASS": true
+    }
+  },
+  "errors": [],
+  "ALL_PASS": true
+}

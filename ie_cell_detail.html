@@ -437,13 +437,9 @@ function getZoneCols(seg, zone) {
     }
     return ['process_name','standard_time','actual_operators'];
   }
-  if (seg === 'stitching' || seg === 'assembly') {
+  // Task L：STF 段欄位組與 assembly 完全一致（不另立 STF 版本）
+  if (seg === 'stitching' || seg === 'assembly' || seg === 'stf') {
     return ['process_name','equipment_type','normal_time','allowance_pct','standard_time','production_target','theory_operators','actual_operators'];
-  }
-  if (seg === 'stf') {
-    if (zone === '水洗') return ['process_name','equipment_type','actual_operators'];
-    if (zone === '貼底') return ['process_name','equipment_type','normal_time','standard_time','theory_operators','actual_operators'];
-    return ['process_name','equipment_type','standard_time','actual_operators']; // 打粗/照射: TCT manual
   }
   return ['process_name','standard_time','theory_operators','actual_operators'];
 }
@@ -1200,7 +1196,8 @@ function renderCell(row, col, zone, seg, eolr) {
 
   if (col === 'production_target') {
     let st = parseFloat(row.standard_time);
-    if ((seg === 'stitching' || seg === 'assembly') && row.normal_time != null) {
+    // Task L：STF 併入 stitching/assembly 的公式路徑（正常時間×(1+寬放/100)）
+    if ((seg === 'stitching' || seg === 'assembly' || seg === 'stf') && row.normal_time != null) {
       const allow = row.allowance_pct != null ? row.allowance_pct : 10;
       st = row.normal_time * (1 + allow / 100);
     }
@@ -1210,7 +1207,8 @@ function renderCell(row, col, zone, seg, eolr) {
 
   if (col === 'standard_time') {
     let computed = val;
-    if (seg === 'stitching' || seg === 'assembly') {
+    // Task L：STF 與 stitching/assembly 一致——標準時間=公式(灰底)；normal_time 缺→顯示存值(舊資料相容)
+    if (seg === 'stitching' || seg === 'assembly' || seg === 'stf') {
       if (row.normal_time != null) {
         const allow = row.allowance_pct != null ? row.allowance_pct : 10;
         computed = row.normal_time * (1 + allow / 100);
@@ -1218,27 +1216,16 @@ function renderCell(row, col, zone, seg, eolr) {
       const display = computed != null ? fmtNum(parseFloat(computed.toFixed(4))) : '';
       return `<td class="formula-cell">${display}</td>`;
     }
-    if (seg === 'stf') {
-      if (zone === '貼底') {
-        if (row.normal_time != null) computed = row.normal_time * 1.1;
-        const display = computed != null ? fmtNum(parseFloat(computed.toFixed(4))) : '';
-        return `<td class="formula-cell">${display}</td>`;
-      }
-      // 打粗/照射: TCT manual, editable
-      return `<td class="num" style="padding:0"><input class="cell-inp" value="${fmtNum(val)}" onblur="commitEditStatic(this,${pid},'standard_time')" onkeydown="if(event.key==='Enter')this.blur()"></td>`;
-    }
     const display = computed != null ? fmtNum(parseFloat(computed.toFixed(4))) : '';
     return `<td class="formula-cell">${display}</td>`;
   }
 
   if (col === 'theory_operators') {
     let st;
-    if (seg === 'stitching' || seg === 'assembly') {
+    if (seg === 'stitching' || seg === 'assembly' || seg === 'stf') {
       st = (row.normal_time != null)
         ? row.normal_time * (1 + (row.allowance_pct != null ? row.allowance_pct : 10) / 100)
         : parseFloat(row.standard_time);
-    } else if (seg === 'stf' && zone === '貼底') {
-      st = row.normal_time != null ? row.normal_time * 1.1 : parseFloat(row.standard_time);
     } else {
       st = parseFloat(row.standard_time);
     }
@@ -1267,7 +1254,7 @@ function renderCell(row, col, zone, seg, eolr) {
   }
 
   if (col === 'allowance_pct') {
-    const defaultAllow = (seg === 'stitching' || seg === 'assembly') ? 10 : null;
+    const defaultAllow = (seg === 'stitching' || seg === 'assembly' || seg === 'stf') ? 10 : null;  // Task L
     const display = val != null ? fmtNum(val) : (defaultAllow != null ? fmtNum(defaultAllow) : '');
     if (locked) return `<td class="num locked-cell">${display}</td>`;
     return `<td class="num" style="padding:0"><input class="cell-inp" value="${display}" onblur="commitEditStatic(this,${pid},'allowance_pct')" onkeydown="if(event.key==='Enter')this.blur()"></td>`;
@@ -1312,13 +1299,11 @@ function _rowStd(row, seg, zone) {
     }
     return parseFloat(row.standard_time);   // 裁斷手工/ATOM/EMMA/Laser… 手工標時
   }
-  if (seg === 'stitching' || seg === 'assembly') {
+  // Task L：STF 併入 stitching/assembly 公式（正常時間×(1+寬放/100)，缺 normal_time→存值）
+  if (seg === 'stitching' || seg === 'assembly' || seg === 'stf') {
     return (row.normal_time != null)
       ? row.normal_time * (1 + (row.allowance_pct != null ? row.allowance_pct : 10) / 100)
       : parseFloat(row.standard_time);
-  }
-  if (seg === 'stf' && zone === '貼底') {
-    return (row.normal_time != null) ? row.normal_time * 1.1 : parseFloat(row.standard_time);
   }
   return parseFloat(row.standard_time);
 }
@@ -2070,7 +2055,7 @@ function addRowInline(zone, seg) {
     } else if (col === 'allowance_pct') {
       cells += `<td><input class="add-inp add-num" id="add-gen-ap-${esc(zone)}" type="text" value="10" placeholder="10" style="min-width:35px"></td>`;
     } else if (col === 'standard_time') {
-      const isFormula = (seg === 'stitching' || seg === 'assembly') || (seg === 'stf' && zone === '貼底');
+      const isFormula = (seg === 'stitching' || seg === 'assembly' || seg === 'stf');  // Task L：STF 標時=公式
       cells += isFormula
         ? `<td class="formula-cell" style="font-size:9px">公式</td>`
         : `<td><input class="add-inp add-num" id="add-gen-std-${esc(zone)}" type="text" placeholder="TCT" style="min-width:55px"></td>`;
