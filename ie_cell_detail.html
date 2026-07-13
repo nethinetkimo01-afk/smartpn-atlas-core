@@ -513,7 +513,8 @@ async function doUpdate(){
 }
 
 async function loadReviewStatus() {
-  const isEditor = CELL_USER && ['data_entry','admin'].includes(CELL_USER.role);
+  // Task I：送審/取消審核也依 CAN_EDIT 範圍（無權 editor 對無權鞋型不顯示送審）
+  const isEditor = CAN_EDIT && CELL_USER && ['data_entry','admin'].includes(CELL_USER.role);
   const subBtn = document.getElementById('btn-submit-review');
   const wdBtn  = document.getElementById('btn-withdraw-review');
   const badge  = document.getElementById('review-status-badge');
@@ -1493,13 +1494,32 @@ function applyReadOnly() {
   CAN_EDIT = false;
   applyReadOnlyDOM();
 }
+// Task I：角色感知全灰渲染。read_only 或無權 editor（CAN_EDIT=false）→
+// 手工格/下拉一律變灰底純文字（含連刀 select），所有操作鈕不顯示。後端 403 為第二層防線。
 function applyReadOnlyDOM() {
   const mc = document.getElementById('mainContent');
   if (!mc) return;
-  mc.querySelectorAll('input,textarea,select').forEach(el => { el.disabled = true; el.style.pointerEvents = 'none'; });
-  mc.querySelectorAll('button.btn-del,button.btn-ins,button.cut-merge-btn,button.btn-inline-ok').forEach(el => { el.disabled = true; el.style.opacity = '0.3'; });
-  mc.querySelectorAll('td.num[onclick],td.formula-cell[onclick]').forEach(el => { el.removeAttribute('onclick'); el.style.cursor = 'default'; });
-  document.getElementById('saveDropdown')?.style && (document.getElementById('saveDropdown').style.display = 'none');
+  // 1) 手工輸入格 / 下拉（含連刀）→ 灰底純文字，不渲染 input/select
+  mc.querySelectorAll('input,textarea,select').forEach(el => {
+    if (el.type === 'checkbox' || el.type === 'radio') { el.disabled = true; el.style.pointerEvents = 'none'; return; }
+    let val;
+    if (el.tagName === 'SELECT') { const o = el.options[el.selectedIndex]; val = o ? o.text : el.value; }
+    else val = el.value;
+    const span = document.createElement('span');
+    span.textContent = (val == null ? '' : String(val));
+    span.style.cssText = 'color:#000;font-size:11px';
+    const td = el.closest('td');
+    if (td) { td.classList.add('formula-cell'); td.replaceChildren(span); }
+    else el.replaceWith(span);
+  });
+  // 2) 所有操作鈕一律不顯示：插/×/合/內聯確認/匯入/＋新增觸發列
+  mc.querySelectorAll('button.btn-del,button.btn-ins,button.cut-merge-btn,button.btn-inline-ok,button.btn-import,button.btn-add,.add-trigger-row,.add-row-inline').forEach(el => { el.style.display = 'none'; });
+  // 3) 可點編輯格（mat_cat 等）拔掉 onclick
+  mc.querySelectorAll('[onclick]').forEach(el => { el.removeAttribute('onclick'); el.style.cursor = 'default'; });
+  // 4) 頂部操作入口一律不顯示：儲存▼ / 送審 / 取消審核 / 設為鎖定版
+  ['saveDropdown','btn-submit-review','btn-withdraw-review','btn-approve-stage'].forEach(id => {
+    const e = document.getElementById(id); if (e) e.style.display = 'none';
+  });
 }
 
 // ── SUM_C2B 彙總 ── 唯讀，數值來自後端 get_ie_sum（/api/ie/<hid>/sum）────────────

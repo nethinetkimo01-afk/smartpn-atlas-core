@@ -1,0 +1,55 @@
+{
+  "scenarios": {
+    "read_only": {
+      "probe": {
+        "inputs": 0,
+        "interlockSel": 0,
+        "visibleActionBtns": 0,
+        "sampleText": "1",
+        "saveVisible": false
+      },
+      "apiWriteStatus": 403,
+      "PASS": true
+    },
+    "editor": {
+      "unassigned_h3": {
+        "inputs": 0,
+        "interlockSel": 0,
+        "visibleActionBtns": 0,
+        "sampleText": "",
+        "saveVisible": false
+      },
+      "assigned_h32": {
+        "inputs": 243,
+        "interlockSel": 13,
+        "visibleActionBtns": 122,
+        "sampleText": "18.9",
+        "saveVisible": true
+      },
+      "PASS": true
+    },
+    "admin": {
+      "probe": {
+        "inputs": 243,
+        "interlockSel": 13,
+        "visibleActionBtns": 122,
+        "sampleText": "18.9",
+        "saveVisible": true
+      },
+      "PASS": true
+    },
+    "eolr_settings": {
+      "read_only_selects": 0,
+      "read_only_textCells": 228,
+      "admin_selects": 228,
+      "PASS": true
+    },
+    "allocation": {
+      "checkboxes": 107,
+      "enabled": 0,
+      "PASS": true
+    }
+  },
+  "errors": [],
+  "ALL_PASS": true
+}

@@ -19,7 +19,9 @@ Claude 是中樞不是打字機：自行思考、主動 web_search 查市面成�
   **BLOCKED**，解鎖條件：在 ME129 執行、或 IE 來源 xlsx 進 Code 機。UI 導出入口已補（admin/manager 限定）。
 - **Task H** ✅：IE 裁斷段界面改版（ATOM/EMMA 精簡 5 欄、裁斷機加「連刀」欄 `interlock_cut` DEFAULT 1 +公式÷連刀、
   新增「裁斷手工」區 type M）。規格見 27_WORKING_RULES §二「①-H」；Playwright 4 情境全 PASS + read_only 403 迴歸。
-- **Task I**（進行中）：前端角色感知渲染（read_only/無權 editor 全灰、不渲染操作元素；後端 403 雙層防線）。
+- **Task I** ✅：前端角色感知渲染（read_only/無權 editor 全灰、input/select→灰底文字、操作鈕不顯示、
+  連刀→文字；eolr/allocation 同規則；後端 403 保留=雙層防線）。規格見 27_WORKING_RULES §十「角色感知渲染」。
+  Playwright 5 情境全 PASS（含 read_only API 寫入 403）。**注意**：manager 因後端 `_can_edit_ie` 現為 IE 唯讀→亦全灰（既有設計，Task I 未改後端）。
 
 ## 2026-07-12 定案
 - cutting 公式 ×1.1 → ×1.0（見 27_WORKING_RULES §二①）

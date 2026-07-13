@@ -166,6 +166,7 @@ const TABS = [
 
 let _role=null, _unit=null, _username=null;
 let _locked=false, _curTab=0, _allData=null;
+let _canEdit=false;   // Task I：只有撥人編輯者(admin/unit_user)可勾選；其餘(含 read_only)全灰
 
 async function init() {
   await checkSession();
@@ -208,6 +209,7 @@ function updateLockBadge() {
 
 function updateWhoUI() {
   const isAdmin = _role==='admin';
+  _canEdit = (_role==='admin' || _role==='unit_user');   // Task I：非撥人編輯者→勾選框全灰
   document.getElementById('whoBadge').textContent = _username
     ? `${_username} (${isAdmin?'管理員':_unit||''})`  : '未登入';
   document.getElementById('btnPrefill').style.display = isAdmin?'':'none';
@@ -311,7 +313,7 @@ function renderTab(tabIdx) {
 
         mg.items.forEach(item=>{
           const chk=item.is_checked?1:0;
-          const dis=_locked?'disabled':'';
+          const dis=(_locked || !_canEdit)?'disabled':'';   // Task I：無編輯權→勾選框禁用(全灰)
           const ct=item.ct_sec;
           const outVal=ct?(3600/ct).toFixed(1):'—';
           const stfMp=(ct&&mg.order_qty>0)?(mg.order_qty/(3600/ct)/222).toFixed(3):'—';
@@ -342,6 +344,7 @@ function renderTab(tabIdx) {
 }
 
 async function toggle(itemId, el) {
+  if(!_canEdit){ el.checked=!el.checked; showToast('唯讀，無法修改'); return; }   // Task I 防線
   if(_locked){ el.checked=!el.checked; showToast('已鎖定，無法修改'); return; }
   const checked=el.checked?1:0;
   const r=await fetch('/api/allocation/check',{

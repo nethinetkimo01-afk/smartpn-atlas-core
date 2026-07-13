@@ -63,6 +63,16 @@ const YEAR_MONTHS = {
 
 let _data = {};   // lean → month → {eolr, is_default}
 let _curYear = 2026;
+let CAN_EDIT = false;   // Task I：read_only 全灰（EOLR 顯示為文字，不渲染下拉）
+
+async function initAuth() {
+  try {
+    const d = await fetch('/api/me').then(r => r.json());
+    const role = d && d.user && d.user.role;
+    // read_only 唯讀；其餘登入者維持可改（後端 403 防線保留不動）
+    CAN_EDIT = !!(role && role !== 'read_only');
+  } catch { CAN_EDIT = false; }
+}
 
 async function loadYear(year) {
   _curYear = year;
@@ -108,12 +118,15 @@ function render(year) {
     months.forEach(m => {
       const cell = (_data[lean] || {})[m] || { eolr: 120, is_default: true };
       const isDef = cell.is_default;
-      html += `<td class="${isDef ? 'is-default' : ''}">
-        <div class="eolr-cell">
-          <select onchange="onChange('${esc(lean)}','${m}',this.value)">
+      const control = CAN_EDIT
+        ? `<select onchange="onChange('${esc(lean)}','${m}',this.value)">
             <option value="120"${cell.eolr === 120 ? ' selected' : ''}>120</option>
             <option value="60"${cell.eolr === 60 ? ' selected' : ''}>60</option>
-          </select>${isDef ? '<span class="badge-default">預設</span>' : ''}
+          </select>`
+        : `<span class="eolr-ro" style="color:#000">${cell.eolr}</span>`;   // Task I: read_only 純文字
+      html += `<td class="${isDef ? 'is-default' : ''}">
+        <div class="eolr-cell">
+          ${control}${isDef ? '<span class="badge-default">預設</span>' : ''}
         </div>
       </td>`;
     });
@@ -150,7 +163,7 @@ function esc(s) {
   return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-loadYear(2026);
+initAuth().then(() => loadYear(2026));
 </script>
 </body>
 </html>

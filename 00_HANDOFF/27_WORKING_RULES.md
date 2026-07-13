@@ -451,6 +451,21 @@ Jim 傾向 B，待確認後實作
 - 移除可點格子的 onclick
 - 停用刪除/合併按鈕
 
+### 角色感知渲染（Task I 定案 2026-07-12：不能執行的操作不該顯示）
+**規則**：`read_only` 角色前端**全灰** — 手工格以**灰底純文字**呈現（同公式格），**不渲染輸入框**；
+`插 / × / ＋ / 合 / 匯入 / 另存 / 送審` 等操作鈕**一律不顯示**；**連刀顯示為文字非下拉**。
+`editor`(data_entry) **依 `can_edit` 範圍**：無權的鞋型同樣全灰。**後端 403 防線保留不動（雙層防護）**。
+- 施工：`applyReadOnlyDOM()` 強化為「input/select→灰底文字、操作鈕 display:none、連刀 select→文字、
+  送審/取消審核/設為鎖定版一併隱藏」；`isEditor`(送審顯示) 加 `CAN_EDIT` 條件。
+- **注意（manager）**：後端 `_can_edit_ie` 現行邏輯 manager 對 IE 工序=唯讀（can_edit=false），故 manager
+  亦渲染全灰。此為既有後端設計；Task I「保留後端不動」→ 不改。若要 manager 可編輯 IE，屬另案後端變更。
+- **同規則套用其他頁**：`eolr_settings.html`（read_only：EOLR 下拉→純文字）；
+  `allocation.html`（非撥人編輯者 admin/unit_user → 勾選框禁用 + toggle 防線）；
+  `ie_cutting.html` 為純檢視頁（只有搜尋/篩選，無資料編輯元素）→ 無需改。
+- **Playwright 驗收**：read_only 細表 input/select/操作鈕=0 且數值可讀 + API 寫入 403；
+  editor 無權鞋型全灰、有權鞋型正常；admin 不受影響；eolr read_only 純文字/admin 下拉；
+  allocation read_only 勾選框全禁用。
+
 ### 語言切換不洗資料（定案修法）
 `setLang()` 改為 DOM in-place 更新：
 遍歷 `td.name[data-zh]`，直接替換 innerHTML/textContent。
