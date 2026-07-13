@@ -10,10 +10,19 @@ Last updated: 2026-07-12
 Claude 是中樞不是打字機：自行思考、主動 web_search 查市面成熟做法、主動提建議、預想 Jim 的下一步。
 → 完整交接：41_THREE_TRACK_HANDOFF.md / Code 批次現況：42_CODE_BATCH_STATUS.md（兩檔待補）
 
+## 2026-07-13 定案（第三批 Task F / G / H）
+- **Task F**：裁斷 standard_time DB 重算 ×1.0（方案a）。只碰公式型裁斷機列，手工/其他區不動；
+  bianche 維持讀 DB 值（鎖定版＝快照）。ME129 派發腳本 `recalc_cutting_x10.py`＋`rollback_cutting_x10.py`
+  已交（隔離 E2E 全 PASS）；**正式庫等 Jim 看報告後在 ME129 執行**。見 `Task_F_執行說明_20260713.md`。
+- **Task G**：IE 產能彙總表**定案 36 全欄**（與 廠務編製自動計算.xlsx「數據源-IE标准」逐欄一致；
+  **29 欄出自已丟失規格檔，作廢**）。取值來源＝IE 鎖定版＋offline 撥人。產能/人數欄值維持
+  **BLOCKED**，解鎖條件：在 ME129 執行、或 IE 來源 xlsx 進 Code 機。UI 導出入口已補（admin/manager 限定）。
+- **Task H**：IE 裁斷段界面改版（ATOM/EMMA 精簡 5 欄、裁斷機加「連刀」欄+公式、新增「裁斷手工」區）。見 27_WORKING_RULES §二。
+
 ## 2026-07-12 定案
 - cutting 公式 ×1.1 → ×1.0（見 27_WORKING_RULES §二①）
 - 裁斷合併 bug 修法＝A 強化版 flushPendingEdits（本批 Task D 執行）
-- 29欄導出＝規格回源，讀實際來源 xlsx header（本批 Task E 執行）
+- IE 導出＝規格回源，讀實際來源 xlsx header（本批 Task E 執行；Task G 定案 **36 欄**，「29欄」作廢）
 - 編制表併列不比對 FOB（見 28_BIANCHE_SPEC 決策④）
 
 ---

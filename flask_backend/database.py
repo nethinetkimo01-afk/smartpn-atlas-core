@@ -1667,10 +1667,15 @@ IE_CAPACITY_COLS = [
 ]
 
 def export_ie_capacity():
-    """回傳 {columns, rows}。columns = 真實來源 36 欄名。rows = 每個型體一列。
+    """回傳 {columns, rows}。columns = 真實來源 36 欄名（Task G 定案：36 全欄，
+    與 廠務編製自動計算.xlsx「數據源-IE标准」sheet 逐欄一致；先前『29 欄』出自已丟失
+    規格檔，作廢）。rows = 每個型體一列。
+    取值來源定案（Task G）：IE 鎖定版 + offline 撥人（照 39_VERSION_CONTROL_DESIGN /
+    28_BIANCHE_SPEC 主流程）。
     目前只落地「可從本系統確定推得」的欄位（季度/Article/鞋型名称/StockfittingEOLR）；
-    其餘產能/人數欄依賴 IE 鎖定版 SUM.C2B 與 offline 撥人資料，本機無真實 IE 資料 → 留空、
-    不臆造數值（待 Jim 確認欄位定案 + 有 IE 鎖定資料的機器上填值驗收）。"""
+    其餘產能/人數欄依賴 IE 鎖定版 SUM.C2B 與 offline 撥人資料 → 值維持 BLOCKED、留空、
+    不臆造。解鎖條件（二擇一）：在 ME129 執行（有真實 IE 鎖定資料），或把 IE 來源 xlsx
+    匯入 Code 機後填值驗收。"""
     conn = get_conn()
     try:
         hdrs = conn.execute(

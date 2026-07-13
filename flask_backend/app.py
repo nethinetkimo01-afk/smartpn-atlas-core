@@ -410,7 +410,12 @@ def ie_export(header_id):
 
 @app.route('/api/ie/export/capacity', methods=['GET'])
 def ie_export_capacity():
-    """Task E: IE 產能彙總表導出（36 欄，欄名回源自 數據源-IE标准；待 Jim 驗收）。"""
+    """Task E/G: IE 產能彙總表導出（36 欄，欄名回源自 數據源-IE标准）。
+    Task G 定案：36 全欄；取值來源=IE 鎖定版+offline 撥人；缺真實資料時產能/人數欄留空(BLOCKED)。
+    admin/manager 限定（前端按鈕亦限定，此處後端強制擋）。"""
+    err = _require_manager()
+    if err:
+        return err
     if not HAS_XLSX:
         return jsonify({'ok': False, 'error': 'openpyxl not installed'}), 500
     import io, openpyxl

@@ -127,6 +127,7 @@ thead th:last-child{border-right:none}
   <button id="btn-reload" class="btn btn-refresh" onclick="loadData()">重新載入</button>
   <button id="btn-new-model" class="btn btn-refresh" onclick="openNewModelModal()" style="display:none;background:#1a2744;color:#fff">＋ 新增鞋型</button>
   <button id="btn-review-queue" class="btn btn-refresh" onclick="location.href='/ie/reviews'" style="display:none;background:#2a4a8a;color:#fff">🗂 審核佇列</button>
+  <button id="btn-export-capacity" class="btn btn-refresh" onclick="exportCapacity()" style="display:none;background:#0a7d55;color:#fff" title="導出 IE 產能彙總表（36 欄，欄名回源自 數據源-IE标准）。產能/人數欄需 IE 鎖定版+撥人資料，缺資料時該欄留空、不報錯。">⬇ IE產能導出</button>
   <button id="btn-my-assign" class="btn btn-my-assign" onclick="toggleMyAssign()" style="display:none">✓ 我的指派</button>
   <span id="user-badge" style="font-size:12px;color:#555;padding:0 6px"></span>
   <a id="btn-logout" href="#" onclick="doLogout()" style="display:none;font-size:12px;color:#888;text-decoration:none">登出</a>
@@ -497,6 +498,8 @@ async function initAuth(){
       setInterval(checkVersionStatus, 5*60*1000);
       const adminBtn = document.getElementById('btn-admin-users');
       if (adminBtn) adminBtn.style.display = 'inline-block';
+      const expBtn = document.getElementById('btn-export-capacity');  // IE產能導出：admin/manager 限定
+      if (expBtn) expBtn.style.display = 'inline-block';
     }
     if(CURRENT_USER.role === 'data_entry'){
       const myBtn = document.getElementById('btn-my-assign');
@@ -750,6 +753,35 @@ async function reconnect(){
   if(btn) btn.style.display = 'none';
   await checkHealth();
   loadData();
+}
+
+// IE 產能彙總表導出（admin/manager 限定，後端 _require_manager 亦強制擋）
+// 無資料時：後端仍回 36 欄表頭的 xlsx（產能/人數欄留空），不報錯；權限不足才提示。
+async function exportCapacity(){
+  const btn = document.getElementById('btn-export-capacity');
+  const old = btn ? btn.textContent : '';
+  if(btn){ btn.disabled = true; btn.textContent = '導出中…'; }
+  try{
+    const r = await fetch('/api/ie/export/capacity');
+    if(!r.ok){
+      let msg = '導出失敗';
+      if(r.status === 403) msg = '需要管理員或主管權限才能導出';
+      else { try{ msg = (await r.json()).error || msg; }catch(_){} }
+      alert(msg);
+      return;
+    }
+    const blob = await r.blob();
+    if(!blob || blob.size === 0){ alert('目前無 IE 產能資料可導出'); return; }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'IE產能彙總表.xlsx';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  }catch(e){
+    alert('導出失敗：' + (e && e.message ? e.message : e));
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = old; }
+  }
 }
 
 setLang(currentLang);

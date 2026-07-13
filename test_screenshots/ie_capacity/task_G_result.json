@@ -1,0 +1,30 @@
+{
+  "task": "G — IE 產能彙總表定案 36 欄 + UI 導出入口",
+  "env": "隔離副本 flask_backend/data/atlas_taskF.db；Flask app.test_client（不起真實 server、不碰正式 DB/ME129）",
+  "decision": {
+    "columns": "36 全欄，與 廠務編製自動計算.xlsx『數據源-IE标准』sheet 逐欄一致",
+    "29col_status": "作廢 — 出自已丟失規格檔，無來源佐證",
+    "value_source": "IE 鎖定版 SUM.C2B + offline 撥人（照 39_VERSION_CONTROL_DESIGN / 28_BIANCHE_SPEC 主流程）",
+    "values_status": "BLOCKED — 產能/人數欄留空、不臆造",
+    "unlock_condition": "二擇一：① 在 ME129 執行（有真實 IE 鎖定資料）；② IE 來源 xlsx 匯入 Code 機後填值驗收"
+  },
+  "export_shape": {"ok": true, "columns": 36, "rows": 197, "filled_cols": ["季度", "Article", "鞋型名称", "StockfittingEOLR"]},
+  "permission_guard_test": {
+    "route": "/api/ie/export/capacity",
+    "backend_guard": "_require_manager()",
+    "no_login": {"status": 401, "expect": 401, "pass": true},
+    "read_only(tongcai)": {"status": 403, "expect": 403, "pass": true},
+    "manager(manager01)": {"status": 200, "bytes": 27696, "xlsx": true, "pass": true}
+  },
+  "ui_entry": {
+    "file": "ie_interface.html",
+    "button": "工具列『⬇ IE產能導出』，admin/manager 限定顯示",
+    "empty_state": "無資料時導出仍出 36 欄表頭(值欄空)，不報錯；權限不足才 alert；下載檔名 IE產能彙總表.xlsx"
+  },
+  "deliverables": [
+    "flask_backend/app.py (route 加 _require_manager + Task G 註解)",
+    "flask_backend/database.py (export_ie_capacity docstring 定案)",
+    "ie_interface.html (導出按鈕 + exportCapacity())",
+    "00_HANDOFF/21_CURRENT_STATUS.md + 驗收報告_20260711.md 更新"
+  ]
+}
