@@ -1,6 +1,6 @@
 # Current Status
 
-Last updated: 2026-07-12
+Last updated: 2026-07-13
 
 ---
 
@@ -8,7 +8,7 @@ Last updated: 2026-07-12
 三條線：IE表（已上線ME129）/ 編制表（本階段主線：自動化編制表）/ SmartPN Atlas Demo（獨立產品）。
 三線共用同一套工作法：Playwright 真跑瀏覽器自測 + 隔離副本不污染正式DB + 對抗性測試（把用戶當會亂點的新人）+ 測過才push + 交出去必須能用。
 Claude 是中樞不是打字機：自行思考、主動 web_search 查市面成熟做法、主動提建議、預想 Jim 的下一步。
-→ 完整交接：41_THREE_TRACK_HANDOFF.md / Code 批次現況：42_CODE_BATCH_STATUS.md（兩檔待補）
+→ 完整交接：41_THREE_TRACK_HANDOFF.md（2026-07-13 重寫，42 作廢併入）
 
 ## 2026-07-13 定案（第三批 Task F / G / H）
 - **Task F**：裁斷 standard_time DB 重算 ×1.0（方案a）。只碰公式型裁斷機列，手工/其他區不動；

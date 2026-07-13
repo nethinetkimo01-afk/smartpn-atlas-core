@@ -44,6 +44,8 @@ This is the ONLY source of truth. All sessions read from here. All sessions writ
 34_MASTER_WORK_ORDER.md — 總工單 2026-06-12 v1.0: Jim 授權 Claude 全權安排，Code 執行順序與任務清單
 36_UX_TEST_AND_BOSS_DEMO_SCRIPT.md — 三角色測試腳本 + Boss 演示腳本 v1.0 (2026-06-13): Jim 走一遍 Demo 即可驗收
 37_DEMO_MOCK_DATA.md — Demo 唯一數據世界 v1.0 (2026-06-13): 12材料/4供應商/Boss BI 數字，Brand端+Supplier端共用同一套
+41_THREE_TRACK_HANDOFF.md — 三線整合交接 (2026-07-13 重寫，ACTIVE): IE表/編制表/SaaS 三線狀態+未結待辦。取代並併入 42_CODE_BATCH_STATUS.md（42 作廢）
+43_COUNCIL_SAAS_REVIEW.md — SaaS 議會審查 v1.0 (2026-07-13): 兩輪完成，D1–D6+退出權+責任原則全定案，SaaS 介面設計需求 8 項
 ### Layer 4 — Demo Screens (Read When Working on Demo)
 docs/preview/S01_DEMO.html through S17_DEMO.html — interactive demo screens for all 17 scenarios
 ### Layer 5 — New Projects (Add as Needed)
