@@ -1460,6 +1460,46 @@ def _ds04_order_exists(order_id):
     except Exception:
         return True
 
+@app.route('/api/ds04/import', methods=['POST'])
+def ds04_import_file():
+    # Task BZ 流程①：DS-04 選檔上傳 → 覆蓋 + 變更記錄（決策①，database.ds04_import）
+    err = _require_manager()
+    if err: return err
+    if not HAS_XLSX:
+        return jsonify({'ok': False, 'error': 'openpyxl 未安裝'}), 400
+    if 'file' not in request.files:
+        return _bad('缺少上傳檔案（form field: file）')
+    f = request.files['file']
+    if not f or not f.filename:
+        return _bad('未選擇檔案')
+    import openpyxl, tempfile, os as _os
+    tmp = _os.path.join(tempfile.gettempdir(), 'ds04_upload.xlsx')
+    f.save(tmp)
+    try:
+        wb = openpyxl.load_workbook(tmp, data_only=True); ws = wb.active
+        header = [str(c.value or '').strip() for c in ws[1]]
+        COL = {'部門':'部門','LEAN':'LEAN','鞋型名稱':'鞋型名稱','ART':'ART','訂單號':'訂單號',
+               '數量':'數量','交期':'交期','外包鞋面':'外包鞋面'}
+        idx = {v: header.index(k) for k, v in COL.items() if k in header}
+        need = ['LEAN', 'ART', '訂單號', '數量']
+        if any(k not in idx for k in need):
+            return _bad(f'表頭需含 {need}；實際={header[:10]}')
+        records = []
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            if not any(c is not None and str(c).strip() for c in row): continue
+            g = lambda k: (row[idx[k]] if k in idx and idx[k] < len(row) else '')
+            records.append({'部門': g('部門') or '', 'LEAN': g('LEAN') or '', '鞋型名稱': g('鞋型名稱') or '',
+                            'ART': g('ART') or '', '訂單號': g('訂單號') or '', '數量': g('數量') or 0,
+                            '交期': g('交期') or '', '外包鞋面': g('外包鞋面') or ''})
+        if not records:
+            return _bad('檔案無資料列')
+        return jsonify(db.ds04_import(records, user=(_auth_user() or {}).get('username', '')))
+    except Exception as e:
+        return _bad(f'DS-04 解析失敗：{type(e).__name__}: {e}')
+    finally:
+        try: _os.remove(tmp)
+        except Exception: pass
+
 @app.route('/api/ds04/order', methods=['POST'])
 def ds04_add_order():
     err = _require_manager()          # GATE-1：排程訂單寫入 → manager+
