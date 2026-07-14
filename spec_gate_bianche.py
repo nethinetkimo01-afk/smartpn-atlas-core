@@ -118,6 +118,32 @@ def main():
         upVisible = pg.eval_on_selector("#ds04-upload", "e=>getComputedStyle(e).display!=='none'") if pg.query_selector("#ds04-upload") else False
         rec('匯入：流程① DS-04 上傳入口可見可點', bool(upVisible), f'可見={upVisible}')
 
+        # ── 角色維度：read_only（tongcai）+ data_entry 各跑一輪（Task I 全灰規則）──
+        # 先以 admin 造一個 data_entry 帳號
+        pg.evaluate("""async()=>{await fetch('/api/users',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({username:'gate_de_bz',display_name:'gate_de_bz',role:'data_entry',password:'g123',active:1})});}""")
+        def login(u,p):
+            pg.goto(f"{BASE}/login", wait_until="domcontentloaded")
+            pg.fill("#username",u); pg.fill("#password",p or "x"); pg.click("#btnLogin"); pg.wait_for_timeout(900)
+        def role_round(role, u, p):
+            login(u,p); COV['roles'].add(role)
+            pg.goto(f"{BASE}/bianche", wait_until="domcontentloaded")
+            pg.wait_for_selector("#unitTable", timeout=9000); pg.wait_for_timeout(1500)
+            units = pg.eval_on_selector_all('[data-bz-unit]', "e=>e.length")            # 四單位明細仍可讀
+            # 逐單位切分頁確保各單位都渲染（可讀）
+            for tab in ['OCS','RB','QC','CSA']:
+                bt = pg.query_selector(f'.unit-tab[data-tab="{tab}"]')
+                if bt: bt.click(); pg.wait_for_timeout(200)
+            enabled = pg.eval_on_selector_all('.bz-inp', "e=>e.filter(x=>!x.disabled).length")  # 全灰＝0 可編
+            total_inp = pg.eval_on_selector_all('.bz-inp', "e=>e.length")
+            return units, enabled, total_inp
+        u1, e1, t1 = role_round('read_only(tongcai)', 'tongcai', 'x')
+        rec('[read_only] 四單位明細可讀 + 全灰（bz-inp 0 可編）+ 無操作鈕',
+            u1>=4 and e1==0, f'單位={u1} 可編輸入={e1}/{t1}(期望0)')
+        u2, e2, t2 = role_round('data_entry', 'gate_de_bz', 'g123')
+        rec('[data_entry] 四單位可讀 + 編制表無編輯權→全灰（manager+ 才可編）',
+            u2>=4 and e2==0, f'單位={u2} 可編輸入={e2}/{t2}(期望0)')
+
         b.close()
 
     npass = sum(1 for _,ok in R if ok)
