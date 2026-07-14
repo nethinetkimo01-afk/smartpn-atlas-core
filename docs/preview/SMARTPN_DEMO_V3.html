@@ -1285,42 +1285,7 @@ window.renderDashboard = renderDashboard;
   })();
 })();
 
-/* ─ Task X：全域點擊回饋（第一性原則：每顆按鈕按下畫面必有可見變化，無靜默死鈕）─
-   真有作用的按鈕→自身變化顯示；純示意/未接後端的按鈕→顯式 toast 回饋，不再靜默。 */
-(function universalClickFeedback(){
-  let _fxn = 0;
-  window.__fx = function(msg){
-    let t = document.getElementById('__fxtoast');
-    if (!t) { t = document.createElement('div'); t.id = '__fxtoast'; t.className = 'fx-toast open';
-      t.style.cssText = 'position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#1D1D1F;color:#fff;padding:9px 16px;border-radius:10px;font-size:13px;z-index:99999;box-shadow:0 8px 30px rgba(0,0,0,.3)';
-      document.body.appendChild(t); }
-    _fxn++; t.className = 'fx-toast open'; t.style.display = 'block';
-    t.textContent = (msg || '已套用') + ' ·' + _fxn;
-    clearTimeout(t._t); t._t = setTimeout(()=>{ t.style.display='none'; t.className='fx-toast'; }, 1600);
-  };
-  function fxSnap(){ const b=document.body; if(!b) return '';
-    let a=''; try{ a=[...document.querySelectorAll('.active,.open,.on')].map(e=>(e.id||'')+'.'+(e.className||'')).join('|'); }catch(e){}
-    return (b.textContent||'').replace(/\s+/g,' ').trim()+'::'+a; }
-  const SEL='[onclick],button,.tab,.nav-item,[role="tab"],.nav-btn,.cat-btn,.fc,.main-tab,.nav-sub,.tab-btn,.level-btn';
-  // (a) 包裝所有 onclick 引用的全域函式 → 執行後一律發可見回饋（即使按鈕被重繪脫離文件樹，
-  //     inline onclick 仍呼叫該全域函式 → toast 落在 live DOM，無靜默死鈕）
-  const fnNames = new Set();
-  document.querySelectorAll('[onclick]').forEach(el=>{
-    const m = (el.getAttribute('onclick')||'').match(/([a-zA-Z_$][\w$]*)\s*\(/);
-    if (m) fnNames.add(m[1]);
-  });
-  fnNames.forEach(name=>{
-    const orig = window[name];
-    if (typeof orig==='function' && !orig.__fxwrap) {
-      const w = function(){ const r = orig.apply(this, arguments); try{ window.__fx(); }catch(e){} return r; };
-      w.__fxwrap = true; window[name] = w;
-    }
-  });
-  // (b) class-based（無 onclick）按鈕：文件層委派補回饋
-  let _isBtn=false;
-  document.addEventListener('click', (e)=>{ const el=e.target.closest && e.target.closest(SEL); _isBtn=!!(el && el.id!=='__fxtoast'); }, true);
-  document.addEventListener('click', ()=>{ if (_isBtn) window.__fx(); }, false);
-})();
+/* Task SP：移除全域點擊回饋 __fx（閘門作弊）——每顆按鈕須靠自身真實行為改變可見畫面。 */
 
 /* ─ 測試鉤子 + V1_PARITY ─ */
 window.MOCK_WORLD = MOCK_WORLD;

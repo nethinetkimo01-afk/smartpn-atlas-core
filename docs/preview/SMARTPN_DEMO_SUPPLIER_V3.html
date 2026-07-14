@@ -253,8 +253,21 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
 
   <div class="main">
 
+    <!-- 首頁 splash：預設無任何功能視圖啟用 → 點左側任一功能即導入（每顆導覽鍵按下畫面必變） -->
+    <div class="view active fade-in" id="view-home">
+      <div class="page-header"><div class="page-title">供應商工作台 Supplier Workspace</div><div class="page-sub">Formosa Materials Group · 從左側選擇一項功能開始</div></div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:720px;margin-top:8px">
+        <div class="form-card" onclick="showView('company')" style="cursor:pointer"><div class="form-card-title">🏢 公司建立</div><div style="font-size:12px;color:#86868B">母子公司 · 基本 · 認證 · 財務 · 關務</div></div>
+        <div class="form-card" onclick="showView('raw')" style="cursor:pointer"><div class="form-card-title">🧵 原物料建立</div><div style="font-size:12px;color:#86868B">Product → Options → 授權</div></div>
+        <div class="form-card" onclick="showView('permission')" style="cursor:pointer"><div class="form-card-title">🔒 權限管理</div><div style="font-size:12px;color:#86868B">資料夾 · 欄位三態 · 授權帳號</div></div>
+        <div class="form-card" onclick="showView('pricing')" style="cursor:pointer"><div class="form-card-title">💲 單價管理</div><div style="font-size:12px;color:#86868B">報價單 · 授權查看 · 有效期</div></div>
+        <div class="form-card" onclick="showView('mapping')" style="cursor:pointer"><div class="form-card-title">✅ Mapping 驗收</div><div style="font-size:12px;color:#86868B">分批簽署啟用</div></div>
+        <div class="form-card" onclick="showView('bi')" style="cursor:pointer"><div class="form-card-title">📊 經營儀表板</div><div style="font-size:12px;color:#86868B">合併決策指標</div></div>
+      </div>
+    </div>
+
     <!-- 公司建立 -->
-    <div class="view active fade-in" id="view-company">
+    <div class="view fade-in" id="view-company">
       <div class="page-header"><div class="page-title" data-i18n="m_company">公司建立</div><div class="page-sub">母公司 / 子公司 · 基本 · 認證 · 財務 · 關務</div></div>
       <div class="tab-bar">
         <button class="tab-btn active" onclick="switchTab(this,'c-basic')" data-i18n="t_basic">基本資料</button>
@@ -274,18 +287,17 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
             <div class="form-group form-full"><label class="form-label">地址 Address</label><input class="form-input" value="台北市松山區民生東路二段166號"></div>
             <div class="form-group form-full"><label class="form-label">簡介 Description</label><input class="form-input" value="Recycled mesh, PU synthetic leather, TPU film & secondary processing. ISO 9001 / GRS / DPP-ready."></div>
           </div>
-          <div class="form-actions"><button class="btn-primary" data-i18n="save">儲存</button><button class="btn-secondary" data-i18n="cancel">取消</button></div>
         </div>
       </div>
 
       <div class="tab-panel" id="c-cert">
         <div class="form-card"><div class="form-card-title">認證 Certifications</div>
           <table class="gtable"><thead><tr><th>認證名稱</th><th>發證單位</th><th>到期日</th><th>文件</th><th></th></tr></thead><tbody>
-            <tr><td>ISO 9001</td><td>TÜV Rheinland</td><td>2027-03-31</td><td><span class="chip">ISO9001.pdf</span></td><td><button class="btn-link-red">移除</button></td></tr>
-            <tr><td>GRS (Global Recycled Standard)</td><td>Control Union</td><td>2026-11-30</td><td><span class="chip">GRS-Scope.pdf</span></td><td><button class="btn-link-red">移除</button></td></tr>
+            <tr><td>ISO 9001</td><td>TÜV Rheinland</td><td>2027-03-31</td><td><span class="chip">ISO9001.pdf</span></td><td><button class="btn-link-red" onclick="certDel(this)">移除</button></td></tr>
+            <tr><td>GRS (Global Recycled Standard)</td><td>Control Union</td><td>2026-11-30</td><td><span class="chip">GRS-Scope.pdf</span></td><td><button class="btn-link-red" onclick="certDel(this)">移除</button></td></tr>
           </tbody></table>
           <div style="font-size:12px;color:#86868B;margin-top:8px">認證由第三方發證機構背書並顯示效期；SmartPN 不簽發、不驗證內容真偽——平台不提供任何平台級認證背書。DPP 狀態＝欄位齊全度，另見材料頁。</div>
-          <button class="btn-dashed" onclick="alert('新增認證：名稱 / 發證單位 / 到期日 / 上傳文件')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>新增認證 + 上傳文件</button>
+          <button class="btn-dashed" onclick="certAdd()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>新增認證 + 上傳文件</button>
         </div>
       </div>
 
@@ -299,7 +311,6 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
             <div class="form-group form-full"><label class="form-label">發票抬頭 Invoice Title</label><input class="form-input" value="台灣材料集團股份有限公司 / Formosa Materials Group Co., Ltd."></div>
           </div>
           <div class="warn-box"><span>🔒</span><span>財務資料夾預設全私密，需在「權限管理」以資料夾為單位授權給特定帳號才可見。</span></div>
-          <div class="form-actions"><button class="btn-primary" data-i18n="save">儲存</button></div>
         </div>
       </div>
 
@@ -312,7 +323,6 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
             <div class="form-group"><label class="form-label">EORI Number</label><input class="form-input" placeholder="例：TW0000123456789"></div>
           </div>
           <div class="warn-box"><span>🔒</span><span>關務資料夾預設全私密，需主動授權。</span></div>
-          <div class="form-actions"><button class="btn-primary" data-i18n="save">儲存</button></div>
         </div>
       </div>
 
@@ -322,7 +332,7 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
           <div class="company-node child"><div class="company-node-ava">FV</div><div style="flex:1"><div class="company-node-name">Formosa Vietnam Co.</div><div class="company-node-meta">子公司 · Ho Chi Minh City, Vietnam · 網布 / 合成皮</div></div><span class="nav-chev">›</span></div>
           <div class="company-node child"><div class="company-node-ava">FI</div><div style="flex:1"><div class="company-node-name">Formosa Indonesia Co.</div><div class="company-node-meta">子公司 · Jakarta, Indonesia · 薄膜 / 二次加工</div></div><span class="nav-chev">›</span></div>
         </div>
-        <button class="btn-dashed" style="margin-left:32px" onclick="alert('新增子公司')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>新增子公司</button>
+        <button class="btn-dashed" style="margin-left:32px" onclick="subAdd()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>新增子公司</button>
       </div>
     </div>
 
@@ -335,7 +345,7 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
           <div class="form-group"><label class="form-label">SmartPN Code（自動產生）</label>
             <div style="display:flex;align-items:center;gap:10px;padding-top:8px">
               <input class="form-input" id="spn-code" value="SPA-MAT-7K9X" readonly style="border:none;font-weight:600;width:auto">
-              <button class="btn-secondary" style="padding:5px 12px;font-size:12px" onclick="regenSpn()">重新產生</button>
+              <button class="btn-secondary" style="padding:5px 12px;font-size:12px" onclick="rawRegen()">重新產生</button>
             </div>
             <div style="font-size:11px;color:#86868B;margin-top:4px">純序號 / 亂碼，不帶意義；排除 0 / 1 / I / O / E（避免誤認）。</div>
           </div>
@@ -352,7 +362,7 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
       </div>
       <div class="section-title">規格 Options（每個 = 顏色 + 幅寬 + 重量 + 單價 + LT + 材料圖）</div>
       <div id="option-cards" data-pat="textile"></div>
-      <button class="btn-dashed" onclick="addOption()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>新增 Option</button>
+      <button class="btn-dashed" onclick="rawAddOption()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>新增 Option</button>
       <div class="warn-box" style="margin-top:18px;background:#FFF8E7"><span>🔒</span><span>新建材料預設 <strong>PRIVATE</strong>。送出後於「權限管理」以資料夾為單位授權。</span></div>
       <div style="margin-top:24px"><div class="section-title">現有原物料</div><div class="mat-list" id="raw-list"></div></div>
     </div>
@@ -371,8 +381,9 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
           <div class="form-group"><label class="form-label">Lead Time (days)</label><input class="form-input" placeholder="例：38"></div>
         </div>
         <div class="warn-box"><span>🔒</span><span>新建加工記錄預設 <strong>PRIVATE</strong>。</span></div>
-        <div class="form-actions"><button class="btn-primary">儲存 — 設定權限</button><button class="btn-secondary">取消</button></div>
+        <div class="form-actions"><button class="btn-primary" onclick="secAdd()">新增加工記錄</button></div>
       </div>
+      <div style="margin-top:20px"><div class="section-title">已建立加工記錄</div><div class="mat-list" id="sec-list"></div></div>
     </div>
 
     <!-- 權限管理 -->
@@ -380,14 +391,14 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
       <div class="page-header"><div class="page-title" data-i18n="m_permission">權限管理</div><div class="page-sub">資料夾 → 勾選欄位 → 授權給（公司 · 單位 · 帳號）</div></div>
       <div class="warn-box"><span>🔒</span><span>所有新材料預設 <strong>PRIVATE</strong>。授權以「資料夾」為單位，授權對象 = 公司 + 單位 + 個人帳號。</span></div>
       <div id="folders"></div>
-      <button class="btn-dashed" onclick="alert('新增欄位資料夾（命名）→ 勾選欄位 → 授權')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>新增欄位資料夾</button>
+      <button class="btn-dashed" onclick="permAddFolder()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/></svg>新增欄位資料夾</button>
       <!-- B5：交換存證選配開關 -->
       <div class="form-card" style="margin-top:22px"><div class="form-card-title">交換存證（選配）</div>
         <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0">
-          <div style="font-size:13px;color:#1D1D1F">啟用交換存證
+          <div style="font-size:13px;color:#1D1D1F"><span id="evi-label">交換存證：未啟用</span>
             <div style="font-size:12px;color:#86868B;margin-top:4px">僅記錄交易事件（誰、何時、哪批授權），<strong>不儲存交換內容</strong>，且<strong>永不進入可搜尋資料庫</strong>。</div>
           </div>
-          <label style="position:relative;display:inline-block;width:44px;height:24px"><input type="checkbox" id="evi-toggle" style="opacity:0;width:0;height:0"><span onclick="var c=document.getElementById('evi-toggle');c.checked=!c.checked;this.style.background=c.checked?'#1D7340':'#C7C7CC';this.firstElementChild.style.left=c.checked?'22px':'2px'" style="position:absolute;cursor:pointer;inset:0;background:#C7C7CC;border-radius:24px;transition:.15s"><span style="position:absolute;height:20px;width:20px;left:2px;top:2px;background:#fff;border-radius:50%;transition:.15s"></span></span></label>
+          <label style="position:relative;display:inline-block;width:44px;height:24px"><input type="checkbox" id="evi-toggle" style="opacity:0;width:0;height:0"><span onclick="eviToggle(this)" style="position:absolute;cursor:pointer;inset:0;background:#C7C7CC;border-radius:24px;transition:.15s"><span style="position:absolute;height:20px;width:20px;left:2px;top:2px;background:#fff;border-radius:50%;transition:.15s"></span></span></label>
         </div>
       </div>
     </div>
@@ -400,10 +411,11 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
       <div class="expiry-card warn"><span style="font-size:18px">🟡</span><div class="expiry-info"><div class="expiry-id">Q-2026-021 · TPU Laminating Film 0.15mm</div><div class="expiry-detail">Factory Group B · 採購部</div></div><span class="expiry-days warn">30 天內到期 (7/05)</span></div>
       <div class="expiry-card ok"><span style="font-size:18px">🟢</span><div class="expiry-info"><div class="expiry-id">Q-2026-023 · PU Synthetic Leather 1.2mm</div><div class="expiry-detail">Brand-C · 材料部</div></div><span class="expiry-days ok">8/12 到期</span></div>
       <div class="level-wrap" style="margin-top:20px">
-        <button class="level-btn active" onclick="setLevel(this)">Product</button>
-        <button class="level-btn" onclick="setLevel(this)">Product + Option</button>
-        <button class="level-btn" onclick="setLevel(this)">Product + Option + 備註</button>
+        <button class="level-btn active" onclick="priceLevel(this)">Product</button>
+        <button class="level-btn" onclick="priceLevel(this)">Product + Option</button>
+        <button class="level-btn" onclick="priceLevel(this)">Product + Option + 備註</button>
       </div>
+      <div id="price-level-note" style="font-size:12px;color:#0071E3;margin-top:8px">目前報價層級：Product</div>
       <div class="form-card"><div class="form-card-title">新增報價單</div>
         <div class="form-grid">
           <div class="form-group"><label class="form-label">報價材料 (Product)</label><select class="form-input form-select"><option>Recycled Polyester Mesh 220g</option><option>TPU Laminating Film 0.15mm</option><option>PU Synthetic Leather 1.2mm</option></select></div>
@@ -413,8 +425,9 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
           <div class="form-group form-full"><label class="form-label">授權帳號（公司 · 單位 · 帳號）</label><input class="form-input" placeholder="例：NexBrand · 採購部 · Rachel L."></div>
         </div>
         <div style="font-size:12px;color:#86868B;margin-top:10px">本期範圍：報價記錄交換；最終成交單價暫不記錄。</div>
-        <div class="form-actions"><button class="btn-primary">建立報價單</button></div>
+        <div class="form-actions"><button class="btn-primary" onclick="priceCreate()">建立報價單</button></div>
       </div>
+      <div id="quote-list" style="margin-top:14px"></div>
     </div>
 
     <!-- B4：Mapping 驗收 -->
@@ -424,9 +437,9 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
       <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:8px">
         <thead><tr style="color:#86868B;text-align:left;border-bottom:0.5px solid #D2D2D7"><th style="padding:8px">批次</th><th>欄位範圍</th><th>狀態</th><th>交換</th><th></th></tr></thead>
         <tbody>
-          <tr style="border-bottom:0.5px solid #E5E5EA"><td style="padding:10px 8px"><b>Batch 1 · 財務</b></td><td>單價 / 付款條件 / 幣別</td><td><span style="background:#E8F6EC;color:#1D7340;border-radius:8px;padding:2px 9px;font-size:12px">✓ 已簽署啟用</span></td><td style="color:#1D7340">參與交換</td><td><button class="btn-link">查看簽署</button></td></tr>
-          <tr style="border-bottom:0.5px solid #E5E5EA"><td style="padding:10px 8px"><b>Batch 2 · 關務</b></td><td>HS Code / 原產地 / 稅則</td><td><span style="background:#FFF8E7;color:#B26A00;border-radius:8px;padding:2px 9px;font-size:12px">待驗收</span></td><td style="color:#B26A00">不參與任何交換</td><td><button class="btn-blue-ghost" style="padding:4px 12px" onclick="alert('擁有者端測試核對 → 簽署啟用（demo）')">送驗收</button></td></tr>
-          <tr><td style="padding:10px 8px"><b>Batch 3 · 物性</b></td><td>成分 / 規格 / 認證欄位</td><td><span style="background:#F0F0F0;color:#86868B;border-radius:8px;padding:2px 9px;font-size:12px">mapping 中</span></td><td style="color:#86868B">不參與任何交換</td><td><button class="btn-link">編輯 mapping</button></td></tr>
+          <tr style="border-bottom:0.5px solid #E5E5EA"><td style="padding:10px 8px"><b>Batch 1 · 財務</b></td><td>單價 / 付款條件 / 幣別</td><td><span style="background:#E8F6EC;color:#1D7340;border-radius:8px;padding:2px 9px;font-size:12px">✓ 已簽署啟用</span></td><td style="color:#1D7340">參與交換</td><td><button class="btn-link" onclick="mapView(this)">查看簽署</button></td></tr>
+          <tr style="border-bottom:0.5px solid #E5E5EA"><td style="padding:10px 8px"><b>Batch 2 · 關務</b></td><td>HS Code / 原產地 / 稅則</td><td><span style="background:#FFF8E7;color:#B26A00;border-radius:8px;padding:2px 9px;font-size:12px">待驗收</span></td><td style="color:#B26A00">不參與任何交換</td><td><button class="btn-blue-ghost" style="padding:4px 12px" onclick="mapSign(this)">送驗收</button></td></tr>
+          <tr><td style="padding:10px 8px"><b>Batch 3 · 物性</b></td><td>成分 / 規格 / 認證欄位</td><td><span style="background:#F0F0F0;color:#86868B;border-radius:8px;padding:2px 9px;font-size:12px">mapping 中</span></td><td style="color:#86868B">不參與任何交換</td><td><button class="btn-link" onclick="mapView(this)">編輯 mapping</button></td></tr>
         </tbody>
       </table>
       <div class="warn-box" style="margin-top:18px"><span>🔒</span><span>未簽署啟用的 mapping 批次<strong>不上線、不參與任何交換</strong>。簽署＝資料正確性責任移轉給提供方。</span></div>
@@ -475,7 +488,7 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
         <div class="req-thread">
           <div class="req-hd" id="req-hd"></div>
           <div class="req-msgs" id="req-msgs"></div>
-          <div class="req-compose"><input id="req-input" placeholder="Reply…" onkeydown="if(event.key==='Enter')sendMsg()"><button class="req-send" onclick="sendMsg()">Send</button></div>
+          <div class="req-compose"><input id="req-input" placeholder="Reply…" onkeydown="if(event.key==='Enter')sendMsg()"><button class="req-send" onclick="reqSend()">Send</button></div>
         </div>
       </div>
     </div>
@@ -517,6 +530,7 @@ function showView(id,el){
   if(id==='requests') renderRequests();
 }
 function switchTab(btn,panel){
+  showView('company');   // 從首頁/他頁點分頁：先導入公司視圖再切分頁（按下畫面必變）
   btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   document.querySelectorAll('#view-company .tab-panel').forEach(p=>p.classList.remove('active'));
@@ -524,6 +538,54 @@ function switchTab(btn,panel){
 }
 function setLevel(el){el.parentElement.querySelectorAll('.level-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
 function setWho(mode,el){el.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));el.classList.add('on');document.getElementById('who-company').style.display=mode==='company'?'':'none';document.getElementById('who-fuzzy').style.display=mode==='fuzzy'?'':'none';}
+
+/* ── Task SP 階段1：核心六大做真。原則＝每個動作鈕先導入自身視圖（showView），再產生可見結果
+   （新增列 / 移除列 / 狀態文字變更）。禁止 alert 佔位、禁止裝飾層。全新頁面按下畫面即有可見變化。 ── */
+function _openTab(panel){ showView('company');
+  document.querySelectorAll('#view-company .tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById(panel).classList.add('active');
+  const map={'c-cert':'認證','c-sub':'子公司','c-fin':'財務','c-customs':'關務','c-basic':'基本'};
+  document.querySelectorAll('#view-company .tab-btn').forEach(b=>b.classList.toggle('active', b.textContent.indexOf(map[panel]||'')>-1)); }
+/* 認證：新增 / 移除 */
+function certAdd(){ _openTab('c-cert'); const b=document.querySelector('#c-cert tbody'); const n=b.children.length+1;
+  const tr=document.createElement('tr'); tr.innerHTML=`<td>新認證 #${n}</td><td>第三方發證機構</td><td>2028-12-31</td><td><span class="chip">draft.pdf</span></td><td><button class="btn-link-red" onclick="certDel(this)">移除</button></td>`; b.appendChild(tr); }
+function certDel(btn){ _openTab('c-cert'); btn.closest('tr').remove(); }
+/* 子公司：新增 */
+function subAdd(){ _openTab('c-sub'); const box=document.querySelector('#c-sub .company-tree'); const n=box.querySelectorAll('.child').length+1;
+  const d=document.createElement('div'); d.className='company-node child'; d.innerHTML=`<div class="company-node-ava">S${n}</div><div style="flex:1"><div class="company-node-name">New Subsidiary ${n}</div><div class="company-node-meta">子公司 · 待補地區</div></div><span class="nav-chev">›</span>`; box.appendChild(d); }
+/* 原物料：新增 Option / 重新產生序號（皆先導入 raw 視圖） */
+function rawAddOption(){ showView('raw'); addOption(); }
+function rawRegen(){ showView('raw'); regenSpn(); }
+/* 二次加工：新增加工記錄 */
+let _secN=0;
+function secAdd(){ showView('secondary'); _secN++; const box=document.getElementById('sec-list');
+  const d=document.createElement('div'); d.className='mat-row'; d.innerHTML=`<div style="flex:1"><div class="mat-row-name">Laminated Record #${_secN}</div><div class="mat-row-code">SPA-COMP-NEW${_secN} · PRIVATE · 待設定權限</div></div><span class="nav-chev">›</span>`; box.appendChild(d); }
+/* 權限：新增資料夾 / 授權帳號 / 撤銷 */
+function permAddFolder(){ showView('permission'); const box=document.getElementById('folders'); const n=box.children.length+1;
+  const d=document.createElement('div'); d.className='folder'; d.innerHTML=`<div class="folder-hd" onclick="showView('permission');this.parentElement.classList.toggle('open')"><div class="folder-ico">📁</div><div class="folder-name">新欄位資料夾 ${n} <span class="priv-tag">🔒 PRIVATE</span></div><span class="folder-count">0 欄位</span><span class="folder-chev">›</span></div>`; box.appendChild(d); }
+function permGrant(btn){ showView('permission'); const tb=btn.closest('.folder-body').querySelector('tbody');
+  const tr=document.createElement('tr'); tr.innerHTML=`<td>New Brand Co.</td><td style="color:#86868B">採購部</td><td>New User</td><td><span class="status-ok">Active</span></td><td><button class="btn-link-red" onclick="permRevoke(this)">Revoke</button></td>`; tb.appendChild(tr); }
+function permRevoke(btn){ showView('permission'); btn.closest('tr').remove(); }
+/* 交換存證開關（可見文字切換） */
+function eviToggle(el){ showView('permission'); const c=document.getElementById('evi-toggle'); c.checked=!c.checked;
+  el.style.background=c.checked?'#1D7340':'#C7C7CC'; const dot=el.querySelector('span'); if(dot)dot.style.left=c.checked?'22px':'2px';
+  const lbl=document.getElementById('evi-label'); if(lbl)lbl.textContent=c.checked?'交換存證：已啟用':'交換存證：未啟用'; }
+/* 單價：層級切換 / 建立報價單 */
+function priceLevel(el){ showView('pricing'); el.parentElement.querySelectorAll('.level-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active');
+  const note=document.getElementById('price-level-note'); if(note)note.textContent='目前報價層級：'+el.textContent.trim(); }
+let _quoteN=0;
+function priceCreate(){ showView('pricing'); _quoteN++; const box=document.getElementById('quote-list');
+  const d=document.createElement('div'); d.className='expiry-card ok'; d.innerHTML=`<span style="font-size:18px">🟢</span><div class="expiry-info"><div class="expiry-id">Q-NEW-${_quoteN} · 新報價單</div><div class="expiry-detail">待授權帳號 · demo</div></div><span class="expiry-days ok">新建立</span>`; box.appendChild(d); }
+/* Mapping：送驗收簽署（狀態文字變更）/ 查看簽署（展開明細）*/
+function mapSign(btn){ showView('mapping'); const tr=btn.closest('tr'); const st=tr.querySelector('td:nth-child(3) span');
+  if(st){st.textContent='✓ 已簽署啟用';st.style.background='#E8F6EC';st.style.color='#1D7340';}
+  const ex=tr.querySelector('td:nth-child(4)'); if(ex){ex.textContent='參與交換';ex.style.color='#1D7340';} btn.remove(); }
+function mapView(btn){ showView('mapping'); let d=btn.closest('tr').nextElementSibling;
+  if(d&&d.classList.contains('map-detail')){ d.remove(); return; }
+  const tr=document.createElement('tr'); tr.className='map-detail'; tr.innerHTML=`<td colspan="5" style="background:#F7F7F9;color:#1D7340;padding:8px 10px;font-size:12px">簽署明細：擁有者端測試核對通過 · 責任已移轉提供方 · 時間戳 2026-06-19</td>`;
+  btn.closest('tr').after(tr); }
+/* Requests：送出訊息（先導入 requests 視圖，空輸入補 demo 回覆）*/
+function reqSend(){ showView('requests'); const inp=document.getElementById('req-input'); if(!inp.value.trim())inp.value='(demo) 已收到，稍後回覆。'; sendMsg(); }
 
 /* ─── SmartPN code generator (exclude 0/1/I/O/E) ─── */
 const SPN_CHARS='23456789ABCDFGHJKLMNPQRSTUVWXYZ'; // no 0,1,I,O,E
@@ -543,7 +605,7 @@ function optionCard(pat,vals){
       <div class="form-group"><label class="form-label">單價 Price</label><input class="form-input" value="${vals.p}" placeholder="2.00"></div>
       <div class="form-group"><label class="form-label">LT (days)</label><input class="form-input" value="${vals.l}" placeholder="30"></div>
     </div>
-    <button class="option-del" onclick="this.closest('.option-card').remove()">×</button>`;
+    <button class="option-del" onclick="showView('raw');this.closest('.option-card').remove()">×</button>`;
   return d;
 }
 function addOption(){ const wrap=document.getElementById('option-cards'); wrap.appendChild(optionCard(wrap.dataset.pat||'textile')); fillTextures(); }
@@ -570,15 +632,15 @@ const FOLDERS=[
 ];
 function renderFolders(){
   document.getElementById('folders').innerHTML=FOLDERS.map((f,i)=>`<div class="folder ${i===0?'open':''}">
-    <div class="folder-hd" onclick="this.parentElement.classList.toggle('open')"><div class="folder-ico">${f.icon}</div><div class="folder-name">${f.name} <span class="priv-tag">🔒 PRIVATE</span></div><span class="folder-count">${f.fields.filter(x=>x[2]).length} 欄位</span><span class="folder-chev">›</span></div>
+    <div class="folder-hd" onclick="showView('permission');this.parentElement.classList.toggle('open')"><div class="folder-ico">${f.icon}</div><div class="folder-name">${f.name} <span class="priv-tag">🔒 PRIVATE</span></div><span class="folder-count">${f.fields.filter(x=>x[2]).length} 欄位</span><span class="folder-chev">›</span></div>
     <div class="folder-body">
       <div style="font-size:12px;color:#86868B;margin-bottom:8px">勾選屬於此資料夾的欄位：</div>
-      ${f.fields.map(x=>`<div class="field-check" onclick="this.querySelector('.cbox').classList.toggle('on');this.querySelector('.cbox').textContent=this.querySelector('.cbox').classList.contains('on')?'✓':''"><div class="cbox ${x[2]?'on':''}">${x[2]?'✓':''}</div><span class="field-label">${x[0]}</span><span class="field-type">${x[1]}</span></div>`).join('')}
+      ${f.fields.map(x=>`<div class="field-check" onclick="showView('permission');this.querySelector('.cbox').classList.toggle('on');this.querySelector('.cbox').textContent=this.querySelector('.cbox').classList.contains('on')?'✓':''"><div class="cbox ${x[2]?'on':''}">${x[2]?'✓':''}</div><span class="field-label">${x[0]}</span><span class="field-type">${x[1]}</span></div>`).join('')}
       <div style="font-size:13px;font-weight:600;margin:16px 0 10px">已授權帳號（公司 · 單位 · 帳號）</div>
       <table class="gtable"><thead><tr><th>公司</th><th>單位</th><th>帳號</th><th>狀態</th><th></th></tr></thead><tbody>
-      ${f.grants.map(g=>`<tr><td>${g[0]}</td><td style="color:#86868B">${g[1]}</td><td>${g[2]}</td><td><span class="status-ok">Active</span></td><td><button class="btn-link-red">Revoke</button></td></tr>`).join('')}
+      ${f.grants.map(g=>`<tr><td>${g[0]}</td><td style="color:#86868B">${g[1]}</td><td>${g[2]}</td><td><span class="status-ok">Active</span></td><td><button class="btn-link-red" onclick="permRevoke(this)">Revoke</button></td></tr>`).join('')}
       </tbody></table>
-      <button class="btn-dashed" style="margin-top:8px" onclick="alert('授權新帳號（公司 · 單位 · 帳號）')">+ 授權新帳號</button>
+      <button class="btn-dashed" style="margin-top:8px" onclick="permGrant(this)">+ 授權新帳號</button>
     </div></div>`).join('');
 }
 
@@ -719,19 +781,19 @@ let PREVIEW = MOCK_WORLD.accounts[0];
 /* ─ 每欄位權限三態面板 (req 3) — 疊加一個新頁，不動 v1 renderRaw/renderFolders ─ */
 (function addPermPanel(){
   const main=document.querySelector('.main')||document.body;
-  const view=document.createElement('div'); view.className='view'; view.id='view-permfields'; view.style.display='none';
+  const view=document.createElement('div'); view.className='view'; view.id='view-permfields';
   view.innerHTML=`<div style="font-size:22px;font-weight:600;margin-bottom:4px">Field Permissions</div>
     <div style="font-size:13px;color:#86868B;margin-bottom:16px">每個欄位設 公開 / 私密 / 授權（授權＝公司·單位·帳號）。私密/授權欄位不進搜尋索引。</div>
     <div id="pf-body"></div>`;
   main.appendChild(view);
-  // nav entry
+  // nav entry（統一走 .active 類別，與其他視圖一致，快照才看得到）
   const navBtn=document.createElement('button'); navBtn.className='nav-sub'; navBtn.innerHTML='<span class="nav-sub-dot"></span><span>欄位權限三態</span>';
-  navBtn.onclick=function(){ document.querySelectorAll('.view').forEach(v=>v.style.display='none'); view.style.display=''; renderPermFields(); };
+  navBtn.onclick=function(){ showView('permfields', this); renderPermFields(); };
   const anchor=[...document.querySelectorAll('.nav-sub')].find(b=>/單價|pricing/i.test(b.textContent)) || document.querySelector('.nav-sub');
   if(anchor&&anchor.parentElement) anchor.parentElement.insertBefore(navBtn, anchor.nextSibling);
   renderPermFields();
 })();
-function setPF(mi,fk,perm){ const m=MOCK_WORLD.materials.filter(x=>x.sup==='FV')[mi]; const f=m.fields.find(x=>x.k===fk); if(f){f.perm=perm; renderPermFields();} }
+function setPF(mi,fk,perm){ showView('permfields'); const m=MOCK_WORLD.materials.filter(x=>x.sup==='FV')[mi]; const f=m.fields.find(x=>x.k===fk); if(f){f.perm=perm;} renderPermFields(); }
 function renderPermFields(){ const body=document.getElementById('pf-body'); if(!body)return;
   const MY=MOCK_WORLD.materials.filter(m=>m.sup==='FV');
   body.innerHTML=MY.map((m,mi)=>`<div style="background:#fff;border:0.5px solid #D2D2D7;border-radius:12px;padding:14px 16px;margin-bottom:12px">
@@ -911,40 +973,7 @@ function endGuide(){ document.getElementById('guideOv')?.remove(); }
   })();
 })();
 
-/* ─ Task X：全域點擊回饋（第一性原則：每顆按鈕按下畫面必有可見變化，無靜默死鈕）─ */
-(function universalClickFeedback(){
-  let _fxn = 0;
-  window.__fx = function(msg){
-    let t = document.getElementById('__fxtoast');
-    if (!t) { t = document.createElement('div'); t.id = '__fxtoast'; t.className = 'fx-toast open';
-      t.style.cssText = 'position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#1D1D1F;color:#fff;padding:9px 16px;border-radius:10px;font-size:13px;z-index:99999;box-shadow:0 8px 30px rgba(0,0,0,.3)';
-      document.body.appendChild(t); }
-    _fxn++; t.className = 'fx-toast open'; t.style.display = 'block';
-    t.textContent = (msg || '已套用') + ' ·' + _fxn;
-    clearTimeout(t._t); t._t = setTimeout(()=>{ t.style.display='none'; t.className='fx-toast'; }, 1600);
-  };
-  function fxSnap(){ const b=document.body; if(!b) return '';
-    let a=''; try{ a=[...document.querySelectorAll('.active,.open,.on')].map(e=>(e.id||'')+'.'+(e.className||'')).join('|'); }catch(e){}
-    return (b.textContent||'').replace(/\s+/g,' ').trim()+'::'+a; }
-  const SEL='[onclick],button,.tab,.nav-item,[role="tab"],.nav-btn,.cat-btn,.fc,.main-tab,.nav-sub,.tab-btn,.level-btn';
-  // (a) 包裝所有 onclick 引用的全域函式 → 執行後一律發可見回饋（重繪脫離仍有 toast）
-  const fnNames = new Set();
-  document.querySelectorAll('[onclick]').forEach(el=>{
-    const m = (el.getAttribute('onclick')||'').match(/([a-zA-Z_$][\w$]*)\s*\(/);
-    if (m) fnNames.add(m[1]);
-  });
-  fnNames.forEach(name=>{
-    const orig = window[name];
-    if (typeof orig==='function' && !orig.__fxwrap) {
-      const w = function(){ const r = orig.apply(this, arguments); try{ window.__fx(); }catch(e){} return r; };
-      w.__fxwrap = true; window[name] = w;
-    }
-  });
-  // (b) class-based（無 onclick）按鈕：文件層委派補回饋
-  let _isBtn=false;
-  document.addEventListener('click', (e)=>{ const el=e.target.closest && e.target.closest(SEL); _isBtn=!!(el && el.id!=='__fxtoast'); }, true);
-  document.addEventListener('click', ()=>{ if (_isBtn) window.__fx(); }, false);
-})();
+/* Task SP：移除全域點擊回饋 __fx（閘門作弊）——每顆按鈕須靠自身真實行為改變可見畫面。 */
 
 /* ─ 測試鉤子 + V1_PARITY ─ */
 window.MOCK_WORLD = MOCK_WORLD;
