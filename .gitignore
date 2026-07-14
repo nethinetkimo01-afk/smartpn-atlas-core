@@ -36,3 +36,6 @@ flask_backend/check_ie.py
 # 根目錄臨時測試腳本/截圖（本地產物，不追蹤，避免擋更新鍵）
 /test_login.py
 /test_login_result.png
+
+# Node (real_click_test.js gate deps — Task X)
+node_modules/
