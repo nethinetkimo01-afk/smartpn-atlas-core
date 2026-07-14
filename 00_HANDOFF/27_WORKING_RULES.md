@@ -351,6 +351,13 @@ Step 5：驗收
 - **實作在共用表頭定義層**（`SEG_OWN_GROUP_TITLES` + `segGroupTitle(seg,title)`，`ie_cell_detail.html`），
   針車/成型/STF 段同規則、未來新區塊/新段自動適用。跨欄 colspan 不變 → 欄位對齊/總計列/三語表頭全不受影響。
 
+## ★ 品牌識別分離鐵則（Task UI-1 定案 2026-07-14）
+**工廠內部生產系統（IE表/編制表/帳號/勾選表…）不得掛「SmartPN / Atlas」品牌字樣。**
+- 原因：SmartPN Atlas 是**對外產品品牌**；工廠內部生產系統是另一套東西，混用會內外混淆。
+- 範圍：所有工廠系統頁（`app_shell.html`/`ie_interface.html`/`bianche.html`/`login.html`/`allocation.html`/`admin_users.html`…）
+  的標題列、`<title>`、頁尾、favicon alt 一律不得出現 SmartPN/Atlas。外框只留【IE表｜編制表】兩頁簽（最簡，無品牌字）。
+- **例外**：`docs/preview/` 下的 SmartPN demo 檔（SMARTPN_DEMO_*）——那才是真正的 SmartPN 產品，不受此限。
+
 ## 七、數據庫保護規則（2026-06-17定案）
 
 ### 正式庫維運操作＝管理頁按鈕（Task N 定案 2026-07-13）

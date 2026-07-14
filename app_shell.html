@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IE表 · SmartPN</title>
+<title>IE表 / 編制表</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
@@ -11,8 +11,6 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background
 
 /* ── 最外層主頁簽列 ─────────────────────────────────────────────── */
 .shell-header{background:#0f1626;color:#fff;height:46px;flex:0 0 46px;display:flex;align-items:center;gap:16px;padding:0 18px;box-shadow:0 2px 8px rgba(0,0,0,.35);z-index:200}
-.shell-brand{font-size:14px;font-weight:700;letter-spacing:.5px;color:#e8eefc;white-space:nowrap}
-.shell-brand .dot{color:#4a6cf7}
 .main-tabs{display:flex;gap:4px;background:#1a2744;border-radius:8px;padding:3px}
 .main-tab{background:transparent;color:#8aaedd;border:none;border-radius:6px;padding:7px 22px;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s,color .15s;outline:none;letter-spacing:.5px}
 .main-tab:hover{background:#243a63;color:#fff}
@@ -38,7 +36,7 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background
 <body>
 
 <div class="shell-header">
-  <div class="shell-brand">SmartPN<span class="dot">·</span>Atlas</div>
+  <!-- Task UI-1：工廠生產系統不掛對外產品品牌（品牌與內部系統識別分離，見 27 規則）；只留兩頁簽 -->
   <div class="main-tabs" role="tablist" aria-label="最外層主頁簽">
     <button class="main-tab" id="tab-ie"       role="tab" onclick="onTabClick('ie')">IE表</button>
     <button class="main-tab" id="tab-bianche"  role="tab" onclick="onTabClick('bianche')">編制表</button>
@@ -99,7 +97,7 @@ async function goTab(t, updateHash){
     frameEl(x).classList.toggle('active', x === t);
     document.getElementById('tab-' + x).classList.toggle('active', x === t);
   }
-  document.title = NAME[t] + ' · SmartPN';
+  document.title = NAME[t];
   document.getElementById('shell-hint').textContent = (t === 'ie')
     ? 'IE 標準工時 · 版本鎖定'
     : '廠務組織編制表 · 自動化';
