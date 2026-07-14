@@ -35,6 +35,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#FFFF
 /* Task BZ：手工格＝白底+灰框（一眼可辨、不去點不能改的格）；公式格＝無框純黑數字 */
 .manual-cell{background:#fff!important;border:1px solid #C7C7CC!important}
 .lean-subtotal-row td{border-bottom:none}
+/* Task BZ 四單位分頁 */
+.unit-tab{background:#F0F0F2;color:#8E8E93;border:1px solid #E5E5EA;border-radius:6px;padding:5px 16px;font-size:12px;font-weight:700;cursor:pointer}
+.unit-tab.active{background:#1C1C1E;color:#fff;border-color:#1C1C1E}
+.unit-total{font-size:12px;font-weight:700;color:#1C1C1E;margin-bottom:8px;padding:6px 10px;background:#F5F5F7;border-radius:6px;display:inline-block}
+.dept-section-hdr{background:#1C1C1E;color:#fff;padding:5px 12px;font-size:11px;font-weight:700;margin-top:8px}
 /* Task BZ-2：固定欄寬對齊——數值欄不換行、剪裁；鞋型欄可換行 */
 .bz-fixed{border-collapse:collapse}
 .bz-fixed td,.bz-fixed th{overflow:hidden}
@@ -159,15 +164,29 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#FFFF
     </div>
   </div>
 
-  <!-- ══ 下半：CSA LEAN 明細 ══ -->
+  <!-- ══ 下半：明細四單位 CSA / OCS / RB / QC（決策③，與導出四分頁一一對應）══ -->
   <div class="zone-card">
-    <div class="zone-header">
-      <span class="zone-name">CSA 明細</span>
+    <div class="zone-header" style="gap:10px">
+      <div id="unit-tabs" style="display:flex;gap:4px">
+        <button class="unit-tab active" data-tab="CSA" onclick="showUnitTab('CSA')">CSA</button>
+        <button class="unit-tab" data-tab="OCS" onclick="showUnitTab('OCS')">OCS</button>
+        <button class="unit-tab" data-tab="RB"  onclick="showUnitTab('RB')">RB</button>
+        <button class="unit-tab" data-tab="QC"  onclick="showUnitTab('QC')">QC</button>
+      </div>
       <span class="zone-count" id="detailCount"></span>
     </div>
-    <div id="csaDetailContainer" style="padding:10px 14px">
-      <div class="loading-msg">載入中…</div>
+    <!-- CSA：鞋型 LEAN 明細 -->
+    <div class="unit-pane" data-bz-unit="CSA" style="padding:10px 14px">
+      <div class="unit-total" id="total-CSA"></div>
+      <div id="csaDetailContainer"><div class="loading-msg">載入中…</div></div>
     </div>
+    <!-- OCS / RB / QC：部門群組人數（get_bianche_dept 結構）-->
+    <div class="unit-pane" data-bz-unit="OCS" style="padding:10px 14px;display:none">
+      <div class="unit-total" id="total-OCS"></div><div id="deptDetail-OCS"><div class="loading-msg">載入中…</div></div></div>
+    <div class="unit-pane" data-bz-unit="RB" style="padding:10px 14px;display:none">
+      <div class="unit-total" id="total-RB"></div><div id="deptDetail-RB"><div class="loading-msg">載入中…</div></div></div>
+    <div class="unit-pane" data-bz-unit="QC" style="padding:10px 14px;display:none">
+      <div class="unit-total" id="total-QC"></div><div id="deptDetail-QC"><div class="loading-msg">載入中…</div></div></div>
   </div>
 </div>
 
@@ -322,10 +341,15 @@ async function loadAll() {
   document.getElementById('summaryMonth').textContent = month();
   renderBzStatus(null, 'loading');
 
-  const [sumR, detR, ceR] = await Promise.all([
+  ['OCS','RB','QC'].forEach(u=>{ const c=document.getElementById('deptDetail-'+u); if(c) c.innerHTML='<div class="loading-msg">載入中…</div>'; });
+
+  const [sumR, detR, ceR, ocsR, rbR, qcR] = await Promise.all([
     fetch(`/api/bianzhi/summary?month=${month()}`).then(r=>r.json()).catch(()=>({ok:false,error:'網路/伺服器錯誤'})),
     fetch(`/api/bianzhi/detail?month=${month()}`).then(r=>r.json()).catch(()=>({ok:false,error:'網路/伺服器錯誤'})),
     fetch('/api/bianzhi/can_edit').then(r=>r.json()).catch(()=>({can_edit:false})),
+    fetch(`/api/bianche/dept/OCS?month=${month()}`).then(r=>r.json()).catch(()=>({ok:false,error:'網路錯誤'})),
+    fetch(`/api/bianche/dept/RB?month=${month()}`).then(r=>r.json()).catch(()=>({ok:false,error:'網路錯誤'})),
+    fetch(`/api/bianche/dept/QC?month=${month()}`).then(r=>r.json()).catch(()=>({ok:false,error:'網路錯誤'})),
   ]);
   _CAN_EDIT = (ceR && ceR.can_edit === true);
 
@@ -339,6 +363,8 @@ async function loadAll() {
 
   if (detR.ok) { _detailData = detR; renderDetail(detR); }
   else document.getElementById('csaDetailContainer').innerHTML = errBlock(detR.error);
+  // Task BZ：OCS/RB/QC 三單位明細
+  renderDeptDetail('OCS', ocsR); renderDeptDetail('RB', rbR); renderDeptDetail('QC', qcR);
 }
 
 // ══ SUMMARY ══
@@ -405,8 +431,61 @@ function fmtM(key, v) {
 }
 
 // ══ DETAIL ══
+// Task BZ：四單位分頁切換
+function showUnitTab(u){
+  document.querySelectorAll('.unit-tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===u));
+  document.querySelectorAll('.unit-pane').forEach(p=>p.style.display = (p.getAttribute('data-bz-unit')===u)?'':'none');
+}
+
+// Task BZ：OCS/RB/QC 部門群組人數明細（照 get_bianche_dept 結構：section→group｜上月｜本月＋shoe_detail）
+// 逐格對帳：本單位「本月人數」直工本月 = 各 group 本月人數加總（顯示於 unit-total）
+function renderDeptDetail(unit, data){
+  const cont = document.getElementById('deptDetail-'+unit);
+  const totEl = document.getElementById('total-'+unit);
+  if(!cont) return;
+  if(!data || !data.ok){ cont.innerHTML = errBlock((data&&data.error)||'載入失敗'); if(totEl) totEl.textContent=''; return; }
+  const sections = data.sections || [];
+  const hasAny = sections.some(s=>(s.groups||[]).length>0);
+  if(!hasAny){
+    cont.innerHTML = '<div style="padding:10px 14px;border-radius:8px;background:#FFF6E5;border:1px solid #f0d98a;color:#B26A00;font-size:12px;font-weight:600">⚠ 本月無資料／未匯入（'+esc(unit)+'）</div>';
+    if(totEl) totEl.textContent = unit+' 直工本月（本月人數加總）＝ 0';
+    return;
+  }
+  let sum=0, h='';
+  for(const sec of sections){
+    h += `<div class="dept-section-hdr">${esc(sec.section)}</div>
+      <table class="proc-table" style="width:100%"><thead><tr>
+        <th class="left" style="min-width:180px">群組</th><th style="min-width:120px">上月人數</th>
+        <th style="min-width:120px">本月人數</th><th class="left">鞋型/明細</th></tr></thead><tbody>`;
+    for(const g of (sec.groups||[])){
+      const tm = Number(g.this_month_hc)||0; sum += tm;
+      h += `<tr>
+        <td class="left">${esc(g.group)}</td>
+        <td class="actual-cell manual-cell" style="padding:0"><input class="bz-inp" type="number" step="1" value="${g.last_month_hc??''}" placeholder="" oninput="blockNonNumeric(this)"
+          onblur="saveDeptHc('${esc(unit)}','${esc(g.group)}','last',this)" ${_CAN_EDIT?'':'disabled'}></td>
+        <td class="actual-cell manual-cell" style="padding:0"><input class="bz-inp" type="number" step="1" value="${g.this_month_hc??''}" placeholder="" oninput="blockNonNumeric(this)"
+          onblur="saveDeptHc('${esc(unit)}','${esc(g.group)}','this',this)" ${_CAN_EDIT?'':'disabled'}></td>
+        <td class="left" style="font-size:10px;color:#8E8E93">${esc(g.shoe_detail||'')}</td></tr>`;
+    }
+    h += '</tbody></table>';
+  }
+  cont.innerHTML = h;
+  if(totEl) totEl.textContent = `${unit} 直工本月（本月人數加總）＝ ${fmtN(round1(sum))}`;
+}
+function round1(x){ return Math.round((Number(x)||0)*10)/10; }
+async function saveDeptHc(dept, group, which, inp){
+  const val = parseFloat(inp.value);
+  // 讀當前另一欄以保留（本 API 一次寫一個 headcount，這裡以「本月」為主要 headcount）
+  const body = {dept, group:group, group_name:group, month:month(), headcount: isNaN(val)?0:val};
+  const r = await fetch('/api/bianche/dept_hc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json()).catch(()=>({ok:false}));
+  if(r.ok){ inp.style.boxShadow=''; showToast('已儲存'); loadAll(); } else { inp.style.boxShadow='inset 0 0 0 2px #FF3B30'; showToast('儲存失敗'); }
+}
+
 function renderDetail(data) {
   const leans = data.leans || [];
+  // Task BZ：CSA 直工本月 = 各 LEAN N 小計加總（可追溯，顯示於 unit-total）
+  const csaTot = leans.reduce((s,lg)=> s + (Number(lg.total_bianzhi)||0), 0);
+  const ct = document.getElementById('total-CSA'); if(ct) ct.textContent = `CSA 直工本月（各 LEAN 直工小計 N 加總）＝ ${fmtN(round1(csaTot))}`;
   if (!leans.length) {
     // Task BZ（正式庫形狀）：無資料不得空白——顯示 12 欄結構 + 明確狀態 + 小計列（狀態看得見）
     document.getElementById('csaDetailContainer').innerHTML = emptyDetailTable();

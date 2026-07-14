@@ -16,6 +16,18 @@ Last updated: 2026-07-13
 Claude 是中樞不是打字機：自行思考、主動 web_search 查市面成熟做法、主動提建議、預想 Jim 的下一步。
 → 完整交接：41_THREE_TRACK_HANDOFF.md（2026-07-13 重寫，42 作廢併入）
 
+## 2026-07-14 定案（Task BZ 第三次退回：明細四單位 CSA/OCS/RB/QC + 數字可追溯）
+- **第三次退回根因**：編制表明細只渲染 **CSA 一單位**，OCS/RB/QC 完全不存在（決策③要求四單位）；
+  且舊 `spec_gate_bianche` **只驗 `#csaDetailContainer`＝結構性盲點**，7/7 是假象。
+- **修復**：bianche 下半改 **四單位分頁 CSA/OCS/RB/QC**（`[data-bz-unit]`，與導出四分頁一一對應）：
+  - **CSA**＝鞋型 LEAN 12 欄明細（小計 N/P、缺 IE 紅底+未鎖定不擋單、欄寬對齊、手工/公式視覺）。
+  - **OCS/RB/QC**＝照既有 `get_bianche_dept` 結構（section→group｜上月人數/本月人數+shoe_detail，手工白底灰框），不臆造。
+  - 無資料單位顯示「本月無資料/未匯入」不消失。
+- **數字可追溯（逐格對帳，誤差 0）**：CSA 直工本月＝Σ(各 LEAN 直工小計 N)；OCS/RB/QC 直工本月＝Σ(本月人數)；顯示於各單位標題，畫面每格可從明細算出。
+- **閘門重寫**：`spec_gate_bianche` 逐單位斷言（4 單位 × 全規格項）+ 逐格對帳 + **印出覆蓋率**（單位/月份/角色）。規則入 25。
+- **正式庫形狀驗收**：`atlas_prod`（1454訂單/33LEAN/**137 IE 全 has_locked=false→MP 全紅底**＝決策③正確/多月05單06多07空）。
+  **四支閘門全綠**：`spec_gate_bianche` **15/15**（覆蓋率 4/4 單位·3 月）+ `hub_gate` **83/83** + `spec_gate_smartpn` 兩檔 16/16 + `real_click_test` 兩檔 8/8。
+
 ## 2026-07-14 定案（Task BZ 退回修復 + BZ-2 欄寬對齊）
 - **BZ 退回根因**：spec_gate 用 E2E 種子過 6/6，換正式庫形狀（正式庫副本、少鎖定版、可能空 orders）→ 區塊B 整塊空白。
   - 修：`renderDetail` 空 leans 不再 `no-data` 空白 → `emptyDetailTable()` 渲染 12 欄結構 + 明確「本月無 DS-04 排程訂單（未匯入）」狀態 + 小計列（狀態看得見）。→ 區塊B12欄/小計/manual-cell/匯入鈕 4 項全修。
