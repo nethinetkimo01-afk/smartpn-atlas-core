@@ -35,6 +35,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#FFFF
 /* Task BZ：手工格＝白底+灰框（一眼可辨、不去點不能改的格）；公式格＝無框純黑數字 */
 .manual-cell{background:#fff!important;border:1px solid #C7C7CC!important}
 .lean-subtotal-row td{border-bottom:none}
+/* Task BZ-2：固定欄寬對齊——數值欄不換行、剪裁；鞋型欄可換行 */
+.bz-fixed{border-collapse:collapse}
+.bz-fixed td,.bz-fixed th{overflow:hidden}
+.bz-fixed td.left,.bz-fixed th.left{white-space:normal;word-break:break-word;text-align:left}
+.bz-fixed .bz-inp{width:100%;box-sizing:border-box}
 .actual-cell{color:#1C1C1E;text-align:right;font-family:Consolas,monospace;font-weight:600;background:#fff;border:1px solid #C7C7CC;padding:0}
 .bz-inp{width:100%;border:none;border-radius:0;padding:3px 6px;font-size:11px;font-family:Consolas,monospace;text-align:right;outline:none;background:#fff;color:#1C1C1E;-moz-appearance:textfield}
 .bz-inp:focus{box-shadow:inset 0 0 0 2px #007AFF}
@@ -403,8 +408,9 @@ function fmtM(key, v) {
 function renderDetail(data) {
   const leans = data.leans || [];
   if (!leans.length) {
-    document.getElementById('csaDetailContainer').innerHTML = '<div class="no-data">無資料（DS-04 尚無已排程訂單）</div>';
-    document.getElementById('detailCount').textContent = '';
+    // Task BZ（正式庫形狀）：無資料不得空白——顯示 12 欄結構 + 明確狀態 + 小計列（狀態看得見）
+    document.getElementById('csaDetailContainer').innerHTML = emptyDetailTable();
+    document.getElementById('detailCount').textContent = '本月無 DS-04 排程訂單（未匯入）';
     return;
   }
 
@@ -450,18 +456,51 @@ function toggleLean(lean) {
   if (arr) arr.style.transform = hidden ? '' : 'rotate(-90deg)';
 }
 
+// Task BZ-2：全部 LEAN 明細＝同一張表的分組——強制 table-layout:fixed + 共用 colgroup 固定各欄寬，
+// 跨 LEAN 同名欄位 offsetLeft/寬度完全一致（誤差 0px）。編制欄固定寬，不因空 input 撐寬。
+const BZ_COLW = [200,80,70,70,70,70,75,80,70,70,70,75]; // 鞋型|訂單|裁斷|針車|成型|协理给|合計|編制|外移P|Q|R|C2B
+const BZ_TABLE_W = BZ_COLW.reduce((a,b)=>a+b,0);        // = 1000px
+function bzColgroup(){ return '<colgroup>' + BZ_COLW.map(w=>`<col style="width:${w}px">`).join('') + '</colgroup>'; }
+function bzTableOpen(){ return `<table class="proc-table bz-fixed" style="table-layout:fixed;width:${BZ_TABLE_W}px">${bzColgroup()}`; }
+
+// Task BZ：無資料時仍呈現 12 欄結構 + 明確狀態（不空白），手工/公式格結構就緒待匯入
+function emptyDetailTable() {
+  return `<div style="margin:6px 0 10px;padding:10px 14px;border-radius:8px;background:#FFF6E5;border:1px solid #f0d98a;color:#B26A00;font-size:12px;font-weight:600">
+    ⚠ 本月無 DS-04 排程訂單（未匯入）——請於上方流程①「⬆ 選檔上傳 DS-04」匯入後，此處即顯示各 LEAN 明細。
+  </div>
+  ${bzTableOpen()}<thead><tr>
+    <th class="left">鞋型 / ART</th><th>訂單量</th>
+    <th>裁斷</th><th>針車</th><th>成型</th><th>协理给</th><th>合計</th><th>編制</th>
+    <th>外移P</th><th>外移Q</th><th>外移R</th><th>C2B</th>
+  </tr></thead><tbody>
+    <tr><td class="left" style="color:#8E8E93">（待匯入）</td><td class="formula-cell"></td>
+      <td class="formula-cell"></td><td class="formula-cell"></td><td class="formula-cell"></td>
+      <td class="actual-cell manual-cell" style="padding:0"><input class="bz-inp" type="number" disabled placeholder="协理给"></td>
+      <td class="formula-cell"></td>
+      <td class="actual-cell manual-cell" style="padding:0"><input class="bz-inp" type="number" disabled placeholder="編制"></td>
+      <td class="formula-cell"></td><td class="formula-cell"></td><td class="formula-cell"></td><td class="formula-cell"></td></tr>
+    <tr class="lean-subtotal-row" style="border-top:1px solid #C7C7CC">
+      <td class="left" style="border:none;background:transparent;font-weight:700;color:#8E8E93">↳ 小計</td>
+      <td colspan="6" style="border:none;background:transparent;text-align:right;font-weight:700">直工小計 N＝<b>0</b></td>
+      <td style="border:none;background:transparent;text-align:right;font-weight:700">0</td>
+      <td colspan="3" style="border:none;background:transparent;text-align:right;font-weight:700">人力小計 P＝<b>0</b></td>
+      <td style="border:none;background:transparent;text-align:right;font-weight:700">0</td></tr>
+  </tbody></table>`;
+}
+
 function renderLeanTable(lg) {
   const rows = lg.models || [];
   if (!rows.length) return '<div class="no-data" style="padding:16px">無訂單</div>';
   // Task BZ：區塊B 12 欄（鞋型/ART|訂單|裁斷|針車|成型|协理给|合計|編制|外移P|外移Q|外移R|C2B）
-  let h = `<table class="proc-table">
+  // Task BZ-2：固定欄寬（共用 colgroup），跨 LEAN 完全對齊
+  let h = `${bzTableOpen()}
     <thead><tr>
-      <th class="left" style="min-width:160px">鞋型 / ART</th>
+      <th class="left">鞋型 / ART</th>
       <th>訂單量</th>
       <th>裁斷</th><th>針車</th><th>成型</th>
       <th title="协理给（手工）">协理给</th>
       <th title="合計 = 裁斷+針車+成型+协理给">合計</th>
-      <th style="min-width:70px">編制</th>
+      <th>編制</th>
       <th title="同材共裁/自動裁斷/折邊">外移P</th>
       <th title="電腦針車">外移Q</th>
       <th title="大底課">外移R</th>

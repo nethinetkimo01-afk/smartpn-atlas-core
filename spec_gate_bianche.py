@@ -3,8 +3,10 @@
 spec_gate_bianche.py — 廠務編制表對「28_BIANCHE_SPEC.md」逐項對帳（頁面級：載入 /bianche 真渲染 DOM）。
 規格條號是唯一驗收基準。缺一即 FAIL。隔離副本，禁止碰正式 DB。
 
-用法：起一台有編制資料的隔離 server（例 atlas_v_e2e @ 5098），再：
-  SPEC_GATE_BASE=http://127.0.0.1:5098 python spec_gate_bianche.py
+用法（★必須用「正式庫形狀」資料，見 25 規則）：起一台隔離 server，DB＝正式庫副本（data/atlas.db 唯讀複製）
+＋含多單位×多月/某月只1單位/空月/缺IE鎖定版混合，再：
+  SPEC_GATE_BASE=http://127.0.0.1:5095 python spec_gate_bianche.py
+（禁用 E2E 種子作為唯一驗收環境。）
 """
 import os, sys, io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -55,6 +57,18 @@ def main():
         nMan = pg.eval_on_selector_all(".manual-cell", "e=>e.length")
         nFor = pg.eval_on_selector_all(".formula-cell", "e=>e.length")
         rec('視覺區分：manual-cell(白底灰框) + formula-cell(無框純黑)', nMan>0 and nFor>0, f'manual={nMan} formula={nFor}')
+
+        # ── BZ-2 欄寬對齊：≥3 LEAN 表，同名欄 left/width 完全一致（誤差 0px）──
+        align = pg.evaluate("""() => {
+          const tables=[...document.querySelectorAll('#csaDetailContainer table.bz-fixed')];
+          const sig = t => [...t.querySelectorAll('thead th')].map(th=>{const r=th.getBoundingClientRect();return Math.round(r.left)+':'+Math.round(r.width);}).join('|');
+          const sigs = tables.map(sig);
+          const first = sigs[0]||'';
+          const mism = sigs.filter(s=>s!==first).length;
+          return {n:tables.length, mism, first:first.slice(0,60)};
+        }""")
+        rec('BZ-2 欄寬對齊：所有 LEAN 表同名欄 left/width 一致（誤差 0px）',
+            align['n']>=3 and align['mism']==0, f"LEAN表={align['n']} 不一致={align['mism']}")
 
         # ── 匯入：流程① 有檔案上傳入口 ──
         pg.eval_on_selector_all("#flow-bar > div", "(els)=>{els[0]&&els[0].click();}")  # 點流程①

@@ -16,6 +16,15 @@ Last updated: 2026-07-13
 Claude 是中樞不是打字機：自行思考、主動 web_search 查市面成熟做法、主動提建議、預想 Jim 的下一步。
 → 完整交接：41_THREE_TRACK_HANDOFF.md（2026-07-13 重寫，42 作廢併入）
 
+## 2026-07-14 定案（Task BZ 退回修復 + BZ-2 欄寬對齊）
+- **BZ 退回根因**：spec_gate 用 E2E 種子過 6/6，換正式庫形狀（正式庫副本、少鎖定版、可能空 orders）→ 區塊B 整塊空白。
+  - 修：`renderDetail` 空 leans 不再 `no-data` 空白 → `emptyDetailTable()` 渲染 12 欄結構 + 明確「本月無 DS-04 排程訂單（未匯入）」狀態 + 小計列（狀態看得見）。→ 區塊B12欄/小計/manual-cell/匯入鈕 4 項全修。
+- **BZ-2 欄寬對齊**：各 LEAN 原本各自 `<table>` auto 欄寬 → 跨組不對齊。修＝方案B：`table-layout:fixed` + 共用 `colgroup` 固定 12 欄寬（鞋型200/數值欄 70~80px），每張 LEAN 表同寬同 colgroup → 同名欄 left/width 完全一致。
+  - spec_gate 加真瀏覽器量測：33 LEAN 表同名欄 offsetLeft/寬度 **0px 誤差**。
+- **驗收（正式庫形狀）**：`atlas_prod`＝正式庫副本(1454訂單/33LEAN/僅1鎖定版=缺IE混合) + 多月單位(2026-05 1單位/06 多單位/07 空月)。
+  `spec_gate_bianche.py` **7/7** + `hub_gate.py` **83/83** 全綠；空 orders 副本亦不空白（emptyDetailTable）。
+  規則入 25：**所有閘門必在正式庫形狀資料下跑，E2E 種子不可作唯一驗收環境**。
+
 ## 2026-07-14 定案（Task SP：SmartPN demo 對回 16 號原始規格）
 - **44 號檔標「DRAFT — 未經 Jim 批准」**，不得作依據；SmartPN demo 唯一規格基準＝`16_S02_TO_S17_COMPLETE_SPECS.md`。
 - **Task SP** ✅：v3 兩檔疊加「情境 S02–S17 可操作面板」（禁止重寫、V1_PARITY 0 缺）。
