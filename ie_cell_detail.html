@@ -423,6 +423,23 @@ const SEG_COL_LABELS = {
     actual_operators: { zh:'EOLR=190 實際人數', en:'EOLR=190 Actual operators', vi:'EOLR=190 Số người thực tế' },
   },
 };
+
+// Task Z（Jim 2026-07-14 定案，見 27_WORKING_RULES）：區塊內製程分組標題規則。
+// 依「分組工序類型」判斷（非依分組數量）——分組工序＝該段本身主工序（機台分區）→ 不渲染標題
+// （頁簽與區塊名已表明，重複＝噪音）；分組工序＝非本段主工序（印線/削皮/貼補強/塗邊烘毛邊/熱壓…）
+// → 標題必須保留。共用表頭定義層一處實作，未來新區塊/新段自動適用。
+const SEG_OWN_GROUP_TITLES = {
+  cutting:   new Set(['裁断','裁斷','裁断手工','裁斷手工','裁断本身','裁斷本身']),
+  stitching: new Set(['针车','針車','车缝','車縫']),
+  assembly:  new Set(['成型','组装','組裝']),
+  stf:       new Set(['STF','贴底','貼底','stockfitting','Stockfitting']),
+};
+function segGroupTitle(seg, rawTitle) {
+  // 回傳應顯示的分組標題文字（本段主工序 → 空字串＝不渲染；其他工序 → 原標題保留）
+  const own = SEG_OWN_GROUP_TITLES[seg];
+  const t = String(rawTitle == null ? '' : rawTitle).trim();
+  return (own && own.has(t)) ? '' : rawTitle;
+}
 const EDITABLE_COLS = new Set(['cut_per_hour','normal_time','qty_per_pair','layers_per_cut']);
 
 // Cutting zones WITHOUT post-process data (ATOM/Laser/YINGHUI use normal_time formula)
@@ -860,8 +877,10 @@ function renderCuttingZoneCard(z, eolr) {
 
 // ── 表頭生成器 (R3 群組行 + R4越文 + R5英文 + R6中文) ────────────────────────
 function _cutHead(type) {
-  const G  = (n, t) => `<th colspan="${n}" class="th-cut-group">${t}</th>`;
-  const GP = (n, t) => `<th colspan="${n}" class="th-post-group">${t}</th>`;
+  // Task Z：分組標題經共用規則過濾——'裁断'(本段主工序)→ 不渲染(空)；印线/削皮…(非裁斷)→ 保留。
+  // colspan 不變 → 欄位對齊/總計列位置全不受影響。
+  const G  = (n, t) => `<th colspan="${n}" class="th-cut-group">${segGroupTitle('cutting', t)}</th>`;
+  const GP = (n, t) => `<th colspan="${n}" class="th-post-group">${segGroupTitle('cutting', t)}</th>`;
   const GB = ()     => `<th class="th-cut-group" style="background:#1C1C1E;color:#3A3A3C"></th>`;
   const vi = (t)    => `<th class="th-vi">${t}</th>`;
   const en = (t)    => `<th class="th-en">${t}</th>`;
