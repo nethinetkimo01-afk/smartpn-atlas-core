@@ -68,6 +68,7 @@ form input:focus,form select:focus{outline:none;border-color:#1a2744}
           <th>帳號</th>
           <th>顯示名稱</th>
           <th>角色</th>
+          <th>功能權限（Task T）</th>
           <th>狀態</th>
           <th>建立時間</th>
           <th>操作</th>
@@ -152,6 +153,50 @@ const ROLE_HINTS  = {
   read_only:'看資料不能改'
 };
 
+// ── Task T：功能權限矩陣 ──────────────────────────────────────────────────────
+const UNIT_ORDER  = ['ie_edit','select_parts','allocate','import','export','audit','base_data'];
+const UNIT_LABELS = {ie_edit:'IE編輯', select_parts:'勾選部件', allocate:'撥人',
+  import:'匯入', export:'導出', audit:'審核', base_data:'基礎資料'};
+
+function permCell(u) {
+  if (u.role === 'admin') return '<span style="color:#c00;font-weight:bold">全部（不受限）</span>';
+  const units = new Set(u.units || []);
+  const chips = UNIT_ORDER.filter(k=>units.has(k))
+    .map(k=>`<span style="display:inline-block;background:#e8f0fe;color:#1a2744;border-radius:8px;padding:1px 7px;margin:1px;font-size:11px">${UNIT_LABELS[k]}</span>`).join('');
+  const explicit = (u.permissions != null);
+  const tag = explicit ? '' : '<span style="color:#aaa;font-size:11px"> (角色預設)</span>';
+  const body = chips || '<span style="color:#bbb">（全空）</span>';
+  return `${body}${tag} <button class="btn btn-sm btn-edit" style="margin-left:6px" onclick='openPerm(${JSON.stringify(u)})'>矩陣</button>`;
+}
+
+let _permUid = null;
+function openPerm(u) {
+  _permUid = u.id;
+  document.getElementById('perm-title').textContent = `功能權限矩陣：${u.display_name}（${u.username}）`;
+  const units = new Set(u.units || []);
+  const box = document.getElementById('perm-list');
+  box.innerHTML = UNIT_ORDER.map(k=>`
+    <label style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0f0f0;cursor:pointer">
+      <input type="checkbox" id="perm-${k}" ${units.has(k)?'checked':''}>
+      <span>${UNIT_LABELS[k]}</span><span style="color:#aaa;font-size:11px">(${k})</span>
+    </label>`).join('');
+  document.getElementById('perm-msg').className = 'msg';
+  document.getElementById('perm-hint').textContent =
+    (u.permissions==null) ? '目前為角色預設（未明確設定）。儲存後即成為此帳號的權威矩陣。' : '此帳號已有明確矩陣（權威）。';
+  document.getElementById('perm-modal').classList.add('open');
+}
+function closePerm() { document.getElementById('perm-modal').classList.remove('open'); }
+
+async function savePerm() {
+  const units = UNIT_ORDER.filter(k=>document.getElementById('perm-'+k).checked);
+  const r = await fetch(`/api/users/${_permUid}/permissions`, {
+    method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({units})
+  });
+  const d = await r.json();
+  if (d.ok) { closePerm(); showMsg('ok','功能權限已更新'); loadUsers(); }
+  else { const el=document.getElementById('perm-msg'); el.className='msg err'; el.textContent=d.error||'儲存失敗'; }
+}
+
 async function loadUsers() {
   const r = await fetch('/api/users');
   const d = await r.json();
@@ -165,6 +210,7 @@ async function loadUsers() {
       <td><strong>${esc(u.username)}</strong></td>
       <td>${esc(u.display_name)}</td>
       <td><span class="badge ${ROLE_BADGES[u.role]||''}">${ROLE_LABELS[u.role]||u.role}</span></td>
+      <td style="font-size:12px">${permCell(u)}</td>
       <td>${u.active ? '✅ 啟用' : '⛔ 停用'}</td>
       <td style="font-size:12px;color:#888">${(u.created_at||'').slice(0,16)}</td>
       <td>
@@ -377,6 +423,21 @@ async function quickUnassign(uid, uname, headerId, modelName) {
   else showMsg('err', d.error||'操作失敗');
 }
 </script>
+
+<!-- Task T: Permission Matrix Modal -->
+<div class="modal-backdrop" id="perm-modal">
+  <div class="modal" style="width:420px">
+    <h3 id="perm-title">功能權限矩陣</h3>
+    <div id="perm-msg" class="msg"></div>
+    <div id="perm-hint" style="font-size:12px;color:#888;margin-bottom:6px"></div>
+    <div id="perm-list"></div>
+    <div class="role-hint" style="margin-top:8px">admin 帳號永遠全部（不受矩陣限）。未勾＝入口不顯示＋後端 403 雙層防線。</div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closePerm()">取消</button>
+      <button class="btn btn-primary" onclick="savePerm()">儲存矩陣</button>
+    </div>
+  </div>
+</div>
 
 <!-- Quick Assign Modal -->
 <div class="modal-backdrop" id="qa-modal">

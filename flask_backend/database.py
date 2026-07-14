@@ -166,6 +166,12 @@ def init_db():
              ('dacu',   '打粗水洗照射',  'read_only',ts,ts)]
         )
         conn.commit()
+    # Migration (Task T): sys_users.permissions — 功能權限矩陣（JSON array of unit keys）。
+    # NULL = 舊帳號（依角色預設，遷移零變化）; 非 NULL = admin 明確設定的矩陣（權威）。
+    cols_su = [r[1] for r in conn.execute("PRAGMA table_info(sys_users)").fetchall()]
+    if 'permissions' not in cols_su:
+        conn.execute("ALTER TABLE sys_users ADD COLUMN permissions TEXT DEFAULT NULL")
+        conn.commit()
     # Migration: is_deleted soft-delete for ds04_orders
     cols_ds04 = [r[1] for r in conn.execute("PRAGMA table_info(ds04_orders)").fetchall()]
     if 'is_deleted' not in cols_ds04:
@@ -203,13 +209,67 @@ def _hash_pw(pw: str) -> str:
     import hashlib
     return hashlib.sha256(pw.encode()).hexdigest()
 
+# ── Task T：功能權限矩陣 ───────────────────────────────────────────────────────
+# 單元（unit）＝可細分授權的功能。admin 不受矩陣限（永遠全部）。
+UNITS = ['ie_edit', 'select_parts', 'allocate', 'import', 'export', 'audit', 'base_data']
+UNIT_LABELS = {
+    'ie_edit': 'IE編輯', 'select_parts': '勾選部件', 'allocate': '撥人',
+    'import': '匯入', 'export': '導出', 'audit': '審核', 'base_data': '基礎資料',
+}
+# 遷移零變化：現有角色自動映射等效矩陣（舊帳號 permissions=NULL → 用這份預設）。
+ROLE_DEFAULT_UNITS = {
+    'admin':      set(UNITS),                 # 不受限
+    'manager':    {'audit', 'base_data'},     # 審核 + 基礎資料
+    'data_entry': {'ie_edit'},                # IE編輯（＝editor）
+    'read_only':  set(),                      # 全空
+}
+
+def get_user_units(user):
+    """回傳帳號的有效單元集合（set）。
+    admin → 全部；permissions 已明確設定（非 NULL）→ 該矩陣（權威）；否則 → 角色預設（遷移零變化）。"""
+    if not user:
+        return set()
+    if user.get('role') == 'admin':
+        return set(UNITS)
+    perm = user.get('permissions')
+    if perm is not None:
+        try:
+            import json as _j
+            return {u for u in _j.loads(perm) if u in UNITS}
+        except Exception:
+            pass
+    return set(ROLE_DEFAULT_UNITS.get(user.get('role'), set()))
+
+def set_user_permissions(uid, units):
+    """儲存帳號的功能權限矩陣（units=list[unit]）。管理員帳號不套矩陣（永遠全部）。"""
+    import json as _j
+    conn = get_conn()
+    row = conn.execute('SELECT id, role FROM sys_users WHERE id=?', (uid,)).fetchone()
+    if not row:
+        conn.close()
+        return {'ok': False, 'error': '帳號不存在'}
+    if row['role'] == 'admin':
+        conn.close()
+        return {'ok': False, 'error': 'admin 帳號不受矩陣限制（永遠全部）'}
+    clean = sorted({u for u in (units or []) if u in UNITS})
+    conn.execute("UPDATE sys_users SET permissions=?, updated_at=datetime('now') WHERE id=?",
+                 (_j.dumps(clean), uid))
+    conn.commit()
+    conn.close()
+    return {'ok': True, 'permissions': clean}
+
 def list_users():
     conn = get_conn()
     rows = conn.execute(
-        'SELECT id,username,display_name,role,active,locked,created_at FROM sys_users ORDER BY id'
+        'SELECT id,username,display_name,role,active,locked,created_at,permissions FROM sys_users ORDER BY id'
     ).fetchall()
     conn.close()
-    return [dict(r) for r in rows]
+    out = []
+    for r in rows:
+        d = dict(r)
+        d['units'] = sorted(get_user_units(d))   # 有效單元（含角色預設）供矩陣 UI 預填
+        out.append(d)
+    return out
 
 def create_user(username, display_name, role, password, active=1):
     if not username or not display_name or not password:
@@ -295,7 +355,7 @@ def verify_login(username, password):
 def get_user_by_id(uid):
     conn = get_conn()
     row = conn.execute(
-        'SELECT id,username,display_name,role,active FROM sys_users WHERE id=? AND active=1', (uid,)
+        'SELECT id,username,display_name,role,active,permissions FROM sys_users WHERE id=? AND active=1', (uid,)
     ).fetchone()
     conn.close()
     return dict(row) if row else None

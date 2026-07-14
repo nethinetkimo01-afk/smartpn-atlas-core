@@ -177,6 +177,37 @@ def _can_edit_ie(header_id):
         return False, (jsonify({'ok': False, 'error': '此鞋型未指派給你，無法編輯'}), 403)
     return False, (jsonify({'ok': False, 'error': '您沒有編輯權限'}), 403)
 
+# ── Task T：功能權限矩陣 enforcement（雙層 403 防線） ─────────────────────────
+# 設計原則＝零迴歸：
+#  - admin 永遠通過。
+#  - 舊帳號（permissions=NULL）→ 沿用既有角色檢查（existing_ok），行為位元級不變。
+#  - 明確設定矩陣的帳號 → 矩陣為權威（未含該單元＝403），可低於角色（如 read_only+只勾撥人）。
+def _unit_allowed(unit, existing_ok):
+    """有角色閘門的端點用：既有角色通過 OR 矩陣授權 → 允許。回傳 bool。"""
+    u = _auth_user()
+    if not u:
+        return False
+    if u.get('role') == 'admin':
+        return True
+    if u.get('permissions') is not None:          # 明確矩陣 → 權威（可放行也可收緊）
+        return unit in db.get_user_units(u)
+    return existing_ok                            # 舊帳號 → 既有行為不變
+
+def _unit_403(unit):
+    return jsonify({'ok': False, 'error': f'無「{db.UNIT_LABELS.get(unit, unit)}」功能權限'}), 403
+
+def _matrix_block(unit):
+    """無角色閘門的開放端點用（如 allocation）：只擋「有明確矩陣但未含該單元」的帳號，
+    舊帳號一律放行（fall-through）→ 零迴歸。回傳 err-tuple 或 None。"""
+    u = _auth_user()
+    if not u or u.get('role') == 'admin':
+        return None
+    if u.get('permissions') is None:              # 舊帳號 → 不干預
+        return None
+    if unit in db.get_user_units(u):
+        return None
+    return _unit_403(unit)
+
 # ── Global login guard ───────────────────────────────────────────────────────
 
 _OPEN_PATHS = {'/login', '/api/login', '/api/allocation/login'}
@@ -419,9 +450,8 @@ def ie_export_capacity():
     """Task E/G: IE 產能彙總表導出（36 欄，欄名回源自 數據源-IE标准）。
     Task G 定案：36 全欄；取值來源=IE 鎖定版+offline 撥人；缺真實資料時產能/人數欄留空(BLOCKED)。
     admin/manager 限定（前端按鈕亦限定，此處後端強制擋）。"""
-    err = _require_manager()
-    if err:
-        return err
+    if not _unit_allowed('export', _require_manager() is None):   # Task T：導出 單元雙層防線
+        return _unit_403('export')
     if not HAS_XLSX:
         return jsonify({'ok': False, 'error': 'openpyxl not installed'}), 500
     import io, openpyxl
@@ -487,7 +517,8 @@ def ie_cell_save():
     d = request.get_json(force=True)
     hid = db.get_header_id_by_process(d.get('cell_id'))
     ok, err = _can_edit_ie(hid)
-    if not ok: return err
+    if not _unit_allowed('ie_edit', ok):        # Task T：IE編輯 單元雙層防線
+        return err if err else _unit_403('ie_edit')
     return jsonify(db.save_ie_edit(
         d.get('cell_id'), d.get('stage_id'),
         d.get('field'), d.get('value'), d.get('user', 'anonymous')
@@ -603,8 +634,8 @@ def equipment_types_admin_list():
 
 @app.route('/api/equipment_types', methods=['POST'])
 def equipment_types_add():
-    err = _require_manager()
-    if err: return err
+    if not _unit_allowed('base_data', _require_manager() is None):   # Task T：基礎資料 單元雙層防線
+        return _unit_403('base_data')
     d = request.get_json(force=True)
     return jsonify(db.add_equipment_type(d.get('name'), d.get('sort_order', 0)))
 
@@ -712,8 +743,8 @@ def ie_import_apply():
     target_hid = int(target_hid)
     source_hid = int(source_hid)
     ok, err = _can_edit_ie(target_hid)
-    if not ok:
-        return err
+    if not _unit_allowed('import', ok):         # Task T：匯入 單元雙層防線
+        return err if err else _unit_403('import')
     if source_hid == target_hid:
         return jsonify({'ok': False, 'error': '來源與目標為同一鞋型'}), 400
     result = db.import_ie_zone(target_hid, source_hid, segment, zone, overwrite)
@@ -784,6 +815,8 @@ def alloc_items():
 
 @app.route('/api/allocation/check', methods=['POST'])
 def alloc_check():
+    mb = _matrix_block('select_parts')          # Task T：勾選部件 單元雙層防線（僅擋明確矩陣帳號）
+    if mb: return mb
     u = _current_user()
     if not u:
         return jsonify({'ok': False, 'error': 'not logged in'}), 401
@@ -808,6 +841,8 @@ def alloc_csa_mp():
 
 @app.route('/api/allocation/parts', methods=['GET'])
 def alloc_parts():
+    mb = _matrix_block('allocate')              # Task T：撥人 單元雙層防線（僅擋明確矩陣帳號）
+    if mb: return mb
     u = _current_user()
     unit = request.args.get('unit') or None
     if u and u['role'] == 'unit_user':
@@ -1470,6 +1505,35 @@ def api_users_update(uid):
         active=d.get('active')
     ))
 
+@app.route('/api/users/<int:uid>/permissions', methods=['PUT'])
+def api_users_permissions(uid):
+    # Task T：設定帳號功能權限矩陣（manager+admin；admin 目標僅 admin 可動）
+    err = _require_manager()
+    if err: return err
+    me = _auth_user()
+    target = db.get_user_by_id(uid)
+    if not target:
+        return jsonify({'ok': False, 'error': '帳號不存在'}), 404
+    if target.get('role') == 'admin':
+        return jsonify({'ok': False, 'error': 'admin 帳號不受矩陣限制（永遠全部）'}), 400
+    if me.get('role') != 'admin' and target.get('role') == 'admin':
+        return jsonify({'ok': False, 'error': '無權修改管理員帳號'}), 403
+    d = request.get_json(force=True) or {}
+    units = d.get('units', [])
+    if not isinstance(units, list):
+        return jsonify({'ok': False, 'error': 'units 需為陣列'}), 400
+    return jsonify(db.set_user_permissions(uid, units))
+
+@app.route('/api/me/units', methods=['GET'])
+def api_me_units():
+    # Task T：目前帳號的有效功能單元（前端據此隱藏入口）
+    u = _auth_user()
+    if not u:
+        return jsonify({'ok': False, 'units': [], 'all_units': db.UNITS, 'labels': db.UNIT_LABELS}), 401
+    return jsonify({'ok': True, 'role': u.get('role'),
+                    'units': sorted(db.get_user_units(u)),
+                    'all_units': db.UNITS, 'labels': db.UNIT_LABELS})
+
 @app.route('/api/users/<int:uid>', methods=['DELETE'])
 def api_users_delete(uid):
     err = _require_manager()
@@ -1828,8 +1892,8 @@ def ie_review_list():
 @app.route('/api/ie/review/queue', methods=['GET'])
 def ie_review_queue():
     # 待審佇列：只列 pending，manager/admin
-    err = _require_manager()
-    if err: return err
+    if not _unit_allowed('audit', _require_manager() is None):    # Task T：審核 單元雙層防線
+        return _unit_403('audit')
     return jsonify({'ok': True, 'reviews': db.get_reviews(status='pending')})
 
 @app.route('/api/ie/review/history', methods=['GET'])

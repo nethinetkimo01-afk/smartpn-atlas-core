@@ -16,6 +16,15 @@ Last updated: 2026-07-13
 Claude 是中樞不是打字機：自行思考、主動 web_search 查市面成熟做法、主動提建議、預想 Jim 的下一步。
 → 完整交接：41_THREE_TRACK_HANDOFF.md（2026-07-13 重寫，42 作廢併入）
 
+## 2026-07-14 定案（Task T：功能權限矩陣，中樞代決規格，Jim 可推翻）
+- **Task T** ✅：帳號×單元功能權限矩陣落地。單元＝`ie_edit/select_parts/allocate/import/export/audit/base_data`（7）。
+  - 儲存：`sys_users.permissions`（JSON array）；`NULL`＝舊帳號依角色預設（**遷移零變化**），非 NULL＝admin 明確設定的權威矩陣。
+  - 角色預設映射：admin→全部（**不受矩陣限**）、manager→{審核,基礎資料}、data_entry(editor)→{IE編輯}、read_only→全空。
+  - 雙層 403 防線：有角色閘門端點＝`既有角色 OR 矩陣授權`（`_unit_allowed`）；開放端點（allocation）＝`_matrix_block`（只擋「有明確矩陣但未含該單元」帳號，舊帳號 fall-through→零迴歸）。
+  - 帳號管理頁（manager+admin）新增「功能權限」欄＋矩陣勾選 modal；admin 列顯「全部（不受限）」；`/api/me/units` 供前端隱藏入口；`PUT /api/users/<id>/permissions`。
+  - Playwright（隔離 5099）**8/8 PASS**：造「只勾撥人」read_only 帳號→`/api/me/units=={allocate}`、硬打其他 6 單元 API 全 403、撥人 200；admin 全過、manager(審核/基礎/導出過+IE編輯擋)、editor(指派可編)、tongcai(閘門全擋+撥人非擋) 逐一零變化；矩陣 UI 勾選存取一致。
+  - 前端入口隱藏：現有頁面本已依角色隱藏（read_only 帳號本就看不到 IE編輯/導出/審核/設備種類入口）→ 零迴歸；`/api/me/units` 已備供逐頁細分隱藏後續接入。
+
 ## 2026-07-14 定案（Task S：IE表/編制表 最外層主頁簽整合）
 - **Task S** ✅：最外層主頁簽【IE表｜編制表】統一外框落地（21 號既有定案「看編制的人也要查 IE 流程」執行）。
   實作＝**共用外框 `/app`（`app_shell.html`）各載一頁 iframe**，`ie_interface.html`／`bianche.html` **零改動**（git diff 空）→ 兩頁全部函式/按鈕逐一保留、零迴歸。
