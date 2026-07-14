@@ -42,7 +42,9 @@ Version: v1.0 | 建立 2026-07-14（Task U）| Status: ACTIVE（活帳本，持�
 - **DS 系列殘留待決**（次要，未入主帳）：DS-04有/廠務無 17 筆、廠務有/DS04無 1 筆(JS1068)、DS-06 定義
   → 皆等 Jim 輸入，非中樞可代決；列此備查。
 
-> 若後續發現新的孤兒定案，即刻編 ID 入帳（下一個可用 ID：G-12）。
+| **G-12** | Task X：SmartPN 品牌端交換機制實作 + 死按鈕歸零 | ⛔BLOCKED | **Jim/中樞** | 依賴 `44_EXCHANGE_MECHANISM_SPEC.md` + `real_click_test.js`（中樞稱 commit 4fa3263）——但該 commit **不在 Code 機任何 ref/history/stash/reflog**，遠端亦無；且 Code 機 node 無 puppeteer/playwright。**待中樞 push commit 4fa3263（三檔）到遠端**，Code 機才能讀規格+跑 `node real_click_test.js`。勿臆造規格（Task R 返工教訓）| 中樞訊息 2026-07-14 |
+
+> 若後續發現新的孤兒定案，即刻編 ID 入帳（下一個可用 ID：G-13）。
 
 ---
 

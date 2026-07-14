@@ -61,7 +61,9 @@ def cat1():
     ro, de = readonly(), dataentry()
     reads = ['/api/bianche?month=2026-06', '/api/bianzhi/summary?month=2026-06',
              '/api/bianzhi/detail?month=2026-06', '/api/bianche?month=2026-07',
-             '/api/bianzhi/summary?month=2026-07', '/api/bianzhi/detail?month=2026-07']
+             '/api/bianzhi/summary?month=2026-07', '/api/bianzhi/detail?month=2026-07',
+             '/api/bianzhi/flow_state?month=2026-06', '/api/bianzhi/flow_state?month=2026-07',
+             '/api/bianzhi/flow_state?month=']    # Task Y 新端點納入閘門（含空 month）
     for role, c in [('read_only', ro), ('data_entry', de)]:
         for p in reads:
             s, _ = c.req('GET', p)

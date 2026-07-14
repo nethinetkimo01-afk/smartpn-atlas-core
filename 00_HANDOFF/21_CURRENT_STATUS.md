@@ -16,6 +16,21 @@ Last updated: 2026-07-13
 Claude 是中樞不是打字機：自行思考、主動 web_search 查市面成熟做法、主動提建議、預想 Jim 的下一步。
 → 完整交接：41_THREE_TRACK_HANDOFF.md（2026-07-13 重寫，42 作廢併入）
 
+## 2026-07-14 定案（Task Y：編制表五步流程 + S-2 外框返工 + GATE-1 缺陷閘門）
+- **Task Y** ✅：編制表由「四個孤島」變「流程」。bianche 頁頂常駐五步流程列（疊加不重寫）：
+  ①匯入DS-04 ②EOLR確認 ③部件調度(勾選) ④計算編制 ⑤導出。後端 `/api/bianzhi/flow_state` 推導每步狀態
+  （未開始/進行中/已鎖定/有誤四態）；①②③ iframe 內嵌不跳出頁簽、④原生內容、⑤導出動作；
+  前一步完成才解鎖下一步（未匯入不能勾選…），卡關灰掉並說明原因；回退上游→下游標「需重算」；狀態隨月重推導。
+  Playwright（隔離 5096）**7/7 PASS**：①→⑤ 真點擊走通、④原生+⑤真下載、回退需重算、空月不死路、切月、read_only 全灰迴歸。
+- **Task S-2** ✅：整合外框生產級返工。iframe 逃逸修復（殼監聽導航，深入頁顯「←返回頁簽首頁」返回列+路徑，一鍵回、先 flush）；
+  編制表頁頂 `#bz-status`「當前月份+N/M 單位有資料/未匯入列名」；API 失敗→errBlock 明確錯誤+重試不靜默空白。Playwright 8/8。
+- **GATE-1** ✅：`hub_gate.py`（repo 根）6 類伺服器缺陷閘門 **69/69 全綠**：低權限不 500、寫入越權→403（13 端點補校驗）、
+  重算並發→409（DB 原子鎖）、垃圾 month→4xx、不存在 id→404、缺參數/空資料→4xx（全域 /api 例外安全網）。
+  規則入 25：每批 server 變更 push 前必跑 hub_gate 全綠、新端點必納入閘門。
+- **Task X（品牌端交換機制）BLOCKED**：依賴 `00_HANDOFF/44_EXCHANGE_MECHANISM_SPEC.md`（中樞稱 commit 4fa3263），
+  但該檔/commit 不在本地任何 ref/history/stash/reflog，且 Code 機 node 無 puppeteer/playwright → 無法跑 `node real_click_test.js`。
+  **待 Jim push 44 號規格檔 + real_click_test.js**（勿臆造規格，見 Task R 返工教訓）。已入 47 帳本 G-12。
+
 ## 2026-07-14 定案（Task W：SmartPN 品牌端 V3 KPI Dashboard）
 - **Task W** ✅：V3 品牌端（`docs/preview/SMARTPN_DEMO_V3.html`）加 Dashboard 頁（43 號遺留、中樞代決執行）。
   頂欄新增 Dashboard 入口 + `#page-dashboard` 5 KPI 卡，**全由 MOCK_WORLD 推導**：

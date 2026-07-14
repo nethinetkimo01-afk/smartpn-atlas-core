@@ -4233,6 +4233,60 @@ def get_bianzhi_summary(month):
         conn.close()
 
 
+def get_bianzhi_flow_state(month):
+    """Task Y：編制表五步流程狀態（狀態看得見、可回退）。
+    步驟：①匯入DS-04 ②EOLR確認 ③部件調度(勾選) ④計算編制 ⑤導出。
+    每步 status ∈ todo(未開始)/doing(進行中)/locked(已鎖定)/error(有誤)。"""
+    conn = get_conn()
+    try:
+        _ensure_bianche_ext(conn); _ensure_bianzhi_ext(conn)
+        n_orders = conn.execute("SELECT COUNT(*) FROM ds04_orders WHERE COALESCE(is_deleted,0)=0").fetchone()[0]
+        n_leans  = conn.execute("SELECT COUNT(DISTINCT lean) FROM ds04_orders WHERE COALESCE(is_deleted,0)=0").fetchone()[0]
+        n_eolr   = conn.execute("SELECT COUNT(DISTINCT lean) FROM lean_eolr_settings WHERE month=?", (month,)).fetchone()[0]
+        n_alloc  = conn.execute("SELECT COUNT(*) FROM allocation_item WHERE month=?", (month,)).fetchone()[0]
+        n_alloc_chk = conn.execute("SELECT COUNT(*) FROM allocation_item WHERE month=? AND is_checked=1", (month,)).fetchone()[0]
+        # ④ 計算編制：本月有無 unit/lean 編制資料 + 有無「缺鎖定版 IE」的已排程 art（→ error 提示）
+        n_unit = conn.execute("SELECT COUNT(*) FROM bianzhi_unit_manual WHERE month=?", (month,)).fetchone()[0]
+        n_leanhc = conn.execute("SELECT COUNT(*) FROM bianche_lean_hc WHERE month=?", (month,)).fetchone()[0]
+        locked_arts = _locked_arts(conn)
+        sched_arts = set()
+        for r in conn.execute("SELECT DISTINCT art FROM ds04_orders WHERE COALESCE(is_deleted,0)=0"):
+            for a in str(r['art'] or '').split(','):
+                a = a.strip()
+                if a: sched_arts.add(a)
+        missing_ie = sorted(a for a in sched_arts if a not in locked_arts)
+
+        def st(done, doing):
+            return 'locked' if done else ('doing' if doing else 'todo')
+        s1 = st(n_orders > 0, False)
+        s2 = st(n_eolr >= n_leans and n_leans > 0, 0 < n_eolr < n_leans)
+        s3 = st(n_alloc > 0 and n_alloc_chk == n_alloc, n_alloc > 0 and n_alloc_chk < n_alloc)
+        s4_done = (n_unit > 0 or n_leanhc > 0)
+        s4 = 'error' if (s4_done and missing_ie) else st(s4_done, False)
+        s5 = 'ready' if s4 in ('locked', 'error') else 'todo'
+
+        steps = [
+            {'id': 1, 'key': 'import', 'name': '匯入 DS-04', 'status': s1,
+             'detail': f'{n_orders} 筆訂單 / {n_leans} LEAN', 'page': '/ds04'},
+            {'id': 2, 'key': 'eolr', 'name': 'EOLR 確認', 'status': s2,
+             'detail': f'{n_eolr}/{n_leans} LEAN 已設 EOLR', 'page': '/eolr-settings'},
+            {'id': 3, 'key': 'allocate', 'name': '部件調度（勾選）', 'status': s3,
+             'detail': (f'{n_alloc_chk}/{n_alloc} 已勾選' if n_alloc else '本月尚無勾選項'), 'page': '/allocation'},
+            {'id': 4, 'key': 'compute', 'name': '計算編制', 'status': s4,
+             'detail': (f'{len(missing_ie)} 型體缺鎖定版 IE（紅底不擋單）' if missing_ie else '編制已計算'),
+             'page': None},
+            {'id': 5, 'key': 'export', 'name': '導出', 'status': s5,
+             'detail': '可導出 Excel' if s5 == 'ready' else '需先完成計算', 'page': None},
+        ]
+        return {'ok': True, 'month': month, 'steps': steps,
+                'missing_ie': missing_ie[:50], 'missing_ie_count': len(missing_ie)}
+    except Exception as e:
+        import traceback
+        return {'ok': False, 'error': str(e), 'trace': traceback.format_exc()}
+    finally:
+        conn.close()
+
+
 def set_bianzhi_unit_manual(month, unit, field, value):
     conn = get_conn()
     try:

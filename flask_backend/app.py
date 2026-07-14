@@ -1406,6 +1406,11 @@ def bianche_page():
 
 # ── 廠務組織編制表 (bianzhi) ──────────────────────────────────────────────────
 
+@app.route('/api/bianzhi/flow_state', methods=['GET'])
+def bianzhi_flow_state():
+    # Task Y：編制表五步流程狀態（任何已登入者可讀）
+    return jsonify(db.get_bianzhi_flow_state(request.args.get('month', '2026-06')))
+
 @app.route('/api/bianzhi/summary', methods=['GET'])
 def bianzhi_summary():
     month = request.args.get('month', '2026-06')
