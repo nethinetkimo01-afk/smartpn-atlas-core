@@ -16,6 +16,17 @@ Last updated: 2026-07-13
 Claude 是中樞不是打字機：自行思考、主動 web_search 查市面成熟做法、主動提建議、預想 Jim 的下一步。
 → 完整交接：41_THREE_TRACK_HANDOFF.md（2026-07-13 重寫，42 作廢併入）
 
+## 2026-07-14 定案（Task X 交換機制 + Task BZ 編制表照 28 重建）
+- **Task X** ✅：SmartPN 產品機制實作 + 死按鈕歸零。44 號規格檔 + `real_click_test.js`（jsdom 真點擊閘門）入庫；
+  v3 兩檔疊加 44 資料模型（fieldGroups/accessRequests/grants/properties+units/exchanges/apiSpec+mappings）；
+  全域點擊回饋層→**死按鈕歸零**（品牌0/供應商0）；引導改走 A申請→B交換→C對接。
+  **`node real_click_test.js` 兩檔各 8/8 ALL GREEN**（死按鈕0/引導≥5步/機制五項全有）。
+- **Task BZ** ✅：編制表照 `28_BIANCHE_SPEC.md` 重建（規格為唯一基準，`spec_gate_bianche.py` 逐欄對帳）。
+  區塊B 補 **协理给 K 欄**（合計=裁斷+針車+成型+协理给）；每 LEAN 底部 **直工小計 N**（=SUM編制）+ **人力小計 P**（=SUM C2B），無框粗體上細線；
+  區塊C 月度 11 項（既有）；手工格(白底灰框 `.manual-cell`)/公式格(無框純黑)視覺區分；DS-04 匯入 UI；防呆（非數字當場擋、離頁攔截、狀態可見）。
+  **`python spec_gate_bianche.py` 7/7 + `hub_gate.py` 83/83 ALL GREEN**。
+- **GATE-1 補丁** ✅：`/api/bianche` 合法月份不再 400（get_bianche_data 加 except→200 空集；`_valid_month` 非法格式→400）。
+
 ## 2026-07-14 定案（Task Y：編制表五步流程 + S-2 外框返工 + GATE-1 缺陷閘門）
 - **Task Y** ✅：編制表由「四個孤島」變「流程」。bianche 頁頂常駐五步流程列（疊加不重寫）：
   ①匯入DS-04 ②EOLR確認 ③部件調度(勾選) ④計算編制 ⑤導出。後端 `/api/bianzhi/flow_state` 推導每步狀態

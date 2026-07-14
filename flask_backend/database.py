@@ -4038,11 +4038,12 @@ def get_bianzhi_detail(month):
             elif z in {'成型', '貼底', '大底課'}:
                 moved_r[a] = moved_r.get(a, 0) + mp
 
-        # Manual bianzhi per model
-        manual_map = {}
+        # Manual bianzhi per model（+ Task BZ：协理给 K 欄，手工，存 manager_mp）
+        manual_map = {}; xie_map = {}
         for r in conn.execute(
-            'SELECT lean, model_name, headcount FROM bianche_model_manual WHERE month=?', (month,)):
+            'SELECT lean, model_name, headcount, manager_mp FROM bianche_model_manual WHERE month=?', (month,)):
             manual_map[(r['lean'], r['model_name'])] = r['headcount'] or 0
+            xie_map[(r['lean'], r['model_name'])] = r['manager_mp'] or 0
 
         # Build lean → model rows
         lean_map = {}
@@ -4067,7 +4068,9 @@ def get_bianzhi_detail(month):
             else:
                 cut = stch = asm = None
 
-            k = round((cut or 0) + (stch or 0) + (asm or 0), 1) if has_ie else None
+            # Task BZ：K 欄 协理给（手工，默認0）；合計 L = SUM(H:K) = 裁斷+針車+成型+协理给
+            xie = xie_map.get((lean, model), 0) or 0
+            k = round((cut or 0) + (stch or 0) + (asm or 0) + xie, 1) if has_ie else None
             bz = manual_map.get((lean, model))
             if bz is None and k is not None:
                 bz = k  # default bianzhi = calculated
@@ -4075,13 +4078,14 @@ def get_bianzhi_detail(month):
             p_ext = round(sum(moved_p.get(a, 0) for a in arts), 1)
             q_ext = round(sum(moved_q.get(a, 0) for a in arts), 1)
             r_ext = round(sum(moved_r.get(a, 0) for a in arts), 1)
-            c2b   = round((k or 0) + p_ext + q_ext + r_ext, 1) if k is not None else None
+            c2b   = round((k or 0) + p_ext + q_ext + r_ext, 1) if k is not None else None  # T=L+Q+R+S
 
             # 版本控制 Step 4a: 該 model 的 art 是否有鎖定版 IE
             has_locked = any(a in locked_arts for a in arts)
             if not has_locked:
                 # 沒鎖定版 → MP 全空（前端顯示紅底+tooltip），保留 manual 編制不動
                 cut = stch = asm = k = p_ext = q_ext = r_ext = c2b = None
+                xie = None
 
             if lean not in lean_map:
                 lean_map[lean] = {
@@ -4095,6 +4099,7 @@ def get_bianzhi_detail(month):
                 'qty': qty, 'is_outsource': bool(is_out), 'has_ie': has_ie,
                 'has_locked': has_locked, 'has_actual': has_actual,
                 'cutting': cut, 'stitching': stch, 'assembly': asm,
+                'xieligei': xie,                          # Task BZ：协理给 K 欄
                 'total_k': k, 'bianzhi': bz,
                 'p_ext': p_ext, 'q_ext': q_ext, 'r_ext': r_ext, 'c2b': c2b,
             })
@@ -4109,8 +4114,11 @@ def get_bianzhi_detail(month):
 
         leans_sorted = sorted(lean_map.values(), key=lambda x: _lean_sort(x['lean']))
         for lg in leans_sorted:
+            # 直工小計 N = SUM(編制 M)；人力小計 P = SUM(C2B 人數)（規格 §一 區塊B N/P 小計）
             lg['total_bianzhi'] = round(sum(
                 (m['bianzhi'] or 0) for m in lg['models'] if m['bianzhi'] is not None), 1)
+            lg['labor_subtotal'] = round(sum(
+                (m['c2b'] or 0) for m in lg['models'] if m['c2b'] is not None), 1)
 
         return {'ok': True, 'leans': leans_sorted}
     except Exception as e:

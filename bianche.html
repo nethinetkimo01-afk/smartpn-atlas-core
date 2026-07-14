@@ -32,6 +32,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#FFFF
 .proc-table td.left{text-align:left;max-width:220px;white-space:normal;line-height:1.4}
 .proc-table td.num{text-align:right;color:#1C1C1E;font-family:Consolas,monospace}
 .formula-cell{color:#000000;text-align:right;font-family:Consolas,monospace;cursor:default;background:transparent!important;border:none!important}
+/* Task BZ：手工格＝白底+灰框（一眼可辨、不去點不能改的格）；公式格＝無框純黑數字 */
+.manual-cell{background:#fff!important;border:1px solid #C7C7CC!important}
+.lean-subtotal-row td{border-bottom:none}
 .actual-cell{color:#1C1C1E;text-align:right;font-family:Consolas,monospace;font-weight:600;background:#fff;border:1px solid #C7C7CC;padding:0}
 .bz-inp{width:100%;border:none;border-radius:0;padding:3px 6px;font-size:11px;font-family:Consolas,monospace;text-align:right;outline:none;background:#fff;color:#1C1C1E;-moz-appearance:textfield}
 .bz-inp:focus{box-shadow:inset 0 0 0 2px #007AFF}
@@ -443,28 +446,29 @@ function toggleLean(lean) {
 function renderLeanTable(lg) {
   const rows = lg.models || [];
   if (!rows.length) return '<div class="no-data" style="padding:16px">無訂單</div>';
+  // Task BZ：區塊B 12 欄（鞋型/ART|訂單|裁斷|針車|成型|协理给|合計|編制|外移P|外移Q|外移R|C2B）
   let h = `<table class="proc-table">
     <thead><tr>
       <th class="left" style="min-width:160px">鞋型 / ART</th>
       <th>訂單量</th>
       <th>裁斷</th><th>針車</th><th>成型</th>
-      <th>合計K</th>
+      <th title="协理给（手工）">协理给</th>
+      <th title="合計 = 裁斷+針車+成型+协理给">合計</th>
       <th style="min-width:70px">編制</th>
       <th title="同材共裁/自動裁斷/折邊">外移P</th>
       <th title="電腦針車">外移Q</th>
       <th title="大底課">外移R</th>
-      <th>C2B</th>
+      <th title="C2B = 合計+外移P+外移Q+外移R">C2B</th>
     </tr></thead><tbody>`;
 
-  const sumFields = ['qty','cutting','stitching','assembly','total_k','p_ext','q_ext','r_ext','c2b'];
-  const sums = {};
-  for (const f of sumFields) sums[f] = 0;
+  const sumFields = ['qty','cutting','stitching','assembly','xieligei','total_k','bianzhi','p_ext','q_ext','r_ext','c2b'];
+  const sums = {}; for (const f of sumFields) sums[f] = 0;
 
   for (const r of rows) {
     const noIe = !r.has_ie;
-    // 版本控制 Step 4a: 沒鎖定版 → MP 格空+紅底+tooltip
     const noLock = (r.has_locked === false);
     const LOCK_TIP = '此鞋型 IE 尚未設定鎖定版，請先鎖定';
+    // 公式格＝無框純黑數字；手工格＝白底灰框(class manual-cell)
     const mp = (v, dflt='') => noLock
       ? `<td class="formula-cell" style="background:#FDECEA" title="${LOCK_TIP}"></td>`
       : `<td class="formula-cell">${fmtN(v) || dflt}</td>`;
@@ -474,9 +478,12 @@ function renderLeanTable(lg) {
       ${mp(r.cutting)}
       ${mp(r.stitching)}
       ${mp(r.assembly)}
+      <td class="actual-cell manual-cell" style="padding:0"><input class="bz-inp" type="number" step="0.5"
+        value="${r.xieligei??''}" placeholder="" oninput="blockNonNumeric(this)"
+        onblur="saveXieligei('${esc(lg.lean)}','${esc(r.model_name)}',this)" ${_CAN_EDIT?'':'disabled'}></td>
       ${mp(r.total_k)}
-      <td class="actual-cell"><input class="bz-inp" type="number" step="0.5"
-        value="${r.bianzhi??''}" placeholder=""
+      <td class="actual-cell manual-cell" style="padding:0"><input class="bz-inp" type="number" step="0.5"
+        value="${r.bianzhi??''}" placeholder="" oninput="blockNonNumeric(this)"
         onblur="saveBianzhi('${esc(lg.lean)}','${esc(r.model_name)}',this)"
         ${_CAN_EDIT?'':'disabled'}></td>
       ${mp(r.p_ext, '0')}
@@ -495,12 +502,22 @@ function renderLeanTable(lg) {
     <td ${sc}>${fmtN(sums.cutting)||'0'}</td>
     <td ${sc}>${fmtN(sums.stitching)||'0'}</td>
     <td ${sc}>${fmtN(sums.assembly)||'0'}</td>
+    <td ${sc}>${fmtN(sums.xieligei)||'0'}</td>
     <td ${sc}>${fmtN(sums.total_k)||'0'}</td>
-    <td class="actual-cell"></td>
+    <td ${sc}>${fmtN(sums.bianzhi)||'0'}</td>
     <td ${sc}>${fmtN(sums.p_ext)||'0'}</td>
     <td ${sc}>${fmtN(sums.q_ext)||'0'}</td>
     <td ${sc}>${fmtN(sums.r_ext)||'0'}</td>
     <td ${sc}>${fmtN(sums.c2b)||'0'}</td>
+  </tr>`;
+  // Task BZ：LEAN 底部 直工小計(N)、人力小計(P)——無框純數字、粗體、上方細線分隔（規格三章）
+  const subCell = 'style="border:none;background:transparent;text-align:right;font-weight:700;color:#1C1C1E;font-family:Consolas,monospace"';
+  h += `<tr class="lean-subtotal-row" style="border-top:1px solid #C7C7CC">
+    <td class="left" style="border:none;background:transparent;font-weight:700;color:#8E8E93">↳ 小計</td>
+    <td colspan="6" ${subCell}>直工小計 N＝<b>${fmtN(lg.total_bianzhi)||'0'}</b></td>
+    <td ${subCell}>${fmtN(lg.total_bianzhi)||'0'}</td>
+    <td colspan="3" ${subCell}>人力小計 P＝<b>${fmtN(lg.labor_subtotal)||'0'}</b></td>
+    <td ${subCell}>${fmtN(lg.labor_subtotal)||'0'}</td>
   </tr>`;
   h += '</tbody></table>';
   return h;
@@ -536,6 +553,30 @@ async function saveBianzhi(lean, modelName, inp) {
   if (r.ok) { inp.style.boxShadow=''; showToast('已儲存'); loadSummaryOnly(); }
   else { inp.style.boxShadow='inset 0 0 0 2px #FF3B30'; showToast('儲存失敗'); }
 }
+
+// Task BZ：协理给（K 欄，手工）→ 存 bianche_model_manual.manager_mp
+async function saveXieligei(lean, modelName, inp) {
+  const val = parseFloat(inp.value);
+  const r = await fetch('/api/bianche/model_manual', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({lean, model_name:modelName, month:month(), manager_mp: isNaN(val)?0:val})
+  }).then(r=>r.json()).catch(()=>({ok:false}));
+  if (r.ok) { inp.style.boxShadow=''; showToast('已儲存'); loadAll(); }
+  else { inp.style.boxShadow='inset 0 0 0 2px #FF3B30'; showToast('儲存失敗'); }
+}
+// Task BZ 防呆：手工格填非數字→當場擋+提示
+function blockNonNumeric(inp) {
+  if (inp.value !== '' && isNaN(parseFloat(inp.value))) {
+    inp.style.boxShadow = 'inset 0 0 0 2px #FF3B30';
+    inp.title = '此格只能填數字'; showToast('⚠ 只能填數字');
+    inp.value = inp.value.replace(/[^0-9.\-]/g,'');
+  } else { inp.style.boxShadow=''; inp.title=''; }
+}
+// Task BZ 防呆：離開/切月前若正在編輯手工格→攔截提醒
+window.addEventListener('beforeunload', (e)=>{
+  const ae = document.activeElement;
+  if (ae && ae.classList && ae.classList.contains('bz-inp') && ae.value!=='' && ae._dirty) { e.preventDefault(); e.returnValue=''; }
+});
 
 async function loadSummaryOnly() {
   const sumR = await fetch(`/api/bianzhi/summary?month=${month()}`).then(r=>r.json()).catch(()=>({ok:false}));
