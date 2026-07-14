@@ -24,7 +24,7 @@ Version: v1.0 | 建立 2026-07-14（Task U）| Status: ACTIVE（活帳本，持�
 | **G-06** | GRANT layer 名稱最終定案（暫定 GRANT，取代 MSDG/SGL/GATE 候選） | 🟡OPEN | **Jim** | 暫定可用，名稱未最終拍板 | 21(2026-06-12)、01_CONSTITUTION §9 |
 | **G-07** | 設備種類選項維護（ie5 自助 `/admin/equipment-types`，不經 Code） | 🔵IN-PROGRESS | ie5 | 自助維護，無卡點 | 41§四.3、21 Task K |
 | **G-08** | SaaS 介面 8 項設計需求落地到 demo | 🔵IN-PROGRESS | 中樞 | v3 已疊加八項（見 43）；持續依實際需求微調 | 43、41§四.6 |
-| **G-09** | SmartPN 下一步候選：①品牌 KPI dashboard ②工廠視角 demo ③API 可行性驗證 | 🔵IN-PROGRESS | 中樞 / **Jim**(③) | ①＝Task W 執行中；②未起；③Jim 自留 | 43「未來事項」 |
+| **G-09** | SmartPN 下一步候選：①品牌 KPI dashboard ②工廠視角 demo ③API 可行性驗證 | 🔵IN-PROGRESS | 中樞 / **Jim**(③) | **①＝Task W 已落地（V3 品牌端，8/8 PASS）**；②未起；③Jim 自留 | 43「未來事項」、21 Task W |
 | **G-10** | 求職／外聯線（Partner Outreach、Kate Nishimura、GTS note、LinkedIn） | 😴DORMANT | **Jim** | 全線休眠，非當前優先；Jim 決定何時喚醒 | 21、25_PARTNER_OUTREACH |
 | **G-11** | MP 勾選分配舊懸案（mp_mismatch KI1387 分配規則）＋舊分析檔待清 | 🧹TO-CLEAN | **Jim** | 分配規則等 Jim 確認（勿改計算邏輯）；`MP勾選系統_*_20260610.md` 等舊檔待清 | 21(mp_mismatch)、memory、00_HANDOFF/MP勾選* |
 

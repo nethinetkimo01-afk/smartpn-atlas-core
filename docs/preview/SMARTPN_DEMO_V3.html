@@ -268,6 +268,7 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
     <button class="nav-btn" onclick="showPage('requests')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 4.5A1.5 1.5 0 013.5 3h9A1.5 1.5 0 0114 4.5v6A1.5 1.5 0 0112.5 12H6l-3 2.5V12H3.5A1.5 1.5 0 012 10.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span data-i18n="requests">Requests</span> <span class="nav-count alert" id="req-count">2</span></button>
     <button class="nav-btn" onclick="showPage('account')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 14c0-3 2.5-5 5.5-5s5.5 2 5.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span data-i18n="account">My Account</span></button>
     <button class="nav-btn" onclick="showPage('settings')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.9 2.9l1.4 1.4M11.7 11.7l1.4 1.4M11.7 4.3l-1.4 1.4M4.3 11.7l-1.4 1.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span data-i18n="settings">Settings</span></button>
+    <button class="nav-btn" id="nav-dashboard" onclick="showPage('dashboard')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="2" width="5" height="4" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="10" width="5" height="4" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="8" width="5" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/></svg><span data-i18n="dashboard">Dashboard</span></button>
     <div style="width:0.5px;height:16px;background:rgba(255,255,255,0.15);margin:0 4px"></div>
     <button id="lang-toggle" class="nav-btn" onclick="toggleLang()" style="font-weight:700;font-size:11px;letter-spacing:0.04em;background:rgba(255,255,255,0.08);border-radius:6px;padding:5px 10px">中文</button>
   </div>
@@ -429,6 +430,14 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
   <div class="settings-row"><span class="settings-label">Shared BOM · Model KI9853</span><span class="settings-val">Ripstop Nylon 70D · GRS Mesh 220g · TPU Film 0.15mm</span></div>
   <div class="settings-row"><span class="settings-label">Factory A — actual</span><span class="settings-val" style="color:#1D7340">符合 Shared BOM</span></div>
   <div class="settings-row"><span class="settings-label">Factory B — actual</span><span class="settings-val" style="color:#B26A00">替代 1 項：GRS Mesh → local equiv（+$0.12/yd，已核准）</span></div>
+</div>
+
+<!-- Task W：品牌端 KPI Dashboard（KPI 全由 MOCK_WORLD 推導；不含毛利率；不露他方私密） -->
+<div class="page fade-in" id="page-dashboard">
+  <div class="section-title" data-i18n="dashboard">Dashboard</div>
+  <div id="dash-sub" style="font-size:13px;color:#86868B;margin:-6px 0 18px"></div>
+  <div id="dash-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:14px"></div>
+  <div id="dash-note" style="font-size:11px;color:#86868B;margin-top:20px;line-height:1.7"></div>
 </div>
 
 <!-- FSM MODAL -->
@@ -1022,6 +1031,7 @@ const GUIDE=[
   {zh:'③ Mapping 分批驗收簽署：未簽署批次不流通。',en:'③ Mapping batch sign-off: unsigned batches do not flow.'},
   {zh:'④ 權限授權給品牌帳號 A：私密欄位選擇性開放。',en:'④ Grant to Brand account A: selectively open private fields.'},
   {zh:'⑤ 品牌端搜尋到 → 報價單 → 交換（產生交換存證記錄）。',en:'⑤ Brand finds it → quote → exchange (evidence record generated).'},
+  {zh:'⑥ 品牌端 Dashboard：KPI 全由 MOCK_WORLD 推導（可見材料 / 授權中 / Mapping 進度 / 存證量 / DPP 就緒度），不含毛利率、不露他方私密。',en:'⑥ Brand Dashboard: KPIs all derived from MOCK_WORLD (visible materials / grants / mapping progress / evidence / DPP readiness) — no gross margin, no other-party private data.'},
 ];
 let _gi=0;
 function startGuide(){ _gi=0; showGuide(); }
@@ -1038,6 +1048,59 @@ function endGuide(){ document.getElementById('guideOv')?.remove(); }
 (function guideBtn(){ const b=document.createElement('button'); b.id='guideBtn';
   b.style.cssText='position:fixed;right:20px;bottom:20px;z-index:9998;background:#1D7340;color:#fff;border:none;border-radius:22px;padding:11px 18px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.2);font-family:inherit';
   b.textContent='▶ 演示流程 / Guided'; b.onclick=startGuide; document.body.appendChild(b); })();
+
+/* ─ Task W：品牌端 KPI Dashboard（疊加，不動 v1；KPI 全由 MOCK_WORLD 推導） ─ */
+Object.assign(STRINGS, {
+  dashboard:{en:'Dashboard',zh:'儀表板'},
+  kpi_visible:{en:'Materials visible to you',zh:'可見材料數'},
+  kpi_grants:{en:'Active authorization grants',zh:'授權中請求'},
+  kpi_mapping:{en:'Mapping sign-off progress',zh:'Mapping 驗收進度'},
+  kpi_evidence:{en:'Exchange evidence records',zh:'交換存證量'},
+  kpi_dpp:{en:'DPP readiness (field completeness)',zh:'DPP 就緒度（欄位完備率）'},
+  dash_subtitle:{en:'Account view — all figures derived from your permitted MOCK_WORLD scope.',zh:'帳號視角 — 所有數字皆由你有權存取的 MOCK_WORLD 範圍推導。'},
+  dash_note:{en:'Privacy: aggregate counts only — no profitability figures. No other party’s private field values are shown; evidence/mapping appear as counts and your own batch status, never counterparties’ confidential data.',zh:'隱私定案：僅顯示彙總數字，不含任何獲利性財務數字。不呈現他方私密欄位內容；存證/Mapping 僅以數量與你自己的批次狀態呈現，永不顯示交易對手的機密資料。'},
+});
+
+// KPI 全部從 MOCK_WORLD + 當前帳號 ACCT 推導（privacy-safe：只出彙總數，不出他方私密欄位內容）
+function getDashboardKPIs(){
+  const vis = MOCK_WORLD.visibleTo(ACCT);
+  const visible = vis.length;
+  // 授權中請求＝可見材料中，含「granted（選擇性授權給本品牌）」欄位者
+  const grants = vis.filter(m=>(m.fields||[]).some(f=>f.perm==='granted')).length;
+  const mb = MOCK_WORLD.mappingBatches;
+  const signed = mb.filter(b=>b.status==='signed').length;
+  const evidence = MOCK_WORLD.evidenceRecords.length;
+  // DPP 就緒度＝可見材料欄位完備率均值
+  const dpp = vis.length ? Math.round(vis.reduce((s,m)=>s+(m.dppComplete/m.dppTotal),0)/vis.length*100) : 0;
+  return { visible, grants, mappingSigned:signed, mappingTotal:mb.length,
+           mappingPct:Math.round(signed/mb.length*100), evidence, dppReadiness:dpp };
+}
+function renderDashboard(){
+  const k=getDashboardKPIs();
+  const sub=document.getElementById('dash-sub'); if(sub) sub.textContent=`${ACCT.name} · ${T('dash_subtitle')}`;
+  const card=(label,val,sub2,accent)=>`<div style="background:#fff;border:0.5px solid #E3E3E6;border-radius:14px;padding:18px 18px 16px">
+    <div style="font-size:12px;color:#86868B;margin-bottom:10px">${label}</div>
+    <div style="font-size:30px;font-weight:700;color:${accent||'#1D1D1F'};line-height:1">${val}</div>
+    <div style="font-size:11px;color:#86868B;margin-top:8px">${sub2||''}</div></div>`;
+  const box=document.getElementById('dash-kpis'); if(!box) return;
+  box.innerHTML =
+    card(T('kpi_visible'), k.visible, ACCT.name+' scope', '#0071E3') +
+    card(T('kpi_grants'), k.grants, LANG==='zh'?'選擇性開放給本品牌':'selectively opened to you', '#1D7340') +
+    card(T('kpi_mapping'), k.mappingPct+'%', `${k.mappingSigned}/${k.mappingTotal} `+(LANG==='zh'?'批次已簽署':'batches signed')) +
+    card(T('kpi_evidence'), k.evidence, LANG==='zh'?'僅記錄，不含內容':'records only, no content', '#B26A00') +
+    card(T('kpi_dpp'), k.dppReadiness+'%', LANG==='zh'?'欄位完備率（非內容驗證）':'field completeness (not content proof)');
+  const note=document.getElementById('dash-note'); if(note) note.textContent=T('dash_note');
+}
+// 疊加 showPage：進 dashboard 時渲染（不改 v1 showPage 本體）
+const _v3_showPage = showPage;
+showPage = function(id){ _v3_showPage(id); if(id==='dashboard') renderDashboard(); };
+// 疊加 toggleLang / setAccount：dashboard 開著時同步刷新
+const _v3_toggleLang = toggleLang;
+toggleLang = function(){ _v3_toggleLang(); if(currentPage==='dashboard') renderDashboard(); };
+const _v3_setAccount = setAccount;
+setAccount = function(id){ _v3_setAccount(id); if(currentPage==='dashboard') renderDashboard(); };
+window.getDashboardKPIs = getDashboardKPIs;
+window.renderDashboard = renderDashboard;
 
 /* ─ 測試鉤子 + V1_PARITY ─ */
 window.MOCK_WORLD = MOCK_WORLD;

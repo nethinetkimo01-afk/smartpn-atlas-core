@@ -16,6 +16,15 @@ Last updated: 2026-07-13
 Claude 是中樞不是打字機：自行思考、主動 web_search 查市面成熟做法、主動提建議、預想 Jim 的下一步。
 → 完整交接：41_THREE_TRACK_HANDOFF.md（2026-07-13 重寫，42 作廢併入）
 
+## 2026-07-14 定案（Task W：SmartPN 品牌端 V3 KPI Dashboard）
+- **Task W** ✅：V3 品牌端（`docs/preview/SMARTPN_DEMO_V3.html`）加 Dashboard 頁（43 號遺留、中樞代決執行）。
+  頂欄新增 Dashboard 入口 + `#page-dashboard` 5 KPI 卡，**全由 MOCK_WORLD 推導**：
+  可見材料數（visibleTo）、授權中請求（granted 欄位數）、Mapping 驗收進度（signed/total）、交換存證量（evidenceRecords）、DPP 就緒度（欄位完備率均值）。
+  - **不含毛利率**（KPI 卡零 margin 指標）；**遵守隱私定案**：只出彙總數，不列他方私密欄位值/交易對手名。
+  - EN/ZH 雙語（Object.assign STRINGS）；引導腳本 +1 步（⑥ Dashboard，共 6 步）；測試鉤子 +`window.getDashboardKPIs`。
+  - **疊加不重寫**（改版鐵則）：以 overlay 包 showPage/toggleLang/setAccount，**不動 v1 函式** → 功能迴歸 v3 全函式 V1_PARITY **0 缺**。
+  - Playwright（file://）**8/8 PASS**：KPI==獨立期望（Brand-A visible5/grants3/mapping33%/evidence3/dpp79%）、帳號切換 A5→B3、EN/ZH、無毛利率/無他方私密、引導 6 步、V1_PARITY 0 缺、0 pageerror。
+
 ## 2026-07-14 定案（Task V：編制表 Step5/6 合成資料邏輯層全驗證）
 - **Task V** ✅：不等真檔，用 deterministic 合成 IE 世界（隔離 E2E 庫 atlas_v_e2e.db）驗證編制表計算邏輯層。
   合成：20 型體全段標時（EOLR 60/120 各半、裁斷連刀≠1、手工/公式列混合）+ 3 缺 IE 型體；期望值由腳本**獨立公式另算**再與 db 函式比對。

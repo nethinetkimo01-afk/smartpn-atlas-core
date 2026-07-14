@@ -74,7 +74,7 @@ Status: 兩輪攻防完成，全數定案，零懸案。本檔為 SaaS 設計正
 工廠：有條件小規模 pilot。
 
 ## 未來事項（非議會範圍）
-API 可行性驗證（Jim 自留）、品牌端 KPI dashboard mock、工廠視角 demo。
+API 可行性驗證（Jim 自留）、~~品牌端 KPI dashboard mock~~（**已落地 2026-07-14 Task W**，V3 品牌端 Dashboard，KPI 全由 MOCK_WORLD 推導、不含毛利率、遵隱私、EN/ZH、8/8 PASS）、工廠視角 demo（未起）。
 
 ## Demo 已知違規（第二步修正）
 SmartPN Verified 字樣、Boss BI 毛利率卡、「誰看過我的材料」頁。
