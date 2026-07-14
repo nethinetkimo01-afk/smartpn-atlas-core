@@ -781,6 +781,136 @@ function endGuide(){ document.getElementById('guideOv')?.remove(); }
   b.style.cssText='position:fixed;right:20px;bottom:20px;z-index:9998;background:#1D7340;color:#fff;border:none;border-radius:22px;padding:11px 18px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.2);font-family:inherit';
   b.textContent='▶ 演示流程 / Guided'; b.onclick=startGuide; document.body.appendChild(b); })();
 
+
+/* ─ Task SP：S02–S17 場景可操作面板（疊加，依 16_S02_TO_S17_COMPLETE_SPECS 各場景 Demo interactions）─ */
+(function scenariosPanel(){
+  const tbl = (head, rows) => `<table style="width:100%;border-collapse:collapse;font-size:12px;margin:6px 0">
+    <thead><tr>${head.map(h=>`<th style="text-align:left;background:#F0F0F2;padding:5px 8px;border:0.5px solid #E3E3E6;font-weight:600">${h}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map(r=>`<tr>${r.map(c=>`<td style="padding:5px 8px;border:0.5px solid #E9E9EC">${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  const SCN = [
+    {id:'S02', t:'Shared Language & Shared BOM',
+     cur:tbl(['Role','Combined ID','Source 1','Source 2'],[['Brand','BR-COMP-7788','BR-MAT-7781','BR-FILM-4420'],['Factory','FAC-COMP-7008','FAC-M-2039','FAC-FILM-445'],['Supplier','SUP-COMP-610','SUP-A-991','SUP-B-330']]),
+     aft:tbl(['Role','Unified ID','Src 1','Src 2'],[['Brand','SPA-COMP-0101','SPA-MAT-0001','SPA-MAT-0002'],['Factory','SPA-COMP-0101','SPA-MAT-0001','SPA-MAT-0002'],['Supplier','SPA-COMP-0101','SPA-MAT-0001','SPA-MAT-0002']]),
+     tok:['SPA-COMP-0101','SPA-MAT-0001','SPA-MAT-0002']},
+    {id:'S03', t:'Shared Language Across Product Lines',
+     cur:tbl(['Line','Local ID','Material'],[['Footwear','SHOE-MAT-118','Black RPET mesh'],['Apparel','APP-MAT-552','Black RPET mesh'],['Bags','BAG-MAT-907','Black RPET mesh']]),
+     aft:tbl(['Line','Local ID','SmartPN ID'],[['Footwear','SHOE-MAT-118','SPA-MAT-0001'],['Apparel','APP-MAT-552','SPA-MAT-0001'],['Bags','BAG-MAT-907','SPA-MAT-0001']]),
+     tok:['SPA-MAT-0001','SHOE-MAT-118','APP-MAT-552','BAG-MAT-907']},
+    {id:'S04', t:'Shared Language Across Brands Under One Group',
+     cur:tbl(['Brand','Line','Local ID'],[['Brand A','Footwear','A-SHOE-MAT-118'],['Brand B','Footwear','B-SHOE-MAT-778']]),
+     aft:tbl(['Group','Brand','SmartPN ID'],[['Group A','Brand A','SPA-MAT-0001'],['Group A','Brand B','SPA-MAT-0001']]),
+     tok:['Group A','SPA-MAT-0001','A-SHOE-MAT-118','B-SHOE-MAT-778']},
+    {id:'S05', t:'Shared BOM vs Actual BOM vs DPP', sel:['Factory A','Factory B'],
+     views:{'Factory A':tbl(['BOM line','Actual ID','Diff'],[['Upper mesh','SPA-COMP-0101','No difference']]),
+            'Factory B':tbl(['BOM line','Actual ID','Diff'],[['Upper mesh','<b style="color:#B26A00">SPA-COMP-0101-B</b>','Source 2 → <b>SPA-MAT-0048</b>']])},
+     tok:['SPA-COMP-0101-B','SPA-MAT-0048','Factory A','Factory B']},
+    {id:'S06', t:'Forecast Volume for Next-Season Negotiation',
+     cur:tbl(['Material group','Local IDs','SS qty','Source'],[['Black RPET mesh','BR-MAT-7781/FAC-M-2039/SUP-A-991','120,000m','Supplier collected report']]),
+     aft:tbl(['SmartPN group','Mapped IDs','SS qty','FW forecast','Source'],[['SPA-GRP-0001','BR-MAT-7781/FAC-M-2039/SUP-A-991','<b>120,000m</b>','<b style="color:#1D7340">180,000m</b>','Brand calculation']]),
+     tok:['SPA-GRP-0001','120,000','180,000']},
+    {id:'S07', t:'0 Communication Gap',
+     cur:tbl(['Role','Local ID','Result'],[['Brand','BR-MAT-7781','needs confirmation'],['Factory','FAC-M-2039','needs confirmation']]),
+     aft:tbl(['Role','Local ID','SmartPN ID','Result'],[['Brand','BR-MAT-7781','SPA-MAT-0001','Same reference'],['Factory','FAC-M-2039','SPA-MAT-0001','Same reference'],['A→B transfer','FAC-A-COMP-7008','SPA-COMP-0101','Same Shared BOM']]),
+     tok:['SPA-MAT-0001','SPA-COMP-0101','BR-MAT-7781','FAC-M-2039']},
+    {id:'S08', t:'Supplier Group Owner — Sales / Collection', sel:['Sales dashboard','Collection dashboard','Unit price'],
+     views:{'Sales dashboard':tbl(['Subsidiary','Country','Product group','Customer','Volume','Amount'],[['Supplier Vietnam Co.','Vietnam','Recycled polyester mesh group','Factory Group A','120,000m','240,000'],['Supplier Indonesia Co.','Indonesia','Recycled polyester mesh group','Factory Group B','80,000m','168,000']]),
+            'Collection dashboard':tbl(['Factory company','Payment terms','AR amount','Collection month','Expected'],[['Factory A Vietnam Ltd.','Net 60','80,000','2026-06','80,000'],['Factory B Indonesia Ltd.','Net 45','60,000','2026-05','60,000']]),
+            'Unit price':tbl(['Product group','Local ID','Factory','Unit price','Currency','Valid'],[['Recycled polyester mesh','SUP-A-991','Factory A Vietnam','2.00','USD/m','2026-01~06'],['Recycled polyester mesh','SUP-A-991-V2','Factory B Indonesia','2.10','USD/m','2026-01~06']])},
+     note:'（依議會定案：無單價vs成本、無毛利、無品牌別銷售）',
+     tok:['Supplier Vietnam','240,000','Net 60','2026-06','2.00','SUP-A-991']},
+    {id:'S09', t:'Supplier Controls Publish & Visibility', wf:['Draft','Saved draft','Pending review','Approved','Published'],
+     roles:{'Brand user':'✅ 已發布 → 可見','Non-brand user':'⛔ 未授權 → 不可見'},
+     tok:['Draft','Pending review','Approved','Published','editor-01','reviewer-01','publisher-01']},
+    {id:'S10', t:'Find Identical & Alternative Faster', sel:['Identical','Alternative'],
+     views:{'Identical':tbl(['Supplier','SPU','SKU','LT','Type'],[['supplier-02','spu-01','sku-01','<b>20 days</b>','identical, shorter LT']]),
+            'Alternative':tbl(['Supplier','SPU','SKU','LT','Type'],[['supplier-03','spu-01','sku-02','15 days','alternative material']])},
+     tok:['identical','alternative','spu-01','sku-01','sku-02','20 days']},
+    {id:'S11', t:'Factory Excess Reuse & Resale', sel:['factory-01 user','supplier-01 user','non-authorized'],
+     views:{'factory-01 user':tbl(['Factory','Material ID','Excess','Option 1','Option 2','Option 3'],[['factory-01','unified-01','1','sell back to supplier-01','transfer to factory-02','sell to factory-03']]),
+            'supplier-01 user':'<div style="padding:8px">supplier-01：僅見 <b>sell back to supplier-01</b>（授權範圍）</div>',
+            'non-authorized':'<div style="padding:8px;color:#B71C1C">⛔ 非授權工廠：cannot see excess material</div>'},
+     tok:['excess','sell back to supplier-01','transfer to factory-02','sell to factory-03','factory-01']},
+    {id:'S12', t:'Same QR, Different DPP Composition', sel:['Batch A','Batch B'],
+     views:{'Batch A':tbl(['Product','QR','Supplier','Composition'],[['product-01','qr-01','supplier-01','<b>60% recycled polyester / 40% TPU</b>']]),
+            'Batch B':tbl(['Product','QR','Supplier','Composition'],[['product-01','qr-01','supplier-02','<b>55% recycled polyester / 45% TPU</b>']])},
+     tok:['qr-01','Batch A','Batch B','60% recycled','55% recycled','supplier-01','supplier-02']},
+    {id:'S13', t:'Exchange Data Without Reading Every Regulation', sel:['Missing','Ready'],
+     views:{'Missing':tbl(['Field','Source','Status'],[['product-code','supplier system','mapped'],['composition','SmartPN Atlas','<b style="color:#B26A00">missing</b>'],['evidence-file','SmartPN Atlas','<b style="color:#B26A00">missing</b>']]),
+            'Ready':tbl(['Field','Source','Status'],[['product-code','supplier system','mapped'],['composition','SmartPN Atlas','<b style="color:#1D7340">ready</b>'],['recycled content','SmartPN Atlas','<b style="color:#1D7340">ready</b>'],['evidence-file','SmartPN Atlas','<b style="color:#1D7340">ready</b>']])},
+     tok:['composition','recycled content','evidence-file','missing','ready']},
+    {id:'S14', t:'Prepare Exchange-Ready Data + Control Authorization', sel:['Supplier view','Partner view'],
+     views:{'Supplier view':tbl(['Field','Status','Authorization'],[['product-code','ready','authorized to partner-01'],['composition','ready','authorized to partner-01'],['evidence-file','ready','<b style="color:#B26A00">NOT authorized yet</b>']]),
+            'Partner view':tbl(['Field','Visible'],[['product-code','✅'],['composition','✅'],['evidence-file','⛔ (not authorized)']])},
+     tok:['authorized to partner-01','evidence-file','NOT authorized','ready']},
+    {id:'S15', t:'Supplier Shortens New Material Launch', wf:['Save','Submit','Approve','Publish','Permission'],
+     roles:{'brand-01 user':'✅ Published → 可見 new material name 01','non-authorized user':'⛔ 不可見'},
+     tok:['supplier-code-new-01','unified-new-01','Published','brand-01','factory-01','Save','Submit','Approve','Publish']},
+    {id:'S16', t:'Brand Obtains New Material Faster', wf:['Save','Submit','Approve','Publish','Permission'],
+     roles:{'brand-01 authorized':'✅ 見 new material','non-authorized':'⛔ not visible'},
+     tok:['brand-01','new material','Non-authorized','not visible']},
+    {id:'S17', t:'Supplier Performance Comments Reference', sel:['brand-01 (same company)','other company'],
+     views:{'brand-01 (same company)':tbl(['Material','Supplier','Rating','Reason','Visibility'],[['unified name 01','supplier-01','<b>5 stars</b>','stable quality/delivery','private to brand-01'],['unified name 01','supplier-02','<b>1 star</b>','unstable quality/delivery','private to brand-01']]),
+            'other company':'<div style="padding:8px;color:#86868B">⛔ 私密評論：private comments not visible to another company</div>'},
+     tok:['5 stars','1 star','supplier-01','supplier-02','private','unified name 01']},
+  ];
+  window.__SCN = SCN;
+  let _cur = null, _state = {};
+  function ensurePanel(){
+    let p = document.getElementById('scnPanel');
+    if (!p){ p = document.createElement('div'); p.id='scnPanel';
+      p.style.cssText='position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.35);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:28px 12px';
+      p.innerHTML='<div style="background:#fff;border-radius:14px;max-width:860px;width:100%;padding:20px 22px;box-shadow:0 20px 60px rgba(0,0,0,.3)">'
+        +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><b style="font-size:16px">情境 S02–S17（可操作）</b><span style="flex:1"></span>'
+        +'<button onclick="closeScenarios()" style="border:none;background:#F0F0F2;border-radius:8px;padding:6px 12px;cursor:pointer">✕ 關閉</button></div>'
+        +'<div id="scnList" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>'
+        +'<div id="scnView" style="border-top:1px solid #E3E3E6;padding-top:12px;min-height:120px"></div></div>';
+      document.body.appendChild(p);
+      document.getElementById('scnList').innerHTML = SCN.map(s=>`<button class="scn-btn" id="scn-btn-${s.id}" onclick="showScn('${s.id}')" style="border:1px solid #D2D2D7;background:#fff;border-radius:8px;padding:6px 11px;font-size:12px;cursor:pointer;font-weight:600">${s.id}</button>`).join('');
+    }
+    return p;
+  }
+  window.openScenarios = function(){ ensurePanel().style.display='flex'; if(!_cur) showScn('S02'); };
+  window.closeScenarios = function(){ const p=document.getElementById('scnPanel'); if(p) p.style.display='none'; };
+  window.showScn = function(id){
+    _cur=id; ensurePanel().style.display='flex';
+    document.querySelectorAll('.scn-btn').forEach(b=>b.style.background = (b.id==='scn-btn-'+id)?'#0071E3':'#fff');
+    document.querySelectorAll('.scn-btn').forEach(b=>b.style.color = (b.id==='scn-btn-'+id)?'#fff':'#1D1D1F');
+    renderScn(id);
+  };
+  function renderScn(id){
+    const s = SCN.find(x=>x.id===id); const v=document.getElementById('scnView'); if(!s||!v) return;
+    let ctrl='', bodyKey='';
+    if (s.cur!=null){ // Current / After toggle
+      const st=_state[id]||'after';
+      ctrl=`<div style="display:flex;gap:6px;margin-bottom:8px">
+        <button class="scn-ctrl" onclick="scnSet('${id}','cur')" style="border:1px solid #D2D2D7;background:${st==='cur'?'#1D1D1F':'#fff'};color:${st==='cur'?'#fff':'#1D1D1F'};border-radius:7px;padding:4px 12px;font-size:12px;cursor:pointer">Current</button>
+        <button class="scn-ctrl" onclick="scnSet('${id}','after')" style="border:1px solid #D2D2D7;background:${st==='after'?'#0071E3':'#fff'};color:${st==='after'?'#fff':'#1D1D1F'};border-radius:7px;padding:4px 12px;font-size:12px;cursor:pointer">After (SmartPN)</button></div>`;
+      bodyKey = (st==='cur') ? s.cur : s.aft;
+    } else if (s.sel){ // selector
+      const st=_state[id]||s.sel[0];
+      ctrl=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${s.sel.map(o=>`<button class="scn-ctrl" onclick="scnSet('${id}','${o}')" style="border:1px solid #D2D2D7;background:${st===o?'#0071E3':'#fff'};color:${st===o?'#fff':'#1D1D1F'};border-radius:7px;padding:4px 12px;font-size:12px;cursor:pointer">${o}</button>`).join('')}</div>`;
+      bodyKey = s.views[st] || '';
+    } else if (s.wf){ // workflow stepper + role visibility
+      const step=_state[id]!=null?_state[id]:0;
+      const steps = s.wf.map((w,i)=>`<span style="padding:4px 9px;border-radius:7px;font-size:12px;${i<=step?'background:#1D7340;color:#fff':'background:#F0F0F2;color:#86868B'}">${i+1}.${w}</span>`).join(' <span style="color:#C7C7CC">→</span> ');
+      const done = step>=s.wf.length-1;
+      const roles = Object.entries(s.roles).map(([r,txt])=>`<div style="font-size:12px;margin:3px 0">${r}：${done?txt:'（尚未發布）'}</div>`).join('');
+      ctrl=`<div style="margin-bottom:8px">${steps}</div><button class="scn-ctrl" onclick="scnStep('${id}')" style="border:none;background:#0071E3;color:#fff;border-radius:7px;padding:5px 14px;font-size:12px;cursor:pointer;font-weight:600">${done?'↺ 重來':'下一步 →'}</button>`;
+      bodyKey = `<div style="margin-top:10px">${roles}</div><div style="font-size:11px;color:#86868B;margin-top:6px">${(s.tok||[]).join(' · ')}</div>`;
+    }
+    v.innerHTML = `<div style="font-weight:700;margin-bottom:8px">${s.id} · ${s.t}</div>${ctrl}<div id="scnBody">${bodyKey}</div>${s.note?`<div style="font-size:11px;color:#86868B;margin-top:6px">${s.note}</div>`:''}`;
+  }
+  window.scnSet = function(id,val){ _state[id]=val; renderScn(id); };
+  window.scnStep = function(id){ const s=SCN.find(x=>x.id===id); const cur=_state[id]!=null?_state[id]:0; _state[id]=(cur>=s.wf.length-1)?0:cur+1; renderScn(id); };
+  // 導覽入口（品牌 topnav / 供應商 sidebar 皆補一顆）
+  (function injectEntry(){
+    const b=document.createElement('button'); b.id='scnEntry'; b.textContent='情境 S02–S17';
+    b.onclick=window.openScenarios;
+    b.style.cssText='position:fixed;left:20px;bottom:20px;z-index:9001;background:#5E5CE6;color:#fff;border:none;border-radius:22px;padding:11px 18px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.2);font-family:inherit';
+    document.body.appendChild(b);
+  })();
+})();
+
 /* ─ Task X：全域點擊回饋（第一性原則：每顆按鈕按下畫面必有可見變化，無靜默死鈕）─ */
 (function universalClickFeedback(){
   let _fxn = 0;

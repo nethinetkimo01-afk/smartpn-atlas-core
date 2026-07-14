@@ -16,6 +16,15 @@ Last updated: 2026-07-13
 Claude 是中樞不是打字機：自行思考、主動 web_search 查市面成熟做法、主動提建議、預想 Jim 的下一步。
 → 完整交接：41_THREE_TRACK_HANDOFF.md（2026-07-13 重寫，42 作廢併入）
 
+## 2026-07-14 定案（Task SP：SmartPN demo 對回 16 號原始規格）
+- **44 號檔標「DRAFT — 未經 Jim 批准」**，不得作依據；SmartPN demo 唯一規格基準＝`16_S02_TO_S17_COMPLETE_SPECS.md`。
+- **Task SP** ✅：v3 兩檔疊加「情境 S02–S17 可操作面板」（禁止重寫、V1_PARITY 0 缺）。
+  依各場景 Demo interactions 做成可點畫面＋資料：S02–S07 共享語言/Shared BOM/預測量(SS120k→FW180k)/0溝通落差、
+  S08 供應商集團主 銷售/收款/單價儀表板（無單價vs成本/無毛利）、S09/S15/S16 草稿→送審→核准→發布 狀態機+角色可見性、
+  S10 相同/替代搜尋、S11 剩料再利用/轉售+權限、S12 同QR不同組成、S13/S14 對接就緒度+授權、S17 供應商評比。
+  死按鈕維持 **0/0**（品牌71顆、供應商212顆全可見變化）；引導 13 步可走完。
+  **三支閘門全綠**：`spec_gate_smartpn.py` 兩檔各 16/16、`real_click_test.js` 兩檔各 8/8、`hub_gate.py` 83/83。
+
 ## 2026-07-14 定案（Task X 交換機制 + Task BZ 編制表照 28 重建）
 - **Task X** ✅：SmartPN 產品機制實作 + 死按鈕歸零。44 號規格檔 + `real_click_test.js`（jsdom 真點擊閘門）入庫；
   v3 兩檔疊加 44 資料模型（fieldGroups/accessRequests/grants/properties+units/exchanges/apiSpec+mappings）；
