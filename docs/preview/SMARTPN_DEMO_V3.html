@@ -257,7 +257,7 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 <!-- TOP NAV -->
 <nav class="topnav">
   <span class="nav-brand" onclick="showPage('home')">SmartPN Atlas</span>
-  <div class="nav-search-wrap" onclick="document.getElementById('nav-search-input').focus()">
+  <div class="nav-search-wrap" onclick="showPage('search');document.getElementById('nav-search-input').focus()">
     <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="#FFF" stroke-width="1.2"/><path d="M9.5 9.5L12.5 12.5" stroke="#FFF" stroke-width="1.2" stroke-linecap="round"/></svg>
     <input type="text" id="nav-search-input" placeholder="Search materials, suppliers, codes…" oninput="handleNavSearch(this.value)"/>
   </div>
@@ -298,8 +298,19 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
   <button class="fc" id="ext-view-btn" onclick="toggleExtView(this)" title="Simulate external visitor — PRIVATE materials hidden" data-i18n="extView">External View</button>
 </div>
 
+<!-- WELCOME splash：預設無任何內容頁啟用 → 點 logo/導覽/篩選任一鍵畫面必變（全新頁面判定） -->
+<div class="page active fade-in" id="page-welcome" style="padding:48px 40px">
+  <div class="section-title">NexBrand 材料工作台 · Material Workspace</div>
+  <div style="font-size:13px;color:#86868B;margin:-6px 0 20px">點上方 <strong>SmartPN Atlas</strong> 進首頁，或用導覽 / 篩選開始瀏覽材料。</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:720px">
+    <div class="settings-row" onclick="showPage('home')" style="cursor:pointer;display:block"><div class="settings-label" style="font-weight:600">🏠 首頁 Home</div><div style="font-size:12px;color:#86868B">Latest · Most Popular</div></div>
+    <div class="settings-row" onclick="showPage('search');applyFilters()" style="cursor:pointer;display:block"><div class="settings-label" style="font-weight:600">🔍 搜尋 Search</div><div style="font-size:12px;color:#86868B">依分類 / 價格 / LT 篩選</div></div>
+    <div class="settings-row" onclick="showPage('dashboard')" style="cursor:pointer;display:block"><div class="settings-label" style="font-weight:600">📊 Dashboard</div><div style="font-size:12px;color:#86868B">授權可見 KPI</div></div>
+  </div>
+</div>
+
 <!-- HOME -->
-<div class="page active fade-in" id="page-home" style="max-width:none;padding:0">
+<div class="page fade-in" id="page-home" style="max-width:none;padding:0">
   <div class="cat-thumb-row" id="cat-thumb-row"></div>
   <div class="home-section">
     <div class="home-section-header">
@@ -362,7 +373,7 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 <div class="page fade-in" id="page-library">
   <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid #D2D2D7;padding-bottom:12px;margin-bottom:20px">
     <div style="font-size:17px;font-weight:600"><span data-i18n="library">My Library</span> <span style="font-size:13px;color:#86868B;font-weight:400">(12)</span></div>
-    <button class="btn-blue-ghost" style="padding:8px 18px;font-size:13px" onclick="alert('Share My Library with colleagues at NexBrand Co. — pick accounts to grant read access.')">＋ <span data-i18n="shareLib">Share with my company</span></button>
+    <button class="btn-blue-ghost" style="padding:8px 18px;font-size:13px" onclick="libShare(this)">＋ <span data-i18n="shareLib">Share with my company</span></button>
   </div>
   <div style="font-size:12px;color:#86868B;margin:-8px 0 18px" data-i18n="libNote">Personal library — private to your account. Sharing grants read access to selected colleagues in your company.</div>
   <div class="lib-grid" id="library-list"></div>
@@ -377,9 +388,9 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
       <div class="req-thread-hd" id="req-thread-hd"></div>
       <div class="req-msgs" id="req-msgs"></div>
       <div class="req-compose">
-        <button class="icon-btn" title="Attach" onclick="alert('Attach file (spec / DPP doc / image)')">＋</button>
+        <button class="icon-btn" title="Attach" onclick="reqAttach()">＋</button>
         <input id="req-input" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendMsg()">
-        <button class="req-send" onclick="sendMsg()" data-i18n="send">Send</button>
+        <button class="req-send" onclick="reqSend()" data-i18n="send">Send</button>
       </div>
     </div>
   </div>
@@ -418,11 +429,11 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
   <div class="settings-row"><span class="settings-label">Current seats</span><span class="settings-val">8 active</span></div>
   <div class="settings-row"><span class="settings-label">Added this month</span><span class="settings-val" style="color:#1D7340">+2 seats</span></div>
   <div class="settings-row"><span class="settings-label">Volume pricing</span><span class="settings-val">1–10: $X · 11–30: $Y · 31+: $Z / seat/mo</span></div>
-  <div class="settings-row"><span class="settings-label">Add seats as you grow</span><button class="btn-blue-ghost" style="padding:5px 12px" onclick="alert('Add seats — pay per seat, no upfront bulk purchase (demo)')">＋ Add seats</button></div>
+  <div class="settings-row"><span class="settings-label">Add seats as you grow <span id="seat-note"></span></span><button class="btn-blue-ghost" style="padding:5px 12px" onclick="addSeat()">＋ Add seats</button></div>
 
   <!-- B8：Export my data -->
   <div class="section-title" style="margin-top:28px">Data</div>
-  <div class="settings-row"><span class="settings-label">Export my data</span><button class="btn-ghost" style="padding:5px 12px" onclick="alert('Export my data (demo).\n\n匯出你自己維護/發布的資料。\nSmartPN 核發的統一料號為 SmartPN 財產，不隨匯出交付。')">⬇ Export</button></div>
+  <div class="settings-row"><span class="settings-label">Export my data <span id="export-note"></span></span><button class="btn-ghost" style="padding:5px 12px" onclick="exportData()">⬇ Export</button></div>
   <div class="settings-row"><span class="settings-label" style="color:#86868B;font-size:12px">SmartPN 統一料號不隨匯出交付（退出權）。</span><span></span></div>
 
   <!-- C3：Shared BOM vs actual BOM（mock 標示） -->
@@ -440,18 +451,8 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
   <div id="dash-note" style="font-size:11px;color:#86868B;margin-top:20px;line-height:1.7"></div>
 </div>
 
-<!-- FSM MODAL -->
-<div class="fsm-modal" id="fsm-modal">
-  <div class="fsm-modal-backdrop" onclick="closeFsmModal()"></div>
-  <div class="fsm-modal-panel">
-    <div class="fsm-modal-header">
-      <div><div class="fsm-modal-title">Find Same Material</div><div id="fsm-modal-context" style="font-size:12px;color:#86868B;margin-top:2px"></div></div>
-      <button onclick="openFsmInNewWindow()" style="background:#F0F7FF;color:#0071E3;border:0.5px solid #BDD7F7;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">⬡ New window</button>
-      <button class="fsm-modal-close" onclick="closeFsmModal()">✕</button>
-    </div>
-    <div class="fsm-modal-body" id="fsm-modal-body"></div>
-  </div>
-</div>
+<!-- FSM MODAL：外殼於開啟時注入（closeFsmModal 清空）→ 關閉狀態下無任何內部按鈕殘留（全新頁面不計死鈕） -->
+<div class="fsm-modal" id="fsm-modal"></div>
 
 <!-- C2：責任 footer -->
 <div style="text-align:center;font-size:11px;color:#86868B;padding:16px 40px 40px;border-top:0.5px solid #E5E5EA;margin-top:24px">
@@ -635,13 +636,14 @@ function backFromCompany(){
 }
 
 /* ═══ FILTERS ═══ */
-function setTypeFilter(t,el){ typeFilter=t; document.querySelectorAll('.fc').forEach(b=>{if(!b.id&&!b.classList.contains('dpp'))b.classList.remove('active');}); el.classList.add('active'); applyFilters(); }
-function toggleDppFilter(el){ dppFilter=!dppFilter; el.classList.toggle('active',dppFilter); applyFilters(); }
-function toggleExtView(el){ externalView=!externalView; el.classList.toggle('active',externalView); el.textContent=externalView?T('extView')+' ●':T('extView'); applyFilters(); renderHomepage(); }
+function setTypeFilter(t,el){ showPage('search'); typeFilter=t; document.querySelectorAll('.fc').forEach(b=>{if(!b.id&&!b.classList.contains('dpp'))b.classList.remove('active');}); el.classList.add('active'); applyFilters(); }
+function toggleDppFilter(el){ showPage('search'); dppFilter=!dppFilter; el.classList.toggle('active',dppFilter); applyFilters(); }
+function toggleExtView(el){ showPage('search'); externalView=!externalView; el.classList.toggle('active',externalView); el.textContent=externalView?T('extView')+' ●':T('extView'); applyFilters(); renderHomepage(); }
 function handleNavSearch(){ if(currentPage!=='search'){ showPage('search'); } applyFilters(); }
 function applyFilters(){ fsmContext=null; document.getElementById('fsm-banner-area').innerHTML=''; renderGrid(); }
 function toggleCat(cat,el){ catFilter=cat; document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); showPage('search'); applyFilters(); }
 function toggleSort(field,el){
+  showPage('search');
   const asc=field+'-asc',desc=field+'-desc',other=field==='lt'?'sort-price':'sort-lt';
   document.getElementById(other).classList.remove('active'); document.getElementById(other).textContent=field==='lt'?'Price ↕':'LT ↕';
   if(sortMode===asc){sortMode=desc;el.classList.add('active');el.textContent=(field==='lt'?'LT':'Price')+' ↓';}
@@ -752,7 +754,7 @@ function renderSpuPage(m){
         ${m.dpp?'<div><div class="spu-price-label">DPP data</div><div class="spu-price-val" style="color:#1D7340;font-size:16px">Available</div></div>':''}
       </div>
       <div class="btn-row">
-        <button class="btn-add" onclick="alert('Added to My Library')" data-i18n="addLib">Add to My Library</button>
+        <button class="btn-add" onclick="addToLib(this)" data-i18n="addLib">Add to My Library</button>
         <button class="btn-ghost" onclick="showPage('compare')" data-i18n="compare">Compare</button>
         <button class="btn-blue-ghost" onclick="findSameMaterial('${m.id}','${m.spuCode}','${sku.key}')" data-i18n="fsm">Find Same Material</button>
         <button class="btn-blue-ghost" onclick="openRequestFor('${m.sup}','${m.name.replace(/'/g,"")}')" data-i18n="request">Request</button>
@@ -863,13 +865,34 @@ function openThread(id,keep){
 }
 function msgHtml(m){ return `<div class="msg ${m.who}">${m.t}${m.att?`<span class="msg-attach">📎 ${m.att}</span>`:''}<span class="msg-time">${m.time}</span></div>`; }
 function sendMsg(){ const inp=document.getElementById('req-input'); if(!inp) return; const v=inp.value.trim(); if(!v)return; const t=THREADS.find(x=>x.id===activeThread); if(!t) return; t.msgs.push({who:'me',t:v,time:'Now'}); inp.value=''; const box=document.getElementById('req-msgs'); box.innerHTML=t.msgs.map(msgHtml).join(''); box.scrollTop=box.scrollHeight; }
+
+/* ── Task SP 階段2：品牌端佔位鈕改真。每個動作先導入自身頁（showPage）再產生可見結果；禁止 alert 佔位。 ── */
+function reqSend(){ showPage('requests'); const inp=document.getElementById('req-input'); if(inp&&!inp.value.trim())inp.value='(demo) Thanks, noted.'; sendMsg(); }
+function reqAttach(){ showPage('requests'); const t=THREADS.find(x=>x.id===activeThread); if(t){t.msgs.push({who:'me',t:'📎 spec.pdf 已附加',time:'Now'}); const box=document.getElementById('req-msgs'); if(box){box.innerHTML=t.msgs.map(msgHtml).join('');box.scrollTop=box.scrollHeight;}} }
+let _libShared=0;
+function libShare(btn){ showPage('library'); _libShared++; let n=document.getElementById('lib-share-note'); if(!n){n=document.createElement('div');n.id='lib-share-note';n.style.cssText='font-size:12px;color:#1D7340;margin-top:10px';btn.parentElement.appendChild(n);} n.textContent='已與 NexBrand Co. 共享 My Library（授權讀取）· #'+_libShared; }
+let _seats=8;
+function addSeat(){ showPage('settings'); _seats++; const n=document.getElementById('seat-note'); if(n)n.innerHTML='<span style="color:#1D7340">· 目前 '+_seats+' 席</span>'; }
+function exportData(){ showPage('settings'); const n=document.getElementById('export-note'); if(n)n.innerHTML='<span style="color:#1D7340">· 已匯出（統一料號不隨附）</span>'; }
+let _libAdded=0;
+function addToLib(btn){ _libAdded++; const c=document.getElementById('lib-count'); if(c)c.textContent=(12+_libAdded); if(btn){btn.textContent='✓ Added';btn.disabled=true;} }
 function openRequestFor(supId,name){ const ex=THREADS.find(t=>t.sup===supId); if(ex){activeThread=ex.id;} else { const nid='t'+(THREADS.length+1); THREADS.push({id:nid,sup:supId,subject:name,unread:false,msgs:[{who:'me',t:`Hi, I'd like to request information about ${name}.`,time:'Now'}]}); activeThread=nid; } showPage('requests'); }
 
 /* ═══ FIND SAME MATERIAL ═══ */
 function findSameMaterial(fromId,spuCode,skuKey){
   fsmContext={fromId,spuCode,skuKey};
+  const m=document.getElementById('fsm-modal');
+  m.innerHTML=`<div class="fsm-modal-backdrop" onclick="closeFsmModal()"></div>
+    <div class="fsm-modal-panel">
+      <div class="fsm-modal-header">
+        <div><div class="fsm-modal-title">Find Same Material</div><div id="fsm-modal-context" style="font-size:12px;color:#86868B;margin-top:2px"></div></div>
+        <button onclick="openFsmInNewWindow()" style="background:#F0F7FF;color:#0071E3;border:0.5px solid #BDD7F7;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">⬡ New window</button>
+        <button class="fsm-modal-close" onclick="closeFsmModal()">✕</button>
+      </div>
+      <div class="fsm-modal-body" id="fsm-modal-body"></div>
+    </div>`;
   renderFsmBody();
-  document.getElementById('fsm-modal').style.display='flex'; document.body.style.overflow='hidden';
+  m.style.display='flex'; document.body.style.overflow='hidden';
 }
 function renderFsmBody(){
   if(!fsmContext) return;   // R-1：無脈絡不渲染
@@ -890,7 +913,7 @@ function fsmCard(m){ const sup=SUPPLIERS[m.sup];
     <div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:500">${m.name}</div><div style="font-size:12px;color:#86868B;margin-top:2px">${sup.name}</div>
     <div style="display:flex;gap:8px;margin-top:4px"><span class="badge b-${m.perm.toLowerCase()}">${m.perm}</span>${m.dpp?'<span class="b-dpp">DPP-ready</span>':''}</div></div>
     <div style="text-align:right"><div style="font-size:14px;font-weight:600">USD ${m.price.toFixed(2)}</div><div style="font-size:12px;color:#86868B">${m.lt}d LT</div></div></div>`; }
-function closeFsmModal(){ document.getElementById('fsm-modal').style.display='none'; document.body.style.overflow=''; }
+function closeFsmModal(){ const m=document.getElementById('fsm-modal'); m.style.display='none'; m.innerHTML=''; document.body.style.overflow=''; }
 function openFsmInNewWindow(){
   if(!fsmContext) return;   // R-1：無 FSM 脈絡不動作（不噴例外）
   const{fromId,spuCode,skuKey}=fsmContext; const scope=MATERIALS.filter(inFsmScope);
@@ -1054,7 +1077,7 @@ const B_HIDDEN = new Set(['SPA-MAT-0002']); // v1 材料，B 帳號看不到（�
 })();
 function renderAcctSwitch(){ const h=document.getElementById('acctSwitch'); if(!h)return;
   h.innerHTML=MOCK_WORLD.accounts.map(a=>`<button onclick="setAccount('${a.id}')" style="font-size:11px;padding:4px 9px;border:none;cursor:pointer;font-family:inherit;background:${a.id===ACCT.id?'#0071E3':'rgba(255,255,255,.12)'};color:#fff">${a.name}</button>`).join(''); }
-function setAccount(id){ ACCT=MOCK_WORLD.accounts.find(a=>a.id===id)||ACCT; renderAcctSwitch(); if(typeof applyFilters==='function') applyFilters(); }
+function setAccount(id){ showPage('search'); ACCT=MOCK_WORLD.accounts.find(a=>a.id===id)||ACCT; renderAcctSwitch(); if(typeof applyFilters==='function') applyFilters(); }
 
 /* 疊加：讓 v1 isVisible 也尊重帳號可見性（保留原邏輯，再加帳號過濾） */
 const _v1_isVisible = isVisible;
