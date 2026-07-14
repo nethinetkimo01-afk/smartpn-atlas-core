@@ -172,6 +172,9 @@ def init_db():
     if 'permissions' not in cols_su:
         conn.execute("ALTER TABLE sys_users ADD COLUMN permissions TEXT DEFAULT NULL")
         conn.commit()
+    # Migration (GATE-1 CAT3): recalc_lock — DB 層原子鎖（並發第二發 409）
+    conn.execute("CREATE TABLE IF NOT EXISTS recalc_lock (id INTEGER PRIMARY KEY, ts TEXT)")
+    conn.commit()
     # Migration: is_deleted soft-delete for ds04_orders
     cols_ds04 = [r[1] for r in conn.execute("PRAGMA table_info(ds04_orders)").fetchall()]
     if 'is_deleted' not in cols_ds04:
@@ -2544,18 +2547,45 @@ def _online_backup(dest):
         src.backup(dst)
     src.close(); dst.close()
 
+# GATE-1 CAT3：DB 層原子鎖（跨執行緒/程序），第二發 409。stale>10min 自動接管。
+def _recalc_lock_acquire():
+    conn = get_conn()
+    try:
+        conn.execute('INSERT INTO recalc_lock (id, ts) VALUES (1, ?)', (now_iso(),))
+        conn.commit(); return True
+    except Exception:
+        try:
+            stale = conn.execute(
+                "SELECT (julianday('now')-julianday(ts))*86400 > 600 FROM recalc_lock WHERE id=1").fetchone()
+            if stale and stale[0]:
+                conn.execute('DELETE FROM recalc_lock WHERE id=1'); conn.commit()
+                conn.execute('INSERT INTO recalc_lock (id, ts) VALUES (1, ?)', (now_iso(),))
+                conn.commit(); return True
+        except Exception:
+            pass
+        return False
+    finally:
+        conn.close()
+
+def _recalc_lock_release():
+    try:
+        conn = get_conn(); conn.execute('DELETE FROM recalc_lock WHERE id=1'); conn.commit(); conn.close()
+    except Exception:
+        pass
+
 def recalc_cutting_apply(user='admin'):
-    if not _RECALC_LOCK.acquire(blocking=False):
+    if not _recalc_lock_acquire():
         return {'ok': False, 'busy': True, 'error': '重算進行中，請稍候再試'}
     try:
-        s = _recalc_scan()
-        changes = s['changes']
-        if not changes:
-            return {'ok': True, 'changed': 0, 'backup_file': None, 'message': '無需變更（公式列已是 ×1.0）'}
+        # 一律先整庫快照：既是安全備援，也建立並發臨界窗口（第二發原子鎖 → 409）
         ts = datetime.now().strftime('%Y%m%d_%H%M%S')
         os.makedirs(_BACKUP_DIR, exist_ok=True)
         backup = os.path.join(_BACKUP_DIR, f'atlas_precutrecalc_{ts}.db')
-        _online_backup(backup)   # 先自動整庫備份
+        _online_backup(backup)
+        s = _recalc_scan()
+        changes = s['changes']
+        if not changes:
+            return {'ok': True, 'changed': 0, 'backup_file': os.path.basename(backup), 'message': '無需變更（公式列已是 ×1.0）'}
         conn = get_conn()
         try:
             for c in changes:
@@ -2567,7 +2597,7 @@ def recalc_cutting_apply(user='admin'):
     except Exception as e:
         return {'ok': False, 'error': str(e)}
     finally:
-        _RECALC_LOCK.release()
+        _recalc_lock_release()
 
 def recalc_cutting_backups():
     import glob
@@ -2581,7 +2611,7 @@ def recalc_cutting_backups():
     return {'ok': True, 'backups': out}
 
 def recalc_cutting_rollback(backup_file, user='admin'):
-    if not _RECALC_LOCK.acquire(blocking=False):
+    if not _recalc_lock_acquire():
         return {'ok': False, 'busy': True, 'error': '重算/還原進行中，請稍候再試'}
     try:
         # 白名單：只允許 backup 目錄內、命名合規的備份檔（防路徑穿越）
@@ -2611,7 +2641,7 @@ def recalc_cutting_rollback(backup_file, user='admin'):
     except Exception as e:
         return {'ok': False, 'error': str(e)}
     finally:
-        _RECALC_LOCK.release()
+        _recalc_lock_release()
 
 
 def get_db_stats():
@@ -4182,7 +4212,21 @@ def get_bianzhi_summary(month):
             'target80_direct': target80, 'actual_direct': actual_direct,
             'actual_eff': actual_eff,
         }
-        return {'ok': True, 'units': units, 'monthly': monthly, 'month': month}
+        # Task S-2：本月各單位匯入狀態（供頁頂顯著顯示「N 有資料 / M 未匯入」）。
+        # 有資料 = 本月 bianzhi_unit_manual 有該單位任一欄；CSA 另計 bianche_lean_hc。
+        TRACKED_UNITS = ['CSA','大底課','自動化','電腦針車','品包','品管','RB',
+                         '印刷高周波','設備工程部','副總室','現場技轉/KTHT']
+        def _has_data(u):
+            if u == 'CSA':
+                return bool(csa_lean_hc) or (u in unit_manual)
+            return u in unit_manual
+        unit_status = [{'unit': u, 'has_data': _has_data(u)} for u in TRACKED_UNITS]
+        missing = [s['unit'] for s in unit_status if not s['has_data']]
+        return {'ok': True, 'units': units, 'monthly': monthly, 'month': month,
+                'unit_status': unit_status,
+                'units_total': len(TRACKED_UNITS),
+                'units_with_data': len(TRACKED_UNITS) - len(missing),
+                'units_missing': missing}
     except Exception as e:
         import traceback; return {'ok': False, 'error': str(e), 'trace': traceback.format_exc()}
     finally:

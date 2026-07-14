@@ -155,6 +155,42 @@ def _require_editor():
         return jsonify({'ok': False, 'error': '需要編輯員或管理員權限（送審）'}), 403
     return None
 
+def _require_editplus():
+    """編輯類寫入：data_entry / manager / admin（擋 read_only）。GATE-1 CAT2。"""
+    u = _auth_user()
+    if not u or u['role'] not in ('admin', 'manager', 'data_entry'):
+        return jsonify({'ok': False, 'error': '需要編輯以上權限'}), 403
+    return None
+
+# GATE-1：統一輸入/存在性校驗小工具（缺參數→400、查無→404、絕不 500）
+def _bad(msg='參數錯誤'):
+    return jsonify({'ok': False, 'error': msg}), 400
+def _nf(msg='資源不存在'):
+    return jsonify({'ok': False, 'error': msg}), 404
+def _need(d, *keys):
+    """回傳缺少的第一個必填鍵名（None=齊全）。空字串/None 視為缺。"""
+    for k in keys:
+        v = d.get(k)
+        if v is None or (isinstance(v, str) and not v.strip()):
+            return k
+    return None
+def _header_exists(hid):
+    try:
+        c = db.get_conn()
+        r = c.execute('SELECT 1 FROM ob_header WHERE id=?', (hid,)).fetchone()
+        c.close()
+        return r is not None
+    except Exception:
+        return True   # 查不動時放行，交由既有邏輯（不因檢查本身而擋）
+def _user_exists(uid):
+    try:
+        c = db.get_conn()
+        r = c.execute('SELECT 1 FROM sys_users WHERE id=?', (uid,)).fetchone()
+        c.close()
+        return r is not None
+    except Exception:
+        return True
+
 def _ie_locked_only():
     """唯讀帳號(role=read_only)進 IE：只能看鎖定版。admin/manager/data_entry 看所有版本。"""
     u = _auth_user()
@@ -207,6 +243,22 @@ def _matrix_block(unit):
     if unit in db.get_user_units(u):
         return None
     return _unit_403(unit)
+
+# GATE-1 CAT6：全域 /api 例外安全網——任何未處理例外在 /api 一律轉 4xx JSON（絕不 500）。
+# 刻意回傳的 HTTPException（403/404/400…）保留原碼；其餘未捕捉例外 → 400 並記 traceback。
+from werkzeug.exceptions import HTTPException as _HTTPExc
+
+@app.errorhandler(Exception)
+def _api_safety_net(e):
+    is_api = request.path.startswith('/api/')
+    if isinstance(e, _HTTPExc):
+        if is_api:
+            return jsonify({'ok': False, 'error': e.description, 'code': e.code}), (e.code or 400)
+        return e
+    import traceback; traceback.print_exc()
+    if is_api:
+        return jsonify({'ok': False, 'error': f'請求無法處理（{type(e).__name__}）'}), 400
+    raise e
 
 # ── Global login guard ───────────────────────────────────────────────────────
 
@@ -298,10 +350,12 @@ def ie_assignments_by_user():
 
 @app.route('/api/ie/detail/<int:header_id>')
 def ie_detail_api(header_id):
+    if not _header_exists(header_id): return _nf('鞋型不存在')
     return jsonify(db.get_ie_model_detail(header_id))
 
 @app.route('/api/ie/<int:header_id>/sheets', methods=['GET'])
 def ie_sheet_names(header_id):
+    if not _header_exists(header_id): return _nf('鞋型不存在')
     return jsonify(db.get_ie_sheet_names(header_id))
 
 @app.route('/api/ie/<int:header_id>/sheet', methods=['GET'])
@@ -480,11 +534,13 @@ def ie_cutting_arts_api():
 
 @app.route('/api/ie/<int:header_id>/process', methods=['GET'])
 def ie_process_by_header(header_id):
+    if not _header_exists(header_id): return _nf('鞋型不存在')
     segment = request.args.get('segment', 'cutting')
     return jsonify(db.get_ie_process_by_header(header_id, segment))
 
 @app.route('/api/ie/cell/<int:header_id>', methods=['GET'])
 def ie_cell_data(header_id):
+    if not _header_exists(header_id): return _nf('鞋型不存在')
     segment = request.args.get('segment', 'cutting')
     eolr    = request.args.get('eolr', 120)
     stage_id = request.args.get('stage_id', type=int)  # 版本控制: 指定版本，省略=有效版本
@@ -514,8 +570,15 @@ def ie_stages(header_id):
 
 @app.route('/api/ie/cell/save', methods=['POST'])
 def ie_cell_save():
-    d = request.get_json(force=True)
-    hid = db.get_header_id_by_process(d.get('cell_id'))
+    d = request.get_json(silent=True) or {}
+    try:
+        cell_id = int(d.get('cell_id'))
+    except (TypeError, ValueError):
+        return _bad('cell_id 需為有效整數')
+    d['cell_id'] = cell_id
+    hid = db.get_header_id_by_process(cell_id)
+    if hid is None:
+        return _nf('工序格不存在')
     ok, err = _can_edit_ie(hid)
     if not _unit_allowed('ie_edit', ok):        # Task T：IE編輯 單元雙層防線
         return err if err else _unit_403('ie_edit')
@@ -526,12 +589,20 @@ def ie_cell_save():
 
 @app.route('/api/ie/cell/approve', methods=['POST'])
 def ie_cell_approve():
-    d = request.get_json(force=True)
+    err = _require_manager()          # GATE-1：審核類 → manager+
+    if err: return err
+    d = request.get_json(silent=True) or {}
+    if d.get('log_id') is None:
+        return _bad('log_id required')
     return jsonify(db.approve_ie_edit(d.get('log_id'), d.get('approver', 'system')))
 
 @app.route('/api/ie/cell/add_row', methods=['POST'])
 def ie_cell_add_row():
-    d = request.get_json(force=True)
+    d = request.get_json(silent=True) or {}
+    if d.get('header_id') is None:
+        return _bad('header_id required')
+    if not _header_exists(d.get('header_id')):
+        return _nf('鞋型不存在')
     ok, err = _can_edit_ie(d.get('header_id'))
     if not ok: return err
     return jsonify(db.add_ie_process_row(
@@ -611,6 +682,7 @@ def ie_cell_delete_group():
 
 @app.route('/api/ie/<int:header_id>/groups', methods=['GET'])
 def ie_get_groups(header_id):
+    if not _header_exists(header_id): return _nf('鞋型不存在')
     segment = request.args.get('segment', 'cutting')
     return jsonify(db.get_ie_process_groups(header_id, segment))
 
@@ -698,6 +770,7 @@ def recalc_cutting_rollback_api():
 
 @app.route('/api/ie/<int:header_id>/sum', methods=['GET'])
 def ie_sum_api(header_id):
+    if not _header_exists(header_id): return _nf('鞋型不存在')
     eolr = request.args.get('eolr', 120)
     return jsonify(db.get_ie_sum(header_id, eolr))
 
@@ -752,7 +825,9 @@ def ie_import_apply():
 
 @app.route('/api/ie/update_mp', methods=['POST'])
 def ie_update_mp():
-    data = request.get_json(force=True)
+    err = _require_manager()          # GATE-1：MP 覆寫 → manager+
+    if err: return err
+    data = request.get_json(silent=True) or {}
     header_id = data.get('header_id')
     if not header_id:
         return jsonify({'ok': False, 'error': 'header_id required'}), 400
@@ -993,7 +1068,11 @@ def alloc_export():
 
 @app.route('/api/ds03/save', methods=['POST'])
 def save_ob():
-    data = request.get_json(force=True)
+    err = _require_editplus()
+    if err: return err
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return _bad('請提供 JSON 物件')
     return jsonify(db.save_ob_record(data))
 
 @app.route('/api/ds03/load', methods=['GET'])
@@ -1011,15 +1090,21 @@ def list_ob():
 
 @app.route('/api/ds03/delete', methods=['DELETE'])
 def delete_ob():
+    err = _require_editplus()
+    if err: return err
     art  = request.args.get('art', '')
+    if not art:
+        return _bad('art is required')
     eolr = request.args.get('eolr', 60)
     run  = request.args.get('run', 1)
     return jsonify(db.delete_ob_record(art, eolr, run))
 
 @app.route('/api/ds03/add_art', methods=['POST'])
 def add_art():
-    data = request.get_json(force=True)
-    art = data.get('art', '').strip()
+    err = _require_editplus()
+    if err: return err
+    data = request.get_json(silent=True) or {}
+    art = str(data.get('art', '')).strip()
     header_id = data.get('header_id')
     if not art or not header_id:
         return jsonify({'ok': False, 'error': 'art and header_id required'}), 400
@@ -1033,7 +1118,11 @@ def get_lookup():
 
 @app.route('/api/lookup/add', methods=['POST'])
 def add_lookup():
-    data = request.get_json(force=True)
+    err = _require_editplus()
+    if err: return err
+    data = request.get_json(silent=True) or {}
+    miss = _need(data, 'viet', 'zh')
+    if miss: return _bad(f'缺少必填欄位：{miss}')
     return jsonify(db.add_lookup_entry(data.get('viet',''), data.get('zh','')))
 
 # ── DS-02 cross-table helper ─────────────────────────────────────────────────
@@ -1180,6 +1269,8 @@ def import_corrections():
     Reads rows where 狀態 == 'MISMATCH' or 'MISSING_IE' and 結果表Cut/Stitch/Asm
     columns have values — those are Jim's corrected values.
     """
+    err = _require_manager()          # GATE-1：回寫 ob_epph 更正 → manager+
+    if err: return err
     if not HAS_XLSX:
         return jsonify({'ok': False, 'error': 'openpyxl not available'}), 500
 
@@ -1338,7 +1429,9 @@ def bianzhi_lean_bianzhi():
 def bianzhi_unit_manual():
     err = _require_manager()
     if err: return err
-    d = request.get_json(force=True)
+    d = request.get_json(silent=True) or {}
+    miss = _need(d, 'month', 'unit', 'field')
+    if miss: return _bad(f'缺少必填欄位：{miss}')
     return jsonify(db.set_bianzhi_unit_manual(d.get('month'), d.get('unit'), d.get('field'), d.get('value')))
 
 @app.route('/api/bianzhi/monthly_manual', methods=['POST'])
@@ -1350,18 +1443,37 @@ def bianzhi_monthly_manual_post():
 
 # ── DS-04 API ─────────────────────────────────────────────────────────────────
 
+def _ds04_order_exists(order_id):
+    try:
+        c = db.get_conn(); r = c.execute('SELECT 1 FROM ds04_orders WHERE id=?', (order_id,)).fetchone(); c.close()
+        return r is not None
+    except Exception:
+        return True
+
 @app.route('/api/ds04/order', methods=['POST'])
 def ds04_add_order():
-    data = request.get_json(force=True)
+    err = _require_manager()          # GATE-1：排程訂單寫入 → manager+
+    if err: return err
+    data = request.get_json(silent=True) or {}
+    miss = _need(data, 'lean', 'model_name', 'art')
+    if miss: return _bad(f'缺少必填欄位：{miss}')
     return jsonify(db.ds04_add_order(data))
 
 @app.route('/api/ds04/order/<int:order_id>', methods=['PUT'])
 def ds04_update_order(order_id):
-    data = request.get_json(force=True)
+    err = _require_manager()
+    if err: return err
+    if not _ds04_order_exists(order_id):
+        return _nf('訂單不存在')
+    data = request.get_json(silent=True) or {}
     return jsonify(db.ds04_update_order(order_id, data))
 
 @app.route('/api/ds04/order/<int:order_id>', methods=['DELETE'])
 def ds04_delete_order(order_id):
+    err = _require_manager()
+    if err: return err
+    if not _ds04_order_exists(order_id):
+        return _nf('訂單不存在')
     month = request.args.get('month', '')
     return jsonify(db.ds04_delete_order(order_id, month))
 
@@ -1386,7 +1498,11 @@ def get_eolr_settings():
 
 @app.route('/api/eolr-settings', methods=['POST'])
 def set_eolr_setting():
-    data = request.get_json(force=True)
+    err = _require_manager()          # GATE-1：基礎資料 → manager+
+    if err: return err
+    data = request.get_json(silent=True) or {}
+    miss = _need(data, 'lean')
+    if miss: return _bad(f'缺少必填欄位：{miss}')
     return jsonify(db.set_eolr_setting(
         data.get('lean'), data.get('month', '2026-06'),
         data.get('eolr', 120), data.get('updated_by', '')
@@ -1399,7 +1515,9 @@ def get_bianche():
 
 @app.route('/api/bianche/manual', methods=['POST'])
 def set_bianche_manual():
-    data = request.get_json(force=True)
+    err = _require_manager()          # GATE-1：編制表寫入 → manager+
+    if err: return err
+    data = request.get_json(silent=True) or {}
     return jsonify(db.set_bianche_manual(
         data.get('lean'), data.get('month', '2026-06'),
         data.get('manager_mp', 0), data.get('headcount', 0),
@@ -1490,7 +1608,9 @@ def api_users_update(uid):
     err = _require_manager()
     if err: return err
     me = _auth_user()
-    d = request.get_json(force=True) or {}
+    if not _user_exists(uid):
+        return _nf('帳號不存在')
+    d = request.get_json(silent=True) or {}
     if me.get('role') != 'admin':
         if d.get('role') == 'admin':
             return jsonify({'ok': False, 'error': '無權設定管理員角色'}), 403
@@ -1538,6 +1658,8 @@ def api_me_units():
 def api_users_delete(uid):
     err = _require_manager()
     if err: return err
+    if not _user_exists(uid):
+        return _nf('帳號不存在')
     me = _auth_user()
     if me.get('role') != 'admin':
         target = db.get_user_by_id(uid)
@@ -1564,7 +1686,9 @@ def bianche_csa():
 
 @app.route('/api/bianche/model_manual', methods=['POST'])
 def bianche_model_manual():
-    d = request.get_json(force=True) or {}
+    err = _require_manager()          # GATE-1：編制表寫入 → manager+
+    if err: return err
+    d = request.get_json(silent=True) or {}
     return jsonify(db.set_bianche_model_manual(
         d.get('lean'), d.get('model_name'), d.get('month', '2026-06'),
         d.get('manager_mp'), d.get('headcount'), d.get('updated_by', '')
@@ -1576,7 +1700,9 @@ def bianche_dept(dept):
 
 @app.route('/api/bianche/dept_hc', methods=['POST'])
 def bianche_dept_hc():
-    d = request.get_json(force=True) or {}
+    err = _require_manager()          # GATE-1：編制表寫入 → manager+
+    if err: return err
+    d = request.get_json(silent=True) or {}
     return jsonify(db.set_bianche_dept_hc(
         d.get('dept'), d.get('group'), d.get('month', '2026-06'),
         d.get('headcount'), d.get('shoe_detail', ''), d.get('updated_by', '')
@@ -1588,7 +1714,9 @@ def bianche_lean_hc_get():
 
 @app.route('/api/bianche/lean_hc', methods=['POST'])
 def bianche_lean_hc_post():
-    d = request.get_json(force=True) or {}
+    err = _require_manager()          # GATE-1：編制表寫入 → manager+
+    if err: return err
+    d = request.get_json(silent=True) or {}
     return jsonify(db.set_bianche_lean_hc(
         d.get('lean'), d.get('month', '2026-06'), d.get('headcount')
     ))
