@@ -16,6 +16,18 @@ Last updated: 2026-07-13
 Claude 是中樞不是打字機：自行思考、主動 web_search 查市面成熟做法、主動提建議、預想 Jim 的下一步。
 → 完整交接：41_THREE_TRACK_HANDOFF.md（2026-07-13 重寫，42 作廢併入）
 
+## 2026-07-14 定案（Task V：編制表 Step5/6 合成資料邏輯層全驗證）
+- **Task V** ✅：不等真檔，用 deterministic 合成 IE 世界（隔離 E2E 庫 atlas_v_e2e.db）驗證編制表計算邏輯層。
+  合成：20 型體全段標時（EOLR 60/120 各半、裁斷連刀≠1、手工/公式列混合）+ 3 缺 IE 型體；期望值由腳本**獨立公式另算**再與 db 函式比對。
+  - **Step6 MP 0 差異**：`get_bianzhi_detail` 20 型體逐欄（裁斷理論 Σstd×EOLR/3600、針車/成型實際人數、K、C2B）== 獨立期望。
+  - **連刀÷N**：獨立 `3600/刀/層×件/連刀` == `db._recalc_new_std`；連刀4=180 < 連刀1=720（÷連刀生效）。
+  - **offline 撥人**：勾選承接(is_checked)後 C2B=K+moved_q，路徑通。
+  - **缺 IE 紅底不擋單（決策③）**：3 型體 has_locked=False、MP=None，但訂單/數量保留、不被丟棄。
+  - **STF 式**：訂單÷(3600÷TCT)÷222 獨立值成立（對照 get_allocation_parts 打粗水洗）。
+  - **36欄導出**：`export_ie_capacity` 已實作填「已知人數欄」（裁断/针车/成型/CSA 标准人数，逐欄==獨立期望），未知欄(CT/產能/PPH，出自已丟失規格)仍留空**不臆造**。
+  - 一條龍 E2E（Playwright 走 /bianche 界面）：合成 lean 渲染 + 缺IE未鎖定紅底 + 導出可下載。**7/7 PASS**。
+  - **G-03 降級**：BLOCKED 之「邏輯層」已解，僅剩真資料層（真 IE xlsx 對映覆蓋+廠務檔逐欄比對+未知欄公式）待 Jim 供檔。
+
 ## 2026-07-14 定案（Task U：目標總帳 47_GOAL_LEDGER）
 - **Task U** ✅：新建 `47_GOAL_LEDGER.md` 目標總帳（全部未結事項單一真相表，ID|事項|狀態|Owner|卡點|來源）。
   收 11 條 G-01~G-11：ME129更新(G-01)、裁斷重算預覽(G-02)、IE xlsx拷Code機解鎖Step5/6+36欄真值(G-03)、

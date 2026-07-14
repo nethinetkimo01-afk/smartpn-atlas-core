@@ -18,7 +18,7 @@ Version: v1.0 | 建立 2026-07-14（Task U）| Status: ACTIVE（活帳本，持�
 |----|------|------|-------|---------------|--------|
 | **G-01** | ME129 按更新鍵 pull 最新碼（含第三批 Task F–O + Task S/T） | ⛔BLOCKED | ie5/Thanh（按）| 等有人在 ME129 按更新；抽查：標時39600、連刀欄在層數左、STF八欄舊值不變、tongcai全灰 | 41§四.1、21 |
 | **G-02** | `/admin/recalc-cutting` 裁斷 ×1.0 重算：預覽→確認執行（自動備份可還原） | ⛔BLOCKED | **Jim** | 等 Jim 於瀏覽器執行；不派 cmd 到 ME129；`recalc_cutting_x10.py` 備援 | 41§四.2、21 Task F |
-| **G-03** | IE 來源 xlsx（~623MB）進 Code 機 → 解鎖編制表 Step5/6 + 36欄產能/人數**真值** | ⛔BLOCKED | **Jim** | 檔案不在 Code 機；替代＝在 ME129 執行。**邏輯層已由 Task V 合成資料驗證**，僅剩真資料比對 | 41§四.4、21 Task G、驗收報告 |
+| **G-03** | IE 來源 xlsx（~623MB）進 Code 機 → 編制表 36欄產能/人數**真值** + 真資料逐欄比對 | ⛔BLOCKED（降級：**僅剩真資料比對**）| **Jim** | 邏輯層已由 Task V 合成資料**7/7 全驗證**（Step6 MP 0 差異、連刀÷N、offline撥人、缺IE不擋單、STF式、36欄已知人數欄填值）。剩：真 IE xlsx 進 Code 機（或 ME129）做真資料層＝對映覆蓋+廠務檔逐欄比對+未知欄(CT/產能/PPH)公式 | 41§四.4、21 Task G/V、驗收報告 |
 | **G-04** | manager 對 IE 工序維持唯讀（編審分離）— 待 Jim 追認 | 🟡OPEN | **Jim** | 代決待追認；Thanh 需編輯時另開 editor 帳號 | 41§四.5、21 Task I 註 |
 | **G-05** | GitHub Pages 開通（demo 對外連結可分享） | ⛔BLOCKED | **Jim** | 等 Jim 於 GitHub repo 設定開通 Pages | 中樞訊息 2026-07-14、INDEX |
 | **G-06** | GRANT layer 名稱最終定案（暫定 GRANT，取代 MSDG/SGL/GATE 候選） | 🟡OPEN | **Jim** | 暫定可用，名稱未最終拍板 | 21(2026-06-12)、01_CONSTITUTION §9 |

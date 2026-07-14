@@ -1750,6 +1750,8 @@ def export_ie_capacity():
     try:
         hdrs = conn.execute(
             'SELECT id, model_name, season, eolr FROM ob_header ORDER BY id').fetchall()
+        locked_hdr = {r[0] for r in conn.execute(
+            'SELECT DISTINCT header_id FROM ie_stage WHERE COALESCE(is_approved,0)=1').fetchall()}
         rows = []
         for h in hdrs:
             arts = [r[0] for r in conn.execute(
@@ -1759,6 +1761,21 @@ def export_ie_capacity():
             row['Article'] = ', '.join(arts)
             row['鞋型名称'] = (h['model_name'] or '').replace(' Target Output', '').strip()
             row['StockfittingEOLR'] = h['eolr']
+            # Task V：邏輯層已驗證欄位——有鎖定版 IE 時，填「已知公式」人數欄（與編制表 Step6 同源）。
+            # 裁断=理論(Σstd×EOLR/3600)、針車/成型=實際人數(Σactual_operators)、CSA=三者和。
+            # 產能/CT/PPH/Layout 等欄公式出自已丟失的『數據源-IE标准』規格 → 仍留空（不臆造）。
+            if h['id'] in locked_hdr:
+                eolr = h['eolr'] or 120
+                prc = conn.execute(
+                    'SELECT zone, standard_time, actual_operators FROM ie_process '
+                    "WHERE header_id=? AND (flag IS NULL OR flag!='deleted')", (h['id'],)).fetchall()
+                cut = sum((p['standard_time'] or 0) for p in prc if p['zone'] in CUTTING_ZONES) * eolr / 3600.0
+                stch = sum((p['actual_operators'] or 0) for p in prc if p['zone'] in STITCH_ZONES)
+                asm = sum((p['actual_operators'] or 0) for p in prc if p['zone'] in ASSEMBLY_ZONES)
+                row['裁断标准人数'] = round(cut, 1)
+                row['针车标准人数'] = round(stch, 1)
+                row['成型标准人数'] = round(asm, 1)
+                row['CSA标准人数']  = round(cut + stch + asm, 1)
             rows.append(row)
         return {'ok': True, 'columns': IE_CAPACITY_COLS, 'rows': rows}
     except Exception as e:
