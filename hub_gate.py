@@ -114,15 +114,24 @@ def cat3():
 
 # ═══ CAT 4 ═══
 def cat4():
-    a = admin()
+    import urllib.parse
+    a = admin(); ro = readonly()
     bad_months = ['', '9999-99', "2026-06'; DROP TABLE ie_process;--", 'abc', '2026-13', '../../etc']
     for mth in bad_months:
-        import urllib.parse
         q = urllib.parse.quote(mth)
         s, _ = a.req('GET', f'/api/recalc/cutting/preview?month={q}')
         check(4, f'preview month={mth!r}', not500(s), f'status={s}')
         s2, _ = a.req('GET', f'/api/bianzhi/summary?month={q}')
         check(4, f'bianzhi/summary month={mth!r}', not500(s2), f'status={s2}')
+    # GATE-1 補丁：/api/bianche 合法月份→200(含空月空集)、非法格式→400、絕不 500/400 給合法月
+    for role, c in [('admin', a), ('read_only', ro)]:
+        for mth in ['2026-06', '2026-12']:   # 合法（2026-12 可能無資料→仍 200 空集）
+            s, _ = c.req('GET', f'/api/bianche?month={mth}')
+            check(4, f'{role} /api/bianche month={mth}（合法→200）', s == 200, f'status={s}')
+        for mth in ['', '9999-99', "x'; DROP", 'abc', '2026-13']:  # 非法格式→400
+            q = urllib.parse.quote(mth)
+            s, _ = c.req('GET', f'/api/bianche?month={q}')
+            check(4, f'{role} /api/bianche month={mth!r}（非法→400）', s == 400, f'status={s}')
 
 # ═══ CAT 5 ═══
 def cat5():

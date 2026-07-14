@@ -3568,6 +3568,13 @@ def get_bianche_data(month='2026-06'):
         totals['grand'] = round(sum(totals.values()), 2)
 
         return {'ok': True, 'month': month, 'rows': results, 'totals': totals}
+    except Exception as e:
+        # GATE-1 補丁：合法月份的內部資料例外，不得外拋成 400/500。
+        # 回 200 空集 + 明確狀態，前端顯示「本月無/資料異常」而非白畫面。
+        import traceback; traceback.print_exc()
+        return {'ok': True, 'month': month, 'rows': [],
+                'totals': {'cutting': 0, 'stitching': 0, 'assembly': 0, 'stf': 0, 'grand': 0},
+                'empty': True, 'warning': f'本月資料為空或無法計算（{type(e).__name__}）'}
     finally:
         conn.close()
 

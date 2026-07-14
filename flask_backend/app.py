@@ -165,6 +165,11 @@ def _require_editplus():
 # GATE-1：統一輸入/存在性校驗小工具（缺參數→400、查無→404、絕不 500）
 def _bad(msg='參數錯誤'):
     return jsonify({'ok': False, 'error': msg}), 400
+import re as _re
+def _valid_month(m):
+    """GATE-1 補丁：合法 month 格式 = YYYY-MM（月 01-12）。非法→給呼叫端回 400。
+    空字串/None/9999-99/注入 皆屬非法；2026-06 合法（即使該月無資料也 200 空集）。"""
+    return bool(m) and bool(_re.match(r'^\d{4}-(0[1-9]|1[0-2])$', str(m)))
 def _nf(msg='資源不存在'):
     return jsonify({'ok': False, 'error': msg}), 404
 def _need(d, *keys):
@@ -1516,6 +1521,8 @@ def set_eolr_setting():
 @app.route('/api/bianche', methods=['GET'])
 def get_bianche():
     month = request.args.get('month', '2026-06')
+    if not _valid_month(month):        # GATE-1 補丁：非法格式→400；合法(含空月)→200
+        return _bad(f'month 格式非法（需 YYYY-MM）：{month!r}')
     return jsonify(db.get_bianche_data(month))
 
 @app.route('/api/bianche/manual', methods=['POST'])
