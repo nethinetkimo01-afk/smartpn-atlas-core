@@ -12,6 +12,15 @@ This is the ONLY source of truth. All sessions read from here. All sessions writ
 
 ---
 
+## 目標總帳對帳規則（MANDATORY，2026-07-14 起）
+
+`47_GOAL_LEDGER.md` 是全部未結事項的單一真相表。中樞守則：
+1. **入帳**：任何定案/需求一產生，立即在 47 表新增一列並編 ID（G-NN）。
+2. **開場對帳**：每個新視窗開場、每批任務派發前，中樞先讀 47 對帳，回報未結項。
+3. **關帳**：狀態改 ✅CLOSED **只有 Jim 可為之**；中樞只更新進度/卡點，不自行關帳。
+
+---
+
 ## File Index (Read in Order)
 
 ### Layer 1 ??Rules and Identity (Read First, Every Session)
@@ -22,6 +31,7 @@ This is the ONLY source of truth. All sessions read from here. All sessions writ
 
 ### Layer 2 ??Current State (Read Second, Every Session)
 21_CURRENT_STATUS.md ??where we stopped, next steps, pending items
+47_GOAL_LEDGER.md — 目標總帳（全部未結事項單一真相表；開場先對帳；僅 Jim 可關帳）
 
 ### Layer 3 ??Project Files (Read Based on Today's Work)
 11_DESIGN_SYSTEM.md ??visual system PPT Demo LinkedIn

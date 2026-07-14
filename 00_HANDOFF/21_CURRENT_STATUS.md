@@ -16,6 +16,14 @@ Last updated: 2026-07-13
 Claude 是中樞不是打字機：自行思考、主動 web_search 查市面成熟做法、主動提建議、預想 Jim 的下一步。
 → 完整交接：41_THREE_TRACK_HANDOFF.md（2026-07-13 重寫，42 作廢併入）
 
+## 2026-07-14 定案（Task U：目標總帳 47_GOAL_LEDGER）
+- **Task U** ✅：新建 `47_GOAL_LEDGER.md` 目標總帳（全部未結事項單一真相表，ID|事項|狀態|Owner|卡點|來源）。
+  收 11 條 G-01~G-11：ME129更新(G-01)、裁斷重算預覽(G-02)、IE xlsx拷Code機解鎖Step5/6+36欄真值(G-03)、
+  manager唯讀待追認(G-04)、Pages開通(G-05)、GRANT名稱待定(G-06)、設備種類自助(G-07)、SaaS八項(G-08)、
+  SmartPN下一步候選(G-09)、求職線DORMANT(G-10)、MP勾選舊案待清檔(G-11)。
+  掃 00_HANDOFF 全檔：無「可由 Code 立即實作卻漏做」的孤兒定案（開放項皆 Jim-blocked／待拍板／休眠／待清）。
+  規則入 `00_ENTRY_POINT`＋`27_WORKING_RULES §零之四`：定案即入帳編 ID、開場先對帳、**僅 Jim 可關帳**。
+
 ## 2026-07-14 定案（Task T：功能權限矩陣，中樞代決規格，Jim 可推翻）
 - **Task T** ✅：帳號×單元功能權限矩陣落地。單元＝`ie_edit/select_parts/allocate/import/export/audit/base_data`（7）。
   - 儲存：`sys_users.permissions`（JSON array）；`NULL`＝舊帳號依角色預設（**遷移零變化**），非 NULL＝admin 明確設定的權威矩陣。
