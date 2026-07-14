@@ -334,6 +334,14 @@ Step 5：驗收
 - 提取基準：改版前先 `grep -oE "function [A-Za-z0-9_]+"` 舊版全集，逐一在新版核對存在（Playwright typeof===function）。
 - 反例（Task P v2）：全新重寫 demo，丟失 v1 大量函式/畫面（FSM/評論/詢問/公司樹/二次加工編碼…）→ 返工為 v3。
 
+## ★ 禁詞鐵則（Task W-1 定案 2026-07-14，永久標準）
+**議會定案的敏感/違規詞（如「毛利率 / gross margin」），連同「否定句」都不准出現在使用者可見文案。**
+- 錯例：「不含毛利率」「gross-margin card removed」——雖是否定/移除語氣，但禁詞仍出現在畫面 → FAIL。
+- 對做法：改正面表述（例：「僅呈彙總／非敏感經營指標」「aggregate only / non-sensitive metrics」），EN/ZH 同步。
+- 涵蓋範圍：使用者可見文案為主；註解/程式碼一併清除以免日後複製擴散。
+- 驗收：改版後 `grep -niE "毛利|gross[ -]?margin"`（排除 CSS `margin:`）**全檔歸零**才可 commit。
+- 現行禁詞集：毛利率 / gross margin（議會既有三違規：SmartPN Verified、毛利率卡、誰看過我的材料——見 43 號）。
+
 ## 七、數據庫保護規則（2026-06-17定案）
 
 ### 正式庫維運操作＝管理頁按鈕（Task N 定案 2026-07-13）

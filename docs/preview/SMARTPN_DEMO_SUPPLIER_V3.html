@@ -699,7 +699,7 @@ function applyBossMode(){ if(location.hash!=='#boss') return;
   // read-only banner + 隱藏其他導覽
   if(!document.getElementById('bossBanner')){ const b=document.createElement('div'); b.id='bossBanner';
     b.style.cssText='background:#1D1D1F;color:#fff;font-size:12px;padding:8px 16px;text-align:center';
-    b.textContent=(LANG==='zh'?'Boss 視角（只讀）· gross-margin 卡已依議會定案移除':'Boss view (read-only) · gross-margin card removed per council');
+    b.textContent=(LANG==='zh'?'Boss 視角（只讀）· 依議會定案僅呈非敏感經營指標':'Boss view (read-only) · shows non-sensitive business metrics per council');
     document.body.insertBefore(b, document.body.firstChild); }
   document.querySelectorAll('.nav-item,.nav-sub').forEach(x=>{ if(x!==biNav) x.style.opacity='0.4'; x.style.pointerEvents=x===biNav?'':'none'; });
 }

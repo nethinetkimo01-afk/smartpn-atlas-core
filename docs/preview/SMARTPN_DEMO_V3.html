@@ -432,7 +432,7 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
   <div class="settings-row"><span class="settings-label">Factory B — actual</span><span class="settings-val" style="color:#B26A00">替代 1 項：GRS Mesh → local equiv（+$0.12/yd，已核准）</span></div>
 </div>
 
-<!-- Task W：品牌端 KPI Dashboard（KPI 全由 MOCK_WORLD 推導；不含毛利率；不露他方私密） -->
+<!-- Task W：品牌端 KPI Dashboard（KPI 全由授權可見資料推導；僅彙總；不露他方私密與敏感財務指標） -->
 <div class="page fade-in" id="page-dashboard">
   <div class="section-title" data-i18n="dashboard">Dashboard</div>
   <div id="dash-sub" style="font-size:13px;color:#86868B;margin:-6px 0 18px"></div>
@@ -1020,7 +1020,7 @@ renderSpuPage = function(m){ _v1_renderSpuPage(m);
   body.insertAdjacentHTML('afterbegin', `<div class="spec-section-title">Council fields · source &amp; permission (1)</div>${rows}`);
 };
 
-/* ─ Boss 視角 (req 5) — 只讀 KPI（gross-margin 卡除外），第三入口 ─ */
+/* ─ Boss 視角 (req 5) — 只讀 KPI（敏感財務指標卡除外），第三入口 ─ */
 function openBossView(){ // 開新分頁到 supplier v3 boss（第三入口在 INDEX）；此處提供品牌內快捷
   window.open('SMARTPN_DEMO_SUPPLIER_V3.html#boss','_blank'); }
 
@@ -1031,7 +1031,7 @@ const GUIDE=[
   {zh:'③ Mapping 分批驗收簽署：未簽署批次不流通。',en:'③ Mapping batch sign-off: unsigned batches do not flow.'},
   {zh:'④ 權限授權給品牌帳號 A：私密欄位選擇性開放。',en:'④ Grant to Brand account A: selectively open private fields.'},
   {zh:'⑤ 品牌端搜尋到 → 報價單 → 交換（產生交換存證記錄）。',en:'⑤ Brand finds it → quote → exchange (evidence record generated).'},
-  {zh:'⑥ 品牌端 Dashboard：KPI 全由 MOCK_WORLD 推導（可見材料 / 授權中 / Mapping 進度 / 存證量 / DPP 就緒度），不含毛利率、不露他方私密。',en:'⑥ Brand Dashboard: KPIs all derived from MOCK_WORLD (visible materials / grants / mapping progress / evidence / DPP readiness) — no gross margin, no other-party private data.'},
+  {zh:'⑥ 品牌端 Dashboard：KPI 全由授權可見資料推導（可見材料 / 授權中 / Mapping 進度 / 存證量 / DPP 就緒度），僅呈彙總，不含任何他方私密與敏感財務指標。',en:'⑥ Brand Dashboard: KPIs are all derived from your permitted, visible data (visible materials / grants / mapping progress / evidence / DPP readiness) — aggregate only, with no other party’s private or sensitive financial figures.'},
 ];
 let _gi=0;
 function startGuide(){ _gi=0; showGuide(); }
