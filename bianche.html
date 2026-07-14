@@ -83,6 +83,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#FFFF
   </label>
 </div>
 
+<!-- Task S-2：頁頂顯著狀態列（當前月份 + N 單位有資料 / M 單位本月未匯入） -->
+<div id="bz-status" style="margin:12px 18px 0;padding:10px 14px;border-radius:8px;border:1px solid #E5E5EA;background:#F5F5F7;font-size:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+  <span style="color:#8E8E93">狀態載入中…</span>
+</div>
+
 <div class="content">
   <!-- ══ 上半：各單位編制總表 ══ -->
   <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap">
@@ -160,25 +165,57 @@ let _summaryData = null, _detailData = null, _CAN_EDIT = false;
 
 function month(){ return document.getElementById('selMonth').value; }
 
+// Task S-2：明確錯誤區塊 + 重試鈕（不得靜默空白/殘缺）
+function errBlock(msg, colspan) {
+  const btn = `<button class="btn-sm" style="background:#FF3B30;margin-left:10px" onclick="loadAll()">↻ 重試</button>`;
+  const inner = `<span style="color:#FF3B30;font-weight:600">⚠ ${esc(msg||'載入失敗')}</span>${btn}`;
+  return colspan ? `<tr><td colspan="${colspan}" style="padding:18px;text-align:center">${inner}</td></tr>`
+                 : `<div class="error-msg" style="display:flex;align-items:center;justify-content:center;padding:24px">${inner}</div>`;
+}
+function renderBzStatus(sumR, state) {
+  const el = document.getElementById('bz-status'); if (!el) return;
+  if (state === 'loading') { el.style.background='#F5F5F7'; el.innerHTML = `<span style="color:#8E8E93">月份 <b>${esc(month())}</b> · 狀態載入中…</span>`; return; }
+  if (state === 'error') {
+    el.style.background='#FDECEA';
+    el.innerHTML = `<span style="color:#B71C1C;font-weight:700">⚠ 本月狀態載入失敗（${esc((sumR&&sumR.error)||'API 錯誤')}）</span>`
+      + `<button class="btn-sm" style="background:#FF3B30" onclick="loadAll()">↻ 重試</button>`;
+    return;
+  }
+  const withN = sumR.units_with_data, total = sumR.units_total, missing = sumR.units_missing || [];
+  const ok = missing.length === 0;
+  el.style.background = ok ? '#E8F6EC' : '#FFF6E5';
+  el.innerHTML =
+    `<span style="font-weight:700;color:#1C1C1E">當前月份 <b>${esc(month())}</b></span>`
+    + `<span style="color:#1D7340;font-weight:600">✓ ${withN}/${total} 單位有資料</span>`
+    + (missing.length
+        ? `<span style="color:#B26A00;font-weight:600">⚠ ${missing.length} 單位本月未匯入：${esc(missing.join('、'))}</span>`
+        : `<span style="color:#1D7340">全部單位已匯入</span>`);
+}
+
 async function loadAll() {
   document.getElementById('unitTableBody').innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:#8E8E93">載入中…</td></tr>';
   document.getElementById('monthlyPanel').innerHTML = '<div class="loading-msg" style="padding:20px">載入中…</div>';
   document.getElementById('csaDetailContainer').innerHTML = '<div class="loading-msg">載入中…</div>';
   document.getElementById('summaryMonth').textContent = month();
+  renderBzStatus(null, 'loading');
 
   const [sumR, detR, ceR] = await Promise.all([
-    fetch(`/api/bianzhi/summary?month=${month()}`).then(r=>r.json()).catch(()=>({ok:false})),
-    fetch(`/api/bianzhi/detail?month=${month()}`).then(r=>r.json()).catch(()=>({ok:false})),
+    fetch(`/api/bianzhi/summary?month=${month()}`).then(r=>r.json()).catch(()=>({ok:false,error:'網路/伺服器錯誤'})),
+    fetch(`/api/bianzhi/detail?month=${month()}`).then(r=>r.json()).catch(()=>({ok:false,error:'網路/伺服器錯誤'})),
     fetch('/api/bianzhi/can_edit').then(r=>r.json()).catch(()=>({can_edit:false})),
   ]);
-  // Actually use require_manager for bianzhi: check /api/bianzhi/can_edit or just test
   _CAN_EDIT = (ceR && ceR.can_edit === true);
 
-  if (sumR.ok) { _summaryData = sumR; renderSummary(sumR); }
-  else document.getElementById('unitTableBody').innerHTML = `<tr><td colspan="7" class="error-msg">${esc(sumR.error||'載入失敗')}</td></tr>`;
+  if (sumR.ok) { _summaryData = sumR; renderSummary(sumR); renderBzStatus(sumR, 'ok'); }
+  else {
+    // 不得靜默空白：三個彙總區塊都給明確錯誤 + 重試
+    document.getElementById('unitTableBody').innerHTML = errBlock(sumR.error, 7);
+    document.getElementById('monthlyPanel').innerHTML = errBlock(sumR.error);
+    renderBzStatus(sumR, 'error');
+  }
 
   if (detR.ok) { _detailData = detR; renderDetail(detR); }
-  else document.getElementById('csaDetailContainer').innerHTML = `<div class="error-msg">${esc(detR.error||'載入失敗')}</div>`;
+  else document.getElementById('csaDetailContainer').innerHTML = errBlock(detR.error);
 }
 
 // ══ SUMMARY ══

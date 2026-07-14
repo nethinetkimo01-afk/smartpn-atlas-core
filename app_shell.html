@@ -22,8 +22,17 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background
 
 /* ── iframe 容器 ─────────────────────────────────────────────────── */
 .frame-wrap{flex:1 1 auto;position:relative;background:#f0f2f5;min-height:0}
-.page-frame{position:absolute;inset:0;width:100%;height:100%;border:none;display:none;background:#fff}
+.page-frame{position:absolute;left:0;right:0;bottom:0;top:0;width:100%;height:100%;border:none;display:none;background:#fff}
 .page-frame.active{display:block}
+/* 深入頁返回列（iframe 逃逸修復：任何深入頁一鍵回頁簽首頁） */
+.shell-return-bar{position:absolute;top:0;left:0;right:0;height:34px;z-index:50;display:none;
+  align-items:center;gap:10px;padding:0 14px;background:#fef3c7;border-bottom:1px solid #f0d98a;
+  font-size:12px;color:#7c5e10}
+.frame-wrap.has-return .page-frame.active{top:34px}
+.srb-btn{background:#1a2744;color:#fff;border:none;border-radius:5px;padding:4px 12px;font-size:12px;
+  font-weight:600;cursor:pointer;white-space:nowrap}
+.srb-btn:hover{background:#243a63}
+.srb-path{color:#9a7b1e;font-family:Consolas,monospace;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -38,7 +47,11 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background
   <div class="shell-hint" id="shell-hint"></div>
 </div>
 
-<div class="frame-wrap">
+<div class="frame-wrap" id="frame-wrap">
+  <div class="shell-return-bar" id="shell-return-bar">
+    <button class="srb-btn" id="srb-btn" onclick="returnHome()">← 返回 IE 表</button>
+    <span class="srb-path" id="srb-path"></span>
+  </div>
   <!-- 兩頁各自載入原頁（零迴歸）：工具列/權限/語言皆在各自 iframe 內，不混排 -->
   <iframe class="page-frame" id="frame-ie"      name="frame-ie"      title="IE表"></iframe>
   <iframe class="page-frame" id="frame-bianche" name="frame-bianche" title="編制表"></iframe>
@@ -90,10 +103,42 @@ async function goTab(t, updateHash){
   document.getElementById('shell-hint').textContent = (t === 'ie')
     ? 'IE 標準工時 · 版本鎖定'
     : '廠務組織編制表 · 自動化';
+  updateReturnBar();                 // 切到已深入的頁簽時也要顯示返回列
   if (updateHash) setHash(t);
 }
 
 function onTabClick(t){ goTab(t, true); }
+
+// ── iframe 逃逸修復：殼監聽 iframe 導航，深入頁顯示「← 返回頁簽首頁」──────────────
+function homePath(t){ return t === 'ie' ? '/ie' : '/bianche'; }
+function frameDeepPath(t){
+  // 回傳 iframe 目前非首頁路徑（首頁/下載/跨域 → 空字串表示「在首頁、免返回列」）
+  try {
+    const p = frameEl(t).contentWindow.location.pathname || '';
+    if (!p || p === homePath(t) || p === '/' + t) return '';
+    if (p.startsWith('/api/')) return '';        // 下載類（如匯出）不算頁面導航
+    return p;
+  } catch (e) { return ''; }                     // 跨域/未載入 → 視為首頁
+}
+function updateReturnBar(){
+  const bar = document.getElementById('shell-return-bar');
+  const wrap = document.getElementById('frame-wrap');
+  const deep = active ? frameDeepPath(active) : '';
+  if (!deep) { bar.style.display = 'none'; wrap.classList.remove('has-return'); return; }
+  document.getElementById('srb-btn').textContent = (active === 'ie') ? '← 返回 IE 表' : '← 返回 編制表';
+  document.getElementById('srb-path').textContent = '目前位置：' + deep;
+  bar.style.display = 'flex'; wrap.classList.add('has-return');
+}
+async function returnHome(){
+  if (!active) return;
+  await flushActive();                           // 深入頁若有未存編輯先 flush，不丟值
+  frameEl(active).src = SRC[active];             // 重載回頁簽首頁
+  // load 事件會再觸發 updateReturnBar 收起返回列
+}
+// 每個 iframe 每次導航（含深入/返回）都重算返回列
+for (const t of TABS) {
+  frameEl(t).addEventListener('load', () => { if (t === active) updateReturnBar(); });
+}
 
 function setHash(t){
   _syncingHash = true;
