@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IE表 · SmartPN</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;background:#0f1626;color:#1a1a2e;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+/* ── 最外層主頁簽列 ─────────────────────────────────────────────── */
+.shell-header{background:#0f1626;color:#fff;height:46px;flex:0 0 46px;display:flex;align-items:center;gap:16px;padding:0 18px;box-shadow:0 2px 8px rgba(0,0,0,.35);z-index:200}
+.shell-brand{font-size:14px;font-weight:700;letter-spacing:.5px;color:#e8eefc;white-space:nowrap}
+.shell-brand .dot{color:#4a6cf7}
+.main-tabs{display:flex;gap:4px;background:#1a2744;border-radius:8px;padding:3px}
+.main-tab{background:transparent;color:#8aaedd;border:none;border-radius:6px;padding:7px 22px;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s,color .15s;outline:none;letter-spacing:.5px}
+.main-tab:hover{background:#243a63;color:#fff}
+.main-tab.active{background:#4a6cf7;color:#fff;box-shadow:0 1px 4px rgba(74,108,247,.4)}
+.shell-spacer{flex:1}
+.shell-hint{font-size:11px;color:#5f7bb0;white-space:nowrap}
+
+/* ── iframe 容器 ─────────────────────────────────────────────────── */
+.frame-wrap{flex:1 1 auto;position:relative;background:#f0f2f5;min-height:0}
+.page-frame{position:absolute;inset:0;width:100%;height:100%;border:none;display:none;background:#fff}
+.page-frame.active{display:block}
+</style>
+</head>
+<body>
+
+<div class="shell-header">
+  <div class="shell-brand">SmartPN<span class="dot">·</span>Atlas</div>
+  <div class="main-tabs" role="tablist" aria-label="最外層主頁簽">
+    <button class="main-tab" id="tab-ie"       role="tab" onclick="onTabClick('ie')">IE表</button>
+    <button class="main-tab" id="tab-bianche"  role="tab" onclick="onTabClick('bianche')">編制表</button>
+  </div>
+  <div class="shell-spacer"></div>
+  <div class="shell-hint" id="shell-hint"></div>
+</div>
+
+<div class="frame-wrap">
+  <!-- 兩頁各自載入原頁（零迴歸）：工具列/權限/語言皆在各自 iframe 內，不混排 -->
+  <iframe class="page-frame" id="frame-ie"      name="frame-ie"      title="IE表"></iframe>
+  <iframe class="page-frame" id="frame-bianche" name="frame-bianche" title="編制表"></iframe>
+</div>
+
+<script>
+// ── 最外層兩個主頁簽（IE表 / 編制表）切換邏輯 ──────────────────────────
+// 定案依據 21_CURRENT_STATUS：「看編制的人也要查 IE 流程 → 最外層兩個主頁簽切換」。
+// 實作＝共用外框各載一頁（iframe），原頁零改動 → 兩頁全部功能零迴歸。
+const TABS = ['ie', 'bianche'];
+const SRC  = { ie: '/ie', bianche: '/bianche' };
+const NAME = { ie: 'IE表', bianche: '編制表' };
+const loaded = {};              // 惰性載入：切到才載，載過保活（保留未存編輯）
+let active = null;
+let _syncingHash = false;       // 防 hashchange 迴圈
+
+function frameEl(t){ return document.getElementById('frame-' + t); }
+
+function ensureLoaded(t){
+  if (loaded[t]) return;
+  frameEl(t).src = SRC[t];
+  loaded[t] = true;
+}
+
+// 切頁簽前防護：接 flushPendingEdits 同款（IE 細表未存編輯先 flush）。
+// iframe 不卸載（display 切換）→ 即使 flush 失敗（例：鎖定版）值仍留在 iframe 內，不靜默丟。
+async function flushActive(){
+  if (!active) return;
+  const f = frameEl(active);
+  try {
+    const w = f && f.contentWindow;
+    if (w && typeof w.flushPendingEdits === 'function') {
+      await w.flushPendingEdits();
+    }
+  } catch (e) { /* 未載入/無此函式：忽略。iframe 保活，編輯不丟 */ }
+}
+
+async function goTab(t, updateHash){
+  t = TABS.includes(t) ? t : 'ie';
+  if (t === active) { if (updateHash) setHash(t); return; }
+  await flushActive();                         // 離開當前頁簽前先保住未存編輯
+  active = t;
+  ensureLoaded(t);
+  for (const x of TABS) {
+    frameEl(x).classList.toggle('active', x === t);
+    document.getElementById('tab-' + x).classList.toggle('active', x === t);
+  }
+  document.title = NAME[t] + ' · SmartPN';
+  document.getElementById('shell-hint').textContent = (t === 'ie')
+    ? 'IE 標準工時 · 版本鎖定'
+    : '廠務組織編制表 · 自動化';
+  if (updateHash) setHash(t);
+}
+
+function onTabClick(t){ goTab(t, true); }
+
+function setHash(t){
+  _syncingHash = true;
+  if (location.hash !== '#' + t) location.hash = '#' + t;
+  setTimeout(() => { _syncingHash = false; }, 0);
+}
+
+function currentTab(){
+  const h = (location.hash || '').replace(/^#/, '').toLowerCase();
+  return TABS.includes(h) ? h : 'ie';           // 網址無/不明 → 預設 IE表
+}
+
+// F5 停留在當前頁簽：由 location.hash 還原
+window.addEventListener('hashchange', () => {
+  if (_syncingHash) return;
+  goTab(currentTab(), false);
+});
+
+// 起始：預設進 IE表（除非 hash 指定 #bianche）
+goTab(currentTab(), true);
+</script>
+</body>
+</html>

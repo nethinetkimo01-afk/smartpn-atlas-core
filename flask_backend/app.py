@@ -201,6 +201,12 @@ def _require_login():
 def index():
     return send_from_directory('..', 'ds03_ob_interface.html')
 
+@app.route('/app')
+def app_shell():
+    # Task S：最外層主頁簽（IE表 / 編制表）統一外框，各載一頁 iframe（零迴歸）。
+    # 預設進 IE表；#ie / #bianche 可分辨、F5 停留在當前頁簽。
+    return send_from_directory('..', 'app_shell.html')
+
 @app.route('/ie')
 def ie_interface():
     return send_from_directory('..', 'ie_interface.html')

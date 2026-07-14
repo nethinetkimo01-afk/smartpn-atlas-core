@@ -16,6 +16,17 @@ Last updated: 2026-07-13
 Claude 是中樞不是打字機：自行思考、主動 web_search 查市面成熟做法、主動提建議、預想 Jim 的下一步。
 → 完整交接：41_THREE_TRACK_HANDOFF.md（2026-07-13 重寫，42 作廢併入）
 
+## 2026-07-14 定案（Task S：IE表/編制表 最外層主頁簽整合）
+- **Task S** ✅：最外層主頁簽【IE表｜編制表】統一外框落地（21 號既有定案「看編制的人也要查 IE 流程」執行）。
+  實作＝**共用外框 `/app`（`app_shell.html`）各載一頁 iframe**，`ie_interface.html`／`bianche.html` **零改動**（git diff 空）→ 兩頁全部函式/按鈕逐一保留、零迴歸。
+  - 登入後預設進 IE表（login.html 導 `/app#ie`；外聯單位 tongcai/dianno/dacu 仍導 `/allocation` 不變）。
+  - 切頁簽前接 `flushPendingEdits` 同款防護：離開前對當前 iframe flush；iframe 保活不卸載 → 即使 flush 失敗（鎖定版）值仍留，不靜默丟。
+  - 網址可分辨 `#ie` / `#bianche`，F5 停留在當前頁簽。
+  - 工具列各歸各頁簽脈絡（矩陣/帳號/設備種類/審核/導出/更新燈號屬 IE；匯入/匯出/EOLR/勾選屬編制表）—各在自己 iframe 內，不混排。
+  - 權限沿用各自現有規則：read_only（tongcai）兩頁全灰、editor 指派可編+編制表唯讀、bianche 角色可見性照 28 號不變。
+  - Playwright（隔離 5099）**10/10 PASS**：互切 10 次抽測、細表未存值切頁 flush 保住、tongcai 兩頁全灰、editor 迴歸、三語(IE)、F5 停留、舊入口 `/ie`·`/bianche` 獨立可開。
+  - 註：`bianche.html` 本無三語切換鈕（現況即中文），Task S 未新增（屬另案）；「三語兩頁正常」＝IE 三語有效 + 編制表照渲染不破。
+
 ## 2026-07-13 定案（第三批 Task F / G / H）
 - **Task F**：裁斷 standard_time DB 重算 ×1.0（方案a）。只碰公式型裁斷機列，手工/其他區不動；
   bianche 維持讀 DB 值（鎖定版＝快照）。ME129 派發腳本 `recalc_cutting_x10.py`＋`rollback_cutting_x10.py`

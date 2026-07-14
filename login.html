@@ -64,7 +64,8 @@ async function doLogin(e) {
       if (UNIT_USERS.has(uname)) {
         window.location.href = '/allocation';
       } else {
-        window.location.href = '/ie';
+        // Task S：登入後預設進最外層主頁簽外框（預設 IE表）
+        window.location.href = '/app#ie';
       }
     } else {
       showMsg('err', d.error || '登入失敗');
