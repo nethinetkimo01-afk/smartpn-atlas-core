@@ -181,6 +181,70 @@ MIGRATIONS = [
             "ALTER TABLE ob_header ADD COLUMN lean TEXT",
         ]
     },
+    {
+        'id': 'M012',
+        'desc': 'IE-VER B3：實際人數/合併人數改為「版本×ART×EOLR 分格」存儲。'
+                '中樞裁決 2026-07-15：識別單位＝版本×ART（鞋型名僅顯示分組），遷移不合併任何 header；'
+                '同一 ART 的 60/120 共用標時/工序 → 標時/工序留在 ie_process（一份），'
+                '只有「實際人數/合併人數」拆成 EOLR 兩格存到子表。'
+                '★為什麼不是在 ie_process 上加 actual_60/actual_120 兩欄：'
+                '那會把「格」寫死成兩欄，將來多一個 EOLR 就要改 schema；子表 (process_id, eolr) '
+                '是一格一列，加 EOLR 不動 schema。'
+                '★ie_process.actual_operators 保留不動：B3 只加不改（DROP COLUMN 本來就禁），'
+                '舊欄留著才能拿來對帳（零丟值斷言＝子表 vs 舊欄逐格比對），也才回得去。',
+        'sql': [
+            # 實際人數：一格一列。(process_id, eolr) 唯一 → 同一工序同一 EOLR 不可能有兩個值。
+            '''CREATE TABLE IF NOT EXISTS ie_process_actual (
+                id               INTEGER PRIMARY KEY AUTOINCREMENT,
+                process_id       INTEGER NOT NULL REFERENCES ie_process(id) ON DELETE CASCADE,
+                eolr             INTEGER NOT NULL,
+                actual_operators REAL,
+                updated_at       TEXT,
+                UNIQUE(process_id, eolr)
+            )''',
+            "CREATE INDEX IF NOT EXISTS idx_ie_process_actual_pid  ON ie_process_actual(process_id)",
+            "CREATE INDEX IF NOT EXISTS idx_ie_process_actual_eolr ON ie_process_actual(eolr)",
+            # 合併人數：群組定義（哪幾列合併）仍在 ie_process_group（＝跟工序走，共用一份），
+            # 只有 headcount 分 EOLR 格。基準庫 group 是 0 列、ME129 活庫有 149 列 → 雙源合併時才有值。
+            '''CREATE TABLE IF NOT EXISTS ie_group_headcount (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                group_id   INTEGER NOT NULL REFERENCES ie_process_group(id) ON DELETE CASCADE,
+                eolr       INTEGER NOT NULL,
+                headcount  REAL,
+                updated_at TEXT,
+                UNIQUE(group_id, eolr)
+            )''',
+            "CREATE INDEX IF NOT EXISTS idx_ie_group_headcount_gid ON ie_group_headcount(group_id)",
+            # 現場確認清單（裁決①）：eolr 欄與標題矛盾、靠裁決落格的 header 要留痕，
+            # 不是「落完格就當真」。status=pending 直到現場確認。
+            '''CREATE TABLE IF NOT EXISTS ie_eolr_confirm (
+                id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                header_id     INTEGER NOT NULL,
+                assigned_eolr INTEGER NOT NULL,
+                eolr_column   INTEGER,
+                eolr_title    INTEGER,
+                ruling        TEXT,
+                status        TEXT NOT NULL DEFAULT 'pending',
+                note          TEXT,
+                created_at    TEXT,
+                UNIQUE(header_id)
+            )''',
+            # 裁決②「格子必有、空格留空不繼承」的結構保證：
+            # 用 view 生格子，而不是在子表塞 NULL 佔位列。塞佔位列的話，
+            # 「漏塞一列」＝格子不見了；view 是算出來的，漏不掉，也不必在每次新增工序時補塞。
+            # 60/120 寫死＝裁決②的兩格；若日後新增 EOLR，改這支 view 即可（子表不動）。
+            '''CREATE VIEW IF NOT EXISTS v_ie_process_cell AS
+                SELECT p.id        AS process_id,
+                       p.header_id AS header_id,
+                       p.art       AS art,
+                       e.eolr      AS eolr,
+                       a.actual_operators AS actual_operators
+                FROM ie_process p
+                CROSS JOIN (SELECT 60 AS eolr UNION ALL SELECT 120 AS eolr) e
+                LEFT JOIN ie_process_actual a
+                       ON a.process_id = p.id AND a.eolr = e.eolr''',
+        ]
+    },
 ]
 
 def _ensure_migration_table(conn):
@@ -203,38 +267,75 @@ def _backup():
     shutil.copy2(DB, dest)
     print(f'[migrate] Backup: {dest}')
 
-def run():
-    if not os.path.exists(DB):
-        print(f'[migrate] DB not found: {DB}')
-        return
-    _backup()
-    conn = sqlite3.connect(DB)
+def apply_all(conn, verbose=False):
+    """把 MIGRATIONS 套到既有連線上；回傳是否有套用任何一支。
+
+    ★為什麼要有這支（而不是只有 run()）：
+      新建 DB 走的是 database.init_db()（schema.sql + 自我修復），**完全沒經過 MIGRATIONS**，
+      而開機守門的期望 schema ＝ schema.sql ＋ MIGRATIONS。兩條路不交會 →
+      全新安裝的 DB 一開機就被自己的守門擋掉（實測：缺 ob_header.lean、ie_review.reviewer → exit 3）。
+      解法不是把每支遷移「順便也抄一份到 schema.sql」——那正是兩條血脈分歧的老毛病，
+      下一支遷移又會再犯。解法是讓建庫流程**呼叫同一份 MIGRATIONS**，只留一個真相來源。
+
+    不做備份、不自己開檔：呼叫端（init_db）已經握著這個 conn 和它的交易。
+    """
     _ensure_migration_table(conn)
     applied_any = False
     for m in MIGRATIONS:
         mid = m['id']
         if _applied(conn, mid):
-            print(f'[migrate] {mid} already applied — skip')
+            if verbose:
+                print(f'[migrate] {mid} already applied — skip')
             continue
-        print(f'[migrate] Applying {mid}: {m["desc"]}')
+        if verbose:
+            print(f'[migrate] Applying {mid}: {m["desc"]}')
+        deferred = False
         for sql in m['sql']:
             _check_safe(sql)
             try:
                 conn.execute(sql)
             except Exception as e:
-                if 'duplicate column' in str(e).lower() or 'already exists' in str(e).lower():
-                    print(f'[migrate]   (already exists, skipping)')
+                msg = str(e).lower()
+                if 'duplicate column' in msg or 'already exists' in msg:
+                    if verbose:
+                        print('[migrate]   (already exists, skipping)')
+                elif 'no such table' in msg:
+                    # ie_process / ie_stage 這些不是 schema.sql 建的，是匯入時才建 →
+                    # 全新 DB 還沒有它們，這支遷移現在無事可做。
+                    # ★不可標記成 applied：標了就永遠不會再跑，等匯入把表建出來時
+                    #   這支遷移已經「假裝做完了」，欄位永遠缺著。留 pending 讓它下次開機自己補上
+                    #   （init_db 每次開機都會呼叫 apply_all，故會自我痊癒）。
+                    deferred = True
+                    if verbose:
+                        print(f'[migrate]   (表還不存在，延後到該表建出來後再跑: {e})')
                 else:
-                    conn.close()
                     raise
+        if deferred:
+            conn.commit()
+            if verbose:
+                print(f'[migrate] {mid} deferred — 保持 pending，待相依的表存在後自動重跑。')
+            continue
         conn.execute(
             'INSERT OR IGNORE INTO schema_migrations (id, applied_at) VALUES (?,?)',
             (mid, datetime.now().isoformat())
         )
         conn.commit()
         applied_any = True
-        print(f'[migrate] {mid} done.')
-    conn.close()
+        if verbose:
+            print(f'[migrate] {mid} done.')
+    return applied_any
+
+
+def run():
+    if not os.path.exists(DB):
+        print(f'[migrate] DB not found: {DB}')
+        return
+    _backup()
+    conn = sqlite3.connect(DB)
+    try:
+        applied_any = apply_all(conn, verbose=True)
+    finally:
+        conn.close()
     if not applied_any:
         print('[migrate] All migrations already applied. DB is up to date.')
 

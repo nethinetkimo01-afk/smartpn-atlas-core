@@ -79,7 +79,15 @@ def all_settings(prefix=''):
 
 def init_db():
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-    conn = get_conn()
+    _existed = os.path.exists(DB_PATH)
+    conn = get_conn()   # 注意：這行會把檔案建出來，所以 _existed 必須在它之前算
+    # 「全新的 DB」＝檔案本來不存在，或存在但一張使用者表都沒有（建到一半/空殼）。
+    # 只有全新 DB 才會在本函式最後套用 MIGRATIONS（原因見該處註解）。
+    _is_new = True
+    if _existed:
+        _is_new = conn.execute(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+        ).fetchone()[0] == 0
     with open(SCHEMA_PATH, encoding='utf-8') as f:
         conn.executescript(f.read())
     # Migration: add source column to ob_epph if missing
@@ -153,25 +161,13 @@ def init_db():
             [('單針針車機', 10), ('雙針針車機', 20)])
     conn.commit()
     # 送審審核 workflow：ie_review 表（狀態機 pending/approved/rejected/withdrawn）。
-    # 送審審核 ≠ 鎖定版(ie_stage.is_approved)——兩件獨立的事。此表解決先前 review/list 500。
-    conn.execute('''CREATE TABLE IF NOT EXISTS ie_review (
-        id            INTEGER PRIMARY KEY AUTOINCREMENT,
-        header_id     INTEGER NOT NULL,
-        stage_id      INTEGER,
-        stage_name    TEXT,
-        status        TEXT NOT NULL DEFAULT 'pending',
-        submitted_by  TEXT,
-        submitted_at  TEXT,
-        reviewed_by   TEXT,
-        reviewed_at   TEXT,
-        reject_reason TEXT
-    )''')
-    # self-heal：舊版 ie_review（無 stage_name/reviewed_by）補欄位，讓新舊 DB 收斂到設計 schema
-    irv_cols = [r[1] for r in conn.execute("PRAGMA table_info(ie_review)").fetchall()]
-    if 'stage_name'  not in irv_cols: conn.execute("ALTER TABLE ie_review ADD COLUMN stage_name TEXT")
-    if 'reviewed_by' not in irv_cols: conn.execute("ALTER TABLE ie_review ADD COLUMN reviewed_by TEXT")
-    conn.execute('CREATE INDEX IF NOT EXISTS idx_ie_review_status ON ie_review(status)')
-    conn.execute('CREATE INDEX IF NOT EXISTS idx_ie_review_header ON ie_review(header_id)')
+    # 送審審核 ≠ 鎖定版(ie_stage.is_approved)——兩件獨立的事。
+    # ★這裡**不建表**：ie_review 由 migrate.py 的 M004（建表，含 reviewer 欄）＋ M010
+    #   （補 stage_name/reviewed_by ＋索引）擁有，本函式最後的 apply_all 會建。
+    #   原本這裡另外寫了一份 CREATE TABLE，欄位與 M004 不同（少了 reviewer）→
+    #   先建的那份贏，之後所有 CREATE TABLE IF NOT EXISTS 全部 no-op →
+    #   全新 DB 永遠缺 ie_review.reviewer，開機守門直接擋掉（實測 2026-07-15）。
+    #   同一張表兩份定義＝遲早分歧，故刪掉這份，只留 MIGRATIONS 一個真相來源。
     # ie_assignments（指派表，M004）：確保存在，供 delete_ie_header 連帶清除不報錯
     conn.execute('''CREATE TABLE IF NOT EXISTS ie_assignments (
         id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -252,6 +248,26 @@ def init_db():
             created_at  TEXT NOT NULL
         )''')
         conn.commit()
+
+    # ── 建庫流程的最後一步：**只有全新 DB** 才套用 migrate.py 的 MIGRATIONS ──────
+    # 為什麼要有這段：開機守門的期望 schema ＝ schema.sql ＋ migrate.py MIGRATIONS，
+    #   但建庫只走 schema.sql ＋上面這串自我修復，從不經過 MIGRATIONS →
+    #   全新安裝的 DB 一開機就被自己的守門擋掉（實測 2026-07-15：缺 ob_header.lean、
+    #   ie_review.reviewer → guard_or_die exit 3）。既有機器（ME129/正式庫）剛好都有這些欄，
+    #   所以這個洞一直沒被踩到——閘門也沒踩到，因為閘門的隔離副本全是從正式庫 clone 的。
+    #   修法選「讓建庫呼叫同一份 MIGRATIONS」而不是「把遷移內容再抄一份進 schema.sql」：
+    #   抄一份＝又生出第二條血脈，下一支遷移照樣再犯一次。
+    #
+    # ★為什麼限定「全新 DB」（_is_new）：
+    #   對**既有** DB 每次開機自動遷移 ＝ app 一啟動就偷改現場的正式庫。這牴觸 R4：
+    #   「回滾只回滾程式碼，不碰 DB；DB 是現場的真實輸入，程式碼可逆、DB 不可逆」，
+    #   也會架空 deploy_gate D3（半新程式+舊 schema 必須被守門擋住 → 實測會變成自動遷移後照常啟動）。
+    #   既有 DB 要升級，一律走人工的 `python flask_backend/migrate.py`（那支會先備份）。
+    #   全新 DB 沒有資料可毀、也沒有「退回配得上這份 DB 的舊程式」這回事，故可安全自動套用。
+    if _is_new:
+        import migrate as _migrate
+        _migrate.apply_all(conn)
+
     conn.close()
 
 # ── User management ──────────────────────────────────────────────────────────
