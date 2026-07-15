@@ -1328,17 +1328,27 @@ window.renderDashboard = renderDashboard;
     let ctrl='', bodyKey='';
     if (s.cur!=null){ // Current / After toggle
       const st=_state[id]||'after';
+      // Task D：套用中的態＝狀態指示(span,非按鈕)——對已選的態再按一次本來就不會有任何效果
+      const _cw=(val,label,col)=> st===val
+        ? `<span aria-current="true" style="border:1px solid ${col};background:${col};color:#fff;border-radius:7px;padding:4px 12px;font-size:12px;cursor:default;display:inline-block">${label}</span>`
+        : `<button class="scn-ctrl" onclick="scnSet('${id}','${val}')" style="border:1px solid #D2D2D7;background:#fff;color:#1D1D1F;border-radius:7px;padding:4px 12px;font-size:12px;cursor:pointer">${label}</button>`;
       ctrl=`<div style="display:flex;gap:6px;margin-bottom:8px">
-        <button class="scn-ctrl" onclick="scnSet('${id}','cur')" style="border:1px solid #D2D2D7;background:${st==='cur'?'#1D1D1F':'#fff'};color:${st==='cur'?'#fff':'#1D1D1F'};border-radius:7px;padding:4px 12px;font-size:12px;cursor:pointer">Current</button>
-        <button class="scn-ctrl" onclick="scnSet('${id}','after')" style="border:1px solid #D2D2D7;background:${st==='after'?'#0071E3':'#fff'};color:${st==='after'?'#fff':'#1D1D1F'};border-radius:7px;padding:4px 12px;font-size:12px;cursor:pointer">After (SmartPN)</button></div>`;
+        <span style="font-size:12px;color:#86868B;align-self:center;margin-right:2px">檢視：${st==='cur'?'Current':'After (SmartPN)'}</span>
+        ${_cw('cur','Current','#1D1D1F')}${_cw('after','After (SmartPN)','#0071E3')}</div>`;
       bodyKey = (st==='cur') ? s.cur : s.aft;
     } else if (s.sel){ // selector
       const st=_state[id]||s.sel[0];
-      ctrl=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${s.sel.map(o=>`<button class="scn-ctrl" onclick="scnSet('${id}','${o}')" style="border:1px solid #D2D2D7;background:${st===o?'#0071E3':'#fff'};color:${st===o?'#fff':'#1D1D1F'};border-radius:7px;padding:4px 12px;font-size:12px;cursor:pointer">${o}</button>`).join('')}</div>`;
+      ctrl=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+        <span style="font-size:12px;color:#86868B;align-self:center;margin-right:2px">目前：${st}</span>
+        ${s.sel.map(o=> o===st
+          ? `<span aria-current="true" style="border:1px solid #0071E3;background:#0071E3;color:#fff;border-radius:7px;padding:4px 12px;font-size:12px;cursor:default;display:inline-block">${o}</span>`
+          : `<button class="scn-ctrl" onclick="scnSet('${id}','${o}')" style="border:1px solid #D2D2D7;background:#fff;color:#1D1D1F;border-radius:7px;padding:4px 12px;font-size:12px;cursor:pointer">${o}</button>`).join('')}</div>`;
       bodyKey = s.views[st] || '';
     } else if (s.wf){ // workflow stepper + role visibility
       const step=_state[id]!=null?_state[id]:0;
-      const steps = s.wf.map((w,i)=>`<span style="padding:4px 9px;border-radius:7px;font-size:12px;${i<=step?'background:#1D7340;color:#fff':'background:#F0F0F2;color:#86868B'}">${i+1}.${w}</span>`).join(' <span style="color:#C7C7CC">→</span> ');
+      const _mk=(i)=> i<step?'✓':(i===step?'▶':'○');
+      const steps = `<span style="font-size:12px;color:#86868B;margin-right:6px">步驟 ${step+1}/${s.wf.length}</span>`
+        + s.wf.map((w,i)=>`<span style="padding:4px 9px;border-radius:7px;font-size:12px;${i<=step?'background:#1D7340;color:#fff':'background:#F0F0F2;color:#86868B'}">${_mk(i)} ${i+1}.${w}</span>`).join(' <span style="color:#C7C7CC">→</span> ');
       const done = step>=s.wf.length-1;
       const roles = Object.entries(s.roles).map(([r,txt])=>`<div style="font-size:12px;margin:3px 0">${r}：${done?txt:'（尚未發布）'}</div>`).join('');
       ctrl=`<div style="margin-bottom:8px">${steps}</div><button class="scn-ctrl" onclick="scnStep('${id}')" style="border:none;background:#0071E3;color:#fff;border-radius:7px;padding:5px 14px;font-size:12px;cursor:pointer;font-weight:600">${done?'↺ 重來':'下一步 →'}</button>`;
