@@ -635,3 +635,47 @@ python mpv_feedback.py → 交叉比對 → round_NN/arbiter.md
 - `verdict: "green"` 但 `findings` 非空 → **判紅**（說綠不算數，證據算數）。
 - finding 缺 `repro` → 標「證據不足」但**仍算紅**，中樞人工判定
   （不允許因為「說不清楚」就當沒發生）。
+
+---
+
+## 十三、發佈防呆鐵則（R1–R4，Jim 定案 2026-07-15，永久標準）
+
+> 起因：Jim 人工發現「更新鈕地雷」——`/api/system/update` 直接 `git pull origin main` 後重啟。
+> 開發者一把半成品 push 上 main，現場（ME129）誤按更新就拉到半成品：程式新、DB 舊 → 白畫面，
+> 且現場沒有回頭路。當時 **13 支閘門全綠**，沒有一支擋得住。
+> 根因：破壞者只攻「功能」，沒攻「營運/發佈路徑」。**功能全對、發佈錯，現場一樣停產。**
+
+### R1 破壞者攻擊面永久擴充「營運/發佈路徑」
+
+每批 push 前必模擬（詳見 45_MULTIPARTY_VERIFICATION §破壞者第 7 項）：
+按更新鈕（開發中／push 後／核可前／核可後）、還原備份、半新程式+舊 schema、
+舊程式+新 schema、更新中斷電重啟。
+**任何一項讓現場掛死或白畫面＝紅，擋 push。**
+
+### R2 hub_ci 常設閘門14 `deploy_gate`
+
+自動化模擬上列情境（全程隔離副本）。與其他閘門同等地位，**缺跑＝整批不過**。
+
+### R3 分支凍結 ＋ 發佈閘（本批 G1/G2 即第一批受測對象，先紅後綠）
+
+- **開發一律走分支，不得直接動 main。** main 只保留「已全綠的安全版」，
+  現場任何時候誤按更新，拉到的都是能跑的版本。
+- **ME129 的更新目標＝`release` 分支**，且必須等於 `00_HANDOFF/RELEASE_GATE.json`
+  的 `approved_commit` 才准更新；不符 → 拒絕 + 顯示「等待中樞核可」+ **服務照跑不中斷**。
+- 發佈閘 **fail-closed**：閘門設定檔壞掉/讀不到 → 一律不准更新
+  （不更新永遠比更新到半成品安全，現場服務本來就還在跑）。
+- **分支合回 main 只能在中樞回覆「核可合併」之後，不得自行合併——這條是鐵律。**
+- 晉升流程：中樞核可 → `git push origin <sha>:release` → RELEASE_GATE.json 填同一個 sha。
+  **開發者不得自行改 RELEASE_GATE.json 晉升版本。**
+
+### R4 開機 schema 守門（絕不讓現場拿到白畫面）
+
+- app 啟動先比對「DB 實際 schema」vs「現行程式期望 schema」，不符 → **拒絕啟動**
+  + 印明確原因（缺哪張表/哪個欄）+ 一鍵回滾指令 `python flask_backend/rollback_release.py`。
+- 期望 schema 的**唯一真相來源** ＝ `schema.sql` ＋ `migrate.py` 的 MIGRATIONS。
+  → 改 schema 一律走這兩處；用 `_migrate_xxx.py` 臨時腳本繞過管理器改欄位，
+  正是 2026-07-15 查出「兩條血脈 schema 雙向分歧」的成因（基準庫缺 lean、
+  卻獨有 group_info/theory_operators），**永久禁止**。
+- 守門只驗「該有的有沒有」，**不管多出來的**——多一欄不該擋現場開機。
+- 回滾只回滾**程式碼，不碰 DB**：DB 是現場的真實輸入，程式碼可逆、DB 不可逆。
+  schema 不符時正確方向是「把程式退回配得上這份 DB 的版本」。

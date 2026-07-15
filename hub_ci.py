@@ -17,6 +17,8 @@ hub_ci.py — 總閘門（中樞定案 2026-07-15）。一鍵起隔離 server（
   8 spec_gate_flow      三檔真實點擊路徑逐場景走通（不呼叫任何頁面 API；每步畫面必變＋資料 token 齊）
   9 spec_gate_bfs       三檔真實點擊 BFS 走遍主 UI（補 fresh 判定的覆蓋盲區：深層按鈕逐顆判定）
   13 breaker_gate       破壞者：並發/壞資料/權限繞過/邊界/狀態殘留（新端點自動納入攻擊面）
+  14 deploy_gate        營運/發佈路徑：更新鈕各時點/還原備份/半新程式+舊schema/舊程式+新schema/
+                        更新中斷電重啟（規則 R1/R2；起因＝2026-07-15 更新鈕地雷）
 
 隔離保證（絕不碰正式庫）：
   - 正式庫 flask_backend/data/atlas.db 以 sqlite3 URI `mode=ro` 唯讀開啟，用 backup API 複製到臨時目錄；
@@ -42,7 +44,7 @@ FACTORY = os.path.join(PREVIEW, 'SMARTPN_DEMO_FACTORY_V3.html')
 # 判定檔：被驗收方不得修改 → 報告附 hash 自證
 GATE_FILES = ['spec_gate_bianche.py', 'hub_gate.py', 'spec_gate_ie.py', 'spec_gate_import.py',
               'fresh_click_test.js', 'spec_gate_smartpn.py', 'spec_gate_flow.py', 'spec_gate_bfs.js',
-              'breaker_gate.py', 'hub_ci.py']
+              'breaker_gate.py', 'deploy_gate.py', 'hub_ci.py']
 
 KEEP = '--keep' in sys.argv
 RESULTS = []   # (name, ok, summary, output)
@@ -241,6 +243,12 @@ def main():
         run('閘門8 spec_gate_flow（三檔真實點擊路徑逐場景走通）', [sys.executable, 'spec_gate_flow.py'])
         for _n, _f in (('品牌', BRAND), ('供應商', SUPPLIER), ('工廠', FACTORY)):
             run(f'閘門9 spec_gate_bfs（{_n}端 真實點擊 BFS 走遍主 UI）', ['node', 'spec_gate_bfs.js', _f], timeout=3600)
+
+        # 閘門14 營運/發佈路徑（規則 R1/R2，Jim 定案 2026-07-15）。
+        # 起因：更新鈕地雷由 Jim 人工發現，13 支閘門全綠卻沒人攻「發佈路徑」。
+        # 本閘門不需要 server（自帶隔離副本），故放在 server 區塊外，server 掛了也照跑。
+        run('閘門14 deploy_gate（營運/發佈路徑：更新鈕·還原·程式與schema不同步·斷電）',
+            [sys.executable, 'deploy_gate.py'])
     finally:
         if proc and proc.poll() is None:
             proc.terminate()
@@ -261,7 +269,8 @@ def main():
         print(f'  {"✅ PASS" if ok else "❌ FAIL"}  {name}')
         print(f'          └ {summary}')
     npass = sum(1 for r in RESULTS if r[1])
-    allgreen = npass == len(RESULTS) and len(RESULTS) >= 13   # +1：閘門13 breaker_gate 必到齊
+    # +1：閘門13 breaker_gate 必到齊；+1：閘門14 deploy_gate 必到齊（R2：缺跑＝整批不過）
+    allgreen = npass == len(RESULTS) and len(RESULTS) >= 14
     reject_summary()
     print('\n' + '=' * 64)
     print(f'  hub_ci: {npass}/{len(RESULTS)} → {"✅ ALL GREEN（可以 push）" if allgreen else "❌ FAIL（不准 push）"}')

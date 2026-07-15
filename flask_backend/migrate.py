@@ -15,7 +15,9 @@ import os, re, shutil, sqlite3
 from datetime import datetime
 
 BASE   = os.path.dirname(os.path.abspath(__file__))
-DB     = os.path.join(BASE, 'data', 'atlas.db')
+# ATLAS_DB：與 database.py / db_backup.py 一致的覆寫方式。IE-VER 遷移要能在隔離副本上跑，
+# 不能只認死 data/atlas.db（正式庫/基準庫都不該被開發流程直接動到）。
+DB     = os.environ.get('ATLAS_DB') or os.path.join(BASE, 'data', 'atlas.db')
 BACKUP = os.path.join(BASE, 'backup')
 
 # ── Safety: reject forbidden SQL patterns ─────────────────────────────────────
@@ -167,6 +169,16 @@ MIGRATIONS = [
             "ALTER TABLE ie_review ADD COLUMN reviewed_by TEXT",
             "CREATE INDEX IF NOT EXISTS idx_ie_review_status ON ie_review(status)",
             "CREATE INDEX IF NOT EXISTS idx_ie_review_header ON ie_review(header_id)",
+        ]
+    },
+    {
+        'id': 'M011',
+        'desc': 'IE-VER B2: ob_header.lean —— 基準庫(C槽血脈)沒有這欄，但現行程式的廠務編制'
+                '會 SELECT DISTINCT lean FROM ob_header → 不補會直接炸「no such column: lean」。'
+                '（此欄原先是被 _migrate_lean.py 這類臨時腳本繞過管理器加的，故 M001-M010 沒有它，'
+                '這正是兩條血脈 schema 分歧的成因；補進管理器讓它成為正式遷移。）',
+        'sql': [
+            "ALTER TABLE ob_header ADD COLUMN lean TEXT",
         ]
     },
 ]

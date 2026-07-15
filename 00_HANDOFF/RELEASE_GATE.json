@@ -1,0 +1,22 @@
+{
+  "_doc": [
+    "發佈閘（Jim 要求，2026-07-15）——ME129 現場的更新目標由此檔控制。",
+    "",
+    "規則：",
+    "  1. ME129 的更新端點只拉 approved_branch，且必須等於 approved_commit 才准更新。",
+    "  2. approved_commit 只能由『中樞回覆核可』後填入。開發者不得自行改本檔晉升版本。",
+    "  3. 不符 → 更新被拒、顯示「等待中樞核可」、服務照跑（絕不中斷現場）。",
+    "  4. last_good_commit = 現場目前跑得動的安全版，供開機 schema 守門失敗時一鍵回滾。",
+    "",
+    "晉升流程（中樞核可後）：",
+    "  a. git push origin <sha>:release      → release 分支移到核可的 commit",
+    "  b. 本檔 approved_commit 填同一個 sha，approved_at/approved_by 據實填",
+    "  c. 現場按更新 → 通過閘門 → 拉取 → 重啟"
+  ],
+  "approved_branch": "release",
+  "approved_commit": "dbbf2cd",
+  "approved_by": "中樞",
+  "approved_at": "2026-07-15",
+  "last_good_commit": "dbbf2cd",
+  "note": "dbbf2cd = 已全綠的安全版（FOUNDATION + clone 斷言 + MPV 落地，含 ds04/lock 權限洞修補）。IE-VER 批次在 dev-iever 分支開發，未經中樞核可不得晉升。"
+}

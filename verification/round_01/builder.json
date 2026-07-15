@@ -1,7 +1,7 @@
 {
   "party": "builder",
   "delivery": "任務1 FOUNDATION(1a-1g 全) + 任務2 clone斷言 + 任務3 MPV落地(breaker=閘門13/mpv_feedback/46清單/規則入27) + 任務4 對帳工具(ie_ver_recon.py，真庫才能出數)",
-  "commit": "(待填 push 後 sha)",
+  "commit": "dbbf2cd",
   "verdict": "red",
   "summary": "程式面自證完成，但本機 atlas.db 不是 Jim 真庫（actual_headers=3，真庫應≈140）→ 依 27 規則十二-7 自判紅，任務4(IE-VER/BZ-VER 對帳) 在本機不成立，未做。",
   "data_source": {
@@ -36,9 +36,10 @@
   "findings": [
     {
       "severity": "high",
-      "summary": "本機 atlas.db 非 Jim 真庫：有 actual 的 header 只有 3（真庫應≈140），全庫 ie_process=8295（真庫應≈20434）",
-      "evidence": "本機所有 24 份 .db（含 backup/、test_isolated/）全為 8295 列/197 header；無任何一份是 20434 列/152 header",
-      "repro": "python hub_ci.py 觀察啟動橫幅；或 sqlite3 flask_backend/data/atlas.db 'select count(distinct header_id) from ie_process where actual_operators is not null and actual_operators<>0' → 3"
+      "summary": "D 槽工作 repo 的 atlas.db 非真庫：有 actual 的 header 只有 3（真庫應≈140），全庫 ie_process=8295（真庫應≈20434）",
+      "evidence": "D 槽所有 .db（含 backup/、test_isolated/）全為 8295 列/197 header。",
+      "repro": "python hub_ci.py 觀察啟動橫幅；或 sqlite3 flask_backend/data/atlas.db 'select count(distinct header_id) from ie_process where actual_operators is not null and actual_operators<>0' → 3",
+      "correction_20260715": "★本 finding 原文寫『本機所有 24 份 .db…無任何一份是 20434 列/152 header』——**這句是錯的，特此更正**。2026-07-15 全機掃描（C:\\ + D:\\，48 檔/47 份不重複內容）在 C 槽另一份 repo 找到真庫：C:\\smartpn-atlas-core\\flask_backend\\data\\atlas.db = ie_process 20,434 / actual header 140 / 合計 76,357.19，integrity_check ok。當初判斷失準的根因：(1) 只掃 D 槽工作 repo，沒掃全機；(2) 誤用『檔案大小≈78MB』當真庫判準——真庫其實只有 16MB，78MB 那批全是樣本庫（體積被 ie_sheet_data 52 萬列灌大，與實際人數無關）。教訓：**身分要用內容指標判，不能用檔案大小判。**"
     },
     {
       "severity": "high",

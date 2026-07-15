@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, send_from_directory, session, redirect
 from flask_cors import CORS
 import database as db
+import release_gate
 import os
 import sqlite3
 import tempfile
@@ -2349,16 +2350,19 @@ def _repo_root():
 def system_version_status():
     err = _require_manager()
     if err: return err
-    root = _repo_root()
     try:
-        subprocess.run(['git', 'fetch', 'origin', 'main'], cwd=root, timeout=15,
-                       capture_output=True)
-        local = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'],
-                               cwd=root, capture_output=True, text=True).stdout.strip()
-        remote = subprocess.run(['git', 'rev-parse', '--short', 'origin/main'],
-                                cwd=root, capture_output=True, text=True).stdout.strip()
-        return jsonify({'ok': True, 'up_to_date': local == remote,
-                        'local_commit': local, 'remote_commit': remote})
+        # 發佈閘（G2）：更新目標＝release 分支且必須等於中樞核可的 commit。
+        # 舊行為是直接看 origin/main，開發者一 push 半成品現場就能拉走 → 白畫面。
+        ok, info = release_gate.check_release(fetch=True)
+        return jsonify({'ok': True, 'can_update': ok, 'up_to_date': info.get('up_to_date', False),
+                        'local_commit': info.get('local_commit', ''),
+                        'remote_commit': info.get('remote_commit', ''),
+                        'approved_commit': info.get('approved_commit', ''),
+                        'approved_branch': info.get('approved_branch', ''),
+                        'approved_by': info.get('approved_by', ''),
+                        'approved_at': info.get('approved_at', ''),
+                        'reason': info.get('reason', ''),
+                        'message': info.get('message', '')})
     except Exception as e:
         return jsonify({'ok': False, 'error': str(e)}), 500
 
@@ -2368,6 +2372,21 @@ def system_update():
     if err: return err
     root = _repo_root()
     try:
+        # ── 發佈閘（G2，Jim 要求 2026-07-15）────────────────────────────────
+        # 未經中樞核可一律拒絕更新。拒絕時**只回訊息、不重啟、不 pull**，現場服務照跑。
+        # fail-closed：閘門本身出問題也算不通過（不更新永遠比更新到半成品安全）。
+        gate_ok, ginfo = release_gate.check_release(fetch=True)
+        if not gate_ok:
+            code = 200 if ginfo.get('reason') == 'already_current' else 403
+            return jsonify({'ok': False, 'blocked_by': 'release_gate',
+                            'reason': ginfo.get('reason', ''),
+                            'error': ginfo.get('message', release_gate.WAIT_MSG),
+                            'approved_commit': ginfo.get('approved_commit', ''),
+                            'remote_commit': ginfo.get('remote_commit', ''),
+                            'service': 'running'}), code
+        branch = ginfo.get('approved_branch') or 'release'
+        approved = ginfo.get('approved_commit') or ''
+
         # 只擋「已追蹤檔案的本地修改」(git pull 可能衝突)；未追蹤檔(log/匯出/測試腳本等)
         # 不該擋更新——否則任何殘留檔都會讓更新鍵永遠回「本地有改動」。--untracked-files=no
         dirty = subprocess.run(['git', 'status', '--porcelain', '--untracked-files=no'],
@@ -2375,17 +2394,29 @@ def system_update():
         if dirty:
             return jsonify({'ok': False, 'error': '本地有已追蹤檔案的改動，請聯絡管理員',
                             'dirty': dirty}), 409
-        pull = subprocess.run(['git', 'pull', 'origin', 'main'], cwd=root,
+        pull = subprocess.run(['git', 'pull', 'origin', branch], cwd=root,
                               capture_output=True, text=True, timeout=60)
         if pull.returncode != 0:
             return jsonify({'ok': False, 'error': pull.stderr.strip() or pull.stdout.strip()}), 500
         new_commit = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'],
                                     cwd=root, capture_output=True, text=True).stdout.strip()
+
+        # 拉完先驗 schema 再重啟：拉到的程式若配不上這份 DB，重啟就是白畫面。
+        # 這裡擋下＝現場還在跑舊程式（尚未重啟），比重啟後掛死安全。
+        sok, sproblems, _ = release_gate.check_schema(db.DB_PATH)
+        if not sok:
+            return jsonify({'ok': False, 'blocked_by': 'schema_guard',
+                            'error': '更新已拉取，但 DB schema 與新程式不符，已停止重啟以免現場白畫面。'
+                                     '請執行 python flask_backend\\migrate.py 升級 DB，或 '
+                                     'python flask_backend\\rollback_release.py 回滾程式。',
+                            'problems': sproblems, 'new_commit': new_commit,
+                            'service': 'running'}), 409
+
         import threading
         def _restart():
             import time; time.sleep(1); os._exit(0)
         threading.Thread(target=_restart, daemon=True).start()
-        return jsonify({'ok': True, 'new_commit': new_commit})
+        return jsonify({'ok': True, 'new_commit': new_commit, 'approved_commit': approved})
     except Exception as e:
         return jsonify({'ok': False, 'error': str(e)}), 500
 
@@ -2393,5 +2424,11 @@ def system_update():
 
 if __name__ == '__main__':
     db.init_db()
+    # 開機 schema 守門（G2）：程式比 DB 新就拒絕啟動，並印出一鍵回滾指令。
+    # 寧可「起不來但講清楚原因」，也不要讓現場拿到白畫面查不出所以然。
+    # SKIP_SCHEMA_GUARD=1 供閘門/測試在刻意製造的破庫上跑，正式現場不設此變數。
+    if not os.environ.get('SKIP_SCHEMA_GUARD'):
+        if not release_gate.guard_or_die(db.DB_PATH):
+            sys.exit(3)
     print('Atlas Data System starting on http://0.0.0.0:5000')
     app.run(host='0.0.0.0', port=5000, debug=False)

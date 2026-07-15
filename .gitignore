@@ -47,4 +47,8 @@ flask_backend/data/*.db-wal
 flask_backend/data/*.db-shm
 flask_backend/data/auto_backup/
 flask_backend/backup_task.log
+# IE-VER 對帳/遷移隔離副本：DB 檔不進 git（報告 .md 要追蹤）
+real_db_for_recon/*.db
+real_db_for_recon/*.db-wal
+real_db_for_recon/*.db-shm
 __pycache__/

@@ -59,8 +59,11 @@ def shoe_key(model_name):
 
 def report_counts(conn):
     """報告①：逐 header count+sum + 全庫合計。"""
-    rows = conn.execute("""
-        SELECT h.id, h.model_name, h.season, h.eolr, h.lean, h.run,
+    # lean 欄僅供顯示，不參與計數；基準庫(C槽血脈)沒有這欄，缺欄時填 NULL 照跑。
+    has_lean = any(r[1] == 'lean' for r in conn.execute('PRAGMA table_info(ob_header)'))
+    lean_col = 'h.lean' if has_lean else 'NULL AS lean'
+    rows = conn.execute(f"""
+        SELECT h.id, h.model_name, h.season, h.eolr, {lean_col}, h.run,
                COUNT(*) AS n, SUM(p.actual_operators) AS s
         FROM ob_header h
         JOIN ie_process p ON p.header_id = h.id
