@@ -10,7 +10,7 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 
 /* topnav */
 .topnav{position:sticky;top:0;z-index:100;background:rgba(22,22,23,0.95);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:0.5px solid rgba(255,255,255,0.08);height:48px;display:flex;align-items:center;padding:0 24px;gap:20px}
-.nav-brand{font-size:15px;font-weight:600;color:#FFFFFF;letter-spacing:-0.2px;white-space:nowrap;flex-shrink:0;cursor:pointer}
+.nav-brand{font-size:15px;font-weight:600;color:#FFFFFF;letter-spacing:-0.2px;white-space:nowrap;flex-shrink:0}
 .nav-search-wrap{flex:1;max-width:400px;margin:0 auto;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.10);border-radius:8px;padding:7px 14px;cursor:text}
 .nav-search-wrap svg{opacity:0.55;flex-shrink:0}
 .nav-search-wrap input{border:none;background:transparent;font-size:14px;color:#FFFFFF;outline:none;width:100%;font-family:inherit}
@@ -27,6 +27,7 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 .filter-bar{display:flex;align-items:center;gap:8px;padding:14px 24px 12px;border-bottom:0.5px solid #D2D2D7;flex-wrap:wrap;background:#FFFFFF;position:sticky;top:48px;z-index:90}
 .fc{font-size:13px;padding:6px 16px;border-radius:20px;border:0.5px solid #D2D2D7;background:#FFFFFF;color:#1D1D1F;cursor:pointer;font-family:inherit;transition:all 0.12s;white-space:nowrap}
 .fc.active{background:#1D1D1F;color:#FFFFFF;border-color:#1D1D1F}
+.fc-on{font-size:13px;padding:6px 16px;border-radius:20px;border:0.5px solid #1D1D1F;background:#1D1D1F;color:#FFFFFF;font-family:inherit;white-space:nowrap;cursor:default;display:inline-block}
 .fc.dpp{color:#1D7340;border-color:#1D7340}
 .fc.dpp.active{background:#1D7340;color:#FFFFFF}
 .filter-sep{width:0.5px;height:20px;background:#D2D2D7;flex-shrink:0}
@@ -185,6 +186,7 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 .cat-btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:9px 10px;border:none;background:none;color:#1D1D1F;font-size:14px;cursor:pointer;border-radius:8px;font-family:inherit;transition:background 0.1s;text-align:left}
 .cat-btn:hover{background:#F5F5F7}
 .cat-btn.active{background:#F0F7FF;color:#0071E3;font-weight:500}
+.cat-btn-on{display:flex;align-items:center;justify-content:space-between;width:100%;padding:9px 10px;border:none;background:#F0F7FF;color:#0071E3;font-size:14px;font-weight:500;border-radius:8px;font-family:inherit;text-align:left;cursor:default}
 .cat-count{font-size:12px;color:#86868B;background:#F5F5F7;border-radius:10px;padding:1px 7px;flex-shrink:0}
 .cat-sep{height:0.5px;background:#E5E5EA;margin:8px 4px}
 .search-main{flex:1;min-width:0;padding:24px 40px 40px}
@@ -256,13 +258,14 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 
 <!-- TOP NAV -->
 <nav class="topnav">
-  <span class="nav-brand" onclick="showPage('home')">SmartPN Atlas</span>
-  <div class="nav-search-wrap" onclick="showPage('search');document.getElementById('nav-search-input').focus()">
+  <span class="nav-brand">SmartPN Atlas</span>
+  <label class="nav-search-wrap" for="nav-search-input">
     <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="#FFF" stroke-width="1.2"/><path d="M9.5 9.5L12.5 12.5" stroke="#FFF" stroke-width="1.2" stroke-linecap="round"/></svg>
     <input type="text" id="nav-search-input" placeholder="Search materials, suppliers, codes…" oninput="handleNavSearch(this.value)"/>
-  </div>
+  </label>
   <div class="nav-spacer"></div>
   <div class="nav-actions">
+    <button class="nav-btn" onclick="showPage('home')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2.5 7L8 2.5L13.5 7V13a1 1 0 01-1 1h-9a1 1 0 01-1-1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span data-i18n="home">Home</span></button>
     <button class="nav-btn" onclick="showPage('favorites')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 13.5S2 9.5 2 5.5A3.5 3.5 0 018 3a3.5 3.5 0 016 2c0 4-6 8.5-6 8.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span data-i18n="favorites">My Favorites</span></button>
     <button class="nav-btn" onclick="showPage('library')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 7h6M5 10h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span data-i18n="library">My Library</span> <span class="nav-count" id="lib-count">12</span></button>
     <button class="nav-btn" onclick="showPage('requests')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 4.5A1.5 1.5 0 013.5 3h9A1.5 1.5 0 0114 4.5v6A1.5 1.5 0 0112.5 12H6l-3 2.5V12H3.5A1.5 1.5 0 012 10.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span data-i18n="requests">Requests</span> <span class="nav-count alert" id="req-count">2</span></button>
@@ -276,9 +279,7 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 
 <!-- FILTER BAR -->
 <div class="filter-bar" id="filter-bar">
-  <button class="fc active" onclick="setTypeFilter('all',this)" data-i18n="f_all">All</button>
-  <button class="fc" onclick="setTypeFilter('raw',this)" data-i18n="f_raw">Raw Material</button>
-  <button class="fc" onclick="setTypeFilter('secondary',this)" data-i18n="f_sec">Secondary</button>
+  <span id="type-chips"></span>
   <button class="fc dpp" onclick="toggleDppFilter(this)" title="欄位齊全度篩選">DPP complete</button>
   <div class="filter-sep"></div>
   <span class="filter-label" data-i18n="f_price">Price / m</span>
@@ -298,48 +299,31 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
   <button class="fc" id="ext-view-btn" onclick="toggleExtView(this)" title="Simulate external visitor — PRIVATE materials hidden" data-i18n="extView">External View</button>
 </div>
 
-<!-- WELCOME splash：預設無任何內容頁啟用 → 點 logo/導覽/篩選任一鍵畫面必變（全新頁面判定） -->
-<div class="page active fade-in" id="page-welcome" style="padding:48px 40px">
-  <div class="section-title">NexBrand 材料工作台 · Material Workspace</div>
-  <div style="font-size:13px;color:#86868B;margin:-6px 0 20px">點上方 <strong>SmartPN Atlas</strong> 進首頁，或用導覽 / 篩選開始瀏覽材料。</div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:720px">
-    <div class="settings-row" onclick="showPage('home')" style="cursor:pointer;display:block"><div class="settings-label" style="font-weight:600">🏠 首頁 Home</div><div style="font-size:12px;color:#86868B">Latest · Most Popular</div></div>
-    <div class="settings-row" onclick="showPage('search');applyFilters()" style="cursor:pointer;display:block"><div class="settings-label" style="font-weight:600">🔍 搜尋 Search</div><div style="font-size:12px;color:#86868B">依分類 / 價格 / LT 篩選</div></div>
-    <div class="settings-row" onclick="showPage('dashboard')" style="cursor:pointer;display:block"><div class="settings-label" style="font-weight:600">📊 Dashboard</div><div style="font-size:12px;color:#86868B">授權可見 KPI</div></div>
-  </div>
-</div>
-
 <!-- HOME -->
 <div class="page fade-in" id="page-home" style="max-width:none;padding:0">
   <div class="cat-thumb-row" id="cat-thumb-row"></div>
   <div class="home-section">
     <div class="home-section-header">
       <div class="home-section-title" data-i18n="latest">Latest</div>
-      <button class="home-see-all" data-i18n="seeAll" onclick="showPage('search');applyFilters()">See All</button>
+      <button class="home-see-all" data-i18n="seeAll" onclick="seeAll('latest')">See All</button>
     </div>
     <div class="featured-grid" id="home-latest"></div>
   </div>
   <div class="home-section">
     <div class="home-section-header">
       <div class="home-section-title" data-i18n="popular">Most Popular</div>
-      <button class="home-see-all" data-i18n="seeAll" onclick="showPage('search');applyFilters()">See All</button>
+      <button class="home-see-all" data-i18n="seeAll" onclick="seeAll('popular')">See All</button>
     </div>
     <div class="featured-grid" id="home-popular"></div>
   </div>
 </div>
 
 <!-- SEARCH -->
-<div class="page" id="page-search" style="max-width:none;padding:0">
+<div class="page active" id="page-search" style="max-width:none;padding:0">
   <div class="search-layout">
     <div class="cat-sidebar">
       <div class="cat-sidebar-title" data-i18n="category">Category</div>
-      <button class="cat-btn active" id="cat-all" onclick="toggleCat(null,this)">All <span class="cat-count" id="cnt-all">0</span></button>
-      <div class="cat-sep"></div>
-      <button class="cat-btn" id="cat-皮料" onclick="toggleCat('皮料',this)"><span data-i18n="cat_leather">Leather</span> <span class="cat-count" id="cnt-皮料">0</span></button>
-      <button class="cat-btn" id="cat-人造皮" onclick="toggleCat('人造皮',this)"><span data-i18n="cat_synleather">Synthetic Leather</span> <span class="cat-count" id="cnt-人造皮">0</span></button>
-      <button class="cat-btn" id="cat-紡織" onclick="toggleCat('紡織',this)"><span data-i18n="cat_textile">Textile</span> <span class="cat-count" id="cnt-紡織">0</span></button>
-      <button class="cat-btn" id="cat-薄膜" onclick="toggleCat('薄膜',this)"><span data-i18n="cat_film">Film</span> <span class="cat-count" id="cnt-薄膜">0</span></button>
-      <button class="cat-btn" id="cat-二次加工" onclick="toggleCat('二次加工',this)"><span data-i18n="cat_secondary">Secondary</span> <span class="cat-count" id="cnt-二次加工">0</span></button>
+      <div id="cat-list"></div>
     </div>
     <div class="search-main">
       <div id="fsm-banner-area"></div>
@@ -351,7 +335,7 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 
 <!-- SPU -->
 <div class="page fade-in" id="page-spu">
-  <button class="detail-back" onclick="backToSearch()">‹ <span data-i18n="materialSearch">Material Search</span></button>
+  <div id="spu-back"></div>
   <div class="spu-hero" id="spu-hero"></div>
   <div id="spu-spec-body"></div>
   <div id="spu-reviews-body"></div>
@@ -359,7 +343,7 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 
 <!-- COMPANY -->
 <div class="page fade-in" id="page-company">
-  <button class="detail-back" onclick="backFromCompany()">‹ <span data-i18n="back">Back</span></button>
+  <div id="company-back"></div>
   <div id="company-content"></div>
 </div>
 
@@ -615,7 +599,7 @@ const THREADS = [
 let activeThread = 't1';
 
 /* ═══ STATE ═══ */
-let currentPage='home', typeFilter='all', dppFilter=false, catFilter=null, fsmContext=null, externalView=false;
+let currentPage='search', typeFilter='all', dppFilter=false, catFilter=null, fsmContext=null, externalView=false;
 let currentMat=null, currentSku=null, companyReturnPage=null, companyReturnMat=null, sortMode=null, reviewPerm='OPEN';
 
 /* ═══ NAV ═══ */
@@ -636,12 +620,38 @@ function backFromCompany(){
 }
 
 /* ═══ FILTERS ═══ */
-function setTypeFilter(t,el){ showPage('search'); typeFilter=t; document.querySelectorAll('.fc').forEach(b=>{if(!b.id&&!b.classList.contains('dpp'))b.classList.remove('active');}); el.classList.add('active'); applyFilters(); }
+const TYPE_CHIPS=[['all','f_all'],['raw','f_raw'],['secondary','f_sec']];
+// 套用中的篩選＝狀態指示，不是按鈕：對已套用的條件再按一次不會有任何效果，
+// 這種元素不該長得像、也不該是可點按鈕（第一性原則）。
+function renderTypeChips(){ const h=document.getElementById('type-chips'); if(!h) return;
+  h.innerHTML=TYPE_CHIPS.map(([t,k])=>t===typeFilter
+    ? `<span class="fc-on" data-i18n="${k}" aria-current="true">${T(k)}</span>`
+    : `<button class="fc" data-i18n="${k}" onclick="setTypeFilter('${t}')">${T(k)}</button>`).join(' '); }
+function setTypeFilter(t){ showPage('search'); typeFilter=t; renderTypeChips(); applyFilters(); }
+const CAT_LIST=[[null,'All','cat_all'],['皮料','Leather','cat_leather'],['人造皮','Synthetic Leather','cat_synleather'],['紡織','Textile','cat_textile'],['薄膜','Film','cat_film'],['二次加工','Secondary','cat_secondary']];
+function renderCatList(){ const h=document.getElementById('cat-list'); if(!h) return;
+  h.innerHTML=CAT_LIST.map(([cat,en,k],i)=>{
+    const id=cat===null?'all':cat, cnt=`<span class="cat-count" id="cnt-${id}">0</span>`;
+    const lbl=cat===null?'All':`<span data-i18n="${k}">${T(k)}</span>`;
+    const sep=i===1?'<div class="cat-sep"></div>':'';
+    return sep+(cat===catFilter
+      ? `<div class="cat-btn-on" id="cat-${id}" aria-current="true">${lbl} ${cnt}</div>`
+      : `<button class="cat-btn" id="cat-${id}" onclick="toggleCat(${cat===null?'null':`'${cat}'`})">${lbl} ${cnt}</button>`);
+  }).join(''); updateCatCounts(); }
 function toggleDppFilter(el){ showPage('search'); dppFilter=!dppFilter; el.classList.toggle('active',dppFilter); applyFilters(); }
 function toggleExtView(el){ showPage('search'); externalView=!externalView; el.classList.toggle('active',externalView); el.textContent=externalView?T('extView')+' ●':T('extView'); applyFilters(); renderHomepage(); }
 function handleNavSearch(){ if(currentPage!=='search'){ showPage('search'); } applyFilters(); }
 function applyFilters(){ fsmContext=null; document.getElementById('fsm-banner-area').innerHTML=''; renderGrid(); }
-function toggleCat(cat,el){ catFilter=cat; document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); showPage('search'); applyFilters(); }
+// See All 帶區塊語意：Latest→最新在前、Most Popular→最熱門在前（兩顆行為必須不同）
+function seeAll(section){
+  showPage('search'); typeFilter='all'; catFilter=null; dppFilter=false;
+  sortMode=(section==='popular')?'views-desc':'updated-desc';
+  const sl=document.getElementById('sort-lt'), sp=document.getElementById('sort-price');
+  if(sl){sl.classList.remove('active'); sl.textContent='LT ↕';}
+  if(sp){sp.classList.remove('active'); sp.textContent='Price ↕';}
+  renderTypeChips(); renderCatList(); applyFilters();
+}
+function toggleCat(cat){ catFilter=cat; showPage('search'); renderCatList(); applyFilters(); }
 function toggleSort(field,el){
   showPage('search');
   const asc=field+'-asc',desc=field+'-desc',other=field==='lt'?'sort-price':'sort-lt';
@@ -667,7 +677,12 @@ function getFiltered(){
     if(q&&!m.name.toLowerCase().includes(q)&&!SUPPLIERS[m.sup].name.toLowerCase().includes(q)&&!m.id.toLowerCase().includes(q)&&!(m.gs1||'').includes(q)) return false;
     return true;
   });
-  if(sortMode){ const[f,d]=sortMode.split('-'); r.sort((a,b)=>{const va=f==='lt'?a.lt:a.price,vb=f==='lt'?b.lt:b.price;return d==='asc'?va-vb:vb-va;}); }
+  if(sortMode){ const[f,d]=sortMode.split('-');
+    r.sort((a,b)=>{
+      if(f==='updated'){ const c=String(a.updated).localeCompare(String(b.updated)); return d==='asc'?c:-c; }
+      const va=f==='lt'?a.lt:f==='views'?a.views:a.price, vb=f==='lt'?b.lt:f==='views'?b.views:b.price;
+      return d==='asc'?va-vb:vb-va;
+    }); }
   return r;
 }
 
@@ -700,7 +715,7 @@ function renderGrid(mats){
 }
 function updateCatCounts(){
   const vis=MATERIALS.filter(m=>isVisible(m)&&!(externalView&&m.perm==='PRIVATE'));
-  document.getElementById('cnt-all').textContent=vis.length;
+  const cAll=document.getElementById('cnt-all'); if(cAll) cAll.textContent=vis.length;
   ['皮料','人造皮','紡織','薄膜','二次加工'].forEach(c=>{const el=document.getElementById('cnt-'+c);if(el)el.textContent=vis.filter(m=>m.cat===c).length;});
 }
 function renderHomepage(){
@@ -718,7 +733,7 @@ function renderHomepage(){
 function renderCatThumbs(){
   const cats=[['紡織','textile','cat_textile'],['人造皮','synleather','cat_synleather'],['皮料','leather','cat_leather'],['薄膜','film','cat_film'],['二次加工','secondary','cat_secondary']];
   document.getElementById('cat-thumb-row').innerHTML=cats.map(([cat,pat,i18n])=>
-    `<div class="cat-thumb-item" onclick="toggleCat('${cat}',document.getElementById('cat-${cat}'))">
+    `<div class="cat-thumb-item" onclick="toggleCat('${cat}')">
       <img class="cat-thumb-img" src="${texURI(pat,120)}" alt=""><span class="cat-thumb-label" data-i18n="${i18n}">${T(i18n)}</span></div>`).join('');
 }
 
@@ -728,6 +743,9 @@ function openMaterial(id){ openSpu(id); }
 function selectOpt(key){ if(!currentMat) return; currentSku=currentMat.skuVariants.find(v=>v.key===key)||currentSku; renderSpuPage(currentMat); }
 function renderSpuPage(m){
   if(!m) return;   // R-1：無材料脈絡不渲染
+  // 返回鈕只在「真的從搜尋頁進來」時才存在——沒有上一頁就不該有返回鈕（第一性原則）
+  const bk=document.getElementById('spu-back');
+  if(bk) bk.innerHTML=`<button class="detail-back" onclick="backToSearch()">‹ <span data-i18n="materialSearch">${T('materialSearch')}</span></button>`;
   const sup=SUPPLIERS[m.sup], sku=currentSku;
   document.getElementById('spu-hero').innerHTML=`
     <div class="spu-img"><img src="${matURI(m,400)}" alt="${m.name}">${m.dpp?'<div class="spu-dpp-badge" title="欄位齊全度，非內容驗證">DPP fields 12/14 complete</div>':'<div class="spu-dpp-badge" style="background:#86868B">Missing metadata</div>'}</div>
@@ -818,6 +836,9 @@ function openCompanyFromCard(s){ companyReturnPage='search'; renderCompanyPage(s
 function openCompanyFromSpu(s){ companyReturnPage='spu'; companyReturnMat=currentMat; renderCompanyPage(s); showPage('company'); }
 function renderCompanyPage(supId){
   const s=SUPPLIERS[supId], mats=MATERIALS.filter(m=>m.sup===supId&&isVisible(m)&&!(externalView&&m.perm==='PRIVATE'));
+  // 返回鈕只在真的有上一頁時注入
+  const bk=document.getElementById('company-back');
+  if(bk) bk.innerHTML=`<button class="detail-back" onclick="backFromCompany()">‹ <span data-i18n="back">${T('back')}</span></button>`;
   document.getElementById('company-content').innerHTML=`
     <div class="company-hero"><div class="company-avatar">${s.short}</div>
       <div><div class="company-name">${s.name}</div><div class="company-meta">${s.country} · ${s.category}</div>
@@ -960,7 +981,7 @@ const STRINGS={
   f_all:{en:'All',zh:'全部'},f_raw:{en:'Raw Material',zh:'原物料'},f_sec:{en:'Secondary',zh:'二次加工'},
   f_price:{en:'Price / m',zh:'單價 / m'},f_lt:{en:'Max LT (days)',zh:'最長交期'},f_sort:{en:'Sort',zh:'排序'},
   extView:{en:'External View',zh:'外部視角'},latest:{en:'Latest',zh:'最新上架'},popular:{en:'Most Popular',zh:'最多人使用'},
-  seeAll:{en:'See All',zh:'全部查看'},category:{en:'Category',zh:'材料分類'},
+  seeAll:{en:'See All',zh:'全部查看'},category:{en:'Category',zh:'材料分類'},cat_all:{en:'All',zh:'全部'},
   cat_leather:{en:'Leather',zh:'皮料'},cat_synleather:{en:'Synthetic Leather',zh:'人造皮'},cat_textile:{en:'Textile',zh:'紡織'},cat_film:{en:'Film',zh:'薄膜'},cat_secondary:{en:'Secondary',zh:'二次加工'},
   materialSearch:{en:'Material Search',zh:'材料搜尋'},back:{en:'Back',zh:'返回'},options:{en:'Options',zh:'規格選項'},
   price:{en:'Price',zh:'單價'},leadtime:{en:'Lead time',zh:'交期'},addLib:{en:'Add to My Library',zh:'加入材料庫'},
@@ -974,12 +995,13 @@ function toggleLang(){
   LANG=LANG==='en'?'zh':'en';
   document.getElementById('lang-toggle').textContent=LANG==='en'?'中文':'EN';
   document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.dataset.i18n;if(STRINGS[k])el.textContent=T(k);});
-  renderHomepage(); renderCatThumbs();
+  renderHomepage(); renderCatThumbs(); renderTypeChips(); renderCatList();
   if(currentPage==='search') renderGrid();
   if(currentPage==='spu'&&currentMat) renderSpuPage(currentMat);
 }
 
 /* ═══ INIT ═══ */
+renderTypeChips(); renderCatList();
 renderCatThumbs();
 renderHomepage();
 renderGrid();
@@ -1076,7 +1098,10 @@ const B_HIDDEN = new Set(['SPA-MAT-0002']); // v1 材料，B 帳號看不到（�
   renderAcctSwitch();
 })();
 function renderAcctSwitch(){ const h=document.getElementById('acctSwitch'); if(!h)return;
-  h.innerHTML=MOCK_WORLD.accounts.map(a=>`<button onclick="setAccount('${a.id}')" style="font-size:11px;padding:4px 9px;border:none;cursor:pointer;font-family:inherit;background:${a.id===ACCT.id?'#0071E3':'rgba(255,255,255,.12)'};color:#fff">${a.name}</button>`).join(''); }
+  // 目前登入的帳號無法「切換過去」——它是狀態指示(span)，不是按鈕。
+  h.innerHTML=MOCK_WORLD.accounts.map(a=>a.id===ACCT.id
+    ? `<span aria-current="true" style="font-size:11px;padding:4px 9px;font-family:inherit;background:#0071E3;color:#fff;display:inline-block">${a.name}</span>`
+    : `<button onclick="setAccount('${a.id}')" style="font-size:11px;padding:4px 9px;border:none;cursor:pointer;font-family:inherit;background:rgba(255,255,255,.12);color:#fff">${a.name}</button>`).join(''); }
 function setAccount(id){ showPage('search'); ACCT=MOCK_WORLD.accounts.find(a=>a.id===id)||ACCT; renderAcctSwitch(); if(typeof applyFilters==='function') applyFilters(); }
 
 /* 疊加：讓 v1 isVisible 也尊重帳號可見性（保留原邏輯，再加帳號過濾） */
@@ -1315,7 +1340,7 @@ window.MOCK_WORLD = MOCK_WORLD;
 window.setAccount = setAccount;
 window.getVisibleMaterials = ()=>MOCK_WORLD.visibleTo(ACCT);
 window.setLang = (lg)=>{ if(lg && ((lg==='zh')!==(LANG==='zh'))) toggleLang(); };
-window.V1_PARITY = ['T','applyFilters','avgStars','backFromCompany','backToSearch','cardHtml','closeFsmModal','findSameMaterial','fsmCard','getFiltered','handleNavSearch','inFsmScope','isVisible','libRow','matURI','msgHtml','openCompanyFromCard','openCompanyFromSpu','openFsmInNewWindow','openMaterial','openRequestFor','openSpu','openThread','permBadge','permLabel','renderCatThumbs','renderCompanyPage','renderCompare','renderFavorites','renderFsmBody','renderGrid','renderHomepage','renderLibrary','renderRequests','renderSpuPage','revCard','reviewsHtml','selectOpt','sendMsg','setReviewPerm','setTypeFilter','showFieldHistory','showPage','starsHtml','submitReview','texSVG','texURI','texturePattern','toggleCat','toggleDppFilter','toggleExtView','toggleLang','toggleSort','updateCatCounts'];
+window.V1_PARITY = ['T','applyFilters','seeAll','renderTypeChips','renderCatList','avgStars','backFromCompany','backToSearch','cardHtml','closeFsmModal','findSameMaterial','fsmCard','getFiltered','handleNavSearch','inFsmScope','isVisible','libRow','matURI','msgHtml','openCompanyFromCard','openCompanyFromSpu','openFsmInNewWindow','openMaterial','openRequestFor','openSpu','openThread','permBadge','permLabel','renderCatThumbs','renderCompanyPage','renderCompare','renderFavorites','renderFsmBody','renderGrid','renderHomepage','renderLibrary','renderRequests','renderSpuPage','revCard','reviewsHtml','selectOpt','sendMsg','setReviewPerm','setTypeFilter','showFieldHistory','showPage','starsHtml','submitReview','texSVG','texURI','texturePattern','toggleCat','toggleDppFilter','toggleExtView','toggleLang','toggleSort','updateCatCounts'];
 if (typeof applyFilters==='function') applyFilters();
 </script>
 </body>

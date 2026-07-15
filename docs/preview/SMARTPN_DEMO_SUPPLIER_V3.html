@@ -23,6 +23,9 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 .nav-item:last-child{border-bottom:none}
 .nav-item:hover{background:#F5F5F7}
 .nav-item.active{background:#F0F7FF;color:#0071E3}
+.nav-item-on{display:flex;align-items:center;gap:10px;padding:12px 16px;font-size:14px;width:100%;text-align:left;font-family:inherit;border-bottom:0.5px solid #E5E5EA;background:#F0F7FF;color:#0071E3;cursor:default}
+.nav-item-on:last-child{border-bottom:none}
+.nav-sub-on{display:flex;align-items:center;gap:8px;padding:8px 16px 8px 30px;font-size:13px;width:100%;text-align:left;font-family:inherit;background:#F0F7FF;color:#0071E3;cursor:default}
 .nav-icon{width:28px;height:28px;border-radius:7px;background:#636366;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .nav-item.active .nav-icon{background:#0071E3}
 .nav-label{flex:1}
@@ -45,6 +48,7 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 .tab-bar{display:flex;border-bottom:0.5px solid #D2D2D7;margin-bottom:24px;overflow-x:auto}
 .tab-btn{font-size:14px;padding:10px 18px;border:none;background:none;color:#86868B;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-0.5px;white-space:nowrap}
 .tab-btn.active{color:#1D1D1F;border-bottom-color:#1D1D1F;font-weight:500}
+.tab-on{font-size:14px;padding:10px 18px;border:none;background:none;color:#1D1D1F;font-family:inherit;border-bottom:2px solid #1D1D1F;margin-bottom:-0.5px;white-space:nowrap;font-weight:500;cursor:default;display:inline-block}
 .tab-panel{display:none}.tab-panel.active{display:block}
 
 .form-card{background:#FAFAFA;border:0.5px solid #E5E5EA;border-radius:12px;padding:24px;margin-bottom:20px}
@@ -216,33 +220,33 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
   <div class="sidebar">
     <div class="sidebar-section" data-i18n="s_company">Company</div>
     <div class="nav-group">
-      <button class="nav-item active" onclick="showView('company',this)">
+      <button class="nav-item active" data-view="company" onclick="showView('company',this)">
         <div class="nav-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="5" width="12" height="9" rx="1.5" stroke="white" stroke-width="1.3"/><path d="M5 5V4a3 3 0 016 0v1" stroke="white" stroke-width="1.3" stroke-linecap="round"/></svg></div>
         <span class="nav-label" data-i18n="m_company">公司建立</span><span class="nav-chev">›</span>
       </button>
     </div>
     <div class="sidebar-section" data-i18n="s_smartpn">SmartPN</div>
     <div class="nav-group">
-      <button class="nav-item" onclick="showView('raw',this)">
+      <button class="nav-item" data-view="raw" onclick="showView('raw',this)">
         <div class="nav-icon" style="background:#007AFF"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="white" stroke-width="1.3"/><path d="M8 5v3l2 1.5" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg></div>
         <span class="nav-label" data-i18n="m_smartpn">SmartPN 建立</span><span class="nav-chev">›</span>
       </button>
-      <button class="nav-sub" onclick="showView('raw',this)"><span class="nav-sub-dot"></span><span data-i18n="m_raw">原物料</span></button>
-      <button class="nav-sub" onclick="showView('secondary',this)"><span class="nav-sub-dot"></span><span data-i18n="m_secondary">二次加工</span></button>
-      <button class="nav-sub" onclick="showView('permission',this)"><span class="nav-sub-dot"></span><span data-i18n="m_permission">權限管理</span></button>
-      <button class="nav-sub" onclick="showView('pricing',this)"><span class="nav-sub-dot"></span><span data-i18n="m_pricing">單價管理</span></button>
-      <button class="nav-sub" onclick="showView('mapping',this)"><span class="nav-sub-dot"></span><span data-i18n="m_mapping">Mapping 驗收</span></button>
+      <button class="nav-sub" data-view="raw" onclick="showView('raw',this)"><span class="nav-sub-dot"></span><span data-i18n="m_raw">原物料</span></button>
+      <button class="nav-sub" data-view="secondary" onclick="showView('secondary',this)"><span class="nav-sub-dot"></span><span data-i18n="m_secondary">二次加工</span></button>
+      <button class="nav-sub" data-view="permission" onclick="showView('permission',this)"><span class="nav-sub-dot"></span><span data-i18n="m_permission">權限管理</span></button>
+      <button class="nav-sub" data-view="pricing" onclick="showView('pricing',this)"><span class="nav-sub-dot"></span><span data-i18n="m_pricing">單價管理</span></button>
+      <button class="nav-sub" data-view="mapping" onclick="showView('mapping',this)"><span class="nav-sub-dot"></span><span data-i18n="m_mapping">Mapping 驗收</span></button>
     </div>
     <div class="sidebar-section">Boss BI</div>
     <div class="nav-group">
-      <button class="nav-item" onclick="showView('bi',this)">
+      <button class="nav-item" data-view="bi" onclick="showView('bi',this)">
         <div class="nav-icon" style="background:#5856D6"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l3-4 3 2 3-5 3 3" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <span class="nav-label" data-i18n="m_bi">經營儀表板</span><span class="nav-chev">›</span>
       </button>
     </div>
     <div class="sidebar-section" data-i18n="s_inbox">Inbox</div>
     <div class="nav-group">
-      <button class="nav-item" onclick="showView('requests',this)">
+      <button class="nav-item" data-view="requests" onclick="showView('requests',this)">
         <div class="nav-icon" style="background:#34C759"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4.5A1.5 1.5 0 013.5 3h9A1.5 1.5 0 0114 4.5v6A1.5 1.5 0 0112.5 12H6l-3 2.5V12H3.5A1.5 1.5 0 012 10.5z" stroke="white" stroke-width="1.3" stroke-linejoin="round"/></svg></div>
         <span class="nav-label" data-i18n="m_requests">Requests</span><span class="nav-badge">2</span>
       </button>
@@ -254,27 +258,15 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
   <div class="main">
 
     <!-- 首頁 splash：預設無任何功能視圖啟用 → 點左側任一功能即導入（每顆導覽鍵按下畫面必變） -->
-    <div class="view active fade-in" id="view-home">
-      <div class="page-header"><div class="page-title">供應商工作台 Supplier Workspace</div><div class="page-sub">Formosa Materials Group · 從左側選擇一項功能開始</div></div>
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:720px;margin-top:8px">
-        <div class="form-card" onclick="showView('company')" style="cursor:pointer"><div class="form-card-title">🏢 公司建立</div><div style="font-size:12px;color:#86868B">母子公司 · 基本 · 認證 · 財務 · 關務</div></div>
-        <div class="form-card" onclick="showView('raw')" style="cursor:pointer"><div class="form-card-title">🧵 原物料建立</div><div style="font-size:12px;color:#86868B">Product → Options → 授權</div></div>
-        <div class="form-card" onclick="showView('permission')" style="cursor:pointer"><div class="form-card-title">🔒 權限管理</div><div style="font-size:12px;color:#86868B">資料夾 · 欄位三態 · 授權帳號</div></div>
-        <div class="form-card" onclick="showView('pricing')" style="cursor:pointer"><div class="form-card-title">💲 單價管理</div><div style="font-size:12px;color:#86868B">報價單 · 授權查看 · 有效期</div></div>
-        <div class="form-card" onclick="showView('mapping')" style="cursor:pointer"><div class="form-card-title">✅ Mapping 驗收</div><div style="font-size:12px;color:#86868B">分批簽署啟用</div></div>
-        <div class="form-card" onclick="showView('bi')" style="cursor:pointer"><div class="form-card-title">📊 經營儀表板</div><div style="font-size:12px;color:#86868B">合併決策指標</div></div>
-      </div>
-    </div>
-
     <!-- 公司建立 -->
-    <div class="view fade-in" id="view-company">
+    <div class="view active fade-in" id="view-company">
       <div class="page-header"><div class="page-title" data-i18n="m_company">公司建立</div><div class="page-sub">母公司 / 子公司 · 基本 · 認證 · 財務 · 關務</div></div>
       <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab(this,'c-basic')" data-i18n="t_basic">基本資料</button>
-        <button class="tab-btn" onclick="switchTab(this,'c-cert')" data-i18n="t_cert">認證</button>
-        <button class="tab-btn" onclick="switchTab(this,'c-fin')" data-i18n="t_fin">財務資料夾</button>
-        <button class="tab-btn" onclick="switchTab(this,'c-customs')" data-i18n="t_customs">關務資料夾</button>
-        <button class="tab-btn" onclick="switchTab(this,'c-sub')" data-i18n="t_sub">子公司</button>
+        <button class="tab-btn active" data-panel="c-basic" onclick="switchTab(this,'c-basic')" data-i18n="t_basic">基本資料</button>
+        <button class="tab-btn" data-panel="c-cert" onclick="switchTab(this,'c-cert')" data-i18n="t_cert">認證</button>
+        <button class="tab-btn" data-panel="c-fin" onclick="switchTab(this,'c-fin')" data-i18n="t_fin">財務資料夾</button>
+        <button class="tab-btn" data-panel="c-customs" onclick="switchTab(this,'c-customs')" data-i18n="t_customs">關務資料夾</button>
+        <button class="tab-btn" data-panel="c-sub" onclick="switchTab(this,'c-sub')" data-i18n="t_sub">子公司</button>
       </div>
 
       <div class="tab-panel active" id="c-basic">
@@ -521,13 +513,44 @@ function texURI(key,size){return 'data:image/svg+xml,'+encodeURIComponent(texSVG
 function fillTextures(){document.querySelectorAll('img[data-pat]').forEach(img=>{img.src=texURI(img.dataset.pat,parseInt(img.dataset.size)||120);});}
 
 /* ─── nav ─── */
+let currentView='company';   // 預設落地＝公司建立（側欄預設選取項）
 function showView(id,el){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+id).classList.add('active');
   document.querySelectorAll('.nav-item,.nav-sub').forEach(b=>b.classList.remove('active'));
-  if(el) el.classList.add('active');
+  if(el&&el.classList) el.classList.add('active');
+  currentView=id;
   window.scrollTo(0,0);
   if(id==='requests') renderRequests();
+  syncNav(); syncTabs();
+}
+/* ── 已套用的導覽項/分頁＝狀態指示，不是按鈕 ──
+   對「已經在的頁」再按一次不會有任何效果；這種元素不該是可點按鈕（第一性原則）。
+   以換 tag 實作：套用中→<div class="*-on">（無 onclick、非 button）；未套用→<button>。 */
+function _swapEl(el,tag,cls,onclick){
+  const n=document.createElement(tag);
+  n.className=cls; n.innerHTML=el.innerHTML;
+  for(const a of ['data-view','data-panel','data-i18n']){ const v=el.getAttribute(a); if(v!=null) n.setAttribute(a,v); }
+  if(onclick) n.setAttribute('onclick',onclick); else n.setAttribute('aria-current','true');
+  el.replaceWith(n); return n;
+}
+function syncNav(){
+  document.querySelectorAll('[data-view]').forEach(el=>{
+    const v=el.getAttribute('data-view'), on=(v===currentView);
+    const sub=el.className.indexOf('nav-sub')>-1;
+    const base=sub?'nav-sub':'nav-item';
+    if(on && el.tagName==='BUTTON') _swapEl(el,'div',base+'-on',null);
+    else if(!on && el.tagName!=='BUTTON') _swapEl(el,'button',base,`showView('${v}',this)`);
+    else if(!on) el.classList.remove('active');
+  });
+}
+function syncTabs(){
+  document.querySelectorAll('[data-panel]').forEach(el=>{
+    const pn=el.getAttribute('data-panel'), pnl=document.getElementById(pn);
+    const on=!!(pnl&&pnl.classList.contains('active'))&&currentView==='company';
+    if(on && el.tagName==='BUTTON') _swapEl(el,'div','tab-on',null);
+    else if(!on && el.tagName!=='BUTTON') _swapEl(el,'button','tab-btn',`switchTab(this,'${pn}')`);
+  });
 }
 function switchTab(btn,panel){
   showView('company');   // 從首頁/他頁點分頁：先導入公司視圖再切分頁（按下畫面必變）
@@ -535,6 +558,7 @@ function switchTab(btn,panel){
   btn.classList.add('active');
   document.querySelectorAll('#view-company .tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById(panel).classList.add('active');
+  syncTabs();
 }
 function setLevel(el){el.parentElement.querySelectorAll('.level-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
 function setWho(mode,el){el.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));el.classList.add('on');document.getElementById('who-company').style.display=mode==='company'?'':'none';document.getElementById('who-fuzzy').style.display=mode==='fuzzy'?'':'none';}
@@ -545,7 +569,7 @@ function _openTab(panel){ showView('company');
   document.querySelectorAll('#view-company .tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById(panel).classList.add('active');
   const map={'c-cert':'認證','c-sub':'子公司','c-fin':'財務','c-customs':'關務','c-basic':'基本'};
-  document.querySelectorAll('#view-company .tab-btn').forEach(b=>b.classList.toggle('active', b.textContent.indexOf(map[panel]||'')>-1)); }
+  document.querySelectorAll('#view-company .tab-btn').forEach(b=>b.classList.toggle('active', b.textContent.indexOf(map[panel]||'')>-1)); syncTabs(); }
 /* 認證：新增 / 移除 */
 function certAdd(){ _openTab('c-cert'); const b=document.querySelector('#c-cert tbody'); const n=b.children.length+1;
   const tr=document.createElement('tr'); tr.innerHTML=`<td>新認證 #${n}</td><td>第三方發證機構</td><td>2028-12-31</td><td><span class="chip">draft.pdf</span></td><td><button class="btn-link-red" onclick="certDel(this)">移除</button></td>`; b.appendChild(tr); }
@@ -660,6 +684,7 @@ const THREADS=[
   ]},
 ];
 let activeThread='t1';
+function _syncInit(){ if(typeof syncNav==='function'){ syncNav(); syncTabs(); } }
 function renderRequests(){
   document.getElementById('req-list').innerHTML=THREADS.map(t=>{const last=t.msgs[t.msgs.length-1];
     return `<div class="req-item ${t.id===activeThread?'active':''}" onclick="openThread('${t.id}')"><div class="req-ava">${t.from}</div><div style="flex:1;min-width:0"><div class="req-name">${t.name} ${t.unread?'<span class="req-dot"></span>':''}</div><div class="req-snippet">${t.subject}</div><div class="req-snippet">${last.t}</div></div></div>`;}).join('');
@@ -981,6 +1006,8 @@ window.setAccount = (id)=>{ PREVIEW=MOCK_WORLD.accounts.find(a=>a.id===id)||PREV
 window.getVisibleMaterials = ()=>MOCK_WORLD.visibleTo(PREVIEW);
 window.setLang = (lg)=>{ if(lg && ((lg==='zh')!==(LANG==='zh'))) toggleLang(); };
 window.V1_PARITY = ['T','addOption','fillTextures','msgHtml','openThread','optionCard','regenSpn','renderFolders','renderRaw','renderRequests','sendMsg','setLevel','setWho','showView','switchTab','syncOptionPattern','texSVG','texURI','toggleLang'];
+
+_syncInit();
 </script>
 </body>
 </html>

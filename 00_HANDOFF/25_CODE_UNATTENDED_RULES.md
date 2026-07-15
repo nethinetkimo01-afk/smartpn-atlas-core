@@ -43,3 +43,35 @@ Code 機 24 小時常開，專跑長時間背景任務。背景批次執行中�
 - (c) 頁內跳轉（深入頁）後，殼狀態與**返回路徑**（一鍵回頁簽首頁）全測；
 - (d) 每條斷言留截圖。
 - 禁「原始碼含字串」當通過條件——必須真實渲染/行為驗證。
+
+## ★ 總閘門 hub_ci：push 前必跑全綠（CI 定案 2026-07-15）
+`hub_ci.py`（repo 根）＝**總閘門**。一鍵起隔離 server（正式庫 `data/atlas.db` 唯讀副本）→ 依序跑全部閘門
+→ 彙總 PASS/FAIL → 對 FAIL 自動輸出退回摘要 → 清理隔離環境。
+- **每次 push 前必跑 `python hub_ci.py`，全綠才可 push**；報告必附 **hub_ci 輸出全文 + 各閘門檔 hash**
+  （hash 由 hub_ci 開頭自動印出，證明判定未被改）。
+- 涵蓋：`spec_gate_bianche`（四單位 CSA/OCS/RB/QC × 三角色 × 多月·數字可追溯）/ `hub_gate` 83/83 /
+  `fresh_click_test` 兩檔死按鈕=0 / `spec_gate_smartpn` 兩檔 16/16。
+- 隔離保證：正式庫以 sqlite3 `mode=ro` + backup API 複製，**正式庫全程唯讀**；跑完刪除臨時目錄。
+
+## ★ 死按鈕唯一判定 fresh_click_test（SP 三次退回定案 2026-07-15）
+`fresh_click_test.js` 是**唯一**死按鈕判定，**被驗收方不得修改任一閘門判定**：
+1. 每顆按鈕在**全新載入頁面**上獨立測試（一顆一個 JSDOM 實例）；
+2. **點擊前不做任何預備動作**——不先導入視圖、不先開分頁、不先點別的鈕、不注入狀態；
+3. **閘門本身不得呼叫 showView/showPage/switchTab** 等頁面 API（閘門有自我防作弊檢查，違反即 exit 3）；
+4. 判定＝按下後「可見文字快照」有變化＝活，無變化＝死。
+
+### ▲ 反作弊：不得用 splash 洗白死按鈕（本次三退主因）
+**起始啟用頁必須是 App 真實預設狀態，不得是「載入專用 splash」。**
+- 教訓：前批在品牌端加 `page-welcome`、供應商端加 `view-home`（皆為「請點左側/上方開始」的靜態導引頁，
+  App 內無任何控制項可導回），使**第一次點任何鈕都必然離開 splash＝畫面必變** → 13 顆真死鈕被整批洗白成 0。
+  這與「點擊前先導入視圖」是同一種變相放寬，只是搬到**頁面層**。
+- `fresh_click_test` 已內建判定：起始 active 頁若**全檔查無 `showPage/showView('<id>')` 導覽引用**＝單向載入態 → 直接 FAIL。
+
+### ▲ 第一性原則：已套用的狀態＝狀態指示，不是按鈕
+對「已經在的頁 / 已套用的篩選 / 目前的帳號」再按一次不會有任何效果——這種元素**不該是可點按鈕**：
+- 套用中的篩選 chip / 分類 / 導覽項 / 分頁 / 目前帳號 → 渲染成 `<span>/<div>`（`.fc-on`/`.cat-btn-on`/`.nav-item-on`/`.tab-on`），
+  無 onclick、`cursor:default`、`aria-current="true"`；未套用者才是 `<button>`。
+- Logo（如「SmartPN Atlas」）是品牌識別**不是按鈕** → 移除 onclick 與 `cursor:pointer`；導覽另設正式 Home 鈕。
+- **無處可返回的返回鈕不該存在** → 返回鈕只在真的有上一頁時才注入（`renderSpuPage`/`renderCompanyPage` 內動態產生）。
+- 同名不同義的鈕必須真的不同義（例：Latest/Most Popular 兩顆 See All → 各自帶 `seeAll('latest')`/`seeAll('popular')` 排序語意）。
+
