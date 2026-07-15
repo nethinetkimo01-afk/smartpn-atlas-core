@@ -12,6 +12,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 FILES = sys.argv[1:] or [
     os.path.join(ROOT, 'docs', 'preview', 'SMARTPN_DEMO_V3.html'),
     os.path.join(ROOT, 'docs', 'preview', 'SMARTPN_DEMO_SUPPLIER_V3.html'),
+    os.path.join(ROOT, 'docs', 'preview', 'SMARTPN_DEMO_FACTORY_V3.html'),
 ]
 
 # 16 場景關鍵 token（依 16 號檔 Demo interactions/表格）——缺一即 FAIL
@@ -113,7 +114,7 @@ def main():
         allok = allok and g
         print(f"  → {npass}/{len(SCN_TOKENS)} {'✅ ALL GREEN' if g else '❌ FAIL'}")
     print('\n'+'='*56)
-    print(f"  spec_gate_smartpn: {'✅ ALL GREEN（兩檔 16/16）' if allok else '❌ FAIL'}")
+    print(f"  spec_gate_smartpn: {'✅ ALL GREEN（%d 檔各 16/16）' % len(FILES) if allok else '❌ FAIL'}")
     print('='*56)
     sys.exit(0 if allok else 1)
 

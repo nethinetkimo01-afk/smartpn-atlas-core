@@ -11,8 +11,9 @@ hub_ci.py — 總閘門（中樞定案 2026-07-15）。一鍵起隔離 server（
   3 spec_gate_ie        IE 細表總計完整性（全段×全區塊×全分組：標時/理論人數/實際人數總計）
   4 fresh_click_test    品牌端 SMARTPN_DEMO_V3.html（死按鈕=0）
   5 fresh_click_test    供應商端 SMARTPN_DEMO_SUPPLIER_V3.html（死按鈕=0）
-  6 spec_gate_smartpn   兩檔 S02–S17 各 16/16
-  7 spec_gate_flow      真實點擊路徑逐場景走通（不呼叫任何頁面 API；每步畫面必變＋資料 token 齊）
+  6 fresh_click_test    工廠端 SMARTPN_DEMO_FACTORY_V3.html（死按鈕=0）
+  7 spec_gate_smartpn   三檔 S02–S17 各 16/16
+  8 spec_gate_flow      三檔真實點擊路徑逐場景走通（不呼叫任何頁面 API；每步畫面必變＋資料 token 齊）
 
 隔離保證（絕不碰正式庫）：
   - 正式庫 flask_backend/data/atlas.db 以 sqlite3 URI `mode=ro` 唯讀開啟，用 backup API 複製到臨時目錄；
@@ -33,6 +34,7 @@ PROD_DB = os.path.join(BACKEND, 'data', 'atlas.db')
 PREVIEW = os.path.join(ROOT, 'docs', 'preview')
 BRAND = os.path.join(PREVIEW, 'SMARTPN_DEMO_V3.html')
 SUPPLIER = os.path.join(PREVIEW, 'SMARTPN_DEMO_SUPPLIER_V3.html')
+FACTORY = os.path.join(PREVIEW, 'SMARTPN_DEMO_FACTORY_V3.html')
 
 # 判定檔：被驗收方不得修改 → 報告附 hash 自證
 GATE_FILES = ['spec_gate_bianche.py', 'hub_gate.py', 'spec_gate_ie.py', 'fresh_click_test.js',
@@ -184,8 +186,9 @@ def main():
 
         run('閘門4 fresh_click_test（品牌端 SMARTPN_DEMO_V3）', ['node', 'fresh_click_test.js', BRAND])
         run('閘門5 fresh_click_test（供應商端 SMARTPN_DEMO_SUPPLIER_V3）', ['node', 'fresh_click_test.js', SUPPLIER])
-        run('閘門6 spec_gate_smartpn（兩檔 S02–S17 各 16/16）', [sys.executable, 'spec_gate_smartpn.py'])
-        run('閘門7 spec_gate_flow（真實點擊路徑逐場景走通·把可點升級成可用）', [sys.executable, 'spec_gate_flow.py'])
+        run('閘門6 fresh_click_test（工廠端 SMARTPN_DEMO_FACTORY_V3）', ['node', 'fresh_click_test.js', FACTORY])
+        run('閘門7 spec_gate_smartpn（三檔 S02–S17 各 16/16）', [sys.executable, 'spec_gate_smartpn.py'])
+        run('閘門8 spec_gate_flow（三檔真實點擊路徑逐場景走通）', [sys.executable, 'spec_gate_flow.py'])
     finally:
         if proc and proc.poll() is None:
             proc.terminate()
@@ -206,7 +209,7 @@ def main():
         print(f'  {"✅ PASS" if ok else "❌ FAIL"}  {name}')
         print(f'          └ {summary}')
     npass = sum(1 for r in RESULTS if r[1])
-    allgreen = npass == len(RESULTS) and len(RESULTS) >= 7
+    allgreen = npass == len(RESULTS) and len(RESULTS) >= 8
     reject_summary()
     print('\n' + '=' * 64)
     print(f'  hub_ci: {npass}/{len(RESULTS)} → {"✅ ALL GREEN（可以 push）" if allgreen else "❌ FAIL（不准 push）"}')

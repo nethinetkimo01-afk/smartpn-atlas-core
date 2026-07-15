@@ -25,6 +25,7 @@ from spec_gate_smartpn import SCN_TOKENS   # 匯入時該模組已把 stdout 包
 FILES = sys.argv[1:] or [
     os.path.join(ROOT, 'docs', 'preview', 'SMARTPN_DEMO_V3.html'),
     os.path.join(ROOT, 'docs', 'preview', 'SMARTPN_DEMO_SUPPLIER_V3.html'),
+    os.path.join(ROOT, 'docs', 'preview', 'SMARTPN_DEMO_FACTORY_V3.html'),
 ]
 
 NODE = r"""
