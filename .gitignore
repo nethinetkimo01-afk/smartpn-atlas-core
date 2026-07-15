@@ -47,8 +47,15 @@ flask_backend/data/*.db-wal
 flask_backend/data/*.db-shm
 flask_backend/data/auto_backup/
 flask_backend/backup_task.log
-# IE-VER 對帳/遷移隔離副本：DB 檔不進 git（報告 .md 要追蹤）
-real_db_for_recon/*.db
-real_db_for_recon/*.db-wal
-real_db_for_recon/*.db-shm
+# ── 入規27：真實生產資料永不進 git（2026-07-15，中樞裁決，永久標準）──────────────
+# IE-VER 對帳/遷移隔離副本：DB 檔 **與報告 .md 一律不進 git**。
+# 報告含鞋型/ART料號/標時/實際人數/工序明細＝真實生產資料，靠本機檔案傳遞，不靠 repo。
+# （舊規「報告 .md 要追蹤」已於 2026-07-15 廢止；f9126aa/fa0906e 已改寫移除）
+real_db_for_recon/
+
+# 真實資料報告的其他慣用落點（一律本機）
+**/real_db_for_recon/
+*_recon_report*.md
+*_eolr_evidence*.md
+*_blocker_*.md
 __pycache__/
