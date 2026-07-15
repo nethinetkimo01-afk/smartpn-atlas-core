@@ -969,13 +969,13 @@ function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
     return `<td class="num" style="padding:0"><select class="cell-inp cut-interlock" data-pid="${pid}" onchange="onInterlockChange(${pid},this.value)">${opts}</select></td>`;
   };
   const zoneJ = esc(JSON.stringify(zone));
-  const post5 = () => ['post_marking_std','post_skiving_std','post_attach_std','post_edge_std','post_heat_std'].map(sc => {
-    const ps = row[sc];
-    return edM(sc,ps)+`<td class="formula-cell th-post-ops-cell" data-poststd="${ps??''}">${ops(ps)}</td>`;
-  }).join('');
+  // Task IE-2：後製標時＝手工輸入 → oninput 即時重算該格理論人數 + 該組小計（規則6）
+  const edP = (fld, v) => `<td class="num" style="padding:0"><input class="cell-inp" data-pid="${pid}" data-pfield="${fld}" value="${dv(v)}" onblur="commitEditStatic(this,${pid},'${fld}')" onkeydown="if(event.key==='Enter')this.blur()" oninput="recalcPostByPid(${pid},'${fld}')"></td>`;
+  const thP = (fld, v) => `<td class="formula-cell th-post-ops-cell" data-pid="${pid}" data-pfield-th="${fld}" data-poststd="${v??''}">${ops(v)}</td>`;
+  const postCells = (flds) => flds.map(fld => edP(fld,row[fld]) + thP(fld,row[fld])).join('');
+  const post5 = () => postCells(POST_ALL.slice(0,5));
   // Type-A only: 磨皮 = 6th post-process (手工標時 + 理論人數公式), appended after 热压
-  const post6 = () => post5() + edM('post_polish_std',row.post_polish_std)
-    + `<td class="formula-cell th-post-ops-cell" data-poststd="${row.post_polish_std??''}">${ops(row.post_polish_std)}</td>`;
+  const post6 = () => postCells(POST_ALL);
   const std = row.standard_time;
   const zhN  = esc(row.process_name||row.process_name_zh||'');
   const vi2  = esc(row.process_name_vi||'');
@@ -1018,10 +1018,8 @@ function renderCuttingRow(row, zone, type, eolr, groupFirstId, groupSize) {
   } else if (type === 'C') {
     h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('standard_time',std)+thC(std)+actTd;
   } else if (type === 'D') {
-    const pk = row.post_marking_std, ps2 = row.post_skiving_std;
     h += edM('layers_per_cut',row.layers_per_cut)+edM('qty_per_pair',row.qty_per_pair)+edM('standard_time',std)+thC(std)+actTd;
-    h += edM('post_marking_std',pk)+`<td class="formula-cell th-post-ops-cell">${ops(pk)}</td>`;
-    h += edM('post_skiving_std',ps2)+`<td class="formula-cell th-post-ops-cell">${ops(ps2)}</td>`;
+    h += postCells(postFieldsOf('D'));
   } else {
     h += edM('standard_time',std)+thC(std);
   }
@@ -1307,6 +1305,17 @@ function calcHandTotal(summaryZone) {
   return total;
 }
 
+// ── Task IE-2：後製分組欄位（每組＝標時 + 理論人數，各自獨立小計，橫向對齊該組）──────
+// 顯示順序須與 _cutHead / renderCuttingRow 完全一致，總計才會對齊該組。
+const POST_ALL = ['post_marking_std','post_skiving_std','post_attach_std','post_edge_std','post_heat_std','post_polish_std'];
+// 各 zone type 實際渲染的後製分組（A=6組含磨皮 / B=5組 / D=烘鞋垫+轉印鞋垫 / 其餘無）
+function postFieldsOf(type) {
+  if (type === 'A') return POST_ALL;                                        // 印线画线/削皮/贴补强/涂边烘毛边/热压/磨皮
+  if (type === 'B') return POST_ALL.slice(0, 5);                            // 同上不含磨皮
+  if (type === 'D') return ['post_marking_std','post_skiving_std'];         // 烘鞋垫 / 轉印鞋垫
+  return [];
+}
+
 // ── 區塊總計 ── 加總該區塊 標準時間 / 理論人數 / 實際人數（唯讀公式，空值當0）──────
 // 每列 standard_time 依各製程/區塊的顯示公式推算（與 renderCell / renderCuttingRow 一致）。
 function _rowStd(row, seg, zone) {
@@ -1330,12 +1339,19 @@ function _rowStd(row, seg, zone) {
 function calcZoneTotals(z, seg, zone, eolr) {
   const divisor = 3600 / eolr;
   let std = 0, theory = 0, actual = 0;
+  // Task IE-2：後製各分組獨立小計（空/NULL 當 0）
+  const post = {};
+  for (const f of POST_ALL) post[f] = { std: 0, theory: 0 };
   const seen = new Set();
   const rows = (z && z.rows) || [];
   for (const row of rows) {
     if (row.flag === 'deleted') continue;
     const st = _rowStd(row, seg, zone);
     if (!isNaN(st) && st > 0) { std += st; theory += st / divisor; }
+    for (const f of POST_ALL) {
+      const pv = parseFloat(row[f]);
+      if (!isNaN(pv) && pv > 0) { post[f].std += pv; post[f].theory += pv / divisor; }
+    }
     if (row.group_info) {
       const gid = row.group_info.group_id;
       if (!seen.has(gid)) { seen.add(gid); const hc = parseFloat(row.group_info.headcount); if (!isNaN(hc)) actual += hc; }
@@ -1344,7 +1360,7 @@ function calcZoneTotals(z, seg, zone, eolr) {
       if (!isNaN(a)) actual += a;
     }
   }
-  return { std, theory, actual };
+  return { std, theory, actual, post };
 }
 // 一般製程（stitching/assembly/stf/WS）總計列：對齊 cols，只在存在的欄放加總。
 function renderZoneTotalRow(z, seg, zone, eolr, cols) {
@@ -1366,16 +1382,21 @@ function renderCuttingTotalRow(z, zone, type, eolr) {
   const th  = `<td class="formula-cell zt-cell zt-theory">${fmtNum(t.theory)}</td>`;
   const ac  = `<td class="formula-cell zt-cell zt-actual">${fmtNum(t.actual)}</td>`;
   const E   = `<td class="zt-cell"></td>`;
+  // Task IE-2：後製分組小計——每組 2 格(標時/理論人數)，格數與表頭分組完全一致 → 橫向對齊該組
+  const postT = (fields) => fields.map(f =>
+      `<td class="formula-cell zt-cell zt-post-std" data-total-field="${f}">${fmtNum(t.post[f].std)}</td>`
+    + `<td class="formula-cell zt-cell zt-post-theory" data-total-field="${f}">${fmtNum(t.post[f].theory)}</td>`
+  ).join('');
   // Task H: 裁斷手工(M) 無材料欄 → lead 只有 del + 總計(name)
   const lead = (type === 'M')
     ? E + `<td class="zt-cell zt-title">總計</td>`
     : E + E + `<td class="zt-cell zt-title">總計</td>`;   // del, mat_cat, name
   let mid, tail = '';
-  if (type === 'A')      { mid = E + E + E + E + std + th + ac; tail = `<td class="zt-cell" colspan="12"></td>`; } // 層/件/刀/連刀
+  if (type === 'A')      { mid = E + E + E + E + std + th + ac; tail = postT(postFieldsOf('A')); } // 層/件/刀/連刀 + 6 組後製
   else if (type === 'M') { mid = std + th + ac; }                  // 裁斷手工: 標時/理論/要求人數
-  else if (type === 'B') { mid = E + E + std + th + ac;     tail = `<td class="zt-cell" colspan="10"></td>`; }
+  else if (type === 'B') { mid = E + E + std + th + ac;     tail = postT(postFieldsOf('B')); }
   else if (type === 'C') { mid = E + E + std + th + ac; }
-  else if (type === 'D') { mid = E + E + std + th + ac;     tail = `<td class="zt-cell" colspan="4"></td>`; }
+  else if (type === 'D') { mid = E + E + std + th + ac;     tail = postT(postFieldsOf('D')); }
   else                   { mid = std + th; }                       // type E: 只有 std/theory
   return `<tr class="zone-total-row" data-total-seg="cutting" data-total-zone="${esc(zone)}">${lead}${mid}${tail}</tr>`;
 }
@@ -1391,6 +1412,13 @@ function refreshZoneTotals(seg, zone) {
   const s = tr.querySelector('.zt-std');    if (s) s.textContent = fmtNum(t.std);
   const h = tr.querySelector('.zt-theory'); if (h) h.textContent = fmtNum(t.theory);
   const a = tr.querySelector('.zt-actual'); if (a) a.textContent = fmtNum(t.actual);
+  // Task IE-2：後製各分組小計即時更新
+  tr.querySelectorAll('.zt-post-std').forEach(td => {
+    const f = td.dataset.totalField; if (t.post[f]) td.textContent = fmtNum(t.post[f].std);
+  });
+  tr.querySelectorAll('.zt-post-theory').forEach(td => {
+    const f = td.dataset.totalField; if (t.post[f]) td.textContent = fmtNum(t.post[f].theory);
+  });
 }
 function refreshAllZoneTotals() {
   if (!DATA || !DATA.zones) return;
@@ -1436,6 +1464,25 @@ function recalcCuttingStdByPid(pid) {
     dr.row.qty_per_pair   = isNaN(qty) ? null : qty;
     dr.row.cut_per_hour   = isNaN(cph) ? null : cph;
     dr.row.interlock_cut  = il;
+    refreshZoneTotals(DATA.segment || SEG, dr.z.zone);
+  }
+}
+
+// Task IE-2：後製標時手工輸入 → 即時重算該格理論人數、同步 DATA、即時更新該組小計。
+// 不 reload（迴歸 Task D flush：不丟未存編輯）。空值→理論人數空、小計當 0。
+function recalcPostByPid(pid, fld) {
+  const inp = document.querySelector(`input[data-pfield="${fld}"][data-pid="${pid}"]`);
+  if (!inp) return;
+  const v  = parseFloat(inp.value);
+  const th = document.querySelector(`td[data-pfield-th="${fld}"][data-pid="${pid}"]`);
+  if (th) {
+    const okv = !isNaN(v) && v > 0;
+    th.dataset.poststd = okv ? v : '';
+    th.textContent     = okv ? fmtNum(v / (3600 / EOLR)) : '';
+  }
+  const dr = findDataRow(pid);
+  if (dr) {
+    dr.row[fld] = isNaN(v) ? null : v;
     refreshZoneTotals(DATA.segment || SEG, dr.z.zone);
   }
 }
