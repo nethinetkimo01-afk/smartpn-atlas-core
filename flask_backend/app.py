@@ -3,6 +3,7 @@ from flask_cors import CORS
 import database as db
 import os
 import tempfile
+import threading
 import json as _json
 import subprocess
 import sys
@@ -1460,6 +1461,47 @@ def _ds04_order_exists(order_id):
     except Exception:
         return True
 
+# ── Task IMP-FIX：DS-04 匯入間歇性失敗修復 ──────────────────────────────────
+# 根因：①暫存檔用固定檔名 → 並發/重試/手快點兩次同時寫同一檔，openpyxl 讀到半寫檔
+#      ②finally 無條件刪該固定檔 → 與另一個進行中的請求互相干擾
+#      ③表頭中文寫死精確比對 → 有空白/全形/別名就對不上
+_ds04_import_lock = threading.Lock()
+
+def _norm_hdr(v):
+    """表頭正規化：全形→半形、去空白、小寫。"""
+    s = str(v or '')
+    out = []
+    for ch in s:
+        o = ord(ch)
+        if 0xFF01 <= o <= 0xFF5E: out.append(chr(o - 0xFEE0))    # 全形英數字/符號
+        elif o == 0x3000: out.append(' ')                        # 全形空格
+        else: out.append(ch)
+    return ''.join(out).strip().lower().replace(' ', '').replace('　', '')
+
+# 別名表（正規化後比對）：中文/簡體/英文/常見縮寫都對得上
+_DS04_ALIASES = {
+    '部門':     ['部門', '部别', '部別', 'dept', 'department'],
+    'LEAN':     ['lean', '線別', '线别', '線别', 'leanline', 'line'],
+    '鞋型名稱': ['鞋型名稱', '鞋型名称', '鞋型', 'model', 'modelname', 'style'],
+    'ART':      ['art', '型體', '型体', 'artno', 'art#', 'artno.'],
+    '訂單號':   ['訂單號', '订单号', '訂單', '订单', 'order', 'orderno', 'orderno.', 'po', 'pono'],
+    '數量':     ['數量', '数量', 'qty', 'quantity', 'pcs', 'pairs'],
+    '交期':     ['交期', 'delivery', 'deliverydate', 'due', 'duedate'],
+    '外包鞋面': ['外包鞋面', '外包', 'outsource', 'outsourceupper'],
+}
+
+def _ds04_map_header(header):
+    """回傳 {正規欄名: 欄索引}；容錯空白/全形/大小寫/別名。"""
+    norm = [_norm_hdr(h) for h in header]
+    idx = {}
+    for canon, aliases in _DS04_ALIASES.items():
+        want = [_norm_hdr(a) for a in aliases]
+        for i, h in enumerate(norm):
+            if h and h in want:
+                idx[canon] = i
+                break
+    return idx
+
 @app.route('/api/ds04/import', methods=['POST'])
 def ds04_import_file():
     # Task BZ 流程①：DS-04 選檔上傳 → 覆蓋 + 變更記錄（決策①，database.ds04_import）
@@ -1472,24 +1514,55 @@ def ds04_import_file():
     f = request.files['file']
     if not f or not f.filename:
         return _bad('未選擇檔案')
+
+    # 併發保護：ds04_import 是整表覆蓋（DELETE+INSERT）→ 同時跑兩個會互相蓋。
+    # 第二個請求明確排隊回覆，而不是撞檔失敗。
+    if not _ds04_import_lock.acquire(blocking=False):
+        return jsonify({'ok': False, 'error': '匯入進行中，請稍候再試'}), 409
+
     import openpyxl, tempfile, os as _os
-    tmp = _os.path.join(tempfile.gettempdir(), 'ds04_upload.xlsx')
-    f.save(tmp)
+    tmp = None
+    wb = None
     try:
-        wb = openpyxl.load_workbook(tmp, data_only=True); ws = wb.active
-        header = [str(c.value or '').strip() for c in ws[1]]
-        COL = {'部門':'部門','LEAN':'LEAN','鞋型名稱':'鞋型名稱','ART':'ART','訂單號':'訂單號',
-               '數量':'數量','交期':'交期','外包鞋面':'外包鞋面'}
-        idx = {v: header.index(k) for k, v in COL.items() if k in header}
+        # 每次上傳一個獨立暫存檔（含 pid + 隨機字串）→ 杜絕並發/重試撞檔讀到半寫檔
+        fd, tmp = tempfile.mkstemp(suffix='.xlsx', prefix='ds04_%d_' % _os.getpid())
+        _os.close(fd)
+        f.save(tmp)                      # save() 會關檔 → 落磁碟完整
+        if _os.path.getsize(tmp) == 0:
+            return _bad('上傳檔為空檔（0 bytes）')
+
+        try:
+            wb = openpyxl.load_workbook(tmp, data_only=True, read_only=True)   # read_only：大檔快、不鎖
+        except Exception as e:
+            return _bad(f'DS-04 檔案無法解析（可能非 xlsx 或檔案毀損）：{type(e).__name__}: {e}')
+        ws = wb.active
+        rows = ws.iter_rows(values_only=True)
+        try:
+            header = list(next(rows))
+        except StopIteration:
+            return _bad('檔案無任何列（連表頭都沒有）')
+        header = [('' if c is None else c) for c in header]
+
+        idx = _ds04_map_header(header)
         need = ['LEAN', 'ART', '訂單號', '數量']
-        if any(k not in idx for k in need):
-            return _bad(f'表頭需含 {need}；實際={header[:10]}')
+        missing = [k for k in need if k not in idx]
+        if missing:
+            return _bad(f'表頭需含 {need}；缺={missing}；實際={[str(h) for h in header[:10]]}')
+
+        # 原子：全部解析+驗證通過才寫 DB；任一列有問題 → 明確錯誤含行號，DB 一列都不動
         records = []
-        for row in ws.iter_rows(min_row=2, values_only=True):
+        for ri, row in enumerate(rows, start=2):
             if not any(c is not None and str(c).strip() for c in row): continue
             g = lambda k: (row[idx[k]] if k in idx and idx[k] < len(row) else '')
+            qty_raw = g('數量')
+            try:
+                qty = int(float(str(qty_raw).strip() or 0))
+            except Exception:
+                return _bad(f'第 {ri} 列「數量」不是數字：{qty_raw!r}')
+            if not str(g('LEAN') or '').strip():
+                return _bad(f'第 {ri} 列「LEAN」不可空白')
             records.append({'部門': g('部門') or '', 'LEAN': g('LEAN') or '', '鞋型名稱': g('鞋型名稱') or '',
-                            'ART': g('ART') or '', '訂單號': g('訂單號') or '', '數量': g('數量') or 0,
+                            'ART': g('ART') or '', '訂單號': g('訂單號') or '', '數量': qty,
                             '交期': g('交期') or '', '外包鞋面': g('外包鞋面') or ''})
         if not records:
             return _bad('檔案無資料列')
@@ -1497,8 +1570,13 @@ def ds04_import_file():
     except Exception as e:
         return _bad(f'DS-04 解析失敗：{type(e).__name__}: {e}')
     finally:
-        try: _os.remove(tmp)
+        try:
+            if wb is not None: wb.close()          # read_only 模式須關檔才放得掉
         except Exception: pass
+        if tmp:
+            try: _os.remove(tmp)                   # 只刪自己那個檔，不碰別人的
+            except Exception: pass
+        _ds04_import_lock.release()
 
 @app.route('/api/ds04/order', methods=['POST'])
 def ds04_add_order():
