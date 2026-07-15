@@ -513,6 +513,47 @@ function texURI(key,size){return 'data:image/svg+xml,'+encodeURIComponent(texSVG
 function fillTextures(){document.querySelectorAll('img[data-pat]').forEach(img=>{img.src=texURI(img.dataset.pat,parseInt(img.dataset.size)||120);});}
 
 /* ─── nav ─── */
+
+/* ══ SP-fix4：路由級 lazy mount ══
+   只 toggle .active、內容不重繪＝死按鈕（中樞一致判定）。本檔既有 requests/permfields 已是
+   「導覽時才渲染」；其餘視圖/分頁把內容寫死在 DOM 裡 → 點了內容零變化。
+   修法＝只掛載目前視圖/分頁的內容（離開即卸載），與真實 SPA 路由一致。 */
+const VIEW_TPL = {}, PANEL_TPL = {};
+function initLazyViews(){
+  document.querySelectorAll('.view').forEach(v=>{
+    if(VIEW_TPL[v.id]==null) VIEW_TPL[v.id]=v.innerHTML;
+    if(!v.classList.contains('active')) v.innerHTML='';
+  });
+  initLazyPanels();
+}
+function initLazyPanels(){
+  document.querySelectorAll('.tab-panel').forEach(p=>{
+    if(PANEL_TPL[p.id]==null) PANEL_TPL[p.id]=p.innerHTML;
+    if(!p.classList.contains('active')) p.innerHTML='';
+  });
+}
+function mountView(id){
+  const el=document.getElementById('view-'+id); if(!el) return;
+  if(VIEW_TPL[el.id]!=null && !el.innerHTML.trim()){ el.innerHTML=VIEW_TPL[el.id]; initLazyPanels(); }
+}
+function unmountViews(except){
+  document.querySelectorAll('.view').forEach(v=>{
+    if(v.id!=='view-'+except && VIEW_TPL[v.id]!=null) v.innerHTML='';
+  });
+}
+function mountPanel(pid){
+  const el=document.getElementById(pid); if(!el) return;
+  if(PANEL_TPL[pid]!=null && !el.innerHTML.trim()) el.innerHTML=PANEL_TPL[pid];
+}
+function unmountPanels(except){
+  document.querySelectorAll('.tab-panel').forEach(p=>{ if(p.id!==except && PANEL_TPL[p.id]!=null) p.innerHTML=''; });
+}
+/* 視圖專屬重繪掛勾（掛載後內容才在 DOM 裡，須重跑該視圖的渲染） */
+function renderViewBody(id){
+  if(id==='requests'   && typeof renderRequests==='function')   renderRequests();
+  if(id==='permfields' && typeof renderPermFields==='function') renderPermFields();
+}
+
 let currentView='company';   // 預設落地＝公司建立（側欄預設選取項）
 function showView(id,el){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
@@ -521,7 +562,8 @@ function showView(id,el){
   if(el&&el.classList) el.classList.add('active');
   currentView=id;
   window.scrollTo(0,0);
-  if(id==='requests') renderRequests();
+  mountView(id); unmountViews(id);      // SP-fix4：內容真的重繪，不是只切 class
+  renderViewBody(id);
   syncNav(); syncTabs();
 }
 /* ── 已套用的導覽項/分頁＝狀態指示，不是按鈕 ──
@@ -558,6 +600,7 @@ function switchTab(btn,panel){
   btn.classList.add('active');
   document.querySelectorAll('#view-company .tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById(panel).classList.add('active');
+  mountPanel(panel); unmountPanels(panel);   // SP-fix4：分頁內容真的重繪
   syncTabs();
 }
 function setLevel(el){el.parentElement.querySelectorAll('.level-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
@@ -569,7 +612,8 @@ function _openTab(panel){ showView('company');
   document.querySelectorAll('#view-company .tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById(panel).classList.add('active');
   const map={'c-cert':'認證','c-sub':'子公司','c-fin':'財務','c-customs':'關務','c-basic':'基本'};
-  document.querySelectorAll('#view-company .tab-btn').forEach(b=>b.classList.toggle('active', b.textContent.indexOf(map[panel]||'')>-1)); syncTabs(); }
+  document.querySelectorAll('#view-company .tab-btn').forEach(b=>b.classList.toggle('active', b.textContent.indexOf(map[panel]||'')>-1));
+  mountPanel(panel); unmountPanels(panel); syncTabs(); }
 /* 認證：新增 / 移除 */
 function certAdd(){ _openTab('c-cert'); const b=document.querySelector('#c-cert tbody'); const n=b.children.length+1;
   const tr=document.createElement('tr'); tr.innerHTML=`<td>新認證 #${n}</td><td>第三方發證機構</td><td>2028-12-31</td><td><span class="chip">draft.pdf</span></td><td><button class="btn-link-red" onclick="certDel(this)">移除</button></td>`; b.appendChild(tr); }
@@ -684,7 +728,7 @@ const THREADS=[
   ]},
 ];
 let activeThread='t1';
-function _syncInit(){ if(typeof syncNav==='function'){ syncNav(); syncTabs(); } }
+function _syncInit(){ if(typeof initLazyViews==='function') initLazyViews(); if(typeof syncNav==='function'){ syncNav(); syncTabs(); } }
 function renderRequests(){
   document.getElementById('req-list').innerHTML=THREADS.map(t=>{const last=t.msgs[t.msgs.length-1];
     return `<div class="req-item ${t.id===activeThread?'active':''}" onclick="openThread('${t.id}')"><div class="req-ava">${t.from}</div><div style="flex:1;min-width:0"><div class="req-name">${t.name} ${t.unread?'<span class="req-dot"></span>':''}</div><div class="req-snippet">${t.subject}</div><div class="req-snippet">${last.t}</div></div></div>`;}).join('');
@@ -698,6 +742,9 @@ function sendMsg(){const inp=document.getElementById('req-input');const v=inp.va
 
 /* ─── i18n ─── */
 let LANG='en';
+// 欄位權限三態定義（須早於 addPermPanel IIFE 呼叫 renderPermFields，否則 TDZ）
+const PF_STATES=[['public','公開','PUBLIC','#1D7340'],['private','私密','PRIVATE','#B26A00'],['granted','授權','GRANTED','#0071E3']];
+
 const STR={
   s_company:{en:'Company',zh:'公司管理'},s_smartpn:{en:'SmartPN',zh:'SmartPN'},s_inbox:{en:'Inbox',zh:'收件匣'},
   m_company:{en:'Company Setup',zh:'公司建立'},m_smartpn:{en:'Create SmartPN',zh:'SmartPN 建立'},
@@ -813,7 +860,8 @@ let PREVIEW = MOCK_WORLD.accounts[0];
   main.appendChild(view);
   // nav entry（統一走 .active 類別，與其他視圖一致，快照才看得到）
   const navBtn=document.createElement('button'); navBtn.className='nav-sub'; navBtn.innerHTML='<span class="nav-sub-dot"></span><span>欄位權限三態</span>';
-  navBtn.onclick=function(){ showView('permfields', this); renderPermFields(); };
+  navBtn.setAttribute('data-view','permfields');   // 與其它導覽項一致 → syncNav 可管（套用中＝狀態指示）
+  navBtn.setAttribute('onclick', "showView('permfields',this)");
   const anchor=[...document.querySelectorAll('.nav-sub')].find(b=>/單價|pricing/i.test(b.textContent)) || document.querySelector('.nav-sub');
   if(anchor&&anchor.parentElement) anchor.parentElement.insertBefore(navBtn, anchor.nextSibling);
   renderPermFields();
@@ -823,13 +871,15 @@ function renderPermFields(){ const body=document.getElementById('pf-body'); if(!
   const MY=MOCK_WORLD.materials.filter(m=>m.sup==='FV');
   body.innerHTML=MY.map((m,mi)=>`<div style="background:#fff;border:0.5px solid #D2D2D7;border-radius:12px;padding:14px 16px;margin-bottom:12px">
     <div style="font-weight:600;margin-bottom:6px">${m.name} <span style="color:#86868B;font-size:12px">· ${m.spn}</span></div>
-    ${m.fields.map(f=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid #EDEDED;font-size:13px">
-      <span>${f.k}</span>
-      <span style="display:inline-flex;border:0.5px solid #D2D2D7;border-radius:8px;overflow:hidden">
-        <button onclick="setPF(${mi},'${f.k}','public')" style="font-size:11px;padding:4px 10px;border:none;cursor:pointer;font-family:inherit;background:${f.perm==='public'?'#1D7340':'#fff'};color:${f.perm==='public'?'#fff':'#86868B'}">公開</button>
-        <button onclick="setPF(${mi},'${f.k}','private')" style="font-size:11px;padding:4px 10px;border:none;cursor:pointer;font-family:inherit;background:${f.perm==='private'?'#B26A00':'#fff'};color:${f.perm==='private'?'#fff':'#86868B'}">私密</button>
-        <button onclick="setPF(${mi},'${f.k}','granted')" style="font-size:11px;padding:4px 10px;border:none;cursor:pointer;font-family:inherit;background:${f.perm==='granted'?'#0071E3':'#fff'};color:${f.perm==='granted'?'#fff':'#86868B'}">授權</button>
-      </span></div>`).join('')}</div>`).join('');
+    ${m.fields.map(f=>{
+      const cur=PF_STATES.find(x=>x[0]===f.perm);
+      const seg=PF_STATES.map(([pv,zh,en,col])=> pv===f.perm
+        ? `<span class="pf-on" aria-current="true" style="font-size:11px;padding:4px 10px;font-family:inherit;background:${col};color:#fff;cursor:default;display:inline-block">${zh}</span>`
+        : `<button onclick="setPF(${mi},'${f.k}','${pv}')" style="font-size:11px;padding:4px 10px;border:none;cursor:pointer;font-family:inherit;background:#fff;color:#86868B">${zh}</button>`).join('');
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid #EDEDED;font-size:13px">
+      <span>${f.k} <span class="pf-state" style="color:${cur?cur[3]:'#86868B'};font-size:11px;font-weight:600">· ${cur?cur[2]:'UNSET'}</span></span>
+      <span style="display:inline-flex;border:0.5px solid #D2D2D7;border-radius:8px;overflow:hidden">${seg}</span></div>`;
+    }).join('')}</div>`).join('');
 }
 
 /* ─ Boss 視角 (只讀) — #boss 直達 BI，隱藏編輯導覽 ─ */

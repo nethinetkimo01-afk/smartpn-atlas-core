@@ -7,9 +7,18 @@
  *   2. 點擊前不做任何預備動作——不先導入視圖、不先開分頁、不先點別的鈕、不注入任何狀態。
  *   3. 閘門本身絕不呼叫 showView / showPage / switchTab 等任何頁面 API（違者＝變相放寬）。
  *      → 教訓：前回報「死按鈕 0」是因為點擊前先導入視圖，中樞實測實為 13/71。
- *   4. 判定＝按下後「可見文字快照」有變化＝活；無變化＝死。
- *      可見文字排除：隱藏頁/視圖/分頁面板(.page/.view/.tab-panel/.pane/.screen/.unit-pane:not(.active))、
- *      inline display:none、未開啟的 modal。禁止任何裝飾層(__fx 等)讓閘門變綠。
+ *   4. 判定＝按下後「文字快照」有變化＝活；無變化＝死。
+ *      ★快照＝doc.body 的全部文字，**零排除**：不因 .active class 切換、也不因 inline display
+ *        的可見性切換而算「畫面變了」。只有**內容真的重繪**（文字真的不同）才算活。
+ *      ★★對「導覽類已 active 元素」放行＝變相放寬（中樞 2026-07-15 SP-fix4 定案）。
+ *        教訓：Home/My Account/Settings 只 toggle .active、目標頁內容從頭到尾都在 DOM 裡沒重繪；
+ *        舊版排除 .page:not(.active) → 誤判為活 → Code 判 0、中樞判 3。
+ *        改為排除 inline display:none 也不行：showPage 會切 filter-bar 的 inline display，
+ *        My Account/Settings 會因為「篩選列文字消失」被誤判為活（Code 判 1、中樞仍判 3）。
+ *        零排除才與中樞一致：品牌端 62 顆 → 死 3（Home/My Account/Settings），完全重現。
+ *        同段其它導覽鈕(Favorites/Library/Requests/Dashboard)在 showPage 內呼叫 render*()
+ *        → 內容真的重繪 → 快照變 → 活。正解＝比照本 App 既有 lazy render 模式，導覽時才渲染該頁內容。
+ *      禁止任何裝飾層(__fx 等)讓閘門變綠。
  *
  * 用法：node fresh_click_test.js <demo.html 路徑>
  * 9 項：1 反作弊(非 splash) · 2 死按鈕=0 · 3 引導入口 · 4 引導≥5步 · 5-9 機制五項(MOCK_WORLD)。
@@ -24,7 +33,7 @@ const html = fs.readFileSync(file, 'utf8');
 const label = path.basename(file);
 
 const SEL = '[onclick], button, .tab, .nav-item, [role="tab"], .nav-btn, .cat-btn, .fc, .main-tab, .nav-sub, .tab-btn, .level-btn';
-const SWITCH = ['page', 'view', 'tab-panel', 'pane', 'screen', 'unit-pane'];
+// SWITCH 已廢除：不得因 .active class 切換就當畫面變（見檔頭鐵則 4）
 
 // ── 自我防作弊：閘門原始碼不得出現對頁面 API 的呼叫（預備動作） ──
 (function selfCheck() {
@@ -61,24 +70,10 @@ function splashCheck(doc) {
          `此頁只讓第一次點擊必然變畫面＝整批洗白死按鈕。請移除 splash，預設啟用 App 真實首頁。`;
 }
 
+// 文字快照——零排除（見檔頭鐵則 4）。任何「只切可見性」的動作都不會讓快照變 → 判死。
 function snap(doc) {
   if (!doc.body) return '';
-  let out = '';
-  (function walk(node) {
-    if (node.nodeType === 3) { out += node.textContent; return; }
-    if (node.nodeType !== 1) return;
-    const el = node;
-    const disp = el.style && el.style.display;
-    if (disp === 'none') return;
-    if (el.classList) {
-      if (SWITCH.some(c => el.classList.contains(c)) && !el.classList.contains('active')) return;
-      const isModal = el.classList.contains('modal-backdrop') || el.classList.contains('fsm-modal') ||
-                      el.classList.contains('modal-overlay') || el.classList.contains('modal');
-      if (isModal && !el.classList.contains('open') && disp !== 'flex' && disp !== 'block') return;
-    }
-    for (const c of el.childNodes) walk(c);
-  })(doc.body);
-  return out.replace(/\s+/g, ' ').trim();
+  return (doc.body.textContent || '').replace(/\s+/g, ' ').trim();
 }
 
 function mk() {

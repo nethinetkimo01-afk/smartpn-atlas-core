@@ -1120,7 +1120,11 @@ function renderZoneCard(z, seg, eolr) {
     </div>
     <div class="zone-actions">${(CAN_EDIT && !isSummary && !isWS) ? `<button class="btn-import" onclick="openImportModal(${zoneJ},${esc(JSON.stringify(seg))})">⬇ 匯入</button>` : ''}</div>`;
 
-  h += `</div></div>`;
+  // Task IE-3：只關 .zone-header——原本這裡多關了一層，等於在加表格前就把 .zone-card 收掉，
+  // 導致 .zone-body(整張表) 變成 .zone-card 的兄弟而非子元素；.zone-card 的 border+overflow:hidden
+  // 只框住標題列、表格露在框外。收尾的 `h += '</div>'` 才是 .zone-card 的收尾。
+  // （裁斷段 renderCuttingZoneCard 巢狀本來就正確，不動。）
+  h += `</div>`;
 
   if (isSummary) {
     const total = calcHandTotal(z);
