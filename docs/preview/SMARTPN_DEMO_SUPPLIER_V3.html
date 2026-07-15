@@ -119,6 +119,7 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
 /* pricing / expiry */
 .level-wrap{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
 .level-btn{font-size:13px;padding:8px 18px;border-radius:20px;border:0.5px solid #D2D2D7;background:#fff;cursor:pointer;font-family:inherit}
+.level-btn-on{font-size:12px;padding:5px 12px;border-radius:7px;border:1px solid #0071E3;background:#0071E3;color:#fff;font-family:inherit;cursor:default;display:inline-block}
 .level-btn.active{background:#1D1D1F;color:#fff;border-color:#1D1D1F}
 .expiry-card{display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:12px;margin-bottom:8px}
 .expiry-card.danger{background:#FFF0F0;border:0.5px solid #FFB8B8}
@@ -336,7 +337,7 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
           <div class="form-group"><label class="form-label">GS1 Code（選填）</label><input class="form-input" placeholder="例：4711234500017"></div>
           <div class="form-group"><label class="form-label">SmartPN Code（自動產生）</label>
             <div style="display:flex;align-items:center;gap:10px;padding-top:8px">
-              <input class="form-input" id="spn-code" value="SPA-MAT-7K9X" readonly style="border:none;font-weight:600;width:auto">
+              <input class="form-input" id="spn-code" value="SPA-MAT-7K9X" readonly style="border:none;font-weight:600;width:auto"><span id="spn-current" style="font-size:12px;color:#0071E3;margin-left:8px">目前統一碼：SPA-MAT-7K9X</span>
               <button class="btn-secondary" style="padding:5px 12px;font-size:12px" onclick="rawRegen()">重新產生</button>
             </div>
             <div style="font-size:11px;color:#86868B;margin-top:4px">純序號 / 亂碼，不帶意義；排除 0 / 1 / I / O / E（避免誤認）。</div>
@@ -403,9 +404,7 @@ code{background:#E8F0FE;padding:1px 6px;border-radius:4px;font-size:12px}
       <div class="expiry-card warn"><span style="font-size:18px">🟡</span><div class="expiry-info"><div class="expiry-id">Q-2026-021 · TPU Laminating Film 0.15mm</div><div class="expiry-detail">Factory Group B · 採購部</div></div><span class="expiry-days warn">30 天內到期 (7/05)</span></div>
       <div class="expiry-card ok"><span style="font-size:18px">🟢</span><div class="expiry-info"><div class="expiry-id">Q-2026-023 · PU Synthetic Leather 1.2mm</div><div class="expiry-detail">Brand-C · 材料部</div></div><span class="expiry-days ok">8/12 到期</span></div>
       <div class="level-wrap" style="margin-top:20px">
-        <button class="level-btn active" onclick="priceLevel(this)">Product</button>
-        <button class="level-btn" onclick="priceLevel(this)">Product + Option</button>
-        <button class="level-btn" onclick="priceLevel(this)">Product + Option + 備註</button>
+        <span id="level-wrap-inner"></span>
       </div>
       <div id="price-level-note" style="font-size:12px;color:#0071E3;margin-top:8px">目前報價層級：Product</div>
       <div class="form-card"><div class="form-card-title">新增報價單</div>
@@ -550,6 +549,7 @@ function unmountPanels(except){
 }
 /* 視圖專屬重繪掛勾（掛載後內容才在 DOM 裡，須重跑該視圖的渲染） */
 function renderViewBody(id){
+  if(id==='pricing'    && typeof renderLevels==='function')     renderLevels();
   if(id==='requests'   && typeof renderRequests==='function')   renderRequests();
   if(id==='permfields' && typeof renderPermFields==='function') renderPermFields();
 }
@@ -639,8 +639,14 @@ function eviToggle(el){ showView('permission'); const c=document.getElementById(
   el.style.background=c.checked?'#1D7340':'#C7C7CC'; const dot=el.querySelector('span'); if(dot)dot.style.left=c.checked?'22px':'2px';
   const lbl=document.getElementById('evi-label'); if(lbl)lbl.textContent=c.checked?'交換存證：已啟用':'交換存證：未啟用'; }
 /* 單價：層級切換 / 建立報價單 */
-function priceLevel(el){ showView('pricing'); el.parentElement.querySelectorAll('.level-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active');
-  const note=document.getElementById('price-level-note'); if(note)note.textContent='目前報價層級：'+el.textContent.trim(); }
+const PRICE_LEVELS=['Product','Product + Option','Product + Option + 備註'];
+let _priceLevel='Product';
+function renderLevels(){ const h=document.getElementById('level-wrap-inner'); if(!h) return;
+  h.innerHTML=PRICE_LEVELS.map(lv=> lv===_priceLevel
+    ? `<span class="level-btn-on" aria-current="true">${lv}</span>`
+    : `<button class="level-btn" onclick="priceLevel('${lv}')">${lv}</button>`).join('');
+  const note=document.getElementById('price-level-note'); if(note) note.textContent='目前報價層級：'+_priceLevel; }
+function priceLevel(lv){ showView('pricing'); _priceLevel=lv; renderLevels(); }
 let _quoteN=0;
 function priceCreate(){ showView('pricing'); _quoteN++; const box=document.getElementById('quote-list');
   const d=document.createElement('div'); d.className='expiry-card ok'; d.innerHTML=`<span style="font-size:18px">🟢</span><div class="expiry-info"><div class="expiry-id">Q-NEW-${_quoteN} · 新報價單</div><div class="expiry-detail">待授權帳號 · demo</div></div><span class="expiry-days ok">新建立</span>`; box.appendChild(d); }
@@ -658,7 +664,11 @@ function reqSend(){ showView('requests'); const inp=document.getElementById('req
 /* ─── SmartPN code generator (exclude 0/1/I/O/E) ─── */
 const SPN_CHARS='23456789ABCDFGHJKLMNPQRSTUVWXYZ'; // no 0,1,I,O,E
 let _spnSeed=7;
-function regenSpn(){ let s=''; for(let i=0;i<4;i++){ _spnSeed=(_spnSeed*33+7)%SPN_CHARS.length; s+=SPN_CHARS[_spnSeed]; } document.getElementById('spn-code').value='SPA-MAT-'+s; }
+function regenSpn(){ let s=''; for(let i=0;i<4;i++){ _spnSeed=(_spnSeed*33+7)%SPN_CHARS.length; s+=SPN_CHARS[_spnSeed]; }
+  const code='SPA-MAT-'+s;
+  document.getElementById('spn-code').value=code;
+  const c=document.getElementById('spn-current'); if(c) c.textContent='目前統一碼：'+code;   // 狀態以文字呈現
+}
 
 /* ─── options ─── */
 function syncOptionPattern(){ const pat=document.getElementById('raw-cat').value; document.getElementById('option-cards').dataset.pat=pat; document.querySelectorAll('#option-cards img[data-pat]').forEach(i=>{i.dataset.pat=pat;}); fillTextures(); }
@@ -728,10 +738,10 @@ const THREADS=[
   ]},
 ];
 let activeThread='t1';
-function _syncInit(){ if(typeof initLazyViews==='function') initLazyViews(); if(typeof syncNav==='function'){ syncNav(); syncTabs(); } }
+function _syncInit(){ if(typeof initLazyViews==='function') initLazyViews(); if(typeof renderLevels==='function') renderLevels(); if(typeof syncNav==='function'){ syncNav(); syncTabs(); } }
 function renderRequests(){
   document.getElementById('req-list').innerHTML=THREADS.map(t=>{const last=t.msgs[t.msgs.length-1];
-    return `<div class="req-item ${t.id===activeThread?'active':''}" onclick="openThread('${t.id}')"><div class="req-ava">${t.from}</div><div style="flex:1;min-width:0"><div class="req-name">${t.name} ${t.unread?'<span class="req-dot"></span>':''}</div><div class="req-snippet">${t.subject}</div><div class="req-snippet">${last.t}</div></div></div>`;}).join('');
+    return `<div class="req-item ${t.id===activeThread?'active':''}"${t.id===activeThread?' aria-current="true"':` onclick="openThread('${t.id}')"`}><div class="req-ava">${t.from}</div><div style="flex:1;min-width:0"><div class="req-name">${t.name} ${t.unread?'<span class="req-dot"></span>':''}</div><div class="req-snippet">${t.subject}</div><div class="req-snippet">${last.t}</div></div></div>`;}).join('');
   const t=THREADS.find(x=>x.id===activeThread)||THREADS[0]; t.unread=false;
   document.getElementById('req-hd').innerHTML=`<div class="req-ava" style="width:30px;height:30px">${t.from}</div> ${t.name} · <span style="color:#86868B;font-weight:400">${t.subject}</span>`;
   const box=document.getElementById('req-msgs'); box.innerHTML=t.msgs.map(msgHtml).join(''); box.scrollTop=box.scrollHeight;

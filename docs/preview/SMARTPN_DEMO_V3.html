@@ -10,6 +10,7 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
 
 /* topnav */
 .topnav{position:sticky;top:0;z-index:100;background:rgba(22,22,23,0.95);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:0.5px solid rgba(255,255,255,0.08);height:48px;display:flex;align-items:center;padding:0 24px;gap:20px}
+.nav-btn-on{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#fff;background:rgba(255,255,255,.18);border:none;border-radius:6px;padding:5px 9px;font-family:inherit;cursor:default;white-space:nowrap}
 .nav-brand{font-size:15px;font-weight:600;color:#FFFFFF;letter-spacing:-0.2px;white-space:nowrap;flex-shrink:0}
 .nav-search-wrap{flex:1;max-width:400px;margin:0 auto;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.10);border-radius:8px;padding:7px 14px;cursor:text}
 .nav-search-wrap svg{opacity:0.55;flex-shrink:0}
@@ -265,13 +266,13 @@ html,body{height:100%;font-family:-apple-system,'SF Pro Text','Helvetica Neue',A
   </label>
   <div class="nav-spacer"></div>
   <div class="nav-actions">
-    <button class="nav-btn" onclick="showPage('home')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2.5 7L8 2.5L13.5 7V13a1 1 0 01-1 1h-9a1 1 0 01-1-1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span data-i18n="home">Home</span></button>
-    <button class="nav-btn" onclick="showPage('favorites')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 13.5S2 9.5 2 5.5A3.5 3.5 0 018 3a3.5 3.5 0 016 2c0 4-6 8.5-6 8.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span data-i18n="favorites">My Favorites</span></button>
-    <button class="nav-btn" onclick="showPage('library')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 7h6M5 10h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span data-i18n="library">My Library</span> <span class="nav-count" id="lib-count">12</span></button>
-    <button class="nav-btn" onclick="showPage('requests')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 4.5A1.5 1.5 0 013.5 3h9A1.5 1.5 0 0114 4.5v6A1.5 1.5 0 0112.5 12H6l-3 2.5V12H3.5A1.5 1.5 0 012 10.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span data-i18n="requests">Requests</span> <span class="nav-count alert" id="req-count">2</span></button>
-    <button class="nav-btn" onclick="showPage('account')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 14c0-3 2.5-5 5.5-5s5.5 2 5.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span data-i18n="account">My Account</span></button>
-    <button class="nav-btn" onclick="showPage('settings')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.9 2.9l1.4 1.4M11.7 11.7l1.4 1.4M11.7 4.3l-1.4 1.4M4.3 11.7l-1.4 1.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span data-i18n="settings">Settings</span></button>
-    <button class="nav-btn" id="nav-dashboard" onclick="showPage('dashboard')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="2" width="5" height="4" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="10" width="5" height="4" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="8" width="5" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/></svg><span data-i18n="dashboard">Dashboard</span></button>
+    <button class="nav-btn" data-page="home" onclick="showPage('home')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2.5 7L8 2.5L13.5 7V13a1 1 0 01-1 1h-9a1 1 0 01-1-1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span data-i18n="home">Home</span></button>
+    <button class="nav-btn" data-page="favorites" onclick="showPage('favorites')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 13.5S2 9.5 2 5.5A3.5 3.5 0 018 3a3.5 3.5 0 016 2c0 4-6 8.5-6 8.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span data-i18n="favorites">My Favorites</span></button>
+    <button class="nav-btn" data-page="library" onclick="showPage('library')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 7h6M5 10h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span data-i18n="library">My Library</span> <span class="nav-count" id="lib-count">12</span></button>
+    <button class="nav-btn" data-page="requests" onclick="showPage('requests')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 4.5A1.5 1.5 0 013.5 3h9A1.5 1.5 0 0114 4.5v6A1.5 1.5 0 0112.5 12H6l-3 2.5V12H3.5A1.5 1.5 0 012 10.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span data-i18n="requests">Requests</span> <span class="nav-count alert" id="req-count">2</span></button>
+    <button class="nav-btn" data-page="account" onclick="showPage('account')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 14c0-3 2.5-5 5.5-5s5.5 2 5.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span data-i18n="account">My Account</span></button>
+    <button class="nav-btn" data-page="settings" onclick="showPage('settings')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.9 2.9l1.4 1.4M11.7 11.7l1.4 1.4M11.7 4.3l-1.4 1.4M4.3 11.7l-1.4 1.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span data-i18n="settings">Settings</span></button>
+    <button class="nav-btn" id="nav-dashboard" data-page="dashboard" onclick="showPage('dashboard')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="2" width="5" height="4" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="10" width="5" height="4" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="8" width="5" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/></svg><span data-i18n="dashboard">Dashboard</span></button>
     <div style="width:0.5px;height:16px;background:rgba(255,255,255,0.15);margin:0 4px"></div>
     <button id="lang-toggle" class="nav-btn" onclick="toggleLang()" style="font-weight:700;font-size:11px;letter-spacing:0.04em;background:rgba(255,255,255,0.08);border-radius:6px;padding:5px 10px">中文</button>
   </div>
@@ -582,6 +583,7 @@ function showPage(id){
   if(id==='home'){ renderCatThumbs(); renderHomepage(); }
   if(id==='account')  renderAccount();
   if(id==='settings') renderSettings();
+  syncNavBrand();
 }
 
 /* ══ SP-fix4：Home / My Account / Settings 做真 ══
@@ -591,6 +593,21 @@ function showPage(id){
    修法＝比照既有 lazy render 模式：離開時卸載、進入時才依真實資料渲染。 */
 const SETTINGS_TPL = "  <div class=\"section-title\" data-i18n=\"settings\">Settings</div>\n  <div class=\"settings-row\"><span class=\"settings-label\">Language</span><span class=\"settings-val\">English / \u4e2d\u6587</span></div>\n  <div class=\"settings-row\"><span class=\"settings-label\">Default search results</span><span class=\"settings-val\">All (OPEN + my access)</span></div>\n  <div class=\"settings-row\"><span class=\"settings-label\">DPP completeness filter</span><div class=\"toggle\"></div></div>\n  <div class=\"settings-row\"><span class=\"settings-label\">Email on permission changes</span><div class=\"toggle\"></div></div>\n  <div class=\"settings-row\"><span class=\"settings-label\">Show LT in search results</span><div class=\"toggle\"></div></div>\n\n  <!-- B7\uff1a\u5e33\u865f\u96a8\u7528\u96a8\u589e -->\n  <div class=\"section-title\" style=\"margin-top:28px\">Account &amp; Seats</div>\n  <div class=\"settings-row\"><span class=\"settings-label\">Current seats</span><span class=\"settings-val\">8 active</span></div>\n  <div class=\"settings-row\"><span class=\"settings-label\">Added this month</span><span class=\"settings-val\" style=\"color:#1D7340\">+2 seats</span></div>\n  <div class=\"settings-row\"><span class=\"settings-label\">Volume pricing</span><span class=\"settings-val\">1\u201310: $X \u00b7 11\u201330: $Y \u00b7 31+: $Z / seat/mo</span></div>\n  <div class=\"settings-row\"><span class=\"settings-label\">Add seats as you grow <span id=\"seat-note\"></span></span><button class=\"btn-blue-ghost\" style=\"padding:5px 12px\" onclick=\"addSeat()\">\uff0b Add seats</button></div>\n\n  <!-- B8\uff1aExport my data -->\n  <div class=\"section-title\" style=\"margin-top:28px\">Data</div>\n  <div class=\"settings-row\"><span class=\"settings-label\">Export my data <span id=\"export-note\"></span></span><button class=\"btn-ghost\" style=\"padding:5px 12px\" onclick=\"exportData()\">\u2b07 Export</button></div>\n  <div class=\"settings-row\"><span class=\"settings-label\" style=\"color:#86868B;font-size:12px\">SmartPN \u7d71\u4e00\u6599\u865f\u4e0d\u96a8\u532f\u51fa\u4ea4\u4ed8\uff08\u9000\u51fa\u6b0a\uff09\u3002</span><span></span></div>\n\n  <!-- C3\uff1aShared BOM vs actual BOM\uff08mock \u6a19\u793a\uff09 -->\n  <div class=\"section-title\" style=\"margin-top:28px\">Shared BOM (S05)</div>\n  <div class=\"settings-row\"><span class=\"settings-label\">Shared BOM \u00b7 Model KI9853</span><span class=\"settings-val\">Ripstop Nylon 70D \u00b7 GRS Mesh 220g \u00b7 TPU Film 0.15mm</span></div>\n  <div class=\"settings-row\"><span class=\"settings-label\">Factory A \u2014 actual</span><span class=\"settings-val\" style=\"color:#1D7340\">\u7b26\u5408 Shared BOM</span></div>\n  <div class=\"settings-row\"><span class=\"settings-label\">Factory B \u2014 actual</span><span class=\"settings-val\" style=\"color:#B26A00\">\u66ff\u4ee3 1 \u9805\uff1aGRS Mesh \u2192 local equiv\uff08+$0.12/yd\uff0c\u5df2\u6838\u51c6\uff09</span></div>";
 const LAZY_PAGES = ['home','account','settings'];
+/* 目前所在頁的導覽鈕＝狀態指示(span,非按鈕)。與供應商/工廠端同一規則（25 規則）。 */
+function _swapNav(el, tag, cls, onclick){
+  const n=document.createElement(tag); n.className=cls; n.innerHTML=el.innerHTML;
+  const p=el.getAttribute('data-page'); if(p) n.setAttribute('data-page',p);
+  if(el.id) n.id=el.id;
+  if(onclick) n.setAttribute('onclick',onclick); else n.setAttribute('aria-current','true');
+  el.replaceWith(n); return n;
+}
+function syncNavBrand(){
+  document.querySelectorAll('[data-page]').forEach(el=>{
+    const pg=el.getAttribute('data-page'), on=(pg===currentPage);
+    if(on && el.tagName==='BUTTON') _swapNav(el,'span','nav-btn-on',null);   // 不可帶 .nav-btn（那是可點元素選擇器）
+    else if(!on && el.tagName!=='BUTTON') _swapNav(el,'button','nav-btn',`showPage('${pg}')`);
+  });
+}
 function unmountLazyPages(except){
   LAZY_PAGES.forEach(id=>{
     if(id===except) return;
@@ -762,7 +779,7 @@ function renderCatThumbs(){
 /* ═══ SPU ═══ */
 function openSpu(id){ currentMat=MATERIALS.find(m=>m.id===id); if(!currentMat)return; currentSku=currentMat.skuVariants[0]; reviewPerm='OPEN'; renderSpuPage(currentMat); showPage('spu'); }
 function openMaterial(id){ openSpu(id); }
-function selectOpt(key){ if(!currentMat) return; currentSku=currentMat.skuVariants.find(v=>v.key===key)||currentSku; renderSpuPage(currentMat); }
+function selectOpt(key){ if(!currentMat) return; if(currentSku&&currentSku.key===key) return; currentSku=currentMat.skuVariants.find(v=>v.key===key)||currentSku; renderSpuPage(currentMat); }
 function renderSpuPage(m){
   if(!m) return;   // R-1：無材料脈絡不渲染
   // 返回鈕只在「真的從搜尋頁進來」時才存在——沒有上一頁就不該有返回鈕（第一性原則）
@@ -784,7 +801,9 @@ function renderSpuPage(m){
         : `🗄️ <b>SmartPN-maintained</b> · Authority: Supplier (delegated) · Stored in SmartPN`)+`</div>`;})()}
       <div class="opt-row">
         <div class="opt-label" data-i18n="options">Options</div>
-        <div class="opt-list">${m.skuVariants.map(v=>`<button class="opt-btn ${v.key===sku.key?'selected':''}" onclick="selectOpt('${v.key}')"><img src="${matURI(m,80)}" alt="">${v.label}</button>`).join('')}</div>
+        <div class="opt-list">${m.skuVariants.map(v=> v.key===sku.key
+          ? `<span class="opt-btn selected" aria-current="true" style="cursor:default"><img src="${matURI(m,80)}" alt="">${v.label}</span>`
+          : `<button class="opt-btn" onclick="selectOpt('${v.key}')"><img src="${matURI(m,80)}" alt="">${v.label}</button>`).join('')}</div>
       </div>
       <div class="spu-price-block">
         <div><div class="spu-price-label" data-i18n="price">Price / ${m.priceUnit}</div>${m.quoteOnly
@@ -806,6 +825,7 @@ function renderSpuPage(m){
   for(const[k,v] of Object.entries(sku.fields)) spec+=`<div class="spec-row"><span class="spec-label">${k}</span><span class="spec-val">${v}</span></div>`;
   document.getElementById('spu-spec-body').innerHTML=spec;
   document.getElementById('spu-reviews-body').innerHTML=reviewsHtml(m);
+  renderReviewPerm();   // 評論權限狀態(文字)+狀態指示，與其它三態同規則
 }
 // B6：公開欄位修改記錄（mock）——只有公開資料有版本歷史
 function showFieldHistory(id){
@@ -841,7 +861,7 @@ function reviewsHtml(m){
   h+=`<div class="comment-box">
     <textarea id="review-input" placeholder="Write a review…"></textarea>
     <div class="comment-actions">
-      <div class="seg"><button id="rp-pub" class="on" onclick="setReviewPerm('OPEN')">🌐 Public</button><button id="rp-priv" onclick="setReviewPerm('SHARED')">🔒 Private (same company)</button></div>
+      <div class="seg" id="rp-seg"></div><div id="rp-state" style="font-size:11px;color:#86868B;margin-top:4px"></div>
       <button class="btn-add" style="padding:8px 20px;font-size:13px" onclick="submitReview()" data-i18n="postReview">Post review</button>
       <span style="font-size:12px;color:#86868B" data-i18n="reviewNote">Public reviews are visible to the supplier; private reviews only to your company.</span>
     </div></div>`;
@@ -850,8 +870,29 @@ function reviewsHtml(m){
   if(!m.reviews.length) h+=`<div style="padding:16px 0;color:#86868B;font-size:14px">No reviews yet.</div>`;
   return h;
 }
-function setReviewPerm(p){ reviewPerm=p; document.getElementById('rp-pub').classList.toggle('on',p==='OPEN'); document.getElementById('rp-priv').classList.toggle('on',p==='SHARED'); }
-function submitReview(){ const v=document.getElementById('review-input').value.trim(); if(!v){alert('Please write a review first.');return;} alert(`Review posted as ${reviewPerm==='OPEN'?'🌐 Public (supplier-visible)':'🔒 Private (same company)'}.`); document.getElementById('review-input').value=''; }
+const RP=[['OPEN','🌐 Public','Public · supplier-visible'],['SHARED','🔒 Private (same company)','Private · same company only']];
+function renderReviewPerm(){ const h=document.getElementById('rp-seg'); if(!h) return;
+  h.innerHTML=RP.map(([v,lb])=> v===reviewPerm
+    ? `<span class="on" aria-current="true" style="cursor:default">${lb}</span>`
+    : `<button onclick="setReviewPerm('${v}')">${lb}</button>`).join('');
+  const st=document.getElementById('rp-state');
+  if(st) st.textContent='目前發佈權限：'+(RP.find(r=>r[0]===reviewPerm)||RP[0])[2];   // 狀態以文字呈現
+}
+function setReviewPerm(p){ reviewPerm=p; renderReviewPerm(); }
+let _revN=0;
+function submitReview(){
+  const inp=document.getElementById('review-input'); const v=(inp.value||'').trim();
+  const note=document.getElementById('rp-state');
+  if(!v){ if(note){note.style.color='#B26A00'; note.textContent='⚠ 請先寫下評論內容再發佈。';} return; }   // 驗證失敗＝頁內看得見
+  _revN++;
+  if(currentMat){ currentMat.reviews=currentMat.reviews||[];
+    currentMat.reviews.unshift({initials:'ME',name:(ACCT.name||'Brand')+' · 我',org:ACCT.name,date:'Now',stars:5,
+      text:v, perm:reviewPerm==='OPEN'?'SHARED':'PRIVATE'}); }
+  inp.value='';
+  if(currentMat) renderSpuPage(currentMat);      // 評論真的出現在列表（不是 alert 佔位）
+  const n2=document.getElementById('rp-state');
+  if(n2){ n2.style.color='#1D7340'; n2.textContent=`✓ 已發佈（${reviewPerm==='OPEN'?'Public · supplier-visible':'Private · same company only'}）· 本次共 ${_revN} 則`; }
+}
 
 /* ═══ COMPANY ═══ */
 function openCompanyFromCard(s){ companyReturnPage='search'; renderCompanyPage(s); showPage('company'); }
@@ -893,7 +934,7 @@ function renderLibrary(){ const lib=MATERIALS.filter(isVisible).slice(0,12); doc
 /* ═══ REQUESTS ═══ */
 function renderRequests(){
   document.getElementById('req-list').innerHTML=THREADS.map(t=>{const s=SUPPLIERS[t.sup];const last=t.msgs[t.msgs.length-1];
-    return `<div class="req-item ${t.id===activeThread?'active':''}" onclick="openThread('${t.id}')"><div class="req-ava">${s.short}</div>
+    return `<div class="req-item ${t.id===activeThread?'active':''}"${t.id===activeThread?' aria-current="true"':` onclick="openThread('${t.id}')"`}><div class="req-ava">${s.short}</div>
       <div class="req-meta"><div class="req-name">${s.name.replace(' Co.','')} ${t.unread?'<span class="req-dot"></span>':''}</div><div class="req-snippet">${t.subject}</div><div class="req-snippet">${last.t}</div></div></div>`;}).join('');
   openThread(activeThread,true);
 }
@@ -917,6 +958,7 @@ function libShare(btn){ showPage('library'); _libShared++; let n=document.getEle
 let _seats=8;
 function addSeat(){ showPage('settings'); _seats++; const n=document.getElementById('seat-note'); if(n)n.innerHTML='<span style="color:#1D7340">· 目前 '+_seats+' 席</span>'; }
 function exportData(){ showPage('settings'); const n=document.getElementById('export-note'); if(n)n.innerHTML='<span style="color:#1D7340">· 已匯出（統一料號不隨附）</span>'; }
+let _fsmWinN=0;
 let _libAdded=0;
 function addToLib(btn){ _libAdded++; const c=document.getElementById('lib-count'); if(c)c.textContent=(12+_libAdded); if(btn){btn.textContent='✓ Added';btn.disabled=true;} }
 function openRequestFor(supId,name){ const ex=THREADS.find(t=>t.sup===supId); if(ex){activeThread=ex.id;} else { const nid='t'+(THREADS.length+1); THREADS.push({id:nid,sup:supId,subject:name,unread:false,msgs:[{who:'me',t:`Hi, I'd like to request information about ${name}.`,time:'Now'}]}); activeThread=nid; } showPage('requests'); }
@@ -959,6 +1001,9 @@ function fsmCard(m){ const sup=SUPPLIERS[m.sup];
 function closeFsmModal(){ const m=document.getElementById('fsm-modal'); m.style.display='none'; m.innerHTML=''; document.body.style.overflow=''; }
 function openFsmInNewWindow(){
   if(!fsmContext) return;   // R-1：無 FSM 脈絡不動作（不噴例外）
+  _fsmWinN++;               // 動作結果在頁面外（新視窗）→ 必須在使用者當下看得到的地方給回饋
+  const c=document.getElementById('fsm-modal-context');   // FSM modal 內（這顆鈕就在這裡）
+  if(c) c.textContent=`✓ 已在新視窗開啟（第 ${_fsmWinN} 次）— 若未出現請確認瀏覽器未擋彈出視窗。`;
   const{fromId,spuCode,skuKey}=fsmContext; const scope=MATERIALS.filter(inFsmScope);
   const identical=scope.filter(m=>m.spuCode===spuCode&&m.skuKey===skuKey&&m.id!==fromId);
   const alt=scope.filter(m=>m.spuCode===spuCode&&m.skuKey!==skuKey&&m.id!==fromId);
@@ -1028,6 +1073,7 @@ function toggleLang(){
 /* ═══ INIT ═══ */
 renderTypeChips(); renderCatList();
 renderGrid();
+syncNavBrand();
 // SP-fix4：預設落地 search；home/account/settings 屬 lazy render，導覽時才渲染（不在載入時預渲染）
 document.getElementById('filter-bar').style.display='';
 </script>

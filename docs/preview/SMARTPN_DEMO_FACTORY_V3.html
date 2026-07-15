@@ -196,16 +196,27 @@ const SEC=[
   {local:'FAC-2ND-3302', spn:'SPA-SEC-2002', proc:'Hot pressing 熱壓', base:'SPA-MAT-0002', out:'Pressed film panel',        lt:3},
   {local:'FAC-2ND-3303', spn:'SPA-SEC-2003', proc:'Skiving 削皮',      base:'SPA-MAT-0011', out:'Skived foam',               lt:2},
 ];
-/* 與供應商的料號對映（S07：三方本地碼保留，統一碼消除歧義） */
-const MAP=[
-  {spn:'SPA-MAT-0001', mine:'FAC-M-2039',  brand:'BR-MAT-7781', sup:'SUP-A-991', supCo:'Formosa Vietnam Co.', status:'confirmed'},
-  {spn:'SPA-MAT-0002', mine:'FAC-FILM-445',brand:'BR-FILM-4420',sup:'SUP-B-330', supCo:'Apex Textile Co.',    status:'confirmed'},
-  {spn:'SPA-MAT-0011', mine:'FAC-F-1180',  brand:'BR-FOAM-2210',sup:'SUP-C-104', supCo:'Sunrise Synthetics',  status:'pending'},
-];
-/* Shared BOM vs 各廠 Actual BOM（S05） */
+/* 與供應商的料號對映（S07：三方本地碼保留，統一碼消除歧義）
+   品牌本地碼本來就因品牌而異 → 依品牌授權視角分開 */
+const MAP={
+  'Brand-A':[
+    {spn:'SPA-MAT-0001', mine:'FAC-M-2039',  brand:'BR-MAT-7781', sup:'SUP-A-991', supCo:'Formosa Vietnam Co.', status:'confirmed'},
+    {spn:'SPA-MAT-0002', mine:'FAC-FILM-445',brand:'BR-FILM-4420',sup:'SUP-B-330', supCo:'Apex Textile Co.',    status:'confirmed'},
+    {spn:'SPA-MAT-0011', mine:'FAC-F-1180',  brand:'BR-FOAM-2210',sup:'SUP-C-104', supCo:'Sunrise Synthetics',  status:'pending'},
+  ],
+  'Brand-B':[
+    {spn:'SPA-MAT-0001', mine:'FAC-M-2039',  brand:'B-KNIT-5501', sup:'SUP-A-991', supCo:'Formosa Vietnam Co.', status:'confirmed'},
+    {spn:'SPB-MAT-0300', mine:'FAC-TPU-9020',brand:'B-TPU-5510',  sup:'SUP-B-330', supCo:'Apex Textile Co.',    status:'pending'},
+  ],
+};
+/* Shared BOM vs 各廠 Actual BOM（S05）——Shared BOM 是「某個品牌」發的 → 依品牌授權視角分開 */
 const ACTUAL={
-  'Factory A':{combined:'SPA-COMP-0101',  s1:'SPA-MAT-0001', s2:'SPA-MAT-0002', diff:false},
-  'Factory B':{combined:'SPA-COMP-0101-B',s1:'SPA-MAT-0001', s2:'SPA-MAT-0048', diff:true},
+  'Brand-A':{ shared:'SPA-COMP-0101', s1:'SPA-MAT-0001', s2:'SPA-MAT-0002', line:'Upper mesh panel',
+    f:{'Factory A':{combined:'SPA-COMP-0101',  s1:'SPA-MAT-0001', s2:'SPA-MAT-0002', diff:false},
+       'Factory B':{combined:'SPA-COMP-0101-B',s1:'SPA-MAT-0001', s2:'SPA-MAT-0048', diff:true}}},
+  'Brand-B':{ shared:'SPB-COMP-0201', s1:'SPA-MAT-0001', s2:'SPB-MAT-0300', line:'Upper knit panel',
+    f:{'Factory A':{combined:'SPB-COMP-0201',  s1:'SPA-MAT-0001', s2:'SPB-MAT-0300', diff:false},
+       'Factory B':{combined:'SPB-COMP-0201',  s1:'SPA-MAT-0001', s2:'SPB-MAT-0300', diff:false}}},
 };
 /* 餘料處置（S11）：本廠只看得到自己的餘料 */
 const EXCESS=[
@@ -228,6 +239,7 @@ function showView(id, el){
   document.querySelectorAll('.view').forEach(v=>{ if(v.id!=='view-'+id) v.innerHTML=''; });   // 卸載
   (VIEW_RENDER[id]||function(){})();                                                          // 掛載＝真的渲染
   syncNav();
+  if(typeof renderAcctSwitch==='function') renderAcctSwitch();   // 品牌切換器只在有品牌脈絡的視圖出現
   window.scrollTo(0,0);
 }
 /* 套用中的導覽項＝狀態指示(非按鈕)——對已在的頁再按一次本就不會有效果 */
@@ -272,25 +284,26 @@ let _diffSel='Factory A';
 function setDiff(f){ _diffSel=f; renderDiff(); }
 function renderDiff(){
   const v=document.getElementById('view-diff'); if(!v) return;
-  const a=ACTUAL[_diffSel];
-  const seg=Object.keys(ACTUAL).map(f=> f===_diffSel
+  const brand=(PREVIEW||{}).name||'Brand-A';
+  const B=ACTUAL[brand]||ACTUAL['Brand-A'];
+  const a=B.f[_diffSel];
+  const seg=Object.keys(B.f).map(f=> f===_diffSel
     ? `<span class="btn-on" aria-current="true">${f}</span>`
     : `<button class="btn" onclick="setDiff('${f}')">${f}</button>`).join(' ');
-  const shared=BOM[0];
   v.innerHTML=`<div class="page-title">Shared BOM vs Actual BOM</div>
     <div class="page-sub">${LANG==='zh'
       ?'品牌對不同工廠發出同一份 Shared BOM；工廠可在品牌核准下替換來源。DPP 應以工廠 Actual BOM 為準。'
       :'Brand issues the same Shared BOM to different factories. Factory may substitute a source if brand-approved. DPP should be based on factory actual BOM.'}</div>
-    <div class="card"><div class="card-hd">${LANG==='zh'?'選擇工廠':'Select factory'}</div>
+    <div class="card"><div class="card-hd">${LANG==='zh'?'授權來源品牌':'Authorized by'}：${esc(brand)} · ${LANG==='zh'?'選擇工廠':'Select factory'}</div>
       <div class="card-body"><div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">
         <span class="state">${LANG==='zh'?'目前：':'Current: '}${esc(_diffSel)}</span>${seg}</div>
       ${tbl(['','Combined ID','Source 1','Source 2','Difference'],[
-        ['Brand Shared BOM',`<span class="mono">${shared.shared}</span>`,'<span class="mono">SPA-MAT-0001</span>','<span class="mono">SPA-MAT-0002</span>','—'],
+        [`${esc(brand)} Shared BOM`,`<span class="mono">${esc(B.shared)}</span>`,`<span class="mono">${esc(B.s1)}</span>`,`<span class="mono">${esc(B.s2)}</span>`,'—'],
         [`${esc(_diffSel)} Actual BOM`,`<span class="mono">${esc(a.combined)}</span>`,`<span class="mono">${esc(a.s1)}</span>`,`<span class="mono">${esc(a.s2)}</span>`,
          a.diff?'<span class="badge b-diff">Source 2 changed</span>':'<span class="badge b-same">No difference</span>']])}
       <div class="note">DPP basis — ${esc(_diffSel)}: ${a.diff
-        ? 'Actual BOM · Brand-approved local replacement (SPA-COMP-0101-B + 0001 + 0048)'
-        : 'Actual BOM · Matches Shared BOM (SPA-COMP-0101 + 0001 + 0002)'}</div>
+        ? `Actual BOM · Brand-approved local replacement (${esc(a.combined)} + ${esc(a.s1)} + ${esc(a.s2)})`
+        : `Actual BOM · Matches Shared BOM (${esc(a.combined)} + ${esc(a.s1)} + ${esc(a.s2)})`}</div>
       <div class="note">${LANG==='zh'?'邊界：SmartPN Atlas 不是 DPP 合規認證機構，只證明下游 DPP 以工廠實際 BOM 為基礎、較可信。'
         :'Boundary: SmartPN Atlas is NOT a DPP compliance authority. It only proves downstream DPP data is based on actual factory BOM.'}</div>
       </div></div>`;
@@ -312,14 +325,15 @@ function renderSecondary(){
 /* ④ 與供應商料號對映（S07：0 communication gap） */
 function renderMapping(){
   const v=document.getElementById('view-mapping'); if(!v) return;
-  const rows=MAP.map(m=>[`<span class="mono">${esc(m.spn)}</span>`,`<span class="mono">${esc(m.mine)}</span>`,
+  const brand=(PREVIEW||{}).name||'Brand-A';
+  const rows=(MAP[brand]||[]).map(m=>[`<span class="mono">${esc(m.spn)}</span>`,`<span class="mono">${esc(m.mine)}</span>`,
     `<span class="mono">${esc(m.brand)}</span>`,`<span class="mono">${esc(m.sup)}</span>`,esc(m.supCo),
     m.status==='confirmed'?'<span class="badge b-same">confirmed</span>':'<span class="badge b-diff">pending</span>']);
   v.innerHTML=`<div class="page-title">${LANG==='zh'?'與供應商料號對映':'Supplier PN mapping'}</div>
     <div class="page-sub">${LANG==='zh'
       ?'同一材料在品牌/工廠/供應商各有本地碼；SmartPN 統一碼消除「這是不是同一個材料」的來回確認。'
       :'Same material, different local IDs across brand/factory/supplier. The unified SmartPN ID removes repeated confirmation.'}</div>
-    <div class="card"><div class="card-hd">Local ID ↔ SmartPN ID ↔ Supplier PN</div>
+    <div class="card"><div class="card-hd">${LANG==='zh'?'授權來源品牌':'Authorized by'}：${esc(brand)} · Local ID ↔ SmartPN ID ↔ Supplier PN</div>
       <div class="card-body">${tbl(['SmartPN ID','My local ID','Brand local ID','Supplier PN','Supplier','Status'],rows)}
       <div class="note">${LANG==='zh'?'邊界：不代表人不用溝通，只代表「材料identity/BOM 指涉」的落差被消除。'
         :'Boundary: this does not remove the need to communicate — only the material identity / BOM reference gap.'}</div>
@@ -350,10 +364,14 @@ function renderExcess(){
       </div></div>`;
 }
 
-/* 帳號切換（目前帳號＝狀態指示，非按鈕） */
+/* 品牌授權視角切換：只在「有品牌脈絡」的視圖出現。
+   二次加工編碼/餘料是工廠自有資料，與哪個品牌授權無關 → 該視圖不該有這顆切換器
+   （在那裡它按了不會有任何效果＝不該存在的控制項）。目前品牌＝狀態指示，非按鈕。 */
+const BRAND_SCOPED=['bom','diff','mapping'];
 let PREVIEW=null;
 function renderAcctSwitch(){
   const h=document.getElementById('acctSwitch'); if(!h) return;
+  if(BRAND_SCOPED.indexOf(currentView)<0){ h.innerHTML=''; return; }
   h.innerHTML=(MOCK_WORLD.accounts||[]).map(a=>a.id===(PREVIEW||{}).id
     ? `<span aria-current="true" style="font-size:11px;padding:4px 9px;background:#0071E3;color:#fff;display:inline-block">${esc(a.name)}</span>`
     : `<button class="btn" style="font-size:11px;padding:4px 9px;background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.2)" onclick="setAccount('${a.id}')">${esc(a.name)}</button>`).join('');
