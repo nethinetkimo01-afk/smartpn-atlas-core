@@ -3,24 +3,27 @@
 ie_ver_b3_land.py — B3 落格：把 ie_process 的實際人數 (actual_operators)
 落到 ie_process_actual（版本×ART×EOLR 分格），依中樞裁決①決定每個 header 的 EOLR。
 
+★入規27：真鞋型名/ART 料號一律不寫進原始碼（本檔會進 git）。矛盾 header 一律以 header_id 指涉；
+  需要鞋型名時執行期從 DB 讀、只留在記憶體（與 ie_ver_recon.py / data_leak_gate.py 同法）。
+
 ★識別單位＝版本×ART（中樞裁決 2026-07-15）：鞋型名僅顯示分組，遷移不合併任何 header。
   每個 ART 恰好對應一個 EOLR、一份標時/工序（140 ART ↔ 140 有 actual 的 header，1:1）。
   故落格＝每個工序把它的實際人數放進「它所屬 EOLR」那一格，另一格留空（裁決②不繼承）。
 
 裁決①落格規則（EOLR 歸位）：
   預設 assigned_eolr = ob_header.eolr（eolr 欄為準）
-  例外：TOKYO W MJ 四筆 header {140,141,142,143}（eolr欄=60、標題R2解得120）→ 落 120（標題為準）
-        LA TRAINER 十一筆 header {29..39}（eolr欄=120、標題R2解得60）→ 落 120（eolr欄為準，不覆蓋）
-  15 筆 eolr欄↔標題矛盾的 header（11 LA TRAINER + 4 TOKYO W MJ）→ 全部寫入 ie_eolr_confirm(status=pending)，
-  等 B8 現場確認。落完格不等於當真。
+  15 筆 eolr欄↔標題(R2)矛盾的 header 分兩群（以 header_id 指涉）：
+    群組G1（eolr欄=120、標題=60，11 筆）→ 落 120（eolr欄為準，不覆蓋）
+    群組G2（eolr欄=60、標題=120， 4 筆）→ 落 120（標題為準，覆蓋 eolr 欄）
+  這 15 筆全部寫入 ie_eolr_confirm(status=pending)，等 B8 現場確認。落完格不等於當真。
   另格留空：每個工序只落一列（其 assigned_eolr），另一格由 v_ie_process_cell 以 NULL 呈現。
 
 零丟值斷言（落格後、commit 前，任一不符 → ROLLBACK、印 STOP、exit 2）：
   A 子表 count == 舊欄 count == 16,501
-  B 子表 sum   ≈  舊欄 sum   （容差；同值搬運，理應完全相等）
+  B 子表 sum   ≈  舊欄 sum
   C 一工序一格：COUNT(*) == COUNT(DISTINCT process_id)
-  D 逐格：每列 ie_process_actual.actual_operators == 對應 ie_process.actual_operators（IS NOT 比對，含 NULL）
-  E 全覆蓋：每個有 actual 的工序都有一格（無遺漏）
+  D 逐格：每列 ie_process_actual.actual_operators == 對應 ie_process.actual_operators（IS NOT 比對）
+  E 全覆蓋：每個有 actual 的工序都有一格
   F 基準未漂移：舊欄 count==16,501 且 sum 在 76,357.19±0.01
 
 唯讀基準、寫入隔離副本：DB 由環境變數 ATLAS_DB 指定。拒絕在基準庫/正式庫上跑。
@@ -30,6 +33,7 @@ ie_ver_b3_land.py — B3 落格：把 ie_process 的實際人數 (actual_operato
 """
 import io
 import os
+import re
 import sys
 import sqlite3
 from datetime import datetime
@@ -42,17 +46,24 @@ EXPECT_SUM = 76357.19
 SUM_TOL = 0.01           # 基準漂移比對用（cent 級）
 SUB_SUM_TOL = 1e-6       # 子表 vs 舊欄：同值搬運，容差取極小
 
-# 中樞裁決①命名的 15 筆矛盾 header（eolr欄 ↔ 標題 R2 相斥）
-LA_TRAINER_HEADERS = [29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]   # eolr欄=120, 標題=60 → 落120(欄為準)
-TOKYO_WMJ_HEADERS  = [140, 141, 142, 143]                            # eolr欄=60,  標題=120 → 落120(標題為準)
-# 落格時唯一需要「覆蓋 eolr 欄」的：TOKYO W MJ（60→120）。LA TRAINER 本來就是 120，不需覆蓋。
-OVERRIDE_TO_120 = set(TOKYO_WMJ_HEADERS)
+# 中樞裁決①命名的 15 筆矛盾 header（eolr欄 ↔ 標題 R2 相斥）。只用 header_id，不寫鞋型名。
+#   G1：eolr欄=120、標題=60 → 落120（欄為準，不需覆蓋）
+#   G2：eolr欄=60、標題=120 → 落120（標題為準，需把 eolr 欄的 60 覆蓋成 120）
+CONFLICT_G1 = [29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]   # eolr_col=120, eolr_title=60,  assigned=120
+CONFLICT_G2 = [140, 141, 142, 143]                            # eolr_col=60,  eolr_title=120, assigned=120
+OVERRIDE_TO_120 = set(CONFLICT_G2)                            # 落格時唯一需要覆蓋 eolr 欄的一群
 
 # 這兩條路徑神聖不可寫：基準庫、正式庫
 SACRED = {
     os.path.normcase(os.path.abspath(os.path.join('real_db_for_recon', 'atlas.db'))),
     os.path.normcase(os.path.abspath(os.path.join('flask_backend', 'data', 'atlas.db'))),
 }
+
+
+def shoe_key(model_name):
+    """執行期從 model_name 導出鞋型 key（與 ie_ver_recon.py 同法）；只用於群組一致性守門，不落地、不寫進 git。"""
+    s = re.split(r'Target\s*Output', model_name or '', flags=re.I)[0]
+    return re.sub(r'\s+', ' ', s).strip(' :：-').upper()
 
 
 def die(msg, code=2):
@@ -98,25 +109,29 @@ def main():
     print(f'落格前基準：count={old_cnt:,} sum={old_sum!r} ✅ 未漂移')
 
     # ── 守門：15 筆矛盾 header 的 DB 簽章要對得上裁決①，否則不照裁決盲落 ─────────
-    def check_headers(ids, want_eolr, name_kw):
+    #   驗 eolr 欄值 + 同群 header 共享同一 shoe_key（一致性），不把鞋型名寫進原始碼。
+    def check_group(ids, want_eolr, label):
+        keys = set()
         for hid in ids:
             row = cur.execute('SELECT eolr, model_name FROM ob_header WHERE id=?', (hid,)).fetchone()
             if row is None:
                 die(f'裁決①指名的 header {hid} 不存在於此庫。資料前提不符，停下。', 2)
             eolr, mn = row
-            if eolr != want_eolr or name_kw not in (mn or '').upper():
-                die(f'header {hid} 簽章不符裁決①：eolr={eolr}(應{want_eolr}) '
-                    f'model_name={mn!r}(應含 {name_kw!r})。不照裁決盲落。', 2)
-    check_headers(LA_TRAINER_HEADERS, 120, 'LA TRAINER')
-    check_headers(TOKYO_WMJ_HEADERS, 60, 'TOKYO W MJ')
-    print('守門：15 筆矛盾 header 簽章全部對上裁決①（11 LA TRAINER@120 + 4 TOKYO W MJ@60）✅')
+            if eolr != want_eolr:
+                die(f'header {hid} eolr 欄={eolr}，應={want_eolr}（{label}）。不照裁決盲落。', 2)
+            keys.add(shoe_key(mn))
+        if len(keys) != 1:
+            die(f'{label} 群組 {ids} 的 shoe_key 不一致（{len(keys)} 種）→ 不是同一鞋型群，前提不符。', 2)
+    check_group(CONFLICT_G1, 120, 'G1(欄120/標60)')
+    check_group(CONFLICT_G2, 60, 'G2(欄60/標120)')
+    print(f'守門：15 筆矛盾 header 簽章全部對上裁決①（G1={len(CONFLICT_G1)} @欄120 + G2={len(CONFLICT_G2)} @欄60）✅')
 
     now = datetime.now().isoformat(timespec='seconds')
 
     try:
         cur.execute('BEGIN')
 
-        # ① 落格：一工序一列，assigned_eolr = TOKYO W MJ→120，其餘＝ob_header.eolr
+        # ① 落格：一工序一列，assigned_eolr = G2→120（覆蓋），其餘＝ob_header.eolr
         placeholders = ','.join('?' * len(OVERRIDE_TO_120))
         cur.execute(f'''
             INSERT INTO ie_process_actual (process_id, eolr, actual_operators, updated_at)
@@ -131,12 +146,12 @@ def main():
         landed = cur.execute('SELECT COUNT(*) FROM ie_process_actual').fetchone()[0]
         print(f'落格：ie_process_actual 寫入 {landed:,} 列')
 
-        # ② 現場確認清單：15 筆矛盾 header
+        # ② 現場確認清單：15 筆矛盾 header（以 header_id 記錄，不寫鞋型名）
         conf_rows = []
-        for hid in LA_TRAINER_HEADERS:
+        for hid in CONFLICT_G1:
             conf_rows.append((hid, 120, 120, 60,
                               '裁決①：eolr欄120為準（標題R2解得60）；現場確認', 'pending', now))
-        for hid in TOKYO_WMJ_HEADERS:
+        for hid in CONFLICT_G2:
             conf_rows.append((hid, 120, 60, 120,
                               '裁決①：標題R2解得120為準（覆蓋eolr欄60）；現場確認', 'pending', now))
         cur.executemany('''INSERT INTO ie_eolr_confirm
@@ -182,7 +197,6 @@ def main():
         print(f'  ie_process_actual={sub_cnt:,}　ie_eolr_confirm={nconf}　sum={sub_sum!r}')
         print('=' * 68)
 
-        # EOLR 落格分布（供報告）
         dist = cur.execute('SELECT eolr, COUNT(*) FROM ie_process_actual GROUP BY eolr ORDER BY eolr').fetchall()
         print('落格 EOLR 分布：', dict(dist))
         return 0
