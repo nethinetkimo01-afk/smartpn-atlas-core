@@ -1,0 +1,20 @@
+{
+  "party": "breaker",
+  "verdict": "red",
+  "summary": "（未執行：攻不破 / 攻破 N 處）",
+  "what_i_did": [
+    "亂點",
+    "並發",
+    "壞資料",
+    "邊界",
+    "權限繞過",
+    "狀態殘留"
+  ],
+  "_example_finding": {
+    "severity": "high",
+    "summary": "（哪裡壞）",
+    "evidence": "（回應碼/錯誤訊息/數字）",
+    "repro": "（最小重現步驟）"
+  },
+  "findings": []
+}

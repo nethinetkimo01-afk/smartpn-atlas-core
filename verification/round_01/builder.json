@@ -1,0 +1,56 @@
+{
+  "party": "builder",
+  "delivery": "任務1 FOUNDATION(1a-1g 全) + 任務2 clone斷言 + 任務3 MPV落地(breaker=閘門13/mpv_feedback/46清單/規則入27) + 任務4 對帳工具(ie_ver_recon.py，真庫才能出數)",
+  "commit": "(待填 push 後 sha)",
+  "verdict": "red",
+  "summary": "程式面自證完成，但本機 atlas.db 不是 Jim 真庫（actual_headers=3，真庫應≈140）→ 依 27 規則十二-7 自判紅，任務4(IE-VER/BZ-VER 對帳) 在本機不成立，未做。",
+  "data_source": {
+    "db": "flask_backend/data/atlas.db",
+    "ie_process_rows": 8295,
+    "ob_header_rows": 197,
+    "actual_headers": 3,
+    "note": "hub_ci 來源身分橫幅實測值。真庫應為 ie_process≈20434 / actual_headers≈140。flask_backend/data/ 在 .gitignore（commit 323f561）→ ME129 真庫不經 git 同步，本機這份是舊副本。"
+  },
+  "what_i_did": [
+    "1a: database.get_conn() 補 PRAGMA synchronous=NORMAL（WAL/foreign_keys/busy_timeout 原已存在）。實測 wal/1/15000/1。",
+    "2: hub_ci.clone_prod_db() 加『逐表列數斷言 副本==來源』+『來源身分橫幅』+ actual_headers<100 告警。",
+    "2: 實測 backup API 與 shutil.copy2 兩法對 37 表逐表比對，與來源完全相同 → 『clone 漏抓』診斷不成立，故未改 copy2（改了會失去線上 WAL 庫的一致性保證）。",
+    "3: breaker_gate.py 註冊為 hub_ci 閘門13 + 納入 GATE_FILES hash + allgreen 門檻 12→13。",
+    "3: 新建 mpv_feedback.py（四方裁決/交叉比對/全票制/自動退回令）+ verification/README.md + 46_DELIVERY_CHECKLIST.md + 規則入 27（十二節）。",
+    "1b/1e/1f/1g: 新增 backup_admin.html + 7 個 admin 端點（status/settings GET+POST/list/run/restore/peek），設定存 app_settings 表，全程畫面操作。",
+    "1c: flask_backend/atlas_backup_task.bat（Windows 工作排程器，schtasks 安裝指令寫在檔頭），設定讀管理頁不寫死。",
+    "1g: database.get_ro_conn()（mode=ro + query_only）；實測 DELETE 被擋『attempt to write a readonly database』。",
+    "★ 閘門13 breaker_gate 首跑就抓到真漏洞：POST /api/ds04/lock 完全沒有權限檢查，read_only 可鎖定/解鎖月份（凍結生產資料）；且 locked_by 採信客戶端可冒名。已修：加 _require_manager() + locked_by 取登入身分。修後 breaker 全部擋住。",
+    "任務4: 新增 ie_ver_recon.py（唯讀對帳，出報告①計數＋報告②歸屬＋零丟值證明），本機跑正確拒絕背書(exit=2)。"
+  ],
+  "evidence": [
+    "來源身分橫幅：ie_process=8295 列, ob_header=197 列, 有 actual 的 header=3",
+    "複製忠實：37 表逐表列數與來源相同（backup API 與 copy2 皆然）",
+    "PRAGMA 實測：journal_mode=wal, synchronous=1(NORMAL), busy_timeout=15000, foreign_keys=1",
+    "mpv_feedback 自測：builder說綠+破壞者附證據 → 正確判紅並生成退回令（exit=1）",
+    "備份實測(隔離副本)：快照 81,829,888 bytes，驗證 ie_process=8295 == 來源，異地副本成功，狀態轉綠",
+    "還原實測(隔離副本)：8295 → 刪一半 4147 → 還原回 8295，還原前自動備份現況；壞備份被拒『file is not a database』，live 資料未損",
+    "輪替實測：40天前舊備份被刪(keep=30)，最新一份永不刪",
+    "breaker_gate 修前：🔴 BUG read_only 越權寫入成功 POST /api/ds04/lock；修後：🟢 全部擋住,攻不破"
+  ],
+  "findings": [
+    {
+      "severity": "high",
+      "summary": "本機 atlas.db 非 Jim 真庫：有 actual 的 header 只有 3（真庫應≈140），全庫 ie_process=8295（真庫應≈20434）",
+      "evidence": "本機所有 24 份 .db（含 backup/、test_isolated/）全為 8295 列/197 header；無任何一份是 20434 列/152 header",
+      "repro": "python hub_ci.py 觀察啟動橫幅；或 sqlite3 flask_backend/data/atlas.db 'select count(distinct header_id) from ie_process where actual_operators is not null and actual_operators<>0' → 3"
+    },
+    {
+      "severity": "high",
+      "summary": "任務4（IE-VER + BZ-VER 對帳/遷移）在本機無法執行，未做",
+      "evidence": "需 140 個有 actual 的 header 逐一 count+sum、全庫合計≈76357；本機只有 3 個 header／sum=262.5",
+      "repro": "同上：本機不存在可對帳的真實資料。需在 ME129 或由中樞用真庫執行。"
+    },
+    {
+      "severity": "high",
+      "summary": "（已修）POST /api/ds04/lock 無任何權限檢查，read_only 帳號可鎖定/解鎖月份，且 locked_by 可冒名",
+      "evidence": "breaker_gate 首跑：🔴 BUG | read_only 越權寫入成功 | POST /api/ds04/lock。12 支既有閘門全綠、全數漏掉此洞。",
+      "repro": "以 role=read_only 登入 → POST /api/ds04/lock {'action':'lock','month':'2026-06'} → 修前回 200（已鎖定）。修後回 403。"
+    }
+  ]
+}

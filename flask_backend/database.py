@@ -25,9 +25,57 @@ def get_conn():
     conn.row_factory = sqlite3.Row
     conn.execute('PRAGMA foreign_keys = ON')
     conn.execute('PRAGMA journal_mode = WAL')
+    # WAL 下 NORMAL 只在 checkpoint 時 fsync：斷電最多丟最後幾筆交易，不會壞庫（FULL 才是每筆 fsync）。
+    # 匯入 50 萬列時 FULL 會慢一個量級，NORMAL 是 WAL 的標準搭配。
+    conn.execute('PRAGMA synchronous = NORMAL')
     # waitress 多線程後寫入並發升高，等鎖 15s 再放棄，避免 'database is locked'
+    # （中樞規格寫 5000；此處保留既有 15000 — 更寬鬆的等待只會更不容易撞檔，不會更差）
     conn.execute('PRAGMA busy_timeout = 15000')
     return conn
+
+def get_ro_conn(path=None):
+    """唯讀連線（PRAGMA query_only + mode=ro）——中樞看 ME129 最新資料用，防誤改。
+    雙保險：URI mode=ro 讓 SQLite 拒絕任何寫入；query_only 讓誤下的寫入語句當場報錯。"""
+    p = path or DB_PATH
+    uri = 'file:' + p.replace('\\', '/').replace('?', '%3f').replace('#', '%23') + '?mode=ro'
+    conn = sqlite3.connect(uri, uri=True)
+    conn.row_factory = sqlite3.Row
+    conn.execute('PRAGMA query_only = ON')
+    conn.execute('PRAGMA busy_timeout = 5000')
+    return conn
+
+
+def get_setting(key, default=None):
+    conn = get_conn()
+    try:
+        r = conn.execute('SELECT value FROM app_settings WHERE key=?', (key,)).fetchone()
+        return r['value'] if r else default
+    finally:
+        conn.close()
+
+
+def set_setting(key, value, user=''):
+    conn = get_conn()
+    try:
+        with conn:
+            conn.execute(
+                'INSERT INTO app_settings(key,value,updated_at,updated_by) VALUES(?,?,?,?) '
+                'ON CONFLICT(key) DO UPDATE SET value=excluded.value, '
+                'updated_at=excluded.updated_at, updated_by=excluded.updated_by',
+                (key, '' if value is None else str(value), now_iso(), user))
+    finally:
+        conn.close()
+
+
+def all_settings(prefix=''):
+    conn = get_conn()
+    try:
+        rows = conn.execute('SELECT key,value FROM app_settings WHERE key LIKE ?',
+                            (prefix + '%',)).fetchall()
+        return {r['key']: r['value'] for r in rows}
+    finally:
+        conn.close()
+
 
 def init_db():
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)

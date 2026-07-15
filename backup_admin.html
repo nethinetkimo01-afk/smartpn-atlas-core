@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>備份與還原 — Atlas 管理</title>
+<style>
+  :root{ --bd:#d8dce3; --ink:#1f2430; --mut:#69707d; --bg:#f5f6f8;
+         --red:#c0392b; --redbg:#fdecea; --grn:#1e7e34; --grnbg:#eaf6ec; --amb:#8a6d0b; --ambbg:#fdf6e3; }
+  *{box-sizing:border-box}
+  body{margin:0;padding:24px;background:var(--bg);color:var(--ink);
+       font:14px/1.6 "Microsoft JhengHei","Segoe UI",system-ui,sans-serif}
+  h1{font-size:20px;margin:0 0 4px} h2{font-size:15px;margin:0 0 12px}
+  .sub{color:var(--mut);margin:0 0 20px}
+  .wrap{max-width:1000px;margin:0 auto}
+  .card{background:#fff;border:1px solid var(--bd);border-radius:8px;padding:18px;margin-bottom:16px}
+  .alert{border-radius:6px;padding:12px 14px;margin-bottom:16px;font-weight:700}
+  .alert.red{background:var(--redbg);border:1px solid var(--red);color:var(--red)}
+  .alert.grn{background:var(--grnbg);border:1px solid var(--grn);color:var(--grn)}
+  .alert ul{margin:6px 0 0 18px;padding:0;font-weight:400}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+  .stat{border:1px solid var(--bd);border-radius:6px;padding:10px 12px;background:#fafbfc}
+  .stat .k{color:var(--mut);font-size:12px} .stat .v{font-size:16px;font-weight:700;margin-top:2px}
+  label{display:block;margin:12px 0 4px;font-weight:700;font-size:13px}
+  input,select{width:100%;padding:8px 10px;border:1px solid var(--bd);border-radius:5px;font:inherit}
+  .hint{color:var(--mut);font-size:12px;margin-top:4px}
+  button{padding:8px 16px;border:1px solid var(--bd);border-radius:5px;background:#fff;
+         font:inherit;font-weight:700;cursor:pointer}
+  button.pri{background:var(--ink);color:#fff;border-color:var(--ink)}
+  button.dgr{background:var(--red);color:#fff;border-color:var(--red)}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px}
+  table{width:100%;border-collapse:collapse;margin-top:8px}
+  th,td{border-bottom:1px solid var(--bd);padding:8px 6px;text-align:left;font-size:13px}
+  th{color:var(--mut);font-weight:700;font-size:12px}
+  .tag{display:inline-block;padding:1px 7px;border-radius:9px;font-size:11px;font-weight:700}
+  .tag.y{background:var(--grnbg);color:var(--grn)} .tag.n{background:var(--redbg);color:var(--red)}
+  .msg{margin-top:12px;padding:10px;border-radius:5px;display:none;white-space:pre-wrap}
+  .msg.ok{display:block;background:var(--grnbg);color:var(--grn);border:1px solid var(--grn)}
+  .msg.err{display:block;background:var(--redbg);color:var(--red);border:1px solid var(--red)}
+  .ro{background:var(--ambbg);border:1px solid var(--amb);color:var(--amb);
+      border-radius:5px;padding:8px 10px;font-size:12px;font-weight:700;margin-bottom:10px}
+  code{background:#eef0f3;padding:1px 5px;border-radius:3px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>備份與還原</h1>
+  <p class="sub">atlas.db 的一致性快照、異地副本、輪替與還原。全部畫面操作，不需要命令列。</p>
+
+  <div id="alert"></div>
+
+  <!-- 1f 備份監控 -->
+  <div class="card">
+    <h2>備份狀態</h2>
+    <div class="grid" id="stats"><div class="stat"><div class="k">載入中…</div></div></div>
+    <div class="row">
+      <button class="pri" id="btnBackup" onclick="runBackup()">立即備份</button>
+      <span class="hint" id="runHint">建立一致性快照 → 驗證列數 → 複製到異地 → 輪替舊檔</span>
+    </div>
+    <div class="msg" id="runMsg"></div>
+  </div>
+
+  <!-- 1b 備份設定 -->
+  <div class="card">
+    <h2>備份設定</h2>
+    <label for="offsite">異地備份資料夾路徑</label>
+    <input id="offsite" placeholder="例：\\\\NAS\\atlas_backup 或 E:\\atlas_backup">
+    <div class="hint">另一台機器／NAS／外接碟的資料夾。<b>留空＝只有本機一份，這台壞掉資料就全沒了。</b></div>
+    <label for="freq">備份頻率</label>
+    <select id="freq"><option value="daily">每日一次</option><option value="every12h">每 12 小時一次</option></select>
+    <label for="keep">保留天數</label>
+    <input id="keep" type="number" min="1" max="3650" value="30">
+    <div class="hint">超過天數的舊備份自動刪除（最新一份永遠保留）。</div>
+    <div class="row"><button class="pri" onclick="saveSettings()">儲存設定</button></div>
+    <div class="msg" id="setMsg"></div>
+  </div>
+
+  <!-- 1e 還原 -->
+  <div class="card">
+    <h2>還原</h2>
+    <div class="hint" style="margin-bottom:8px">
+      選一份備份 → 二次確認 → <b>還原前會自動先備份目前資料</b> → 覆蓋。
+      還原前請先停止 ME129 上的 server，否則舊 WAL 會蓋掉還原結果。
+    </div>
+    <table>
+      <thead><tr><th>備份時間</th><th>檔名</th><th>大小</th><th>異地副本</th><th></th></tr></thead>
+      <tbody id="list"><tr><td colspan="5">載入中…</td></tr></tbody>
+    </table>
+    <div class="msg" id="resMsg"></div>
+  </div>
+
+  <!-- 1g 唯讀檢視 -->
+  <div class="card">
+    <h2>唯讀檢視（目前資料庫）</h2>
+    <div class="ro">🔒 read-only 連線（mode=ro + query_only）——只能看，改不了。</div>
+    <div class="grid" id="peek"><div class="stat"><div class="k">載入中…</div></div></div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const mb = n => (n/1048576).toFixed(1) + ' MB';
+function show(el, ok, text){ el.className = 'msg ' + (ok ? 'ok' : 'err'); el.textContent = text; }
+async function api(path, opt){
+  const r = await fetch(path, Object.assign({headers:{'Content-Type':'application/json'}}, opt||{}));
+  let j = {}; try { j = await r.json(); } catch(e){ j = {ok:false, error:'HTTP ' + r.status}; }
+  if (!r.ok && !j.error) j.error = 'HTTP ' + r.status;
+  return j;
+}
+
+async function loadStatus(){
+  const j = await api('/api/backup/status');
+  if (!j.ok){ $('alert').innerHTML = '<div class="alert red">讀取狀態失敗：' + (j.error||'') + '</div>'; return; }
+  const s = j.status;
+  // 異地未設定 → 紅字告警（1b 要求）
+  $('alert').innerHTML = s.alerts && s.alerts.length
+    ? '<div class="alert red">⚠️ 備份有風險<ul>' + s.alerts.map(a => '<li>' + a + '</li>').join('') + '</ul></div>'
+    : '<div class="alert grn">✅ 備份正常：最近備份 ' + s.last_at + '（' + s.age_hours + ' 小時前），共 ' + s.count + ' 份，異地副本已建立</div>';
+  $('stats').innerHTML = [
+    ['最近備份時間', s.last_at || '從未備份'],
+    ['距今', s.age_hours != null ? s.age_hours + ' 小時' : '—'],
+    ['大小', s.last_size ? mb(s.last_size) : '—'],
+    ['驗證', s.last_at ? (s.last_ok ? '✅ 成功' : '❌ 失敗') : '—'],
+    ['異地副本', !s.offsite_configured ? '❌ 未設定' : (s.offsite_ok ? '✅ 已建立' : '❌ 缺這一份')],
+    ['共幾份', s.count + ' 份' + (s.bad_count ? '（壞 ' + s.bad_count + '）' : '')],
+    ['ie_process 列數', s.ie_process_rows != null ? s.ie_process_rows.toLocaleString() : '—'],
+  ].map(([k,v]) => '<div class="stat"><div class="k">' + k + '</div><div class="v">' + v + '</div></div>').join('');
+}
+
+async function loadSettings(){
+  const j = await api('/api/backup/settings');
+  if (!j.ok) return;
+  $('offsite').value = j.settings.offsite_dir || '';
+  $('freq').value = j.settings.frequency;
+  $('keep').value = j.settings.keep_days;
+}
+
+async function saveSettings(){
+  const j = await api('/api/backup/settings', {method:'POST', body: JSON.stringify({
+    offsite_dir: $('offsite').value.trim(), frequency: $('freq').value, keep_days: Number($('keep').value)})});
+  show($('setMsg'), j.ok, j.ok ? '✅ 設定已儲存' : '❌ ' + j.error);
+  if (j.ok){ loadStatus(); loadList(); }
+}
+
+async function runBackup(){
+  const b = $('btnBackup'); b.disabled = true; b.textContent = '備份中…';
+  show($('runMsg'), true, '正在建立快照並驗證，請稍候…');
+  const j = await api('/api/backup/run', {method:'POST'});
+  b.disabled = false; b.textContent = '立即備份';
+  if (j.ok){
+    const r = j.result;
+    show($('runMsg'), true, '✅ 備份完成\n檔案：' + r.path + '\n大小：' + mb(r.size) +
+      '\n驗證：' + r.detail + '\n異地：' + r.offsite +
+      (r.pruned && r.pruned.length ? '\n輪替刪除：' + r.pruned.length + ' 份舊備份' : ''));
+  } else show($('runMsg'), false, '❌ 備份失敗：' + j.error);
+  loadStatus(); loadList();
+}
+
+async function loadList(){
+  const j = await api('/api/backup/list');
+  const tb = $('list');
+  if (!j.ok){ tb.innerHTML = '<tr><td colspan="5">讀取失敗：' + (j.error||'') + '</td></tr>'; return; }
+  if (!j.backups.length){ tb.innerHTML = '<tr><td colspan="5">還沒有任何備份。按上面「立即備份」建立第一份。</td></tr>'; return; }
+  tb.innerHTML = j.backups.map(b =>
+    '<tr><td>' + b.at + '</td><td><code>' + b.name + '</code></td><td>' + mb(b.size) + '</td>' +
+    '<td><span class="tag ' + (b.offsite?'y':'n') + '">' + (b.offsite?'有':'無') + '</span></td>' +
+    '<td><button class="dgr" onclick="doRestore(\'' + b.name + '\',\'' + b.at + '\')">還原這份</button></td></tr>').join('');
+}
+
+async function doRestore(name, at){
+  // 二次確認（1e 要求）：還原會覆蓋現有資料，要求打字確認，不能手滑點過去。
+  if (!confirm('確定要還原到這份備份？\n\n' + name + '（' + at + '）\n\n' +
+               '現有資料會被覆蓋。系統會先自動備份目前資料。')) return;
+  if (prompt('請輸入「還原」兩個字以確認：') !== '還原'){ show($('resMsg'), false, '已取消（確認字串不符）'); return; }
+  show($('resMsg'), true, '還原中…');
+  const j = await api('/api/backup/restore', {method:'POST', body: JSON.stringify({name, confirm:true})});
+  if (j.ok) show($('resMsg'), true, '✅ 還原完成\n來源：' + j.result.restored_from +
+                 '\n還原前現況已備份至：' + j.result.pre_restore_backup + '\n驗證：' + j.result.detail);
+  else show($('resMsg'), false, '❌ 還原失敗：' + j.error);
+  loadStatus(); loadList();
+}
+
+async function loadPeek(){
+  const j = await api('/api/backup/peek');
+  if (!j.ok){ $('peek').innerHTML = '<div class="stat"><div class="k">讀取失敗</div><div class="v">' + (j.error||'') + '</div></div>'; return; }
+  const items = Object.entries(j.counts).map(([k,v]) => [k, v.toLocaleString()]);
+  items.push(['有 actual 的 header', j.actual_headers]);
+  $('peek').innerHTML = items.map(([k,v]) =>
+    '<div class="stat"><div class="k">' + k + '</div><div class="v">' + v + '</div></div>').join('');
+}
+
+loadStatus(); loadSettings(); loadList(); loadPeek();
+</script>
+</body>
+</html>

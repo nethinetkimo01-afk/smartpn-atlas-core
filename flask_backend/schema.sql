@@ -292,3 +292,11 @@ CREATE TABLE IF NOT EXISTS alloc_lock (
     locked_at   TEXT NOT NULL,
     locked_by   TEXT DEFAULT ''
 );
+
+-- 通用設定鍵值表（備份設定：異地路徑/頻率/保留天數 等，全程畫面設定不碰命令列）
+CREATE TABLE IF NOT EXISTS app_settings (
+    key         TEXT PRIMARY KEY,
+    value       TEXT,
+    updated_at  TEXT,
+    updated_by  TEXT DEFAULT ''
+);

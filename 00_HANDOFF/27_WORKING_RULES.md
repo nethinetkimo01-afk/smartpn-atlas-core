@@ -577,3 +577,61 @@ name cell 必須帶 `data-pid`、`data-zh`、`data-vi` 三個屬性。
 ### 本階段目標：自動化編制表
 排程 → 拆 ART → 抓鎖定 IE 實際人數 → offline 撥人 → C2B → 導出 Excel。
 （地基＝IE 表已上線；最終結果＝這條自動化鏈路。）
+
+## 十二、多方驗證鐵則（MPV，2026-07-15 入規）
+
+> 全文見 [45_MULTIPARTY_VERIFICATION.md](45_MULTIPARTY_VERIFICATION.md)；
+> 每次交付填 [46_DELIVERY_CHECKLIST.md](46_DELIVERY_CHECKLIST.md)。
+
+1. **驗的人 ≠ 做的人**：Code 的自證（hub_ci 全綠）只是**入場券**，
+   必經破壞者 / 對規者 / 使用者三方獨立驗證。
+2. **全票制**：任一方紅即不上線，**非多數決**。沒有「小問題先上」。
+3. **證據制**：每方交「我試了什麼 + 可重現證據」，不接受「我覺得」「應該沒問題」。
+4. **閘門判定不得由被驗收方修改**：改判定＝作弊，該次交付直接作廢。
+   `hub_ci.py` 的 `GATE_FILES` hash 每次列印自證。
+5. **上 ME129 前必過本機制**：中樞用 Jim 真庫複核全綠才放行。
+6. **破壞者閘門常駐**：`breaker_gate.py` 為 hub_ci **閘門13**，每次 push 必跑；
+   **新端點必須同步納入攻擊面**（並發/壞資料/權限繞過/邊界/狀態殘留）。
+
+### ★ 7. 綠燈必須自證「測的是哪個庫」（2026-07-15 血的教訓）
+
+**閘門全綠，是在你餵的那份資料上綠的。**
+
+- hub_ci 每次啟動列印「來源身分」橫幅（ie_process 列數 / ob_header / 有 actual 的 header 數），
+  報告**必須連橫幅一起貼**，不得只貼「ALL GREEN」。
+- 「複製忠實」≠「來源是真庫」。`clone_prod_db()` 逐表斷言只證明前者。
+- `flask_backend/data/` 在 `.gitignore` 內 → **ME129 真庫不經 git 同步**。
+  開發機上的 atlas.db 是舊副本（8295 列 / 3 個有 actual 的 header），
+  **不是** Jim 真庫（≈20434 列 / ≈140 個有 actual 的 header）。
+- 因此：**任何依賴真實資料的結論（IE-VER / BZ-VER 對帳、遷移歸屬、零丟值證明），
+  在開發機上一律不成立**，必須在真庫所在環境跑，或由中樞用真庫複跑。
+- 診斷「資料少了」時，**先量來源本身**，再懷疑複製。
+  否則會把不存在的 bug「修」成真的 bug（如：對線上 WAL 庫改用 copy2 → 取到撕裂檔）。
+
+### 8. 反饋迴路：每輪重大交付四方各交一份 .json
+
+```
+Code 做完 → verification/round_NN/builder.json（自證 + hub_ci + ★data_source）
+   ↓
+破壞者/對規者/使用者各跑 → breaker.json / auditor.json / user.json
+（自動閘門、獨立 AI 視窗、Jim 的 GPT —— 都寫進同一個 round_NN/）
+   ↓
+python mpv_feedback.py → 交叉比對 → round_NN/arbiter.md
+   ↓
+全綠 → 放行（中樞用真庫複核，才對 Jim 說「可以看」）
+任一紅 → arbiter.md 內含自動退回令 → 貼給 Code → 下一輪
+```
+
+- `verification/` ＝**與外部 AI 對接的資料交換點，JSON 格式即介面**。
+  誰驗的不重要，交出來的 .json 長得一樣就能裁決。格式見 `verification/README.md`。
+- **四方各自獨立填，互不通氣，不看彼此結論。**
+  建造者**不得代填**他方（代填＝驗的人＝做的人，該輪作廢）。
+- `mpv_feedback.py` 為裁決程式，屬判定檔：**被驗收方不得修改**。
+
+### 9. 裁決一律 fail-closed（沒驗 ≠ 沒問題）
+
+- 範本預設 `verdict: red`，填完才改綠。
+- **缺席即紅**、壞檔即紅、未申報 `data_source` 即紅。
+- `verdict: "green"` 但 `findings` 非空 → **判紅**（說綠不算數，證據算數）。
+- finding 缺 `repro` → 標「證據不足」但**仍算紅**，中樞人工判定
+  （不允許因為「說不清楚」就當沒發生）。

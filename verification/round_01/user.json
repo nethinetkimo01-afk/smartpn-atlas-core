@@ -1,0 +1,10 @@
+{
+  "party": "user",
+  "verdict": "red",
+  "summary": "（未執行：全程走通 / 卡在第 N 步）",
+  "what_i_did": [
+    "匯入→勾選→計算→導出",
+    "只用真實點擊，不呼叫內部 API"
+  ],
+  "findings": []
+}

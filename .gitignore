@@ -39,3 +39,12 @@ flask_backend/check_ie.py
 
 # Node (real_click_test.js gate deps — Task X)
 node_modules/
+
+# ── 備份產物（Task FOUNDATION）：DB 的 -wal/-shm 旁檔與自動備份/排程 log 一律不追蹤 ──
+flask_backend/backup/*.db-wal
+flask_backend/backup/*.db-shm
+flask_backend/data/*.db-wal
+flask_backend/data/*.db-shm
+flask_backend/data/auto_backup/
+flask_backend/backup_task.log
+__pycache__/

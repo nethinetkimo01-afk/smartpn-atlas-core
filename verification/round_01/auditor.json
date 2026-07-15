@@ -1,0 +1,13 @@
+{
+  "party": "auditor",
+  "verdict": "red",
+  "summary": "（未執行：符合 N/N 條）",
+  "coverage": {
+    "verified": 0,
+    "required": 0
+  },
+  "what_i_did": [
+    "逐條對帳 28_BIANCHE_SPEC / 16_S02_TO_S17 / 27_WORKING_RULES"
+  ],
+  "findings": []
+}

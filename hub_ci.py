@@ -16,6 +16,7 @@ hub_ci.py — 總閘門（中樞定案 2026-07-15）。一鍵起隔離 server（
   7 spec_gate_smartpn   三檔 S02–S17 各 16/16
   8 spec_gate_flow      三檔真實點擊路徑逐場景走通（不呼叫任何頁面 API；每步畫面必變＋資料 token 齊）
   9 spec_gate_bfs       三檔真實點擊 BFS 走遍主 UI（補 fresh 判定的覆蓋盲區：深層按鈕逐顆判定）
+  13 breaker_gate       破壞者：並發/壞資料/權限繞過/邊界/狀態殘留（新端點自動納入攻擊面）
 
 隔離保證（絕不碰正式庫）：
   - 正式庫 flask_backend/data/atlas.db 以 sqlite3 URI `mode=ro` 唯讀開啟，用 backup API 複製到臨時目錄；
@@ -40,7 +41,8 @@ FACTORY = os.path.join(PREVIEW, 'SMARTPN_DEMO_FACTORY_V3.html')
 
 # 判定檔：被驗收方不得修改 → 報告附 hash 自證
 GATE_FILES = ['spec_gate_bianche.py', 'hub_gate.py', 'spec_gate_ie.py', 'spec_gate_import.py',
-              'fresh_click_test.js', 'spec_gate_smartpn.py', 'spec_gate_flow.py', 'spec_gate_bfs.js', 'hub_ci.py']
+              'fresh_click_test.js', 'spec_gate_smartpn.py', 'spec_gate_flow.py', 'spec_gate_bfs.js',
+              'breaker_gate.py', 'hub_ci.py']
 
 KEEP = '--keep' in sys.argv
 RESULTS = []   # (name, ok, summary, output)
@@ -62,16 +64,56 @@ def free_port():
     return p
 
 
+def _ro(path):
+    uri = 'file:' + path.replace('\\', '/').replace('?', '%3f').replace('#', '%23') + '?mode=ro'
+    return sqlite3.connect(uri, uri=True)
+
+
+def db_fingerprint(path):
+    """回傳 DB 身分指紋：各表列數 + 有 actual 的 header 數。用來回答『我到底在測哪個庫』。"""
+    conn = _ro(path)
+    try:
+        tables = sorted(r[0] for r in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'") if not r[0].startswith('sqlite_'))
+        counts = {t: conn.execute(f'SELECT COUNT(*) FROM "{t}"').fetchone()[0] for t in tables}
+        actual_headers = conn.execute(
+            'SELECT COUNT(DISTINCT header_id) FROM ie_process '
+            'WHERE actual_operators IS NOT NULL AND actual_operators <> 0').fetchone()[0] \
+            if 'ie_process' in counts else -1
+        return counts, actual_headers
+    finally:
+        conn.close()
+
+
 def clone_prod_db(dst):
-    """正式庫唯讀複製（mode=ro + backup API）——正式庫絕不被寫入。"""
+    """正式庫唯讀複製（mode=ro + backup API）——正式庫絕不被寫入。
+
+    複製後逐表斷言『副本列數 == 來源列數』，不符立刻中止（不繼續跑閘門）。
+    ★注意：本斷言只證明「複製忠實」，不證明「來源就是 Jim 的真庫」。
+      來源身分請看下方 fingerprint 橫幅（ie_process 列數 / 有 actual 的 header 數）。
+    """
     if not os.path.isfile(PROD_DB):
         raise SystemExit(f'❌ 找不到正式庫：{PROD_DB}')
-    uri = 'file:' + PROD_DB.replace('\\', '/').replace('?', '%3f').replace('#', '%23') + '?mode=ro'
-    src = sqlite3.connect(uri, uri=True)
+    src = _ro(PROD_DB)
     out = sqlite3.connect(dst)
     with out:
         src.backup(out)
     src.close(); out.close()
+
+    before, ah_src = db_fingerprint(PROD_DB)
+    after, ah_dst = db_fingerprint(dst)
+    diffs = [f'{t}: 來源 {before[t]} != 副本 {after.get(t)}'
+             for t in before if before[t] != after.get(t)]
+    if diffs:
+        raise SystemExit('❌ 複製不忠實（副本列數與來源不符）→ 中止，不跑閘門：\n   '
+                         + '\n   '.join(diffs))
+    print(f'   ✅ 複製忠實：{len(before)} 表逐表列數與來源相同')
+    print(f'   ▸ 來源身分：ie_process={before.get("ie_process")} 列, '
+          f'ob_header={before.get("ob_header")} 列, 有 actual 的 header={ah_src}')
+    if ah_src < 100:
+        print(f'   ⚠️  警告：只有 {ah_src} 個 header 有 actual 資料。Jim 真庫應為 ~140。')
+        print(f'      → 本機這份 atlas.db 不是 ME129 真庫（data/ 已被 .gitignore，真庫不會經 git 同步）。')
+        print(f'      → 依賴真實資料的結論（IE-VER/BZ-VER 對帳）在本機不成立。')
     return dst
 
 
@@ -187,6 +229,10 @@ def main():
                 [sys.executable, 'spec_gate_ie.py'], env={'SPEC_GATE_IE_BASE': base, **env})
             run('閘門3b spec_gate_import（DS-04 匯入壓力/容錯：併發·重複·表頭變異·壞檔）',
                 [sys.executable, 'spec_gate_import.py'], env={'SPEC_GATE_IMPORT_BASE': base, **env})
+            # 閘門13 破壞者：立場對立的獨立攻擊面（並發/壞資料/權限繞過/邊界/狀態殘留）。
+            # 依 45_MULTIPARTY_VERIFICATION §六：建造者不得改判定，每次 push 必跑。
+            run('閘門13 breaker_gate（破壞者：並發·壞資料·權限繞過·邊界·狀態殘留）',
+                [sys.executable, 'breaker_gate.py', base], env=env)
 
         run('閘門4 fresh_click_test（品牌端 SMARTPN_DEMO_V3）', ['node', 'fresh_click_test.js', BRAND])
         run('閘門5 fresh_click_test（供應商端 SMARTPN_DEMO_SUPPLIER_V3）', ['node', 'fresh_click_test.js', SUPPLIER])
@@ -215,7 +261,7 @@ def main():
         print(f'  {"✅ PASS" if ok else "❌ FAIL"}  {name}')
         print(f'          └ {summary}')
     npass = sum(1 for r in RESULTS if r[1])
-    allgreen = npass == len(RESULTS) and len(RESULTS) >= 12
+    allgreen = npass == len(RESULTS) and len(RESULTS) >= 13   # +1：閘門13 breaker_gate 必到齊
     reject_summary()
     print('\n' + '=' * 64)
     print(f'  hub_ci: {npass}/{len(RESULTS)} → {"✅ ALL GREEN（可以 push）" if allgreen else "❌ FAIL（不准 push）"}')

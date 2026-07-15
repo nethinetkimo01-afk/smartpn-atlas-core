@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, send_from_directory, session, redirec
 from flask_cors import CORS
 import database as db
 import os
+import sqlite3
 import tempfile
 import threading
 import json as _json
@@ -1406,6 +1407,128 @@ def ds04_page():
 def eolr_settings_page():
     return send_from_directory('..', 'eolr_settings.html')
 
+# ── 備份 / 還原 / 監控（Task FOUNDATION 1b·1e·1f·1g）──────────────────────────
+# 全程畫面操作，不碰命令列。所有端點限 admin。
+import db_backup as _bk
+
+
+@app.route('/backup-admin')
+def backup_admin_page():
+    return send_from_directory('..', 'backup_admin.html')
+
+
+@app.route('/api/backup/status', methods=['GET'])
+def backup_status_api():
+    err = _require_admin()
+    if err:
+        return err
+    return jsonify({'ok': True, 'status': _bk.status()})
+
+
+@app.route('/api/backup/settings', methods=['GET'])
+def backup_settings_get_api():
+    err = _require_admin()
+    if err:
+        return err
+    return jsonify({'ok': True, 'settings': _bk.settings()})
+
+
+@app.route('/api/backup/settings', methods=['POST'])
+def backup_settings_post_api():
+    err = _require_admin()
+    if err:
+        return err
+    d = request.get_json(silent=True) or {}
+    user = (_auth_user() or {}).get('username', '')
+    off = (d.get('offsite_dir') or '').strip()
+    if off:
+        # 路徑當場驗證：存不到的路徑寧可現在擋，也不要等到災難當天才發現備份一直失敗。
+        try:
+            os.makedirs(off, exist_ok=True)
+            probe = os.path.join(off, '.atlas_write_test')
+            with open(probe, 'w') as f:
+                f.write('ok')
+            os.remove(probe)
+        except OSError as e:
+            return jsonify({'ok': False, 'error': f'異地資料夾無法寫入：{e}'}), 400
+    freq = d.get('frequency', 'daily')
+    if freq not in _bk.FREQ_HOURS:
+        return jsonify({'ok': False, 'error': '頻率只能是 daily 或 every12h'}), 400
+    try:
+        keep = int(d.get('keep_days', 30))
+    except (TypeError, ValueError):
+        return jsonify({'ok': False, 'error': '保留天數必須是數字'}), 400
+    if not 1 <= keep <= 3650:
+        return jsonify({'ok': False, 'error': '保留天數需在 1~3650 之間'}), 400
+    db.set_setting(_bk.K_OFFSITE, off, user)
+    db.set_setting(_bk.K_FREQ, freq, user)
+    db.set_setting(_bk.K_KEEP, keep, user)
+    return jsonify({'ok': True, 'settings': _bk.settings()})
+
+
+@app.route('/api/backup/list', methods=['GET'])
+def backup_list_api():
+    err = _require_admin()
+    if err:
+        return err
+    return jsonify({'ok': True, 'backups': _bk.list_backups()})
+
+
+@app.route('/api/backup/run', methods=['POST'])
+def backup_run_api():
+    err = _require_admin()
+    if err:
+        return err
+    try:
+        return jsonify({'ok': True, 'result': _bk.backup()})
+    except (OSError, RuntimeError, sqlite3.Error) as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
+
+@app.route('/api/backup/restore', methods=['POST'])
+def backup_restore_api():
+    err = _require_admin()
+    if err:
+        return err
+    d = request.get_json(silent=True) or {}
+    if not d.get('confirm'):
+        return jsonify({'ok': False, 'error': '需二次確認（confirm=true）'}), 400
+    name = d.get('name') or ''
+    # 只接受清單內的檔名 → 擋路徑穿越（../../ 拿別的檔覆蓋正式庫）。
+    allowed = {b['name']: b['path'] for b in _bk.list_backups()}
+    if name not in allowed:
+        return jsonify({'ok': False, 'error': '找不到這份備份（只能還原清單內的備份）'}), 400
+    try:
+        return jsonify({'ok': True, 'result': _bk.restore(allowed[name])})
+    except (OSError, RuntimeError, sqlite3.Error) as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
+
+@app.route('/api/backup/peek', methods=['GET'])
+def backup_peek_api():
+    """1g 唯讀檢視：用 read-only 連線看最新資料，防誤改。"""
+    err = _require_admin()
+    if err:
+        return err
+    try:
+        conn = db.get_ro_conn()
+    except sqlite3.Error as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
+    try:
+        tables = ['ie_process', 'ob_header', 'ie_sheet_data', 'allocation_item', 'ds04_orders']
+        have = {r[0] for r in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+        counts = {t: conn.execute(f'SELECT COUNT(*) FROM "{t}"').fetchone()[0]
+                  for t in tables if t in have}
+        actual_headers = conn.execute(
+            'SELECT COUNT(DISTINCT header_id) FROM ie_process '
+            'WHERE actual_operators IS NOT NULL AND actual_operators <> 0').fetchone()[0] \
+            if 'ie_process' in have else None
+        return jsonify({'ok': True, 'readonly': True, 'db': db.DB_PATH,
+                        'counts': counts, 'actual_headers': actual_headers})
+    finally:
+        conn.close()
+
 @app.route('/bianche')
 def bianche_page():
     return send_from_directory('..', 'bianche.html')
@@ -1612,12 +1735,16 @@ def get_ds04_lock():
 
 @app.route('/api/ds04/lock', methods=['POST'])
 def lock_ds04():
-    data = request.get_json(force=True)
+    err = _require_manager()          # 鎖定/解鎖月份＝凍結生產資料 → manager+（與 eolr-settings 同級）
+    if err: return err
+    data = request.get_json(silent=True) or {}
     action = data.get('action', 'lock')
     month  = data.get('month', '2026-06')
     if action == 'unlock':
         return jsonify(db.ds04_unlock_month(month))
-    return jsonify(db.ds04_lock_month(month, data.get('locked_by', '')))
+    # locked_by 一律取登入身分，不採客戶端送的值（否則可冒名鎖定）
+    who = (_auth_user() or {}).get('username', '')
+    return jsonify(db.ds04_lock_month(month, who))
 
 @app.route('/api/eolr-settings', methods=['GET'])
 def get_eolr_settings():
